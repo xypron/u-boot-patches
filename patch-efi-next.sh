@@ -18,7 +18,6 @@ git am ../patch/0001-fs-fat-avoid-superfluous-conversion-calling-set_clus.patch
 git am ../patch/0001-wandboard-remove-superfluous-include.patch
 git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
-git am ../patch/0001-i2c-lpi2c-remove-superfluous-assignments.patch
 git am ../patch/0001-drivers-power-max77693-remove-redundant-logical-cons.patch
 git am ../patch/0001-regulator-pbias-don-t-evaluate-variable-before-assig.patch
 git am ../patch/0001-driver-ram-rockchip-rk3399-missing-counter-increment.patch
