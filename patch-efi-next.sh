@@ -65,6 +65,9 @@ git am ../patch/0001-efi_loader-use-__always_inline-for-pixel-conversion.patch
 git am ../patch/0001-efi_loader-RestoreTPL-should-execute-queued-events.patch
 git am ../patch/0001-efi_loader-use-TPL_NOTIFY-for-network-timer-event.patch
 
+# Loaded image information
+git am ../patch/0001-efi_loader-used-efi_uintn_t-for-LoadImage.patch
+
 exit
 # From Simon's Sandbox support series
 git am ../patch/0001-sandbox-set-available-memory-address.patch
