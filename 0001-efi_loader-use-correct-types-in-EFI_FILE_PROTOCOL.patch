@@ -1,0 +1,180 @@
+From f7c0482b2c3399abc345bb6023273b31b2c946ee Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 28 Mar 2018 23:54:48 +0200
+Subject: [PATCH 1/1] efi_loader: use correct types in EFI_FILE_PROTOCOL
+
+In the EFI_FILE_PROTOCOL buffer sizes and positions are passed as UINTN and
+not as u64.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h             | 14 +++++++------
+ lib/efi_loader/efi_boottime.c |  5 +++--
+ lib/efi_loader/efi_file.c     | 47 ++++++++++++++++++++++++++++++++-----------
+ 3 files changed, 46 insertions(+), 20 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index f138fc90ec..741fd1f550 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -835,17 +835,19 @@ struct efi_file_handle {
+ 	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
+ 	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
+ 	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
+-			u64 *buffer_size, void *buffer);
++			efi_uintn_t *buffer_size, void *buffer);
+ 	efi_status_t (EFIAPI *write)(struct efi_file_handle *file,
+-			u64 *buffer_size, void *buffer);
++			efi_uintn_t *buffer_size, void *buffer);
+ 	efi_status_t (EFIAPI *getpos)(struct efi_file_handle *file,
+-			u64 *pos);
++			efi_uintn_t *pos);
+ 	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
+-			u64 pos);
++			efi_uintn_t pos);
+ 	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
+-			efi_guid_t *info_type, u64 *buffer_size, void *buffer);
++			efi_guid_t *info_type, efi_uintn_t *buffer_size,
++			void *buffer);
+ 	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
+-			efi_guid_t *info_type, u64 buffer_size, void *buffer);
++			efi_guid_t *info_type, efi_uintn_t buffer_size,
++			void *buffer);
+ 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
+ };
+ 
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index d15a131e74..7a9449f59c 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1513,7 +1513,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 	struct efi_file_info *info = NULL;
+ 	struct efi_file_handle *f;
+ 	static efi_status_t ret;
+-	uint64_t bs;
++	efi_uintn_t bs;
+ 
+ 	f = efi_file_from_path(file_path);
+ 	if (!f)
+@@ -1534,7 +1534,8 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 	if (ret)
+ 		goto error;
+ 
+-	EFI_CALL(ret = f->read(f, &info->file_size, *buffer));
++	bs = info->file_size;
++	EFI_CALL(ret = f->read(f, &bs, *buffer));
+ 
+ error:
+ 	free(info);
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 52a4e7438e..1e2751f7cf 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -314,29 +314,41 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+ }
+ 
+ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
+-		u64 *buffer_size, void *buffer)
++					 efi_uintn_t *buffer_size, void *buffer)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
++	u64 bs;
+ 
+ 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
+ 
++	if (!buffer_size || ! buffer) {
++		ret = EFI_INVALID_PARAMETER;
++		goto error;
++	}
++
+ 	if (set_blk_dev(fh)) {
+ 		ret = EFI_DEVICE_ERROR;
+ 		goto error;
+ 	}
+ 
++	bs = *buffer_size;
+ 	if (fh->isdir)
+-		ret = dir_read(fh, buffer_size, buffer);
++		ret = dir_read(fh, &bs, buffer);
+ 	else
+-		ret = file_read(fh, buffer_size, buffer);
++		ret = file_read(fh, &bs, buffer);
++	if (bs <= SIZE_MAX)
++		*buffer_size = bs;
++	else
++		*buffer_size = SIZE_MAX;
+ 
+ error:
+ 	return EFI_EXIT(ret);
+ }
+ 
+ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
+-		u64 *buffer_size, void *buffer)
++					  efi_uintn_t *buffer_size,
++					  void *buffer)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+@@ -363,21 +375,27 @@ error:
+ }
+ 
+ static efi_status_t EFIAPI efi_file_getpos(struct efi_file_handle *file,
+-		u64 *pos)
++					   efi_uintn_t *pos)
+ {
+ 	struct file_handle *fh = to_fh(file);
++
+ 	EFI_ENTRY("%p, %p", file, pos);
+-	*pos = fh->offset;
+-	return EFI_EXIT(EFI_SUCCESS);
++
++	if (fh->offset <= SIZE_MAX) {
++		*pos = fh->offset;
++		return EFI_EXIT(EFI_SUCCESS);
++	} else {
++		return EFI_EXIT(EFI_DEVICE_ERROR);
++	}
+ }
+ 
+ static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
+-		u64 pos)
++		efi_uintn_t pos)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	EFI_ENTRY("%p, %llu", file, pos);
++	EFI_ENTRY("%p, %zu", file, pos);
+ 
+ 	if (fh->isdir) {
+ 		if (pos != 0) {
+@@ -411,7 +429,9 @@ error:
+ }
+ 
+ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+-		efi_guid_t *info_type, u64 *buffer_size, void *buffer)
++					    efi_guid_t *info_type,
++					    efi_uintn_t *buffer_size,
++					    void *buffer)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+@@ -461,9 +481,12 @@ error:
+ }
+ 
+ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
+-		efi_guid_t *info_type, u64 buffer_size, void *buffer)
++					    efi_guid_t *info_type,
++					    efi_uintn_t buffer_size,
++					    void *buffer)
+ {
+-	EFI_ENTRY("%p, %p, %llu, %p", file, info_type, buffer_size, buffer);
++	EFI_ENTRY("%p, %p, %zu, %p", file, info_type, buffer_size, buffer);
++
+ 	return EFI_EXIT(EFI_UNSUPPORTED);
+ }
+ 
+-- 
+2.14.2
+

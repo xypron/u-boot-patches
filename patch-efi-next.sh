@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-use-TPL_NOTIFY-for-network-timer-event.patch
 
 # Loaded image information
 git am ../patch/0001-efi_loader-used-efi_uintn_t-for-LoadImage.patch
+git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 
 exit
 # From Simon's Sandbox support series
