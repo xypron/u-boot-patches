@@ -1,0 +1,32 @@
+From 073f435399f353e58a20c2822e36510c0e16cbb0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 29 Mar 2018 11:15:10 +0200
+Subject: [PATCH 1/1] efi_loader: correct types for EFI_LOADED_IMAGE_PROTOCOL
+
+We should not use void * but specific types for
+* device_handle
+* file_path
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 28de93a132..50032ab1b7 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -318,8 +318,8 @@ struct efi_loaded_image {
+ 	u32 revision;
+ 	void *parent_handle;
+ 	struct efi_system_table *system_table;
+-	void *device_handle;
+-	void *file_path;
++	efi_handle_t device_handle;
++	struct efi_device_path *file_path;
+ 	void *reserved;
+ 	u32 load_options_size;
+ 	void *load_options;
+-- 
+2.16.2
+
