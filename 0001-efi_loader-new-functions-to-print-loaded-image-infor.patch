@@ -52,7 +52,7 @@ index 07251693cb..5d61f120a8 100644
 + * Print information about a loaded image.
 + *
 + * If the program counter is located within the image the offset to the base
-i+ * address is shown.
++ * address is shown.
 + *
 + * @image:	loaded image
 + * @pc:		program counter (use NULL to suppress offset output)
