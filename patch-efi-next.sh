@@ -71,6 +71,8 @@ git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-correctly-set-ImageBase-for-loaded-image.patch
 git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
 git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
+git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
+git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 
 exit
 # From Simon's Sandbox support series

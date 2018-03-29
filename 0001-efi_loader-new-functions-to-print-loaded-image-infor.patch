@@ -1,0 +1,82 @@
+From 97585e171e3ea7c8162616d818610cff81ad4a77 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 29 Mar 2018 12:14:19 +0200
+Subject: [PATCH 1/1] efi_loader: new functions to print loaded image
+ information
+
+Introduce functions to print information about loaded images.
+
+If we want to analyze an exception in an EFI image we need the offset
+between the PC and the start of the loaded image.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h              |  4 ++++
+ lib/efi_loader/efi_image_loader.c | 36 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 0df482ee21..8abe61b8c5 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -306,6 +306,10 @@ efi_status_t efi_setup_loaded_image(
+ 			struct efi_device_path *file_path);
+ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 				      void **buffer);
++/* Print information about a loaded image */
++efi_status_t efi_print_image_info(struct efi_loaded_image *image);
++/* Print information about all loaded images */
++void efi_print_image_infos(void);
+ 
+ #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+ extern void *efi_bounce_buffer;
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 07251693cb..3d7978eb59 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -22,6 +22,42 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
+ 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+ const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
+ 
++/*
++ * Print information about a loaded image.
++ *
++ * @image:	loaded image
++ * @return:	status code
++ */
++efi_status_t efi_print_image_info(struct efi_loaded_image *image)
++{
++	if (!image)
++		return EFI_INVALID_PARAMETER;
++	printf("UEFI image\nstart 0x%p, size 0x%llx\n",
++	       image->image_base, image->image_size);
++	if (image->file_path)
++		printf("%pD\n", image->file_path);
++	return EFI_SUCCESS;
++}
++
++/*
++ * Print information about all loaded images.
++ */
++void efi_print_image_infos(void)
++{
++	struct efi_object *efiobj;
++	struct efi_handler *handler;
++
++	list_for_each_entry(efiobj, &efi_obj_list, link) {
++		list_for_each_entry(handler, &efiobj->protocols, link) {
++			if (!guidcmp(handler->guid, &efi_guid_loaded_image)) {
++				printf("\n");
++				efi_print_image_info(
++					handler->protocol_interface);
++			}
++		}
++	}
++}
++
+ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
+ 			unsigned long rel_size, void *efi_reloc)
+ {
+-- 
+2.16.2
+
