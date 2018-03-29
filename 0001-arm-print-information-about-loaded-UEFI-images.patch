@@ -1,10 +1,21 @@
-From 935c499bf5a2dfafc4d77bd3cd94b902d2e50a8f Mon Sep 17 00:00:00 2001
+From 7a5ec88733a361610db660116958ec6d0b8e6cad Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 12:35:50 +0200
 Subject: [PATCH 1/1] arm: print information about loaded UEFI images
 
-If an exception occurs in an UEFI loaded image we need the start address
-of the image to determine the relocation offset.
+If an exception occurs in a UEFI loaded image we need the start address of
+the image to determine the relocation offset.
+
+This patch adds the necessary lines after the registers in the crash dump.
+A possible output would be:
+
+UEFI image
+start 0x7fdb4000, size 0xa7b60
+pc offset 0x72ca
+/\snp.efi
+
+With the offset 0x72ca we can now find the relevant instruction in the
+disassembled 'snp.efi' binary.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -12,7 +23,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 17 insertions(+)
 
 diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
-index 80869adb61..75e3ad58d0 100644
+index 80869adb61..a28fef8f46 100644
 --- a/arch/arm/lib/interrupts.c
 +++ b/arch/arm/lib/interrupts.c
 @@ -20,6 +20,7 @@
@@ -27,7 +38,7 @@ index 80869adb61..75e3ad58d0 100644
  	reset_cpu (0);
  }
  
-+static void show_efi_loaded_images(struct pt_regs *pt_regs)
++static void show_efi_loaded_images(struct pt_regs *regs)
 +{
 +#if defined(CONFIG_EFI_LOADER) && \
 +	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
@@ -102,5 +113,5 @@ index 80869adb61..75e3ad58d0 100644
  	bad_mode ();
  }
 -- 
-2.14.2
+2.11.0
 
