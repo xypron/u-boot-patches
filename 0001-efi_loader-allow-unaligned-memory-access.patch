@@ -1,0 +1,70 @@
+From 31b737d52303244f8d3d9c0f3ed1f6945e78d803 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Mar 2018 03:28:18 +0200
+Subject: [PATCH 1/1] efi_loader: allow unaligned memory access
+
+The UEFI spec mandates that unaligned memory access should be enabled if
+supported by the CPU architecture.
+
+This patch adds an empty weak function unaligned_access() that can be
+overridden by an architecture specific routine.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                   | 13 +++++++++++++
+ include/asm-generic/unaligned.h |  3 +++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index ba258ac9f3..412e6519ba 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -18,6 +18,7 @@
+ #include <memalign.h>
+ #include <asm/global_data.h>
+ #include <asm-generic/sections.h>
++#include <asm-generic/unaligned.h>
+ #include <linux/linkage.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -89,6 +90,15 @@ out:
+ 	return ret;
+ }
+ 
++/*
++ * Allow unaligned memory access.
++ *
++ * This routine is overridden by architectures providing this feature.
++ */
++void __weak allow_unaligned(void)
++{
++}
++
+ /*
+  * Set the load options of an image from an environment variable.
+  *
+@@ -351,6 +361,9 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	efi_status_t r;
+ 	void *fdt_addr;
+ 
++	/* Allow unaligned memory access */
++	allow_unaligned();
++
+ 	/* Initialize EFI drivers */
+ 	r = efi_init_obj_list();
+ 	if (r != EFI_SUCCESS) {
+diff --git a/include/asm-generic/unaligned.h b/include/asm-generic/unaligned.h
+index fd0255099a..3d33a5a063 100644
+--- a/include/asm-generic/unaligned.h
++++ b/include/asm-generic/unaligned.h
+@@ -20,4 +20,7 @@
+ #error invalid endian
+ #endif
+ 
++/* Allow unaligned memory access */
++void allow_unaligned(void);
++
+ #endif
+-- 
+2.16.2
+

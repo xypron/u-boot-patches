@@ -1,0 +1,67 @@
+From a28ee7af1c895a478e4945e65f091e0a1ac76092 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Mar 2018 03:28:18 +0200
+Subject: [PATCH 1/1] arm: armv7: allow unaligned memory access
+
+The UEFI spec mandates that unaligned memory access should be enabled if
+supported by the CPU architecture.
+
+This patch implements the function unaligned_access() to reset the aligned
+access flag in the system control register (SCTLR). It is called when the
+bootefi command is invoked.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/cpu/armv7/Makefile |  4 ++++
+ arch/arm/cpu/armv7/sctlr.S  | 24 ++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+)
+ create mode 100644 arch/arm/cpu/armv7/sctlr.S
+
+diff --git a/arch/arm/cpu/armv7/Makefile b/arch/arm/cpu/armv7/Makefile
+index b14ee54519..83911d2dc6 100644
+--- a/arch/arm/cpu/armv7/Makefile
++++ b/arch/arm/cpu/armv7/Makefile
+@@ -12,6 +12,10 @@ obj-y	+= cache_v7.o cache_v7_asm.o
+ obj-y	+= cpu.o cp15.o
+ obj-y	+= syslib.o
+ 
++ifneq ($(CONFIG_SPL_BUILD),y)
++obj-(CONFIG_EFI_LOADER) += sctlr.o
++endif
++
+ ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
+ obj-y	+= lowlevel_init.o
+ endif
+diff --git a/arch/arm/cpu/armv7/sctlr.S b/arch/arm/cpu/armv7/sctlr.S
+new file mode 100644
+index 0000000000..cd078dd95d
+--- /dev/null
++++ b/arch/arm/cpu/armv7/sctlr.S
+@@ -0,0 +1,24 @@
++/*
++ *  Routines to access the system control register
++ *
++ *  Copyright (c) 2018 Heinrich Schuchardt
++ *
++ *  SPDX-License-Identifier:     GPL-2.0+
++ */
++
++#include <linux/linkage.h>
++
++/*
++ * void allow_unaligned(void) - allow unaligned access
++ *
++ * This routine clears the aligned flag in the system control register.
++ * After calling this routine unaligned access does no longer lead to a
++ * data abort but is handled by the CPU.
++ */
++ENTRY(allow_unaligned)
++	push	{lr}
++	mrc	p15, 0, r0, c1, c0, 0	@ load system control register
++	bic	r0, r0, #2		@ clear aligned flag
++	mcr	p15, 0, r0, c1, c0, 0	@ write system control register
++	pop	{pc}
++ENDPROC(allow_unaligned)
+-- 
+2.16.2
+
