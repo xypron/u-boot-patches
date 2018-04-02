@@ -1,4 +1,4 @@
-From fcebce0b102bb384840f0ade9a4ae1ceecba8d4f Mon Sep 17 00:00:00 2001
+From 1b4dcee3119f32449e010225cfb8b8b5fce13281 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 2 Apr 2018 19:33:34 +0200
 Subject: [PATCH 1/1] ARM: vexpress: fdtfile, fdt_addr_r for vexpress_ca15_tc2
@@ -8,24 +8,24 @@ Versatile Express V2P-CA15-CA7 (TC2).
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/configs/vexpress_ca15_tc2.h | 1 +
+ configs/vexpress_ca15_tc2_defconfig | 1 +
  include/configs/vexpress_common.h   | 9 ++++++---
  2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/include/configs/vexpress_ca15_tc2.h b/include/configs/vexpress_ca15_tc2.h
-index b509a9cfd4..3e44e84e4f 100644
---- a/include/configs/vexpress_ca15_tc2.h
-+++ b/include/configs/vexpress_ca15_tc2.h
-@@ -11,6 +11,7 @@
- #ifndef __VEXPRESS_CA15X2_TC2_h
- #define __VEXPRESS_CA15X2_TC2_h
- 
-+#define VEXPRESS_FDTFILE_SETTINGS "fdtfile=vexpress-v2p-ca15_a7.dtb\0"
- #define CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP
- #include "vexpress_common.h"
- 
+diff --git a/configs/vexpress_ca15_tc2_defconfig b/configs/vexpress_ca15_tc2_defconfig
+index f04aa7c104..7009b253c5 100644
+--- a/configs/vexpress_ca15_tc2_defconfig
++++ b/configs/vexpress_ca15_tc2_defconfig
+@@ -4,6 +4,7 @@ CONFIG_SYS_TEXT_BASE=0x80800000
+ CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_BOOTCOMMAND="run distro_bootcmd; run bootflash"
++CONFIG_DEFAULT_FDT_FILE="vexpress-v2p-ca15_a7.dtb"
+ # CONFIG_DISPLAY_CPUINFO is not set
+ # CONFIG_DISPLAY_BOARDINFO is not set
+ # CONFIG_CMD_CONSOLE is not set
 diff --git a/include/configs/vexpress_common.h b/include/configs/vexpress_common.h
-index 3e2d410f14..bb1e9038e6 100644
+index 3e2d410f14..b3ca9af70a 100644
 --- a/include/configs/vexpress_common.h
 +++ b/include/configs/vexpress_common.h
 @@ -178,7 +178,8 @@
@@ -54,7 +54,7 @@ index 3e2d410f14..bb1e9038e6 100644
  			"cp ${ramdisk_addr} ${ramdisk_addr_r} ${maxramdisk}; " \
 -			"bootm ${kernel_addr} ${ramdisk_addr_r}\0"
 +			"bootm ${kernel_addr} ${ramdisk_addr_r}\0" \
-+		VEXPRESS_FDTFILE_SETTINGS
++		"fdtfile=" CONFIG_DEFAULT_FDT_FILE "\0"
  
  /* FLASH and environment organization */
  #define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
