@@ -1,4 +1,4 @@
-From 99cac56359f0522cbc0f8f4cc85e7bd7ca28363d Mon Sep 17 00:00:00 2001
+From cb206fa5d9af7a1d2b01fd644649c4a2a9ed004d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Mar 2018 13:14:11 +0200
 Subject: [PATCH 1/1] efi_selftest: test unaligned memory access
@@ -8,27 +8,37 @@ CPUs supporting it.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/Makefile                 |  2 ++
+ lib/efi_selftest/Makefile                 |  5 ++-
  lib/efi_selftest/efi_selftest_unaligned.c | 53 +++++++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ 2 files changed, 57 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_selftest/efi_selftest_unaligned.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index c4bdbdf6c0..3e111c5788 100644
+index 31b444fc8b..240fa455ef 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
-@@ -27,6 +27,8 @@ efi_selftest_tpl.o \
+@@ -12,7 +12,8 @@ CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI) -Os
+ CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
+ 
+-obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
++ifeq ($(CONFIG_CMD_BOOTEFI_SELFTEST),y)
++obj-y += \
+ efi_selftest.o \
+ efi_selftest_bitblt.o \
+ efi_selftest_controllers.o \
+@@ -30,6 +31,8 @@ efi_selftest_textoutput.o \
+ efi_selftest_tpl.o \
  efi_selftest_util.o \
  efi_selftest_watchdog.o
- 
 +obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
-+
++endif
+ 
  ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
  obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += efi_selftest_block_device.o
- endif
 diff --git a/lib/efi_selftest/efi_selftest_unaligned.c b/lib/efi_selftest/efi_selftest_unaligned.c
 new file mode 100644
-index 0000000000..52030a63c1
+index 0000000000..5673937e77
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unaligned.c
 @@ -0,0 +1,53 @@
