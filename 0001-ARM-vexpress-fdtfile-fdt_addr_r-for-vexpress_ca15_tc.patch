@@ -1,0 +1,63 @@
+From fcebce0b102bb384840f0ade9a4ae1ceecba8d4f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 2 Apr 2018 19:33:34 +0200
+Subject: [PATCH 1/1] ARM: vexpress: fdtfile, fdt_addr_r for vexpress_ca15_tc2
+
+Provide environment values for fdtfile and fdt_addr_r for the
+Versatile Express V2P-CA15-CA7 (TC2).
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/configs/vexpress_ca15_tc2.h | 1 +
+ include/configs/vexpress_common.h   | 9 ++++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/vexpress_ca15_tc2.h b/include/configs/vexpress_ca15_tc2.h
+index b509a9cfd4..3e44e84e4f 100644
+--- a/include/configs/vexpress_ca15_tc2.h
++++ b/include/configs/vexpress_ca15_tc2.h
+@@ -11,6 +11,7 @@
+ #ifndef __VEXPRESS_CA15X2_TC2_h
+ #define __VEXPRESS_CA15X2_TC2_h
+ 
++#define VEXPRESS_FDTFILE_SETTINGS "fdtfile=vexpress-v2p-ca15_a7.dtb\0"
+ #define CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP
+ #include "vexpress_common.h"
+ 
+diff --git a/include/configs/vexpress_common.h b/include/configs/vexpress_common.h
+index 3e2d410f14..bb1e9038e6 100644
+--- a/include/configs/vexpress_common.h
++++ b/include/configs/vexpress_common.h
+@@ -178,7 +178,8 @@
+ #ifdef CONFIG_VEXPRESS_ORIGINAL_MEMORY_MAP
+ #define CONFIG_PLATFORM_ENV_SETTINGS \
+ 		"loadaddr=0x80008000\0" \
+-		"ramdisk_addr_r=0x61000000\0" \
++		"fdt_addr_r=0x61000000\0" \
++		"ramdisk_addr_r=0x61800000\0" \
+ 		"kernel_addr=0x44100000\0" \
+ 		"ramdisk_addr=0x44800000\0" \
+ 		"maxramdisk=0x1800000\0" \
+@@ -188,7 +189,8 @@
+ #elif defined(CONFIG_VEXPRESS_EXTENDED_MEMORY_MAP)
+ #define CONFIG_PLATFORM_ENV_SETTINGS \
+ 		"loadaddr=0xa0008000\0" \
+-		"ramdisk_addr_r=0x81000000\0" \
++		"fdt_addr_r=0x81000000\0" \
++		"ramdisk_addr_r=0x81800000\0" \
+ 		"kernel_addr=0x0c100000\0" \
+ 		"ramdisk_addr=0x0c800000\0" \
+ 		"maxramdisk=0x1800000\0" \
+@@ -209,7 +211,8 @@
+ 			"devtmpfs.mount=0  vmalloc=256M\0" \
+ 		"bootflash=run flashargs; " \
+ 			"cp ${ramdisk_addr} ${ramdisk_addr_r} ${maxramdisk}; " \
+-			"bootm ${kernel_addr} ${ramdisk_addr_r}\0"
++			"bootm ${kernel_addr} ${ramdisk_addr_r}\0" \
++		VEXPRESS_FDTFILE_SETTINGS
+ 
+ /* FLASH and environment organization */
+ #define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
+-- 
+2.16.2
+
