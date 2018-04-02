@@ -20,14 +20,12 @@ git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
 git am ../patch/0001-drivers-power-max77693-remove-redundant-logical-cons.patch
 git am ../patch/0001-regulator-pbias-don-t-evaluate-variable-before-assig.patch
-git am ../patch/0001-driver-ram-rockchip-rk3399-missing-counter-increment.patch
 git am ../patch/0001-spi-atcspi200-avoid-NULL-dereference.patch
 git am ../patch/0001-spi-fsl_qspi-remove-superfluous-assignment.patch
 git am ../patch/0001-spi-lpc32xx-simplify-logical-expression.patch
 git am ../patch/0001-usb-dwc3-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-gadget-remove-duplicate-assignment.patch
 git am ../patch/0001-usb-f_mass_storage-simplify-logical-expression.patch
-git am ../patch/0001-usb-rockchip-remove-duplicate-assignement.patch
 git am ../patch/0001-usb-sl811-hcd-remove-duplicate-assignment.patch
 git am ../patch/0001-usb-xhci-exynos5-correct-error-checking.patch
 git am ../patch/0001-usb-xhci-keystone-remove-superfluous-assignment.patch
@@ -35,8 +33,6 @@ git am ../patch/0001-usb-xhci-ring-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-new-misplaced-out-of-bounds-check.patch
-git am ../patch/0001-video-rk3399_mipi-correct-error-checking.patch
-git am ../patch/0001-video-rk3288_mipi-check-in-rk_mipi_ofdata_to_platdat.patch
 git am ../patch/0001-usb-ehci-faraday-remove-unused-driver.patch
 git am ../patch/0001-usb-ehci-hcd-eliminate-tweaks-used-for-faraday.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
@@ -78,6 +74,9 @@ git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
 git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
 git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
+
+# Network
+git am ../patch/0001-efi_loader-completely-initialize-network.patch
 
 exit
 # From Simon's Sandbox support series
