@@ -69,7 +69,6 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
 # Loaded image information
 git am ../patch/0001-efi_loader-used-efi_uintn_t-for-LoadImage.patch
-git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-correctly-set-ImageBase-for-loaded-image.patch
 git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
 git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
@@ -78,6 +77,10 @@ git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 
 # Network
 git am ../patch/0001-efi_loader-completely-initialize-network.patch
+
+# File system
+git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
+git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
 
 exit
 # From Simon's Sandbox support series
