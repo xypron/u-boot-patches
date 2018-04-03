@@ -1,7 +1,7 @@
-From 42c3d0625d9cf2329ffd48de5e668a544bc11b4a Mon Sep 17 00:00:00 2001
+From 4e2f615eddc1b1ba486fe0cfa6151467418b94a4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Mar 2018 13:14:11 +0200
-Subject: [PATCH 1/1] efi_selftest: test unaligned memory access
+Subject: [PATCH v2 3/3] efi_selftest: test unaligned memory access
 
 According to the UEFI spec unaligned memory access should be enabled on
 CPUs supporting it.
@@ -33,7 +33,7 @@ new file mode 100644
 index 0000000000..531eefffd4
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unaligned.c
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,67 @@
 +/*
 + * efi_selftest_unaligned
 + *
@@ -61,10 +61,11 @@ index 0000000000..531eefffd4
 +static inline u32 deref(u32 *addr)
 +{
 +	int ret;
++
 +	asm(
 +		"ldr %[out], [%[in]]\n\t"
 +		: [out] "=r" (ret)
-+		: [in]"r" (addr)
++		: [in] "r" (addr)
 +	);
 +	return ret;
 +}
@@ -101,5 +102,5 @@ index 0000000000..531eefffd4
 +	.execute = execute,
 +};
 -- 
-2.14.2
+2.16.3
 
