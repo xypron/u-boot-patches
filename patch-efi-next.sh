@@ -64,7 +64,6 @@ git am ../patch/0001-efi_loader-Optimize-GOP-switch.patch
 git am ../patch/0001-efi_loader-Optimize-GOP-more.patch
 git am ../patch/0001-efi_loader-use-__always_inline-for-pixel-conversion.patch
 
-
 # Unaligned access
 git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
@@ -84,6 +83,8 @@ git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 # File system
 git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
+
+# bootefi
 git am ../patch/0001-efi_loader-correctly-determine-the-boot-partition.patch
 
 exit

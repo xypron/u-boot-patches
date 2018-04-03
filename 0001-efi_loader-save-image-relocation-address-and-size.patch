@@ -1,19 +1,24 @@
-From 08ffa57d4a570bdf654da7c4d14792eacdf4792e Mon Sep 17 00:00:00 2001
+From bcdb22067d51df339b47922b9e078d973748252a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Apr 2018 08:22:22 +0200
-Subject: [PATCH 1/1] efi_loader: save image relocation address and size
+Subject: [PATCH v2 2/6] efi_loader: save image relocation address and size
 
 For analyzing crash output the relocation address and size are needed.
 Save them in the loaded image info.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	GRUB does not allow the relocated address to be used as ImageBase
+	in the loaded image information. So the relocation address has to
+	be stored in an additional field.
+---
  include/efi_api.h                 | 2 ++
  lib/efi_loader/efi_image_loader.c | 3 +++
  2 files changed, 5 insertions(+)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 9fd25a3491..16da736113 100644
+index f138fc90ec..ca8e7849ff 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -331,6 +331,8 @@ struct efi_loaded_image {
@@ -26,18 +31,10 @@ index 9fd25a3491..16da736113 100644
  	struct jmp_buf_data exit_jmp;
  #endif
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 0cca4361ea..357fff29ef 100644
+index cac64ba9fe..7f602bbf4c 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
-@@ -180,6 +180,7 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
- 	can_run_nt64 = false;
- #endif
- 
-+
- 	dos = efi;
- 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
- 		printf("%s: Invalid DOS Signature\n", __func__);
-@@ -268,6 +269,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
+@@ -221,6 +222,8 @@ void *efi_load_pe(void *efi, struct efi_loaded_image *loaded_image_info)
  	/* Populate the loaded image interface bits */
  	loaded_image_info->image_base = efi;
  	loaded_image_info->image_size = image_size;
@@ -47,5 +44,5 @@ index 0cca4361ea..357fff29ef 100644
  	return entry;
  }
 -- 
-2.14.2
+2.16.3
 
