@@ -70,6 +70,9 @@ git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
 git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
+# Network
+git am ../patch/0001-efi_loader-completely-initialize-network.patch
+
 # Loaded image information
 git am ../patch/0001-efi_loader-use-efi_uintn_t-for-LoadImage.patch
 git am ../patch/0001-efi_loader-save-image-relocation-address-and-size.patch
@@ -77,9 +80,6 @@ git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
 git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
 git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
-
-# Network
-git am ../patch/0001-efi_loader-completely-initialize-network.patch
 
 # File system
 git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
