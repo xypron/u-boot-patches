@@ -1,4 +1,4 @@
-From 4b8a315649a6f2baf13e38859ac5278803cfb8dd Mon Sep 17 00:00:00 2001
+From 124f67f642f031e7afbcebe4b1ea8bdceafebb96 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Mar 2018 13:14:11 +0200
 Subject: [PATCH 1/1] efi_selftest: test unaligned memory access
@@ -8,32 +8,32 @@ CPUs supporting it.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/Makefile                 |  3 ++
- lib/efi_selftest/efi_selftest_unaligned.c | 53 +++++++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+)
+ lib/efi_selftest/Makefile                 |  4 +++
+ lib/efi_selftest/efi_selftest_unaligned.c | 57 +++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_unaligned.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 31b444fc8b..6176892fec 100644
+index 31b444fc8b..2ca58cebe4 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
-@@ -30,6 +30,10 @@ efi_selftest_textoutput.o \
- efi_selftest_tpl.o \
+@@ -31,6 +31,10 @@ efi_selftest_tpl.o \
  efi_selftest_util.o \
  efi_selftest_watchdog.o
-+
+ 
 +ifeq ($(CONFIG_CMD_BOOTEFI_SELFTEST),y)
 +obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
 +endif
- 
++
  ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
  obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += efi_selftest_block_device.o
+ endif
 diff --git a/lib/efi_selftest/efi_selftest_unaligned.c b/lib/efi_selftest/efi_selftest_unaligned.c
 new file mode 100644
-index 0000000000..5673937e77
+index 0000000000..6b81fc8a0b
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unaligned.c
-@@ -0,0 +1,53 @@
+@@ -0,0 +1,57 @@
 +/*
 + * efi_selftest_unaligned
 + *
@@ -50,6 +50,18 @@ index 0000000000..5673937e77
 +	char a[8] __aligned(8);
 +};
 +
++static inline u32 deref(u32 *addr)
++{
++	int ret;
++	asm(
++		"ldr %[out], [%[in], #1]\n\t"
++		: [out] "=r" (ret)
++		: [in]"r" (addr)
++		:
++	);
++	return ret;
++}
++
 +/*
 + * Execute unit test.
 + *
@@ -60,21 +72,13 @@ index 0000000000..5673937e77
 +	struct aligned_buffer buf = {
 +		{0, 1, 2, 3, 4, 5, 6, 7},
 +		};
-+	u16 s = 0;
-+	u16 *sp;
-+	void *v;
-+	u32 w = 0;
-+	u32 *wp;
++	void *v = &buf;
++	u32 r = 0;
 +
-+	v = &buf.a[1];
-+	sp = v;
-+	wp = v;
-+
-+	s = *sp;
-+	w = *wp;
++	r = deref(v);
 +
 +	/* UEFI only supports low endian systems */
-+	if (s != 0x0201 || w != 0x04030201) {
++	if (r != 0x04030201) {
 +		efi_st_error("Unaligned access failed");
 +		return EFI_ST_FAILURE;
 +	}
@@ -88,5 +92,5 @@ index 0000000000..5673937e77
 +	.execute = execute,
 +};
 -- 
-2.16.2
+2.14.2
 
