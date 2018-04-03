@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# essential patches
+git am ../patch/0001-mmc-avoid-division-by-zero-in-meson_mmc_config_clock.patch
+
+# Events
+git am ../patch/0001-efi_loader-RestoreTPL-should-execute-queued-events.patch
+git am ../patch/0001-efi_loader-use-TPL_NOTIFY-for-network-timer-event.patch
+
 # git am ../patch/0001-Test-vexpress-only.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
@@ -12,7 +19,6 @@ git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
 git am ../patch/0001-ubifs-avoid-possible-NULL-dereference.patch
-git am ../patch/0001-mmc-avoid-division-by-zero-in-meson_mmc_config_clock.patch
 git am ../patch/0001-fs-fat-avoid-useless-conversion-when-calling-get_clu.patch
 git am ../patch/0001-fs-fat-avoid-superfluous-conversion-calling-set_clus.patch
 git am ../patch/0001-wandboard-remove-superfluous-include.patch
@@ -58,9 +64,6 @@ git am ../patch/0001-efi_loader-Optimize-GOP-switch.patch
 git am ../patch/0001-efi_loader-Optimize-GOP-more.patch
 git am ../patch/0001-efi_loader-use-__always_inline-for-pixel-conversion.patch
 
-# Events
-git am ../patch/0001-efi_loader-RestoreTPL-should-execute-queued-events.patch
-git am ../patch/0001-efi_loader-use-TPL_NOTIFY-for-network-timer-event.patch
 
 # Unaligned access
 git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
@@ -69,7 +72,7 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
 # Loaded image information
 git am ../patch/0001-efi_loader-use-efi_uintn_t-for-LoadImage.patch
-git am ../patch/0001-efi_loader-correctly-set-ImageBase-for-loaded-image.patch
+# git am ../patch/0001-efi_loader-correctly-set-ImageBase-for-loaded-image.patch
 git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
 git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
 git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
