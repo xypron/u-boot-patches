@@ -63,10 +63,10 @@ index 07251693cb..5d61f120a8 100644
 +	if (!image)
 +		return EFI_INVALID_PARAMETER;
 +	printf("UEFI image\nstart 0x%p, size 0x%llx\n",
-+	       image->image_base, image->image_size);
-+	if (pc && pc >= image->image_base &&
-+	    pc < image->image_base + image->image_size)
-+		printf("pc offset 0x%zx\n", pc - image->image_base);
++	       image->reloc_base, image->reloc_size);
++	if (pc && pc >= image->reloc_base &&
++	    pc < image->reloc_base + image->reloc_size)
++		printf("pc offset 0x%zx\n", pc - image->reloc_base);
 +	if (image->file_path)
 +		printf("%pD\n", image->file_path);
 +	return EFI_SUCCESS;
