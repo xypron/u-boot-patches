@@ -1,7 +1,7 @@
 From 29435b283fffb880aa9adb4920a6d5b4520037c3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 28 Mar 2018 23:06:41 +0200
-Subject: [PATCH 1/1] efi_loader: used efi_uintn_t for LoadImage
+Subject: [PATCH 1/1] efi_loader: use efi_uintn_t for LoadImage
 
 We generally use efi_uintn_t where the UEFI spec uses UINTN.
 
