@@ -1,0 +1,61 @@
+From 85397fab8e8f8fa1e1243f51ccf0c43912348998 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 3 Apr 2018 05:40:43 +0200
+Subject: [PATCH 1/1] efi_loader: correctly determine the boot partition
+
+The device path of the loaded image should be set to the partition
+from which the image was loaded. This requires using the same logic as
+the load command.
+
+Without the patch the device path pointed to the whole disk after executing
+
+	load mmc 0: 0x43000000 FILE
+
+and not to the boot partition from which the file was actually loaded.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 412e6519ba..fd54c9925e 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -487,16 +487,6 @@ U_BOOT_CMD(
+ 	bootefi_help_text
+ );
+ 
+-static int parse_partnum(const char *devnr)
+-{
+-	const char *str = strchr(devnr, ':');
+-	if (str) {
+-		str++;
+-		return simple_strtoul(str, NULL, 16);
+-	}
+-	return 0;
+-}
+-
+ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
+ {
+ 	char filename[32] = { 0 }; /* dp->str is u16[32] long */
+@@ -504,12 +494,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
+ 
+ 	if (strcmp(dev, "Net")) {
+ 		struct blk_desc *desc;
++		disk_partition_t fs_partition;
+ 		int part;
+ 
+-		desc = blk_get_dev(dev, simple_strtol(devnr, NULL, 10));
+-		if (!desc)
++		part = blk_get_device_part_str(dev, devnr, &desc, &fs_partition,
++					       1);
++		if (part < 0)
+ 			return;
+-		part = parse_partnum(devnr);
+ 
+ 		bootefi_device_path = efi_dp_from_part(desc, part);
+ 	} else {
+-- 
+2.14.2
+

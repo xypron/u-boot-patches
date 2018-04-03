@@ -81,6 +81,7 @@ git am ../patch/0001-efi_loader-completely-initialize-network.patch
 # File system
 git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
+git am ../patch/0001-efi_loader-correctly-determine-the-boot-partition.patch
 
 exit
 # From Simon's Sandbox support series
