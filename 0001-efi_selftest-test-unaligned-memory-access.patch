@@ -1,4 +1,4 @@
-From 124f67f642f031e7afbcebe4b1ea8bdceafebb96 Mon Sep 17 00:00:00 2001
+From 42c3d0625d9cf2329ffd48de5e668a544bc11b4a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Mar 2018 13:14:11 +0200
 Subject: [PATCH 1/1] efi_selftest: test unaligned memory access
@@ -8,9 +8,9 @@ CPUs supporting it.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/Makefile                 |  4 +++
- lib/efi_selftest/efi_selftest_unaligned.c | 57 +++++++++++++++++++++++++++++++
- 2 files changed, 61 insertions(+)
+ lib/efi_selftest/Makefile                 |  4 ++
+ lib/efi_selftest/efi_selftest_unaligned.c | 66 +++++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_unaligned.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -30,10 +30,10 @@ index 31b444fc8b..2ca58cebe4 100644
  endif
 diff --git a/lib/efi_selftest/efi_selftest_unaligned.c b/lib/efi_selftest/efi_selftest_unaligned.c
 new file mode 100644
-index 0000000000..6b81fc8a0b
+index 0000000000..531eefffd4
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unaligned.c
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,66 @@
 +/*
 + * efi_selftest_unaligned
 + *
@@ -41,7 +41,7 @@ index 0000000000..6b81fc8a0b
 + *
 + * SPDX-License-Identifier:     GPL-2.0+
 + *
-+ * Test unaligned memory access
++ * Test unaligned memory access on ARMv7.
 + */
 +
 +#include <efi_selftest.h>
@@ -50,20 +50,28 @@ index 0000000000..6b81fc8a0b
 +	char a[8] __aligned(8);
 +};
 +
++/*
++ * Return an u32 at a give address.
++ * If the address is not four byte aligned, an unaligned memory access
++ * occurs.
++ *
++ * @addr:	address to read
++ * @return:	value at the address
++ */
 +static inline u32 deref(u32 *addr)
 +{
 +	int ret;
 +	asm(
-+		"ldr %[out], [%[in], #1]\n\t"
++		"ldr %[out], [%[in]]\n\t"
 +		: [out] "=r" (ret)
 +		: [in]"r" (addr)
-+		:
 +	);
 +	return ret;
 +}
 +
 +/*
 + * Execute unit test.
++ * An unaligned memory access is executed. The result is checked.
 + *
 + * @return:	EFI_ST_SUCCESS for success
 + */
@@ -75,7 +83,8 @@ index 0000000000..6b81fc8a0b
 +	void *v = &buf;
 +	u32 r = 0;
 +
-+	r = deref(v);
++	/* Read an unaligned address */
++	r = deref(v + 1);
 +
 +	/* UEFI only supports low endian systems */
 +	if (r != 0x04030201) {
