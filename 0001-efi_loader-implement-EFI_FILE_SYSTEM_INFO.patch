@@ -1,4 +1,4 @@
-From 216420ce5bebc623cef330b6bcf011d7de43791c Mon Sep 17 00:00:00 2001
+From 4094e4cdf71a6cf82a68ec3b4f84790467d2754a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Apr 2018 02:08:23 +0200
 Subject: [PATCH 1/1] efi_loader: implement EFI_FILE_SYSTEM_INFO
@@ -6,18 +6,21 @@ Subject: [PATCH 1/1] efi_loader: implement EFI_FILE_SYSTEM_INFO
 Implement the information type EFI_FILE_SYSTEM_INFO in the service
 GetInfo() of the EFI_FILE_PROTOCOL.
 
+The volume label is not available in U-Boot. As a work-around use the
+partition name instead.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h         | 13 +++++++++++++
  include/efi_loader.h      |  2 ++
- lib/efi_loader/efi_file.c | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 49 insertions(+)
+ lib/efi_loader/efi_file.c | 38 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 53 insertions(+)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 9dd09f8b2a..9fd25a3491 100644
+index 8af466a6dc..ae93061160 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -866,6 +866,10 @@ struct efi_simple_file_system_protocol {
+@@ -889,6 +889,10 @@ struct efi_simple_file_system_protocol {
  	EFI_GUID(0x9576e92, 0x6d3f, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
  
@@ -28,7 +31,7 @@ index 9dd09f8b2a..9fd25a3491 100644
  #define EFI_FILE_MODE_READ	0x0000000000000001
  #define EFI_FILE_MODE_WRITE	0x0000000000000002
  #define EFI_FILE_MODE_CREATE	0x8000000000000000
-@@ -889,6 +893,15 @@ struct efi_file_info {
+@@ -912,6 +916,15 @@ struct efi_file_info {
  	s16 file_name[0];
  };
  
@@ -45,7 +48,7 @@ index 9dd09f8b2a..9fd25a3491 100644
  	EFI_GUID(0x18a031ab, 0xb443, 0x4d1a,\
  		 0xa5, 0xc0, 0x0c, 0x09, 0x26, 0x1e, 0x9f, 0x71)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index ee553c667f..ab20773947 100644
+index 4badb4b232..b14563bf8d 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -112,6 +112,8 @@ extern const efi_guid_t efi_guid_loaded_image;
@@ -58,7 +61,7 @@ index ee553c667f..ab20773947 100644
  
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 1e2751f7cf..37a999d0b2 100644
+index 2fc77cfb87..cec8347f55 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -12,6 +12,9 @@
@@ -71,7 +74,7 @@ index 1e2751f7cf..37a999d0b2 100644
  struct file_system {
  	struct efi_simple_file_system_protocol base;
  	struct efi_device_path *dp;
-@@ -472,6 +475,37 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+@@ -472,6 +475,41 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
  			info->attribute |= EFI_FILE_DIRECTORY;
  
  		ascii2unicode((u16 *)info->file_name, filename);
@@ -104,11 +107,15 @@ index 1e2751f7cf..37a999d0b2 100644
 +		info->volume_size = part.size * part.blksz;
 +		info->free_space = 0;
 +		info->block_size = part.blksz;
++		/*
++		 * TODO: The volume label is not available in U-Boot.
++		 * Use the partition name as substitute.
++		 */
 +		ascii2unicode((u16 *)info->volume_label,
 +			      (const char *)part.name);
  	} else {
  		ret = EFI_UNSUPPORTED;
  	}
 -- 
-2.14.2
+2.16.3
 

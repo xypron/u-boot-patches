@@ -1,4 +1,4 @@
-From 2429768f4c2e1eba9a8d391a4e52a1b5ff020fdc Mon Sep 17 00:00:00 2001
+From b315efe94e03d08c3d512068535477fd4f87b971 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 4 Apr 2018 13:29:25 +0200
 Subject: [PATCH 1/1] efi_selftest: test getinfo(EFI_FILE_SYSTEM_INFO)
@@ -8,11 +8,11 @@ returns the partion label.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/efi_selftest_block_device.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ lib/efi_selftest/efi_selftest_block_device.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
 diff --git a/lib/efi_selftest/efi_selftest_block_device.c b/lib/efi_selftest/efi_selftest_block_device.c
-index b07b22465f..9262426e56 100644
+index b07b22465f..a8979ed56b 100644
 --- a/lib/efi_selftest/efi_selftest_block_device.c
 +++ b/lib/efi_selftest/efi_selftest_block_device.c
 @@ -29,6 +29,7 @@ static const efi_guid_t block_io_protocol_guid = BLOCK_IO_GUID;
@@ -34,7 +34,7 @@ index b07b22465f..9262426e56 100644
  	efi_uintn_t buf_size;
  	char buf[16] __aligned(ARCH_DMA_MINALIGN);
  
-@@ -356,6 +361,20 @@ static int execute(void)
+@@ -356,6 +361,23 @@ static int execute(void)
  		efi_st_error("Failed to open volume\n");
  		return EFI_ST_FAILURE;
  	}
@@ -45,12 +45,15 @@ index b07b22465f..9262426e56 100644
 +		efi_st_error("Failed to get file system info\n");
 +		return EFI_ST_FAILURE;
 +	}
-+	if (efi_st_strcmp_16_8(system_info.info.volume_label, "U-BOOT TEST")) {
-+		for (i = 0; i < 16; ++i)
-+			efi_st_printf("%u\n", (unsigned int)system_info.info.volume_label[i]);
-+		efi_st_error("Wrong partition label %ps, expected 'U-BOOT TEST'\n",
-+			     system_info.info.volume_label);
++	if (system_info.info.block_size != 512) {
++		efi_st_error("Wrong block size %u, expected 512\n",
++			     system_info.info.block_size);
 +		return EFI_ST_FAILURE;
++	}
++	if (efi_st_strcmp_16_8(system_info.info.volume_label, "U-BOOT TEST")) {
++		efi_st_todo(
++			"Wrong volume label '%ps', expected 'U-BOOT TEST'\n",
++			system_info.info.volume_label);
 +	}
  	ret = root->open(root, &file, (s16 *)L"hello.txt", EFI_FILE_MODE_READ,
  			 0);
