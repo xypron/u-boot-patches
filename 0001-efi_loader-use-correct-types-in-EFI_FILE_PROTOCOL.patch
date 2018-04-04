@@ -1,7 +1,7 @@
-From 66b316312d05a8b5ef61ec2fffa8de654d8ac11b Mon Sep 17 00:00:00 2001
+From 1da3e898af051fa104debc29fbf6c9392c6edb14 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 28 Mar 2018 23:54:48 +0200
-Subject: [PATCH 1/1] efi_loader: use correct types in EFI_FILE_PROTOCOL
+Subject: [PATCH 1/2] efi_loader: use correct types in EFI_FILE_PROTOCOL
 
 In the EFI_FILE_PROTOCOL buffer sizes and positions are passed as UINTN and
 not as u64.
@@ -15,10 +15,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  4 files changed, 47 insertions(+), 21 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index f138fc90ec..741fd1f550 100644
+index c8a41a499d..43c8c891e7 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -835,17 +835,19 @@ struct efi_file_handle {
+@@ -837,17 +837,19 @@ struct efi_file_handle {
  	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
  	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
  	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
@@ -84,7 +84,7 @@ index 52a4e7438e..1e2751f7cf 100644
  
  	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
  
-+	if (!buffer_size || ! buffer) {
++	if (!buffer_size || !buffer) {
 +		ret = EFI_INVALID_PARAMETER;
 +		goto error;
 +	}
@@ -190,5 +190,5 @@ index 9e4b93d9a6..b07b22465f 100644
  
  	ret = boottime->connect_controller(disk_handle, NULL, NULL, 1);
 -- 
-2.14.2
+2.16.3
 
