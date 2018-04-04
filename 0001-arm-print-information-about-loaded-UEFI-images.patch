@@ -49,14 +49,6 @@ index 80869adb61..a28fef8f46 100644
  void show_regs (struct pt_regs *regs)
  {
  	unsigned long __maybe_unused flags;
-@@ -77,6 +86,7 @@ void show_regs (struct pt_regs *regs)
- 	printf("sp : %08lx  ip : %08lx	 fp : %08lx\n",
- 	       regs->ARM_sp, regs->ARM_ip, regs->ARM_fp);
- 	printf ("r10: %08lx  r9 : %08lx	 r8 : %08lx\n",
-+
- 		regs->ARM_r10, regs->ARM_r9, regs->ARM_r8);
- 	printf ("r7 : %08lx  r6 : %08lx	 r5 : %08lx  r4 : %08lx\n",
- 		regs->ARM_r7, regs->ARM_r6, regs->ARM_r5, regs->ARM_r4);
 @@ -106,6 +116,7 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
  	printf ("undefined instruction\n");
  	fixup_pc(pt_regs, -4);
