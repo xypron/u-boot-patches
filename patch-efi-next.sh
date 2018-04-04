@@ -85,6 +85,7 @@ git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
 git am ../patch/0001-efi_selftest-partition-label-for-test-image.patch
+git am ../patch/0001-efi_selftest-test-getinfo-EFI_FILE_SYSTEM_INFO.patch
 
 # bootefi
 git am ../patch/0001-efi_loader-correctly-determine-the-boot-partition.patch
