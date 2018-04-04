@@ -1,4 +1,4 @@
-From 7ded91e99a3e2ad6ce4e7db351323bd644665aaa Mon Sep 17 00:00:00 2001
+From 36f656881787a3d7d056de61dc0e16e001c551b3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 12:14:19 +0200
 Subject: [PATCH 1/1] efi_loader: new functions to print loaded image
@@ -12,18 +12,15 @@ between the PC and the start of the loaded image.
 With efi_print_image_info() we can print the necessary information for a
 single image, e.g.
 
-UEFI image
-start 0x7fdb4000, size 0xa7b60
-pc offset 0x72ca
-/\snp.efi
+UEFI image [0xbffe6000:0xbffe631f] pc=0x138 '/\snp.efi'
 
 efi_print_image_infos() provides output for all loaded images.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h              |  4 ++++
- lib/efi_loader/efi_image_loader.c | 49 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 53 insertions(+)
+ lib/efi_loader/efi_image_loader.c | 46 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 0df482ee21..ee553c667f 100644
@@ -41,10 +38,10 @@ index 0df482ee21..ee553c667f 100644
  #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
  extern void *efi_bounce_buffer;
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 74c6a9f921..af182ad99b 100644
+index 74c6a9f921..f5885760d4 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
-@@ -22,6 +22,55 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
+@@ -22,6 +22,52 @@ const efi_guid_t efi_simple_file_system_protocol_guid =
  		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
  const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
  
@@ -63,15 +60,13 @@ index 74c6a9f921..af182ad99b 100644
 +	if (!image)
 +		return EFI_INVALID_PARAMETER;
 +	printf("UEFI image");
-+	if (image->file_path)
-+		printf(" '%pD'", image->file_path);
-+	else
-+		printf(" ''");
 +	printf(" [0x%p:0x%p]",
 +	       image->reloc_base, image->reloc_base + image->reloc_size - 1);
 +	if (pc && pc >= image->reloc_base &&
 +	    pc < image->reloc_base + image->reloc_size)
 +		printf(" pc=0x%zx", pc - image->reloc_base);
++	if (image->file_path)
++		printf(" '%pD'", image->file_path);
 +	printf("\n");
 +	return EFI_SUCCESS;
 +}
@@ -89,7 +84,6 @@ index 74c6a9f921..af182ad99b 100644
 +	list_for_each_entry(efiobj, &efi_obj_list, link) {
 +		list_for_each_entry(handler, &efiobj->protocols, link) {
 +			if (!guidcmp(handler->guid, &efi_guid_loaded_image)) {
-+				printf("\n");
 +				efi_print_image_info(
 +					handler->protocol_interface, pc);
 +			}
