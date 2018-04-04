@@ -82,6 +82,8 @@ git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 
 # File system
+git am ../patch/0001-efi_loader-use-const-for-GUIDs-in-the-EFI_FILE_PROTO.patch
+git am ../patch/0001-efi_loader-ascii2unicode-add-trailing-0.patch
 git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
 git am ../patch/0001-efi_selftest-partition-label-for-test-image.patch

@@ -1,0 +1,28 @@
+From 06f08f1305195e1d848a52c94108faa77468c8e9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 4 Apr 2018 13:55:11 +0200
+Subject: [PATCH 1/1] efi_loader: ascii2unicode(): add trailing \0
+
+When converting an ASCII string to UTF-16 don't forget to copy the
+trailing \0.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index ab20773947..b14563bf8d 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -358,6 +358,7 @@ static inline void ascii2unicode(u16 *unicode, const char *ascii)
+ {
+ 	while (*ascii)
+ 		*(unicode++) = *(ascii++);
++	*unicode = 0;
+ }
+ 
+ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
+-- 
+2.16.3
+

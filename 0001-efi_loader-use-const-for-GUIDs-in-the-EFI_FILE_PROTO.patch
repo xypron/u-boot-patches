@@ -1,0 +1,55 @@
+From 69a91c9e534e270e75b5e513d6efd0ee846f9940 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 4 Apr 2018 14:17:05 +0200
+Subject: [PATCH 1/1] efi_loader: use const for GUIDs in the EFI_FILE_PROTOCOL
+
+Use const efi_guid_t* when passing GUIDs.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h         | 4 ++--
+ lib/efi_loader/efi_file.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 16da736113..3174267640 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -845,10 +845,10 @@ struct efi_file_handle {
+ 	efi_status_t (EFIAPI *setpos)(struct efi_file_handle *file,
+ 			efi_uintn_t pos);
+ 	efi_status_t (EFIAPI *getinfo)(struct efi_file_handle *file,
+-			efi_guid_t *info_type, efi_uintn_t *buffer_size,
++			const efi_guid_t *info_type, efi_uintn_t *buffer_size,
+ 			void *buffer);
+ 	efi_status_t (EFIAPI *setinfo)(struct efi_file_handle *file,
+-			efi_guid_t *info_type, efi_uintn_t buffer_size,
++			const efi_guid_t *info_type, efi_uintn_t buffer_size,
+ 			void *buffer);
+ 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
+ };
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index c68a5875a9..cf118199ca 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -432,7 +432,7 @@ error:
+ }
+ 
+ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+-					    efi_guid_t *info_type,
++					    const efi_guid_t *info_type,
+ 					    efi_uintn_t *buffer_size,
+ 					    void *buffer)
+ {
+@@ -515,7 +515,7 @@ error:
+ }
+ 
+ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
+-					    efi_guid_t *info_type,
++					    const efi_guid_t *info_type,
+ 					    efi_uintn_t buffer_size,
+ 					    void *buffer)
+ {
+-- 
+2.16.3
+
