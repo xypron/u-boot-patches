@@ -3,10 +3,6 @@
 # essential patches
 git am ../patch/0001-mmc-avoid-division-by-zero-in-meson_mmc_config_clock.patch
 
-# Events
-# git am ../patch/0001-efi_loader-RestoreTPL-should-execute-queued-events.patch
-# git am ../patch/0001-efi_loader-use-TPL_NOTIFY-for-network-timer-event.patch
-
 # git am ../patch/0001-Test-vexpress-only.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
@@ -61,11 +57,6 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 # From Simon's Sandbox support series
 git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
 
-# GOP
-# git am ../patch/0001-efi_loader-Optimize-GOP-switch.patch
-# git am ../patch/0001-efi_loader-Optimize-GOP-more.patch
-# git am ../patch/0001-efi_loader-use-__always_inline-for-pixel-conversion.patch
-
 # Unaligned access
 git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
@@ -75,23 +66,15 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 git am ../patch/0001-efi_loader-completely-initialize-network.patch
 
 # Loaded image information
-# git am ../patch/0001-efi_loader-use-efi_uintn_t-for-LoadImage.patch
-# git am ../patch/0001-efi_loader-save-image-relocation-address-and-size.patch
-# git am ../patch/0001-efi_loader-ImageSize-must-be-multiple-of-SectionAlig.patch
-# git am ../patch/0001-efi_loader-correct-types-for-EFI_LOADED_IMAGE_PROTOC.patch
 git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 
 # File system
 git am ../patch/0001-efi_loader-use-const-for-GUIDs-in-the-EFI_FILE_PROTO.patch
 git am ../patch/0001-efi_loader-ascii2unicode-add-trailing-0.patch
-# git am ../patch/0001-efi_loader-use-correct-types-in-EFI_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_FILE_SYSTEM_INFO.patch
 git am ../patch/0001-efi_selftest-partition-label-for-test-image.patch
 git am ../patch/0001-efi_selftest-test-getinfo-EFI_FILE_SYSTEM_INFO.patch
-
-# bootefi
-# git am ../patch/0001-efi_loader-correctly-determine-the-boot-partition.patch
 
 exit
 # From Simon's Sandbox support series
