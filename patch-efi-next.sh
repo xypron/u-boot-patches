@@ -62,9 +62,6 @@ git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
 git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
-# Network
-git am ../patch/0001-efi_loader-completely-initialize-network.patch
-
 # Loaded image information
 git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
