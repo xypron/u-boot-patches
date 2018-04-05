@@ -1,4 +1,4 @@
-From 36f656881787a3d7d056de61dc0e16e001c551b3 Mon Sep 17 00:00:00 2001
+From 1d6b3311b4ae6484dfdb8ba59aa043e5400cdaed Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 12:14:19 +0200
 Subject: [PATCH 1/1] efi_loader: new functions to print loaded image
@@ -18,15 +18,15 @@ efi_print_image_infos() provides output for all loaded images.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h              |  4 ++++
+ include/efi_loader.h              |  5 +++++
  lib/efi_loader/efi_image_loader.c | 46 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 50 insertions(+)
+ 2 files changed, 51 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 0df482ee21..ee553c667f 100644
+index f2942fbb2b..17f9d3d1ef 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -306,6 +306,10 @@ efi_status_t efi_setup_loaded_image(
+@@ -308,6 +308,10 @@ efi_status_t efi_setup_loaded_image(
  			struct efi_device_path *file_path);
  efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
  				      void **buffer);
@@ -37,6 +37,14 @@ index 0df482ee21..ee553c667f 100644
  
  #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
  extern void *efi_bounce_buffer;
+@@ -425,6 +429,7 @@ static inline void efi_restore_gd(void) { }
+ static inline void efi_set_bootdev(const char *dev, const char *devnr,
+ 				   const char *path) { }
+ static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
++static inline void efi_print_image_infos(void *pc) { }
+ 
+ #endif /* CONFIG_EFI_LOADER && !CONFIG_SPL_BUILD */
+ 
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
 index 74c6a9f921..f5885760d4 100644
 --- a/lib/efi_loader/efi_image_loader.c

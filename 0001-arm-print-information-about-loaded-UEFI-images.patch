@@ -1,7 +1,7 @@
-From 16cea168e21e5c59aacb2d44ae6cba7416b59c00 Mon Sep 17 00:00:00 2001
+From 7f0b9f0f4e7d068497af0a3e59afed47c15109cc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 12:35:50 +0200
-Subject: [PATCH v3 2/2] arm: print information about loaded UEFI images
+Subject: [PATCH 1/1] arm: print information about loaded UEFI images
 
 If an exception occurs in a UEFI loaded image we need the start address of
 the image to determine the relocation offset.
@@ -16,11 +16,11 @@ disassembled 'snp.efi' binary.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/arm/lib/interrupts.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/arm/lib/interrupts.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
-index 80869adb61..dad77ff589 100644
+index 80869adb61..cda4d48460 100644
 --- a/arch/arm/lib/interrupts.c
 +++ b/arch/arm/lib/interrupts.c
 @@ -20,6 +20,7 @@
@@ -31,22 +31,19 @@ index 80869adb61..dad77ff589 100644
  #include <asm/proc-armv/ptrace.h>
  #include <asm/u-boot-arm.h>
  #include <efi_loader.h>
-@@ -51,6 +52,14 @@ void bad_mode (void)
+@@ -51,6 +52,11 @@ void bad_mode (void)
  	reset_cpu (0);
  }
  
 +static void show_efi_loaded_images(struct pt_regs *regs)
 +{
-+#if defined(CONFIG_EFI_LOADER) && \
-+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
 +	efi_print_image_infos((void *)instruction_pointer(regs));
-+#endif
 +}
 +
  void show_regs (struct pt_regs *regs)
  {
  	unsigned long __maybe_unused flags;
-@@ -106,6 +115,7 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
+@@ -106,6 +112,7 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
  	printf ("undefined instruction\n");
  	fixup_pc(pt_regs, -4);
  	show_regs (pt_regs);
@@ -54,7 +51,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -115,6 +125,7 @@ void do_software_interrupt (struct pt_regs *pt_regs)
+@@ -115,6 +122,7 @@ void do_software_interrupt (struct pt_regs *pt_regs)
  	printf ("software interrupt\n");
  	fixup_pc(pt_regs, -4);
  	show_regs (pt_regs);
@@ -62,7 +59,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -124,6 +135,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
+@@ -124,6 +132,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
  	printf ("prefetch abort\n");
  	fixup_pc(pt_regs, -8);
  	show_regs (pt_regs);
@@ -70,7 +67,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -133,6 +145,7 @@ void do_data_abort (struct pt_regs *pt_regs)
+@@ -133,6 +142,7 @@ void do_data_abort (struct pt_regs *pt_regs)
  	printf ("data abort\n");
  	fixup_pc(pt_regs, -8);
  	show_regs (pt_regs);
@@ -78,7 +75,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -142,6 +155,7 @@ void do_not_used (struct pt_regs *pt_regs)
+@@ -142,6 +152,7 @@ void do_not_used (struct pt_regs *pt_regs)
  	printf ("not used\n");
  	fixup_pc(pt_regs, -8);
  	show_regs (pt_regs);
@@ -86,7 +83,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -151,6 +165,7 @@ void do_fiq (struct pt_regs *pt_regs)
+@@ -151,6 +162,7 @@ void do_fiq (struct pt_regs *pt_regs)
  	printf ("fast interrupt request\n");
  	fixup_pc(pt_regs, -8);
  	show_regs (pt_regs);
@@ -94,7 +91,7 @@ index 80869adb61..dad77ff589 100644
  	bad_mode ();
  }
  
-@@ -160,5 +175,6 @@ void do_irq (struct pt_regs *pt_regs)
+@@ -160,5 +172,6 @@ void do_irq (struct pt_regs *pt_regs)
  	printf ("interrupt request\n");
  	fixup_pc(pt_regs, -8);
  	show_regs (pt_regs);
