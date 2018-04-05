@@ -1,7 +1,7 @@
-From 7f0b9f0f4e7d068497af0a3e59afed47c15109cc Mon Sep 17 00:00:00 2001
+From 0145c6e1900845b643d8fee42af1bcdd076b53e8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 12:35:50 +0200
-Subject: [PATCH 1/1] arm: print information about loaded UEFI images
+Subject: [PATCH v4 2/2] arm: print information about loaded UEFI images
 
 If an exception occurs in a UEFI loaded image we need the start address of
 the image to determine the relocation offset.
@@ -15,6 +15,9 @@ With the offset 0x138 we can now find the relevant instruction in the
 disassembled 'snp.efi' binary.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v4:
+	remove ifdefs, we have a stub function now
 ---
  arch/arm/lib/interrupts.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)
