@@ -62,10 +62,6 @@ git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
 git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
-# Loaded image information
-git am ../patch/0001-efi_loader-new-functions-to-print-loaded-image-infor.patch
-git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
-
 exit
 # From Simon's Sandbox support series
 git am ../patch/0001-sandbox-set-available-memory-address.patch
