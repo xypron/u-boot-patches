@@ -21,7 +21,6 @@ git am ../patch/0001-wandboard-remove-superfluous-include.patch
 git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
 git am ../patch/0001-drivers-power-max77693-remove-redundant-logical-cons.patch
-git am ../patch/0001-regulator-pbias-don-t-evaluate-variable-before-assig.patch
 git am ../patch/0001-spi-atcspi200-avoid-NULL-dereference.patch
 git am ../patch/0001-spi-fsl_qspi-remove-superfluous-assignment.patch
 git am ../patch/0001-spi-lpc32xx-simplify-logical-expression.patch
