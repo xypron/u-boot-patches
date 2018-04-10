@@ -41,6 +41,7 @@ git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-get_maintainer.pl-update-from-Linux-kernel-v4.16.patch
 git am ../patch/0001-checkpatch.pl-update-from-Linux-kernel-v4.16.patch
+git am ../patch/0001-vexpress-fix-syntax-error-in-armv7_boot_nonsec_defau.patch
 
 # Video console
 git am ../patch/0001-video-if-EFI_LOADER-is-enabled-enable-CFB_CONSOLE_AN.patch
@@ -61,7 +62,7 @@ git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
 git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
-git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
+# git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
 
 exit
 # From Simon's Sandbox support series
