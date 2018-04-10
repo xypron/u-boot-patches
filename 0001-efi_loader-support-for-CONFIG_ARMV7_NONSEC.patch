@@ -1,0 +1,68 @@
+From ce7f4ab90f7740140e46b455fbe7b043cd8f3273 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 6 Apr 2018 07:43:22 +0200
+Subject: [PATCH 1/1] efi_loader: support for CONFIG_ARMV7_NONSEC
+
+Booting with SMP fails on the Allwinner A20 CPU.
+https://gist.github.com/xypron/2524ba898d6905d959c744c2b05da196
+
+When executing bootefi we need to
+* copy the Power State Coordination Interface (PSCI) code to its
+  destination address
+* switch between our hypervisor mode (HYP) and the supervisor mode (SVC)
+  of the payload (http://linux-sunxi.org/PSCI)
+
+This patch is incomplete. It is just meant to indicate where we could
+change the entry point.
+
+With the patch iPXE cannot get a network address.
+
+Possibly a better moment for switching to SVC is ExitBootServices.
+
+We also have to consider switching modes at EFI_ENTRY and EFI_EXIT.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 681d012ae8..6b6e8facd1 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -17,8 +17,10 @@
+ #include <linux/libfdt_env.h>
+ #include <memalign.h>
+ #include <asm/global_data.h>
++#include <asm/armv7.h>
+ #include <asm-generic/sections.h>
+ #include <asm-generic/unaligned.h>
++#include <asm/secure.h>
+ #include <linux/linkage.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -176,8 +178,19 @@ static efi_status_t efi_do_enter(
+ {
+ 	efi_status_t ret = EFI_LOAD_ERROR;
+ 
+-	if (entry)
+-		ret = entry(image_handle, st);
++	if (entry) {
++#ifdef CONFIG_ARMV7_NONSEC
++		if (armv7_boot_nonsec()) {
++			armv7_init_nonsec();
++			secure_ram_addr(_do_nonsec_entry)(entry,
++					(uintptr_t)image_handle,
++					(uintptr_t)st, 0);
++		} else
++#endif
++		{
++			ret = entry(image_handle, st);
++		}
++	}
+ 	st->boottime->exit(image_handle, ret, 0, NULL);
+ 	return ret;
+ }
+-- 
+2.16.3
+
