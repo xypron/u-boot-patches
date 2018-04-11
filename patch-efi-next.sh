@@ -64,7 +64,7 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
 # 32-bit support
 # git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
-git am 0001-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
+git am ../patch/0001-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
 
 exit
 # From Simon's Sandbox support series
