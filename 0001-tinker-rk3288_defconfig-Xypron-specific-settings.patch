@@ -19,7 +19,7 @@ diff --git a/configs/tinker-rk3288_defconfig b/configs/tinker-rk3288_defconfig
 index cc4350848e..c91538f1d1 100644
 --- a/configs/tinker-rk3288_defconfig
 +++ b/configs/tinker-rk3288_defconfig
-@@ -15,9 +15,12 @@ CONFIG_CONSOLE_MUX=y
+@@ -15,9 +15,11 @@ CONFIG_CONSOLE_MUX=y
  CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_SPL_STACK_R=y
  CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x2000
