@@ -1,0 +1,30 @@
+From e561f454fc291bd3f16c42192e8ab99fc279f9a7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 12 Apr 2018 22:01:34 +0200
+Subject: [PATCH 1/1] rockchip: rk3288: provide ${fdtfile}
+
+All rk3288 default configs define CONFIG_DEFAULT_DEVICE_TREE.
+So we can use it to define ${fdtfile} in rk3288_common.h.
+
+This variable is needed by the distro boot command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/configs/rk3288_common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/rk3288_common.h b/include/configs/rk3288_common.h
+index 78595b86ec..762a206143 100644
+--- a/include/configs/rk3288_common.h
++++ b/include/configs/rk3288_common.h
+@@ -73,6 +73,7 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"fdt_high=0x0fffffff\0" \
+ 	"initrd_high=0x0fffffff\0" \
++	"fdtfile=CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+ 	"partitions=" PARTS_DEFAULT \
+ 	ENV_MEM_LAYOUT_SETTINGS \
+ 	ROCKCHIP_DEVICE_SETTINGS \
+-- 
+2.14.2
+
