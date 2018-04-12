@@ -1,11 +1,14 @@
 #!/bin/sh
 git am --abort
 
+# Xypron specific patches
+git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
+git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
+
 # essential patches
 git am ../patch/0001-mmc-avoid-division-by-zero-in-meson_mmc_config_clock.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
-git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
 # Fix building u-boot.rom for qemu-x86_64_defconfig
 git am ../patch/0001-spl-u-boot-spl-nodtb.bin-remove-.got-and-.got.plt-se.patch
