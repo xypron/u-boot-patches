@@ -1,4 +1,5 @@
 #!/bin/sh
+git am --abort
 
 # essential patches
 git am ../patch/0001-mmc-avoid-division-by-zero-in-meson_mmc_config_clock.patch
@@ -39,8 +40,6 @@ git am ../patch/0001-usb-ehci-hcd-eliminate-tweaks-used-for-faraday.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
-git am ../patch/0001-get_maintainer.pl-update-from-Linux-kernel-v4.16.patch
-git am ../patch/0001-checkpatch.pl-update-from-Linux-kernel-v4.16.patch
 git am ../patch/0001-vexpress-fix-syntax-error-in-armv7_boot_nonsec_defau.patch
 
 # Video console
