@@ -141,7 +141,7 @@ index bc97eeee31..076f7800e7 100644
  	efi_uintn_t *device_path_instance_size)
  {
 -	EFI_ENTRY("%p, %p", device_path_instance, device_path_instance_size);
-+	EFI_ENTRY("%pD, %pD", device_path_instance, device_path_instance_size);
++	EFI_ENTRY("%pD, %p", device_path_instance, device_path_instance_size);
  	return EFI_EXIT(NULL);
  }
  
