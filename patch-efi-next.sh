@@ -69,6 +69,10 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 # git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
 git am ../patch/0001-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
 
+# EFI protocols
+git am ../patch/0001-efi_loader-fix-AppendDevicePath.patch
+git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
+
 exit
 # From Simon's Sandbox support series
 git am ../patch/0001-sandbox-set-available-memory-address.patch
