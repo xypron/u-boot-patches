@@ -106,7 +106,7 @@ index bc97eeee31..076f7800e7 100644
  }
  
 +/*
-+ * Append device path.
++ * Append device node.
 + *
 + * This function implements the AppendDeviceNode service of the device path
 + * utilities protocol.
