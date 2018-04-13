@@ -1,0 +1,131 @@
+From 6d40805f92e7e0910378b825f510706a1f8b8186 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 13 Apr 2018 18:27:12 +0200
+Subject: [PATCH 1/1] efi_loader: complete EFI_DEVICE_PATH_UTILITIES_PROTOCOL
+
+The missing serices of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL are
+implemented.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h                          |  1 +
+ lib/efi_loader/efi_device_path_utilities.c | 43 +++++++++++++++++++++++++-----
+ 2 files changed, 37 insertions(+), 7 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index ae93061160..64c27e494b 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -343,6 +343,7 @@ struct efi_loaded_image {
+ 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b )
+ 
+ #define DEVICE_PATH_TYPE_END			0x7f
++#  define DEVICE_PATH_SUB_TYPE_INSTANCE_END	0x01
+ #  define DEVICE_PATH_SUB_TYPE_END		0xff
+ 
+ struct efi_device_path {
+diff --git a/lib/efi_loader/efi_device_path_utilities.c b/lib/efi_loader/efi_device_path_utilities.c
+index bc97eeee31..3ee832be4b 100644
+--- a/lib/efi_loader/efi_device_path_utilities.c
++++ b/lib/efi_loader/efi_device_path_utilities.c
+@@ -12,22 +12,51 @@
+ const efi_guid_t efi_guid_device_path_utilities_protocol =
+ 		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID;
+ 
++/*
++ * Get size of a device path.
++ *
++ * This function implements the GetDevicePathSize service of the device path
++ * utilities protocol. The device path length includes the end of path tag
++ * which may be an instance end.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @device_path		device path
++ * @return		size in bytes
++ */
+ static efi_uintn_t EFIAPI get_device_path_size(
+ 	const struct efi_device_path *device_path)
+ {
+ 	efi_uintn_t sz = 0;
+ 
+-	EFI_ENTRY("%p", device_path);
++	EFI_ENTRY("%pD", device_path);
+ 	/* size includes the END node: */
+ 	if (device_path)
+ 		sz = efi_dp_size(device_path) + sizeof(struct efi_device_path);
+ 	return EFI_EXIT(sz);
+ }
+ 
++/*
++ * Duplicate a device path.
++ *
++ * This function implements the DuplicateDevicePath service of the device path
++ * utilities protocol.
++ *
++ * The UEFI spec does not indicate what happens to the end tag. We follow the
++ * EDK2 logic: In case the device path ends with an end of instance tag, the
++ * copy will also end with an end of instance tag.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @device_path		device path
++ * @return		size in bytes
++ */
+ static struct efi_device_path * EFIAPI duplicate_device_path(
+ 	const struct efi_device_path *device_path)
+ {
+-	EFI_ENTRY("%p", device_path);
++	EFI_ENTRY("%pD", device_path);
+ 	return EFI_EXIT(efi_dp_dup(device_path));
+ }
+ 
+@@ -35,7 +64,7 @@ static struct efi_device_path * EFIAPI append_device_path(
+ 	const struct efi_device_path *src1,
+ 	const struct efi_device_path *src2)
+ {
+-	EFI_ENTRY("%p, %p", src1, src2);
++	EFI_ENTRY("%pD, %pD", src1, src2);
+ 	return EFI_EXIT(efi_dp_append(src1, src2));
+ }
+ 
+@@ -43,7 +72,7 @@ static struct efi_device_path * EFIAPI append_device_node(
+ 	const struct efi_device_path *device_path,
+ 	const struct efi_device_path *device_node)
+ {
+-	EFI_ENTRY("%p, %p", device_path, device_node);
++	EFI_ENTRY("%pD, %pD", device_path, device_node);
+ 	return EFI_EXIT(efi_dp_append_node(device_path, device_node));
+ }
+ 
+@@ -51,7 +80,7 @@ static struct efi_device_path * EFIAPI append_device_path_instance(
+ 	const struct efi_device_path *device_path,
+ 	const struct efi_device_path *device_path_instance)
+ {
+-	EFI_ENTRY("%p, %p", device_path, device_path_instance);
++	EFI_ENTRY("%pD, %pD", device_path, device_path_instance);
+ 	return EFI_EXIT(NULL);
+ }
+ 
+@@ -59,14 +88,14 @@ static struct efi_device_path * EFIAPI get_next_device_path_instance(
+ 	struct efi_device_path **device_path_instance,
+ 	efi_uintn_t *device_path_instance_size)
+ {
+-	EFI_ENTRY("%p, %p", device_path_instance, device_path_instance_size);
++	EFI_ENTRY("%pD, %pD", device_path_instance, device_path_instance_size);
+ 	return EFI_EXIT(NULL);
+ }
+ 
+ static bool EFIAPI is_device_path_multi_instance(
+ 	const struct efi_device_path *device_path)
+ {
+-	EFI_ENTRY("%p", device_path);
++	EFI_ENTRY("%pD", device_path);
+ 	return EFI_EXIT(false);
+ }
+ 
+-- 
+2.15.1
+
