@@ -1,4 +1,4 @@
-From 6d40805f92e7e0910378b825f510706a1f8b8186 Mon Sep 17 00:00:00 2001
+From a85ff99864e4ab2a0a6b5bbc4c46c3c6c9af595d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 13 Apr 2018 18:27:12 +0200
 Subject: [PATCH 1/1] efi_loader: complete EFI_DEVICE_PATH_UTILITIES_PROTOCOL
@@ -9,8 +9,8 @@ implemented.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h                          |  1 +
- lib/efi_loader/efi_device_path_utilities.c | 43 +++++++++++++++++++++++++-----
- 2 files changed, 37 insertions(+), 7 deletions(-)
+ lib/efi_loader/efi_device_path_utilities.c | 70 +++++++++++++++++++++++++++---
+ 2 files changed, 64 insertions(+), 7 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index ae93061160..64c27e494b 100644
@@ -25,10 +25,10 @@ index ae93061160..64c27e494b 100644
  
  struct efi_device_path {
 diff --git a/lib/efi_loader/efi_device_path_utilities.c b/lib/efi_loader/efi_device_path_utilities.c
-index bc97eeee31..3ee832be4b 100644
+index bc97eeee31..076f7800e7 100644
 --- a/lib/efi_loader/efi_device_path_utilities.c
 +++ b/lib/efi_loader/efi_device_path_utilities.c
-@@ -12,22 +12,51 @@
+@@ -12,38 +12,94 @@
  const efi_guid_t efi_guid_device_path_utilities_protocol =
  		EFI_DEVICE_PATH_UTILITIES_PROTOCOL_GUID;
  
@@ -72,7 +72,7 @@ index bc97eeee31..3ee832be4b 100644
 + * for details.
 + *
 + * @device_path		device path
-+ * @return		size in bytes
++ * @return		copy of the device path
 + */
  static struct efi_device_path * EFIAPI duplicate_device_path(
  	const struct efi_device_path *device_path)
@@ -82,7 +82,21 @@ index bc97eeee31..3ee832be4b 100644
  	return EFI_EXIT(efi_dp_dup(device_path));
  }
  
-@@ -35,7 +64,7 @@ static struct efi_device_path * EFIAPI append_device_path(
++
++/*
++ * Append device path.
++ *
++ * This function implements the AppendDevicePath service of the device path
++ * utilities protocol.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @src1		1st device path
++ * @src2		2nd device path
++ * @return		concatenated device path
++ */
+ static struct efi_device_path * EFIAPI append_device_path(
  	const struct efi_device_path *src1,
  	const struct efi_device_path *src2)
  {
@@ -91,16 +105,29 @@ index bc97eeee31..3ee832be4b 100644
  	return EFI_EXIT(efi_dp_append(src1, src2));
  }
  
-@@ -43,7 +72,7 @@ static struct efi_device_path * EFIAPI append_device_node(
++/*
++ * Append device path.
++ *
++ * This function implements the AppendDeviceNode service of the device path
++ * utilities protocol.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @device_path		device path
++ * @device_node		device node
++ * @return		concatenated device path
++ */
+ static struct efi_device_path * EFIAPI append_device_node(
  	const struct efi_device_path *device_path,
  	const struct efi_device_path *device_node)
  {
 -	EFI_ENTRY("%p, %p", device_path, device_node);
-+	EFI_ENTRY("%pD, %pD", device_path, device_node);
++	EFI_ENTRY("%pD, %p", device_path, device_node);
  	return EFI_EXIT(efi_dp_append_node(device_path, device_node));
  }
  
-@@ -51,7 +80,7 @@ static struct efi_device_path * EFIAPI append_device_path_instance(
+@@ -51,7 +107,7 @@ static struct efi_device_path * EFIAPI append_device_path_instance(
  	const struct efi_device_path *device_path,
  	const struct efi_device_path *device_path_instance)
  {
@@ -109,7 +136,7 @@ index bc97eeee31..3ee832be4b 100644
  	return EFI_EXIT(NULL);
  }
  
-@@ -59,14 +88,14 @@ static struct efi_device_path * EFIAPI get_next_device_path_instance(
+@@ -59,14 +115,14 @@ static struct efi_device_path * EFIAPI get_next_device_path_instance(
  	struct efi_device_path **device_path_instance,
  	efi_uintn_t *device_path_instance_size)
  {
@@ -127,5 +154,5 @@ index bc97eeee31..3ee832be4b 100644
  }
  
 -- 
-2.15.1
+2.14.2
 
