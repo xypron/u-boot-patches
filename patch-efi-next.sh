@@ -75,6 +75,7 @@ git am ../patch/0001-efi_loader-implement-CreateDeviceNode.patch
 git am ../patch/0001-efi_loader-fix-AppendDevicePath.patch
 git am ../patch/0001-efi_loader-correctly-determine-length-of-empty-devic.patch
 git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
+git am ../patch/0001-efi_selftest-test-EFI_DEVICE_PATH_UTILITIES_PROTOCOL.patch
 
 exit
 # From Simon's Sandbox support series
