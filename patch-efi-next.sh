@@ -44,6 +44,7 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-rockchip-rk3288-provide-fdtfile.patch
+git am ../patch/0001-env-mmc-fat-ext4-undefined-reference-to-mmc_initiali.patch
 
 # Video console
 git am ../patch/0001-video-if-EFI_LOADER-is-enabled-enable-CFB_CONSOLE_AN.patch
