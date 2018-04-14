@@ -73,6 +73,7 @@ git am ../patch/0001-efi_selftest-do-not-execute-test-if-setup-failed.patch
 git am ../patch/0001-efi_selftest-fix-typo-in-efi_selftest_devicepath.c.patch
 git am ../patch/0001-efi_loader-implement-CreateDeviceNode.patch
 git am ../patch/0001-efi_loader-fix-AppendDevicePath.patch
+git am ../patch/0001-efi_loader-correctly-determine-length-of-empty-devic.patch
 git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
 
 exit
