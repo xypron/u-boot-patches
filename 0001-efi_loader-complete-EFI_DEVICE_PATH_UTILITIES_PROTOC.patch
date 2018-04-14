@@ -1,4 +1,4 @@
-From f038615b3389a77c23ef0c6f8cc93ffc7939e383 Mon Sep 17 00:00:00 2001
+From bfc90735be609b405d28253b11b45dc655a50a84 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 13 Apr 2018 18:27:12 +0200
 Subject: [PATCH 1/1] efi_loader: complete EFI_DEVICE_PATH_UTILITIES_PROTOCOL
@@ -10,9 +10,9 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h                          |   1 +
  include/efi_loader.h                       |   9 ++
- lib/efi_loader/efi_device_path.c           |  68 +++++++++++-
+ lib/efi_loader/efi_device_path.c           |  65 ++++++++++++
  lib/efi_loader/efi_device_path_utilities.c | 116 +++++++++++++++++++--
- 4 files changed, 182 insertions(+), 12 deletions(-)
+ 4 files changed, 181 insertions(+), 10 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index ae93061160..64c27e494b 100644
@@ -47,21 +47,10 @@ index 1298b5e160..8d21ba74b1 100644
  struct efi_device_path *efi_dp_from_dev(struct udevice *dev);
  struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
 diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
-index 9085b37bf9..ed84026026 100644
+index bdee32726e..2861982883 100644
 --- a/lib/efi_loader/efi_device_path.c
 +++ b/lib/efi_loader/efi_device_path.c
-@@ -251,8 +251,8 @@ efi_uintn_t efi_dp_size(const struct efi_device_path *dp)
- 
- 	if (!p)
- 		return 0;
--	while(p->type != DEVICE_PATH_TYPE_END ||
--	      p->sub_type != DEVICE_PATH_SUB_TYPE_END)
-+	while (p->type != DEVICE_PATH_TYPE_END ||
-+	       p->sub_type != DEVICE_PATH_SUB_TYPE_END)
- 		p = (void *)p + p->length;
- 
- 	return (void *)p - (void *)dp;
-@@ -349,6 +349,70 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
+@@ -350,6 +351,70 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
  	return ret;
  }
  
@@ -74,7 +63,7 @@ index 9085b37bf9..ed84026026 100644
 +
 +	if (!dpi)
 +		return NULL;
-+	if (dp)
++	if (!dp)
 +		return efi_dp_dup(dpi);
 +	sz = efi_dp_size(dp);
 +	szi = efi_dp_instance_size(dpi);
@@ -108,12 +97,13 @@ index 9085b37bf9..ed84026026 100644
 +	if (!p)
 +		return NULL;
 +	memcpy(p, *dp, sz + sizeof(END));
-+	*dp = (void *)dp + sz;
++	*dp = (void *)*dp + sz;
 +	if ((*dp)->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END)
-+		*dp = (void *)dp + sizeof(END);
++		*dp = (void *)*dp + sizeof(END);
 +	else
 +		*dp = NULL;
-+	*size = sz + sizeof(END);
++	if (size)
++		*size = sz + sizeof(END);
 +	return p;
 +}
 +
@@ -125,7 +115,6 @@ index 9085b37bf9..ed84026026 100644
 +		return false;
 +	while (p->type != DEVICE_PATH_TYPE_END)
 +		p = (void *)p + p->length;
-+
 +	return p->sub_type == DEVICE_PATH_SUB_TYPE_INSTANCE_END;
 +}
 +
@@ -133,7 +122,7 @@ index 9085b37bf9..ed84026026 100644
  /* size of device-path not including END node for device and all parents
   * up to the root device.
 diff --git a/lib/efi_loader/efi_device_path_utilities.c b/lib/efi_loader/efi_device_path_utilities.c
-index e73188b242..450c6c2cac 100644
+index e73188b242..0ada2111db 100644
 --- a/lib/efi_loader/efi_device_path_utilities.c
 +++ b/lib/efi_loader/efi_device_path_utilities.c
 @@ -12,62 +12,158 @@
@@ -283,7 +272,7 @@ index e73188b242..450c6c2cac 100644
  }
  
 +/*
-+ * Check if an device path contains more than one instance.
++ * Check if a device path contains more than one instance.
 + *
 + * This function implements the AppendDeviceNode service of the device path
 + * utilities protocol.
