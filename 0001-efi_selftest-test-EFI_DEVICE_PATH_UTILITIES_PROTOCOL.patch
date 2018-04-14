@@ -1,4 +1,4 @@
-From 9b4b7cb20936565410b677971a2e609afbdc9163 Mon Sep 17 00:00:00 2001
+From 7784650841bffa37bc2cffb9d3133d8182798b3b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 14 Apr 2018 12:37:52 +0200
 Subject: [PATCH 1/1] efi_selftest: test EFI_DEVICE_PATH_UTILITIES_PROTOCOL
@@ -209,7 +209,7 @@ index 0000000000..aaa0037f3f
 +		efi_st_printf("FreePool failed\n");
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	return EFI_ST_SUCCESS;
 +}
 +
