@@ -1,0 +1,74 @@
+From 3433e5a4a9516ddb739e5e2fdd54b7727d49a09b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 14 Apr 2018 10:18:57 +0200
+Subject: [PATCH 1/1] efi_loader: implement CreateDeviceNode
+
+Implement the CreateDeviceNode service of the device path utility protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path.c           | 15 +++++++++++++++
+ lib/efi_loader/efi_device_path_utilities.c | 17 ++++++++++++++++-
+ 2 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index 5326600285..531a754427 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -318,6 +318,21 @@ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
+ 	return ret;
+ }
+ 
++struct efi_device_path *efi_dp_create_device_node(const u8 type,
++						  const u8 sub_type,
++						  const u16 length)
++{
++	struct efi_device_path *ret;
++
++	ret = dp_alloc(length);
++	if (!ret)
++		return ret;
++	ret->type = type;
++	ret->sub_type = sub_type;
++	ret->length = length;
++	return ret;
++}
++
+ #ifdef CONFIG_DM
+ /* size of device-path not including END node for device and all parents
+  * up to the root device.
+diff --git a/lib/efi_loader/efi_device_path_utilities.c b/lib/efi_loader/efi_device_path_utilities.c
+index 70f6a4ac53..fc222d81a0 100644
+--- a/lib/efi_loader/efi_device_path_utilities.c
++++ b/lib/efi_loader/efi_device_path_utilities.c
+@@ -126,11 +126,26 @@ static bool EFIAPI is_device_path_multi_instance(
+ 	return EFI_EXIT(false);
+ }
+ 
++/*
++ * Create device node.
++ *
++ * This function implements the CreateDeviceNode service of the device path
++ * utilities protocol.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @node_type		node type
++ * @node_sub_type	node sub type
++ * @node_length		node length
++ * @return		device path node
++ */
+ static struct efi_device_path * EFIAPI create_device_node(
+ 	uint8_t node_type, uint8_t node_sub_type, uint16_t node_length)
+ {
+ 	EFI_ENTRY("%u, %u, %u", node_type, node_sub_type, node_length);
+-	return EFI_EXIT(NULL);
++	return EFI_EXIT(efi_dp_create_device_node(node_type, node_sub_type,
++			node_length));
+ }
+ 
+ const struct efi_device_path_utilities_protocol efi_device_path_utilities = {
+-- 
+2.17.0
+
