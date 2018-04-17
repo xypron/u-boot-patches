@@ -21,7 +21,6 @@ git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 git am ../patch/0001-ubifs-avoid-possible-NULL-dereference.patch
 git am ../patch/0001-fs-fat-avoid-useless-conversion-when-calling-get_clu.patch
 git am ../patch/0001-fs-fat-avoid-superfluous-conversion-calling-set_clus.patch
-git am ../patch/0001-wandboard-remove-superfluous-include.patch
 git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
 git am ../patch/0001-drivers-power-max77693-remove-redundant-logical-cons.patch
@@ -44,7 +43,6 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-rockchip-rk3288-provide-fdtfile.patch
-git am ../patch/0001-env-mmc-fat-ext4-undefined-reference-to-mmc_initiali.patch
 
 # Video console
 git am ../patch/0001-video-if-EFI_LOADER-is-enabled-enable-CFB_CONSOLE_AN.patch
