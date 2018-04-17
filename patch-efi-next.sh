@@ -77,6 +77,9 @@ git am ../patch/0001-efi_loader-correcty-determine-total-device-path-leng.patch
 git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
 git am ../patch/0001-efi_selftest-test-EFI_DEVICE_PATH_UTILITIES_PROTOCOL.patch
 
+# KGDB
+git am ../patch/0001-arm-create-templates-for-kgdb.patch
+
 exit
 # From Simon's Sandbox support series
 git am ../patch/0001-sandbox-set-available-memory-address.patch
