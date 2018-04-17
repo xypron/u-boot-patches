@@ -3,9 +3,6 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 12 Apr 2018 19:19:08 +0200
 Subject: [PATCH 1/1] tinker-rk3288_defconfig: Xypron specific settings
 
-' Keep U-Boot inside 1st MB
-CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x100
-
 ' Enable UEFI testing
 CONFIG_CMD_BOOTEFI_HELLO=y
 CONFIG_CMD_BOOTEFI_SELFTEST=y
