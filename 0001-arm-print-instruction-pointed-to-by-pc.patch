@@ -1,0 +1,35 @@
+From 1377624b67c3b6cb5dd3f04005a74def54398969 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 18 Apr 2018 20:35:14 +0200
+Subject: [PATCH 1/1] arm: print instruction pointed to by pc
+
+Show the instruction pointed to by the program pointer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/lib/interrupts.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
+index cda4d48460..ef35a582bb 100644
+--- a/arch/arm/lib/interrupts.c
++++ b/arch/arm/lib/interrupts.c
+@@ -97,6 +97,15 @@ void show_regs (struct pt_regs *regs)
+ 		fast_interrupts_enabled (regs) ? "on" : "off",
+ 		processor_modes[processor_mode (regs)],
+ 		thumb_mode (regs) ? " (T)" : "");
++	printf ("*pc : %02x %02x %02x %02x %02x %02x %02x %02x\n",
++		((unsigned char *)instruction_pointer(regs))[0],
++		((unsigned char *)instruction_pointer(regs))[1],
++		((unsigned char *)instruction_pointer(regs))[2],
++		((unsigned char *)instruction_pointer(regs))[3],
++		((unsigned char *)instruction_pointer(regs))[4],
++		((unsigned char *)instruction_pointer(regs))[5],
++		((unsigned char *)instruction_pointer(regs))[6],
++		((unsigned char *)instruction_pointer(regs))[7]);
+ }
+ 
+ /* fixup PC to point to the instruction leading to the exception */
+-- 
+2.14.2
+
