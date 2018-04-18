@@ -79,6 +79,7 @@ git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
 git am ../patch/0001-efi_selftest-test-EFI_DEVICE_PATH_UTILITIES_PROTOCOL.patch
 
 # KGDB
+git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
 git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
 exit
