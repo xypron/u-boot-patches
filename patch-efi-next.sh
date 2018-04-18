@@ -59,9 +59,10 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
 
 # Unaligned access
-git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
-git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
-git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
+# git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
+# git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
+# git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
+git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
 
 # 32-bit support
 # git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
