@@ -42,6 +42,7 @@ git am ../patch/0001-usb-ehci-hcd-eliminate-tweaks-used-for-faraday.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-cmd-CONFIG_CMD_LOG-select-CONFIG_LOG.patch
+git am ../patch/0001-log-CONFIG_LOG-should-select-CONFIG_DM.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-rockchip-rk3288-provide-fdtfile.patch
 
