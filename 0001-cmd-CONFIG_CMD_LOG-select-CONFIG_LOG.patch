@@ -1,0 +1,31 @@
+From 4865c1665e16d2e6cccb681cd2a9a9cff994328b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 19 Apr 2018 19:20:11 +0200
+Subject: [PATCH 1/1] cmd: CONFIG_CMD_LOG select CONFIG_LOG
+
+CONFIG_CMD_LOG without CONFIG_LOG leads to a build error:
+‘gd_t {aka volatile struct global_data}’ has no member named
+‘default_log_level’
+
+So CMD_LOG should select LOG.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index bc1d2f31c0..225bb002a6 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1660,6 +1660,7 @@ config CMD_KGDB
+ 
+ config CMD_LOG
+ 	bool "log - Generation, control and access to logging"
++	select LOG
+ 	help
+ 	  This provides access to logging features. It allows the output of
+ 	  log data to be controlled to a limited extent (setting up the default
+-- 
+2.15.1
+
