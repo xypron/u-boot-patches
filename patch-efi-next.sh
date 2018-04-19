@@ -82,6 +82,16 @@ git am ../patch/0001-efi_selftest-test-EFI_DEVICE_PATH_UTILITIES_PROTOCOL.patch
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
 git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
+# RISC-V
+git am ../patch/0001-riscv-Add-setjmp-longjmp-code.patch
+git am ../patch/0001-riscv-Enable-function-sections.patch
+git am ../patch/0001-efi_loader-selftest-Do-not-build-relocation-tests-fo.patch
+git am ../patch/0001-riscv-Add-board_quiesce_devices-stub.patch
+git am ../patch/0001-efi_loader-Use-EFI_CACHELINE_SIZE-in-the-image-loade.patch
+git am ../patch/0001-distro-Extend-with-RISC-V-defines.patch
+git am ../patch/0001-riscv-nx25-Enable-distro-boot.patch
+git am ../patch/0001-efi_loader-Enable-RISC-V-support.patch
+
 exit
 # From Simon's Sandbox support series
 git am ../patch/0001-sandbox-set-available-memory-address.patch

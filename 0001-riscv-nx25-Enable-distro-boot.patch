@@ -1,0 +1,55 @@
+From 8444596fd3328fbc7d24a1f32d55c121473b53da Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Wed, 18 Apr 2018 15:40:29 +0200
+Subject: [PATCH 1/1] riscv: nx25: Enable distro boot
+
+Distro boot allows for a common boot path on systems that allow distributions
+to easily boot from a default configuration.
+
+This patch enables distro boot for the nx25-ae250. Hopefully this can serve
+as a good example for new boards, so they enable it as well.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ configs/nx25-ae250_defconfig |  1 +
+ include/configs/nx25-ae250.h | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/configs/nx25-ae250_defconfig b/configs/nx25-ae250_defconfig
+index 4f9bd58f75..437083231b 100644
+--- a/configs/nx25-ae250_defconfig
++++ b/configs/nx25-ae250_defconfig
+@@ -37,3 +37,4 @@ CONFIG_DM_SPI=y
+ CONFIG_ATCSPI200_SPI=y
+ CONFIG_TIMER=y
+ CONFIG_ATCPIT100_TIMER=y
++CONFIG_DISTRO_DEFAULTS=y
+diff --git a/include/configs/nx25-ae250.h b/include/configs/nx25-ae250.h
+index 0e4c431cab..a90c75abc4 100644
+--- a/include/configs/nx25-ae250.h
++++ b/include/configs/nx25-ae250.h
+@@ -105,4 +105,21 @@
+ /* Increase max gunzip size */
+ #define CONFIG_SYS_BOOTM_LEN	(64 << 20)
+ 
++/* When we use RAM as ENV */
++#define CONFIG_ENV_SIZE 0x2000
++
++/* Enable distro boot */
++#define BOOT_TARGET_DEVICES(func) \
++	func(MMC, mmc, 0) \
++	func(DHCP, dhcp, na)
++#include <config_distro_bootcmd.h>
++
++#define CONFIG_EXTRA_ENV_SETTINGS	\
++				"kernel_addr_r=0x00080000\0" \
++				"pxefile_addr_r=0x01f00000\0" \
++				"scriptaddr=0x01f00000\0" \
++				"fdt_addr_r=0x02000000\0" \
++				"ramdisk_addr_r=0x02800000\0" \
++				BOOTENV
++
+ #endif /* __CONFIG_H */
+-- 
+2.17.0
+
