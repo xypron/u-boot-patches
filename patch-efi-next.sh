@@ -40,7 +40,7 @@ git am ../patch/0001-usb-musb-new-misplaced-out-of-bounds-check.patch
 git am ../patch/0001-usb-ehci-faraday-remove-unused-driver.patch
 git am ../patch/0001-usb-ehci-hcd-eliminate-tweaks-used-for-faraday.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
-git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
+# git am ../patch/0001-log-fix-typo-LOGL_EFI.patch
 git am ../patch/0001-cmd-CONFIG_CMD_LOG-select-CONFIG_LOG.patch
 git am ../patch/0001-log-CONFIG_LOG-should-select-CONFIG_DM.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
@@ -66,56 +66,12 @@ git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
 # git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
 
-# 32-bit support
-# git am ../patch/0001-efi_loader-support-for-CONFIG_ARMV7_NONSEC.patch
-# git am ../patch/0001-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
-
-# EFI protocols
-git am ../patch/0001-efi_selftest-do-not-execute-test-if-setup-failed.patch
-git am ../patch/0001-efi_selftest-fix-typo-in-efi_selftest_devicepath.c.patch
-git am ../patch/0001-efi_loader-implement-CreateDeviceNode.patch
-git am ../patch/0001-efi_loader-fix-AppendDevicePath.patch
-git am ../patch/0001-efi_loader-correctly-determine-length-of-empty-devic.patch
-git am ../patch/0001-efi_loader-correcty-determine-total-device-path-leng.patch
-git am ../patch/0001-efi_loader-complete-EFI_DEVICE_PATH_UTILITIES_PROTOC.patch
-git am ../patch/0001-efi_selftest-test-EFI_DEVICE_PATH_UTILITIES_PROTOCOL.patch
-
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
 git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
-# RISC-V
-git am ../patch/0001-riscv-Add-setjmp-longjmp-code.patch
-git am ../patch/0001-riscv-Enable-function-sections.patch
-git am ../patch/0001-efi_loader-selftest-Do-not-build-relocation-tests-fo.patch
-git am ../patch/0001-riscv-Add-board_quiesce_devices-stub.patch
-git am ../patch/0001-efi_loader-Use-EFI_CACHELINE_SIZE-in-the-image-loade.patch
-git am ../patch/0001-distro-Extend-with-RISC-V-defines.patch
-git am ../patch/0001-riscv-nx25-Enable-distro-boot.patch
-git am ../patch/0001-efi_loader-Enable-RISC-V-support.patch
-
-exit
-# From Simon's Sandbox support series
-git am ../patch/0001-sandbox-set-available-memory-address.patch
-git am ../patch/0001-efi-sandbox-Adjust-memory-usage-for-sandbox.patch # no change
-git am ../patch/0001-sandbox-smbios-Update-to-support-sandbox.patch # no change
-git am ../patch/0001-sandbox-Add-a-setjmp-implementation.patch # no change
-git am ../patch/0001-efi-sandbox-Add-required-linker-sections.patch # no change
-git am ../patch/0001-efi-sandbox-add-distroboot-support.patch
-git am ../patch/0001-Define-board_quiesce_devices-in-a-shared-location.patch
-git am ../patch/0001-Add-a-comment-for-board_quiesce_devices.patch # no change
-git am ../patch/0001-efi-sandbox-Add-relocation-constants.patch # no change
-git am ../patch/0001-efi-sandbox-no-support-for-DHCP-EFI-boot.patch
-git am ../patch/0001-efi_selftest-cannot-launch-EFI-binary-in-sandbox.patch
-git am ../patch/0001-sandbox-alignment-of-memory.patch
-git am ../patch/0001-efi-sandbox-Enable-EFI-loader-builder-for-sandbox.patch # rebased
-
 # To be reworked
 # git am ../patch/0001-efi_loader-memory-reservations-according-to-e820-tab.patch
-
-# git am ../patch/0001-efi_loader-clean-up-efi_exit.patch
-# git am ../patch/0001-efi_loader-correct-return-types-do_bootefi_exec.patch
-# git am ../patch/0001-efi_loader-call-efi_setup_loaded_image-first.patch
 
 # Work in progress
 # git am ../patch/0001-efi_loader-debug-print-memory-map.patch
