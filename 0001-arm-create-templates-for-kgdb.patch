@@ -1,4 +1,4 @@
-From fef07d4f5de152930c74632579ce2628624ec983 Mon Sep 17 00:00:00 2001
+From cc752573b817d16f2d4630c315f45bdf236dc0d2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 17 Apr 2018 19:16:49 +0200
 Subject: [PATCH 1/1] arm: create templates for kgdb
@@ -7,14 +7,27 @@ Create template files for the kernel debugger implementation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/arm/lib/Makefile     |  5 +++
- arch/arm/lib/interrupts.c |  6 +++
- arch/arm/lib/kgdb.c       | 84 +++++++++++++++++++++++++++++++++++++++
- arch/arm/lib/kgdb64.c     | 54 +++++++++++++++++++++++++
- 4 files changed, 149 insertions(+)
+ arch/arm/include/asm/proc-armv/ptrace.h |   1 +
+ arch/arm/lib/Makefile                   |   5 ++
+ arch/arm/lib/interrupts.c               |  57 ++++++++++--
+ arch/arm/lib/kgdb.c                     | 111 ++++++++++++++++++++++++
+ arch/arm/lib/kgdb64.c                   |  54 ++++++++++++
+ 5 files changed, 221 insertions(+), 7 deletions(-)
  create mode 100644 arch/arm/lib/kgdb.c
  create mode 100644 arch/arm/lib/kgdb64.c
 
+diff --git a/arch/arm/include/asm/proc-armv/ptrace.h b/arch/arm/include/asm/proc-armv/ptrace.h
+index 71df5a9e25..2901c59299 100644
+--- a/arch/arm/include/asm/proc-armv/ptrace.h
++++ b/arch/arm/include/asm/proc-armv/ptrace.h
+@@ -59,6 +59,7 @@ struct pt_regs {
+ 
+ struct pt_regs {
+ 	long uregs[18];
++	long trap;
+ };
+ 
+ #define ARM_cpsr	uregs[16]
 diff --git a/arch/arm/lib/Makefile b/arch/arm/lib/Makefile
 index 3d3085e917..9ff2fb25ea 100644
 --- a/arch/arm/lib/Makefile
@@ -32,7 +45,7 @@ index 3d3085e917..9ff2fb25ea 100644
  obj-$(CONFIG_CMD_BOOTM) += bootm.o
  obj-$(CONFIG_CMD_BOOTZ) += bootm.o zimage.o
 diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
-index 8bec46324d..ee4879b742 100644
+index 8bec46324d..7084f94504 100644
 --- a/arch/arm/lib/interrupts.c
 +++ b/arch/arm/lib/interrupts.c
 @@ -21,6 +21,7 @@
@@ -43,24 +56,124 @@ index 8bec46324d..ee4879b742 100644
  #include <asm/proc-armv/ptrace.h>
  #include <asm/u-boot-arm.h>
  #include <efi_loader.h>
-@@ -113,6 +114,11 @@ static inline void fixup_pc(struct pt_regs *regs, int offset)
+@@ -113,8 +114,14 @@ static inline void fixup_pc(struct pt_regs *regs, int offset)
  void do_undefined_instruction (struct pt_regs *pt_regs)
  {
  	efi_restore_gd();
+-	printf ("undefined instruction\n");
+ 	fixup_pc(pt_regs, -4);
 +#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 1;
 +	if (debugger_exception_handler &&
 +	    (*debugger_exception_handler)(pt_regs))
 +		return;
 +#endif
- 	printf ("undefined instruction\n");
- 	fixup_pc(pt_regs, -4);
++	printf ("undefined instruction\n");
  	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -123,8 +130,14 @@ void do_undefined_instruction (struct pt_regs *pt_regs)
+ void do_software_interrupt (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("software interrupt\n");
+ 	fixup_pc(pt_regs, -4);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 2;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("software interrupt\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -133,8 +146,14 @@ void do_software_interrupt (struct pt_regs *pt_regs)
+ void do_prefetch_abort (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("prefetch abort\n");
+ 	fixup_pc(pt_regs, -8);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 3;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("prefetch abort\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -143,8 +162,14 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
+ void do_data_abort (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("data abort\n");
+ 	fixup_pc(pt_regs, -8);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 4;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("data abort\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -153,8 +178,14 @@ void do_data_abort (struct pt_regs *pt_regs)
+ void do_not_used (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("not used\n");
+ 	fixup_pc(pt_regs, -8);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 5;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("not used\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -163,8 +194,14 @@ void do_not_used (struct pt_regs *pt_regs)
+ void do_fiq (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("fast interrupt request\n");
+ 	fixup_pc(pt_regs, -8);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 6;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("fast interrupt request\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
+@@ -173,8 +210,14 @@ void do_fiq (struct pt_regs *pt_regs)
+ void do_irq (struct pt_regs *pt_regs)
+ {
+ 	efi_restore_gd();
+-	printf ("interrupt request\n");
+ 	fixup_pc(pt_regs, -8);
++#if defined(CONFIG_CMD_KGDB)
++	pt_regs->trap = 7;
++	if (debugger_exception_handler &&
++	    (*debugger_exception_handler)(pt_regs))
++		return;
++#endif
++	printf ("interrupt request\n");
+ 	show_regs (pt_regs);
+ 	show_efi_loaded_images(pt_regs);
+ 	bad_mode ();
 diff --git a/arch/arm/lib/kgdb.c b/arch/arm/lib/kgdb.c
 new file mode 100644
-index 0000000000..7060bde893
+index 0000000000..05a15a87b3
 --- /dev/null
 +++ b/arch/arm/lib/kgdb.c
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,111 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Kernel debugger
@@ -70,6 +183,35 @@ index 0000000000..7060bde893
 +
 +#include <common.h>
 +#include <kgdb.h>
++#include <asm-generic/signal.h>
++
++/*
++ * Convert interrupt type to exception code for GDB
++ *
++ * @trap:	interrupt type
++ * @return:	exception code for GDB
++ */
++int compute_signal(long trap) {
++	switch (trap)
++	{
++	case 1: /* undefined instruction */
++		return SIGTRAP;
++	case 2: /* software interrupt */
++		return SIGINT;
++	case 3: /* prefetch abort */
++		return SIGBUS;
++	case 4: /* data abort */
++		return SIGBUS;
++	case 5: /* not used */
++		return SIGTRAP;
++	case 6: /* irq */
++		return SIGINT;
++	case 7: /* frq */
++		return SIGINT;
++	default:
++		panic("unknow trap\n");
++	}
++}
 +
 +void kgdb_flush_cache_range(void *from, void *to)
 +{
@@ -93,11 +235,9 @@ index 0000000000..7060bde893
 +
 +void kgdb_enter(struct pt_regs *regs, kgdb_data *kdp)
 +{
-+	printf("%s(%d) %s\n", __FILE__, __LINE__, __func__);
++	disable_interrupts();
 +
-+	/* TODO: stop interrupts */
-+
-+	// kdp->sigval = compute_ignal(regs->trap);
++	kdp->sigval = compute_signal(regs->trap);
 +
 +	kdp->nregs = 2;
 +
@@ -131,7 +271,7 @@ index 0000000000..7060bde893
 +
 +int kgdb_trap(struct pt_regs *regs)
 +{
-+	return 0;
++	return regs->trap;
 +}
 +
 +/*
