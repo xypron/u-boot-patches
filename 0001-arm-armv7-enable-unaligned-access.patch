@@ -1,4 +1,4 @@
-From 03139aa796dd45a6284145003e47f0828790a1c7 Mon Sep 17 00:00:00 2001
+From 404079e48ff454c630a24b5501973047bc6ae854 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 29 Mar 2018 23:33:50 +0200
 Subject: [PATCH 1/1] arm: armv7: enable unaligned access
@@ -15,8 +15,7 @@ Without this patch iPXE snp.efi cannot be executed on the Allwinner A20.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/arm/cpu/armv7/start.S | 1 -
- arch/arm/lib/interrupts.c  | 4 ++++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ 1 file changed, 1 deletion(-)
 
 diff --git a/arch/arm/cpu/armv7/start.S b/arch/arm/cpu/armv7/start.S
 index 7e2695761e..1771741119 100644
@@ -30,28 +29,6 @@ index 7e2695761e..1771741119 100644
  	orr	r0, r0, #0x00000800	@ set bit 11 (Z---) BTB
  #ifdef CONFIG_SYS_ICACHE_OFF
  	bic	r0, r0, #0x00001000	@ clear bit 12 (I) I-cache
-diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
-index cda4d48460..59d6ed6f52 100644
---- a/arch/arm/lib/interrupts.c
-+++ b/arch/arm/lib/interrupts.c
-@@ -60,6 +60,8 @@ static void show_efi_loaded_images(struct pt_regs *regs)
- void show_regs (struct pt_regs *regs)
- {
- 	unsigned long __maybe_unused flags;
-+	/* The list significant bit chooses thumb */
-+	u16 *pc = (u16 *)(instruction_pointer(regs) & ~1);
- 	const char __maybe_unused *processor_modes[] = {
- 	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
- 	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
-@@ -97,6 +99,8 @@ void show_regs (struct pt_regs *regs)
- 		fast_interrupts_enabled (regs) ? "on" : "off",
- 		processor_modes[processor_mode (regs)],
- 		thumb_mode (regs) ? " (T)" : "");
-+	printf ("*pc: %04x %04x %04x %04x %04x %04x %04x %04x\n",
-+		pc[0], pc[1], pc[2], pc[3], pc[4], pc[5], pc[6], pc[7]);
- }
- 
- /* fixup PC to point to the instruction leading to the exception */
 -- 
 2.17.0
 
