@@ -1,0 +1,61 @@
+From a2409b02fa3462c6a7a26702527bf3cbfc813cca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 23 Apr 2018 22:13:46 +0200
+Subject: [PATCH 1/1] arm: register numbers for GDB
+
+Define the register numbers used by the GNU Project Debugger.
+We need these for kernel debugging.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/include/asm/ptrace.h | 36 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/arch/arm/include/asm/ptrace.h b/arch/arm/include/asm/ptrace.h
+index a836f6cc60..ed38fe463f 100644
+--- a/arch/arm/include/asm/ptrace.h
++++ b/arch/arm/include/asm/ptrace.h
+@@ -30,4 +30,40 @@ extern void show_regs(struct pt_regs *);
+ 
+ #endif /* __ASSEMBLY__ */
+ 
++#ifdef CONFIG_ARM64
++
++#define ARM64_NUM_REGS		68
++
++#define ARM64_X0_REG		0
++#define ARM64_X28_REG		28
++#define ARM64_FP_REG		29
++#define ARM64_LR_REG		30
++#define ARM64_SP_REG		31
++#define ARM64_PC_REG		32
++#define ARM64_CPSR_REG		33
++
++#else /* CONFIG_ARM64 */
++
++#define ARM_NUM_REGS		91
++
++#define ARM_R0_REG		0
++#define ARM_R1_REG		1
++#define ARM_R2_REG		2
++#define ARM_R3_REG		3
++#define ARM_R4_REG		4
++#define ARM_R5_REG		5
++#define ARM_R6_REG		6
++#define ARM_R7_REG		7
++#define ARM_R8_REG		8
++#define ARM_R9_REG		9
++#define ARM_R10_REG		10
++#define ARM_FP_REG		11
++#define ARM_IP_REG		12
++#define ARM_SP_REG		13
++#define ARM_LR_REG		14
++#define ARM_PC_REG		15
++#define ARM_CPSR_REG		41
++
++#endif /* CONFIG_ARM64 */
++
+ #endif
+-- 
+2.17.0
+
