@@ -66,7 +66,7 @@ git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
 
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
-git am ../patch70001-arm-register-numbers-for-GDB.patch
+git am ../patch/0001-arm-register-numbers-for-GDB.patch
 git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
 # To be reworked
