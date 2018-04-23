@@ -1,9 +1,14 @@
 From f6cfb06405e935a4a9e78d3e4e9c7d896afd48be Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 18 Apr 2018 20:35:14 +0200
-Subject: [PATCH 1/1] arm: print instruction pointed to by pc
+Subject: [PATCH 1/1] arm: print instructions pointed to by pc
 
-Show the instruction pointed to by the program pointer.
+If an exception occurs in a loaded image and the relocation offset is
+unknown, it is helful to know the instructions pointed to by the
+program counter. This patch adds the missing output.
+
+A possible output is:
+*pc: defe e7ff 8010 e8bd abb9 9ffc f7d5 9ffc
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -18,7 +23,7 @@ index cda4d48460..24fa3d433d 100644
  void show_regs (struct pt_regs *regs)
  {
  	unsigned long __maybe_unused flags;
-+	/* The list significant bit chooses thumb */
++	/* The least significant bit chooses thumb, remove it. */
 +	u16 *pc = (u16 *)(instruction_pointer(regs) & ~1);
  	const char __maybe_unused *processor_modes[] = {
  	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
