@@ -1,0 +1,28 @@
+From 6dee59327f26f926c0d9704c3e4ba84157845e48 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 23 Apr 2018 22:24:48 +0200
+Subject: [PATCH 1/1] powerpc: fix typo in kgdb.c
+
+%s/alingment/alignment/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/powerpc/lib/kgdb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/lib/kgdb.c b/arch/powerpc/lib/kgdb.c
+index aa16a00a42..f580c023e5 100644
+--- a/arch/powerpc/lib/kgdb.c
++++ b/arch/powerpc/lib/kgdb.c
+@@ -52,7 +52,7 @@ static struct hard_trap_info
+ 	{ 0x300, SIGSEGV },			/* address error (store) */
+ 	{ 0x400, SIGBUS },			/* instruction bus error */
+ 	{ 0x500, SIGINT },			/* interrupt */
+-	{ 0x600, SIGBUS },			/* alingment */
++	{ 0x600, SIGBUS },			/* alignment */
+ 	{ 0x700, SIGTRAP },			/* breakpoint trap */
+ 	{ 0x800, SIGFPE },			/* fpu unavail */
+ 	{ 0x900, SIGALRM },			/* decrementer */
+-- 
+2.17.0
+
