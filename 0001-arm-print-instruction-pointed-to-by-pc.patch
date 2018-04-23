@@ -19,7 +19,7 @@ index cda4d48460..24fa3d433d 100644
  {
  	unsigned long __maybe_unused flags;
 +	/* The list significant bit chooses thumb */
-+	u16 *pc = (u16 *)instruction_pointer(regs) && ~1;
++	u16 *pc = (u16 *)(instruction_pointer(regs) & ~1);
  	const char __maybe_unused *processor_modes[] = {
  	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
  	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
