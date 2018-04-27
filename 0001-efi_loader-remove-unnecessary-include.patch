@@ -1,0 +1,66 @@
+From bdf3fbfef973e6d5ad527922bddc7e31b383d70e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 27 Apr 2018 17:57:22 +0200
+Subject: [PATCH 1/1] efi_loader: remove unnecessary include
+
+asm/global_data.h is already included via common.h.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c     | 1 -
+ lib/efi_loader/efi_image_loader.c | 1 -
+ lib/efi_loader/efi_memory.c       | 1 -
+ lib/efi_loader/efi_runtime.c      | 1 -
+ 4 files changed, 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 1cfdabf6eb..5e4089df62 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -11,7 +11,6 @@
+ #include <efi_loader.h>
+ #include <environment.h>
+ #include <malloc.h>
+-#include <asm/global_data.h>
+ #include <linux/libfdt_env.h>
+ #include <u-boot/crc.h>
+ #include <bootm.h>
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index d5fbba3138..51810da8e7 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -11,7 +11,6 @@
+ #include <common.h>
+ #include <efi_loader.h>
+ #include <pe.h>
+-#include <asm/global_data.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 14c140cdeb..3b3bdb1131 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -11,7 +11,6 @@
+ #include <inttypes.h>
+ #include <malloc.h>
+ #include <watchdog.h>
+-#include <asm/global_data.h>
+ #include <linux/list_sort.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 8558124c0a..31ef878fc7 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -11,7 +11,6 @@
+ #include <dm.h>
+ #include <efi_loader.h>
+ #include <rtc.h>
+-#include <asm/global_data.h>
+ 
+ /* For manual relocation support */
+ DECLARE_GLOBAL_DATA_PTR;
+-- 
+2.14.2
+

@@ -63,6 +63,8 @@ git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
 # git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
 
+git am ../patch/0001-efi_loader-remove-unnecessary-include.patch
+
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
 git am ../patch/0001-arm-register-numbers-for-GDB.patch
