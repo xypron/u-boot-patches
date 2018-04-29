@@ -4,7 +4,7 @@ Date: Sat, 3 Mar 2018 11:32:43 +0100
 Subject: [PATCH 1/1] video: if EFI_LOADER is enabled, enable CFB_CONSOLE_ANSI
 
 EFI applications like GRUB issue ANSI sequences for setting colors
-and for positioning. So if the EFI subsystem is enabled we should
+and for positioning. So if the EFI subsystem is enabled, we should
 also enable ANSI control sequences by default.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
