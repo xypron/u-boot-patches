@@ -1,0 +1,69 @@
+From 9e243ddebddbe553b567185c4045bb197df787d7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 29 Apr 2018 14:11:49 +0200
+Subject: [PATCH 1/1] efi_loader: updating the cursor position
+
+The current coding advances the column by the number of UTF-8 bytes.
+The column should be increased by one per unicode character.
+
+The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
+and U000D. All other characters, including control characters
+U+0007 (bel) and U+0009 (tab), have to increase the column by one.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 5d1a9a8081..d687362a50 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -117,25 +117,36 @@ static efi_status_t EFIAPI efi_cout_output_string(
+ 
+ 	unsigned int n16 = utf16_strlen(string);
+ 	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
+-	char *p;
++	u16 *p;
+ 
+ 	*utf16_to_utf8((u8 *)buf, string, n16) = '\0';
+ 
+ 	fputs(stdout, buf);
+ 
+-	for (p = buf; *p; p++) {
++	/*
++	 * Update the cursor position.
++	 *
++	 * The UEFI spec provides advance rules for U+0000, U+0008, U+000A,
++	 * and U000D. All other characters, including control characters
++	 * U+0007 (bel) and U+0009 (tab), have to increase the column by one.
++	 */
++	for (p = string; *p; ++p) {
+ 		switch (*p) {
+-		case '\r':   /* carriage-return */
+-			con->cursor_column = 0;
++		case '\b':	/* U+0008, backspace */
++			con->cursor_column = max(0, con->cursor_column - 1);
+ 			break;
+-		case '\n':   /* newline */
++		case '\n':	/* U+000A, newline */
+ 			con->cursor_column = 0;
+ 			con->cursor_row++;
+ 			break;
+-		case '\t':   /* tab, assume 8 char align */
++		case '\r':	/* U+000D, carriage-return */
++			con->cursor_column = 0;
+ 			break;
+-		case '\b':   /* backspace */
+-			con->cursor_column = max(0, con->cursor_column - 1);
++		case 0xd800 ... 0xdbff:
++			/*
++			 * Ignore high surrogates, we do not want to count a
++			 * Unicode character twice.
++			 */
+ 			break;
+ 		default:
+ 			con->cursor_column++;
+-- 
+2.14.2
+

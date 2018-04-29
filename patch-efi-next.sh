@@ -64,6 +64,10 @@ git am ../patch/0001-efi_loader-remove-unnecessary-include.patch
 # TODO: ARMV7
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
 
+# Text output
+git am ../patch/0001-efi_loader-updating-the-cursor-position.patch
+git am ../patch/0001-efi_selftest-updating-the-cursor-position.patch
+
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
 git am ../patch/0001-arm-register-numbers-for-GDB.patch
