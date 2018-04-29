@@ -1,4 +1,4 @@
-From 258352fa7d7ef641848a6525369ebc804b0f1e36 Mon Sep 17 00:00:00 2001
+From da1f926b97297a0589d433f168194345e3d93385 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 29 Apr 2018 16:58:44 +0200
 Subject: [PATCH 1/1] efi_loader: scroll screen before clearing
@@ -11,26 +11,22 @@ buffer.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ lib/efi_loader/efi_console.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index d687362a50..1a955a5311 100644
+index d687362a50..3d36a8a286 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
-@@ -320,8 +320,17 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
+@@ -320,8 +320,13 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
  static efi_status_t EFIAPI efi_cout_clear_screen(
  			struct efi_simple_text_output_protocol *this)
  {
 +	int i;
-+	struct simple_text_output_mode *con = &efi_con_mode;
-+	struct cout_mode *mode = &efi_cout_modes[con->mode];
-+
  	EFI_ENTRY("%p", this);
  
 +	/* Move the screen content to the scroll buffer */
-+	printf(ESC "[%d;0f", (s32)mode->rows - 1);
-+	for (i = 0; i < mode->rows; ++i)
++	for (i = 0; i < 60; ++i)
 +		printf("\n");
 +	/* Clear screen */
  	printf(ESC"[2J");
