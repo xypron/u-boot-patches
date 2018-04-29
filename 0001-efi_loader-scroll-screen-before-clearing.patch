@@ -31,7 +31,7 @@ index d687362a50..1a955a5311 100644
 +	/* Move the screen content to the scroll buffer */
 +	printf(ESC "[%d;0f", (s32)mode->rows - 1);
 +	for (i = 0; i < mode->rows; ++i)
-+		printf("\r");
++		printf("\n");
 +	/* Clear screen */
  	printf(ESC"[2J");
  
