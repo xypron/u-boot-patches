@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
 # Text output
 git am ../patch/0001-efi_loader-updating-the-cursor-position.patch
 git am ../patch/0001-efi_selftest-updating-the-cursor-position.patch
+git am ../patch/0001-efi_loader-scroll-screen-before-clearing.patch
 
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
