@@ -41,7 +41,7 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-include-update-log2-header-from-the-Linux-kernel.patch
 
 # Video console
-git am ../patch/0001-video-if-EFI_LOADER-is-enabled-enable-CFB_CONSOLE_AN.patch
+git am ../patch/0001-efi_loader-if-EFI_LOADER-is-enabled-enable-CFB_CONSO.patch
 
 # USB keyboard
 git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
