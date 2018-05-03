@@ -39,9 +39,6 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-include-update-log2-header-from-the-Linux-kernel.patch
 
-# Video console
-git am ../patch/0001-efi_loader-if-EFI_LOADER-is-enabled-enable-CFB_CONSO.patch
-
 # USB keyboard
 git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
 git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
@@ -59,16 +56,8 @@ git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
 # git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
 
-git am ../patch/0001-efi_loader-remove-unnecessary-include.patch
-
 # TODO: ARMV7
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
-
-# Text output
-git am ../patch/0001-efi_loader-updating-the-cursor-position.patch
-git am ../patch/0001-efi_selftest-updating-the-cursor-position.patch
-git am ../patch/0001-efi_loader-scroll-screen-before-clearing.patch
-git am ../patch/0001-efi_loader-always-check-parameters-in-efi_cout_query.patch
 
 # KGDB
 git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
