@@ -24,8 +24,6 @@ git am ../patch/0001-spi-atcspi200-avoid-NULL-dereference.patch
 git am ../patch/0001-spi-fsl_qspi-remove-superfluous-assignment.patch
 git am ../patch/0001-spi-lpc32xx-simplify-logical-expression.patch
 git am ../patch/0001-usb-dwc3-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-gadget-remove-duplicate-assignment.patch
-git am ../patch/0001-usb-f_mass_storage-simplify-logical-expression.patch
 git am ../patch/0001-usb-sl811-hcd-remove-duplicate-assignment.patch
 git am ../patch/0001-usb-xhci-exynos5-correct-error-checking.patch
 git am ../patch/0001-usb-xhci-keystone-remove-superfluous-assignment.patch
