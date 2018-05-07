@@ -30,8 +30,6 @@ git am ../patch/0001-usb-xhci-keystone-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-xhci-ring-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-musb-new-misplaced-out-of-bounds-check.patch
-git am ../patch/0001-usb-ehci-faraday-remove-unused-driver.patch
 git am ../patch/0001-usb-ehci-hcd-eliminate-tweaks-used-for-faraday.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
