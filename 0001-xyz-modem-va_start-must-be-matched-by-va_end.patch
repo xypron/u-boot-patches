@@ -1,0 +1,47 @@
+From ee5079adfb5cf40d96120b7bba926befa872e124 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 7 May 2018 21:49:38 +0200
+Subject: [PATCH 1/1] xyz-modem: va_start() must be matched by va_end()
+
+Every va_start() call must be matched by a va_end() call.
+
+scripts/checkpatch.pl required reformatting the complete function
+zm_dprintf().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/xyzModem.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/common/xyzModem.c b/common/xyzModem.c
+index a126e32ed35..2b18a6e9f50 100644
+--- a/common/xyzModem.c
++++ b/common/xyzModem.c
+@@ -180,15 +180,16 @@ static char *zm_out = zm_debug_buf;
+ static char *zm_out_start = zm_debug_buf;
+ 
+ static int
+-zm_dprintf (char *fmt, ...)
++zm_dprintf(char *fmt, ...)
+ {
+-  int len;
+-  va_list args;
+-
+-  va_start (args, fmt);
+-  len = diag_vsprintf (zm_out, fmt, args);
+-  zm_out += len;
+-  return len;
++	int len;
++	va_list args;
++
++	va_start(args, fmt);
++	len = diag_vsprintf(zm_out, fmt, args);
++	va_end(args);
++	zm_out += len;
++	return len;
+ }
+ 
+ static void
+-- 
+2.17.0
+

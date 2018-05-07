@@ -37,6 +37,7 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-include-update-log2-header-from-the-Linux-kernel.patch
 git am ../patch/0001-tools-file2include-create-Linux-style-SPDX-header.patch
+git am ../patch/0001-xyz-modem-va_start-must-be-matched-by-va_end.patch
 
 # USB keyboard
 git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
