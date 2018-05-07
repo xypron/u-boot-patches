@@ -1,4 +1,4 @@
-From 735bd66982cf22d92a5da6491d076ab5ff208dd0 Mon Sep 17 00:00:00 2001
+From 31baf1d3017af4b5dc27d27ad884926c38158f87 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 21 Feb 2018 18:17:55 +0100
 Subject: [PATCH 1/1] usb: kbd: allow multibyte sequences to be put into ring
@@ -15,23 +15,23 @@ sequence, it is rejected completely.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- common/usb_kbd.c | 55 +++++++++++++++++++++----------------------------------
+ common/usb_kbd.c | 55 ++++++++++++++++++------------------------------
  lib/Makefile     |  4 +++-
  2 files changed, 24 insertions(+), 35 deletions(-)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index 8cbdba6ac2..3e6339c7a4 100644
+index 8b2fccf9ca4..d5971d06441 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -8,6 +8,7 @@
-  * SPDX-License-Identifier:	GPL-2.0+
+@@ -7,6 +7,7 @@
+  * project.
   */
  #include <common.h>
 +#include <circbuf.h>
  #include <console.h>
  #include <dm.h>
  #include <errno.h>
-@@ -110,9 +111,7 @@ struct usb_kbd_pdata {
+@@ -109,9 +110,7 @@ struct usb_kbd_pdata {
  
  	uint32_t	repeat_delay;
  
@@ -42,7 +42,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  
  	uint8_t		*new;
  	uint8_t		old[USB_KBD_BOOT_REPORT_SIZE];
-@@ -125,26 +124,6 @@ extern int __maybe_unused net_busy_flag;
+@@ -124,26 +123,6 @@ extern int __maybe_unused net_busy_flag;
  /* The period of time between two calls of usb_kbd_testc(). */
  static unsigned long __maybe_unused kbd_testc_tms;
  
@@ -69,7 +69,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  /*
   * Set the LEDs. Since this is used in the irq routine, the control job is
   * issued with a timeout of 0. This means, that the job is queued without
-@@ -237,7 +216,7 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+@@ -236,7 +215,7 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
  	/* Report keycode if any */
  	if (keycode) {
  		debug("%c", keycode);
@@ -78,7 +78,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  	}
  
  	return 0;
-@@ -351,7 +330,12 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
+@@ -350,7 +329,12 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
  #endif
  }
  
@@ -92,7 +92,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  static int usb_kbd_testc(struct stdio_dev *sdev)
  {
  	struct stdio_dev *dev;
-@@ -374,12 +358,13 @@ static int usb_kbd_testc(struct stdio_dev *sdev)
+@@ -373,12 +357,13 @@ static int usb_kbd_testc(struct stdio_dev *sdev)
  
  	usb_kbd_poll_for_event(usb_kbd_dev);
  
@@ -107,7 +107,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  	struct stdio_dev *dev;
  	struct usb_device *usb_kbd_dev;
  	struct usb_kbd_pdata *data;
-@@ -388,15 +373,9 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
+@@ -387,15 +372,9 @@ static int usb_kbd_getc(struct stdio_dev *sdev)
  	usb_kbd_dev = (struct usb_device *)dev->priv;
  	data = usb_kbd_dev->privptr;
  
@@ -125,7 +125,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  }
  
  /* probes the USB device dev for keyboard type. */
-@@ -443,6 +422,13 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
+@@ -442,6 +421,13 @@ static int usb_kbd_probe_dev(struct usb_device *dev, unsigned int ifnum)
  	/* Clear private data */
  	memset(data, 0, sizeof(struct usb_kbd_pdata));
  
@@ -139,7 +139,7 @@ index 8cbdba6ac2..3e6339c7a4 100644
  	/* allocate input buffer aligned and sized to USB DMA alignment */
  	data->new = memalign(USB_DMA_MINALIGN,
  		roundup(USB_KBD_BOOT_REPORT_SIZE, USB_DMA_MINALIGN));
-@@ -635,6 +621,7 @@ static int usb_kbd_remove(struct udevice *dev)
+@@ -634,6 +620,7 @@ static int usb_kbd_remove(struct udevice *dev)
  #ifdef CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
  	destroy_int_queue(udev, data->intq);
  #endif
@@ -148,10 +148,10 @@ index 8cbdba6ac2..3e6339c7a4 100644
  	free(data);
  
 diff --git a/lib/Makefile b/lib/Makefile
-index 0db41c19f3..51ccf0d604 100644
+index d531ea54b31..f97c96403fe 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
-@@ -21,7 +21,9 @@ obj-$(CONFIG_ARCH_AT91) += at91/
+@@ -20,7 +20,9 @@ obj-$(CONFIG_OPTEE) += optee/
  
  obj-$(CONFIG_AES) += aes.o
  obj-y += charset.o
@@ -163,5 +163,5 @@ index 0db41c19f3..51ccf0d604 100644
  obj-y += crc8.o
  obj-y += crc16.o
 -- 
-2.11.0
+2.17.0
 
