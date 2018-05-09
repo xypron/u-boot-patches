@@ -1,6 +1,9 @@
 #!/bin/sh
 git am --abort
 
+# Essential fixes
+git am ../patch/0001-rockchip-set-SYS_NS16550_MEM32-for-all-SoCs.patch
+
 # Xypron specific patches
 git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
