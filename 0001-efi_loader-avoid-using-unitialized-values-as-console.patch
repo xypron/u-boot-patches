@@ -1,0 +1,57 @@
+From 3688180793ec344379543210aba986a971228c9f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 9 May 2018 22:55:04 +0200
+Subject: [PATCH 1/1] efi_loader: avoid using unitialized values as console
+ size
+
+If a request for the console size would be answered with a response
+with less then three values, uninitialized stack memory would be
+copied to the number of rows and columns of the terminal.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 5d1a9a8081e..8365431291c 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -63,7 +63,15 @@ static struct simple_text_output_mode efi_con_mode = {
+ 	.cursor_visible = 1,
+ };
+ 
+-static int term_read_reply(int *n, int maxnum, char end_char)
++/*
++ * Receive and parse a reply from the terminal.
++ *
++ * @n:		array of return values
++ * @num:	number of return values expected
++ * @end_char:	character indicating end of terminal message
++ * @return:	non-zero indicates error
++ */
++static int term_read_reply(int *n, int num, char end_char)
+ {
+ 	char c;
+ 	int i = 0;
+@@ -80,7 +88,7 @@ static int term_read_reply(int *n, int maxnum, char end_char)
+ 		c = getc();
+ 		if (c == ';') {
+ 			i++;
+-			if (i >= maxnum)
++			if (i >= num)
+ 				return -1;
+ 			n[i] = 0;
+ 			continue;
+@@ -94,6 +102,8 @@ static int term_read_reply(int *n, int maxnum, char end_char)
+ 		n[i] *= 10;
+ 		n[i] += c - '0';
+ 	}
++	if (i != num - 1)
++		return -1;
+ 
+ 	return 0;
+ }
+-- 
+2.14.2
+
