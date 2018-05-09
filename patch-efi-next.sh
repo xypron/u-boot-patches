@@ -14,7 +14,6 @@ git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 git am ../patch/0001-spl-u-boot-spl-nodtb.bin-remove-.got-and-.got.plt-se.patch
 
 # Support EFI block device on BananaPi
-# git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-DM_SCSI.patch
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
