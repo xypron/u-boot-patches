@@ -48,9 +48,6 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 # diverse protocols
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 
-# From Simon's Sandbox support series
-git am ../patch/0001-efi-Add-a-TODO-to-efi_init_obj_list.patch # rebased
-
 # Unaligned access
 # git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
 # git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
