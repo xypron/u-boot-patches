@@ -32,8 +32,8 @@ index cda4d48460..24fa3d433d 100644
  		fast_interrupts_enabled (regs) ? "on" : "off",
  		processor_modes[processor_mode (regs)],
  		thumb_mode (regs) ? " (T)" : "");
-+	printf ("*pc: %04x %04x %04x %04x %04x %04x %04x %04x\n",
-+		pc[0], pc[1], pc[2], pc[3], pc[4], pc[5], pc[6], pc[7]);
++	printf("*pc: %04x %04x %04x %04x %04x %04x %04x %04x\n",
++	       pc[0], pc[1], pc[2], pc[3], pc[4], pc[5], pc[6], pc[7]);
  }
  
  /* fixup PC to point to the instruction leading to the exception */
