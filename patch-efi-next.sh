@@ -50,8 +50,10 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-efi_loader-avoid-using-unitialized-values-as-console.patch
 
 # EFI boottime protocols
+git am ../patch/0001-efi_selftest-correct-efi_selftest_manageprotocols.patch
 git am ../patch/0001-efi_loader-check-interface-when-uninstalling-protoco.patch
 git am ../patch/0001-efi_loader-implement-ReinstallProtocolInterface.patch
+git am ../patch/0001-efi_selftest-test-ReinstallProtocolInterface.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
