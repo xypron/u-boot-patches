@@ -1,4 +1,4 @@
-From 9116271f740ba4e0667e75e847778dcab83e8182 Mon Sep 17 00:00:00 2001
+From 6884acc802472fd7dad0940e2461344924efdabb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 10:23:33 +0200
 Subject: [PATCH 1/1] doc: expand README.commands
@@ -10,14 +10,14 @@ Describe the arguments of the completion function.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- doc/README.commands | 81 ++++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 71 insertions(+), 10 deletions(-)
+ doc/README.commands | 82 ++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 72 insertions(+), 10 deletions(-)
 
 diff --git a/doc/README.commands b/doc/README.commands
-index afd5577b0a9..f5054f22a7b 100644
+index afd5577b0a9..f720e30e365 100644
 --- a/doc/README.commands
 +++ b/doc/README.commands
-@@ -1,19 +1,80 @@
+@@ -1,19 +1,81 @@
 +Command definition
 +------------------
  
@@ -39,7 +39,8 @@ index afd5577b0a9..f5054f22a7b 100644
 -help:	 Long description. This is a string
 +name:		The name of the command. THIS IS NOT a string.
  
-+maxargs:	The maximum number of arguments this function takes.
++maxargs:	The maximum number of arguments this function takes including
++		the command itself.
  
 -**** Behind the scene ******
 +repeatable:	Either 0 or 1 to indicate if autorepeat is allowed.
