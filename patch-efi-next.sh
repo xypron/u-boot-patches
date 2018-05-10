@@ -34,10 +34,6 @@ git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
-git am ../patch/0001-include-update-log2-header-from-the-Linux-kernel.patch
-git am ../patch/0001-tools-file2include-create-Linux-style-SPDX-header.patch
-git am ../patch/0001-tools-file2include-avoid-incorrect-comments.patch
-git am ../patch/0001-xyz-modem-va_start-must-be-matched-by-va_end.patch
 git am ../patch/0001-doc-expand-README.commands.patch
 
 # USB keyboard
