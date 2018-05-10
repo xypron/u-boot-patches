@@ -29,9 +29,9 @@ index b14ee54519..cdb56e490b 100644
 +obj-$(CONFIG_EFI_LOADER) += sctlr.o
 +endif
 +
+ obj-$(CONFIG_SYS_ARM_MPU) += mpu_v7r.o
+ 
  ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
- obj-y	+= lowlevel_init.o
- endif
 diff --git a/arch/arm/cpu/armv7/sctlr.S b/arch/arm/cpu/armv7/sctlr.S
 new file mode 100644
 index 0000000000..816cec9edc
