@@ -59,7 +59,7 @@ git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
 
 # KGDB
-git am ../patch/0001-arm-print-instruction-pointed-to-by-pc.patch
+git am ../patch/0001-arm-print-instructions-pointed-to-by-pc.patch
 git am ../patch/0001-arm-register-numbers-for-GDB.patch
 git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
