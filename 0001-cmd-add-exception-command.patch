@@ -1,20 +1,25 @@
-From dd56d2f087a04b87e8b78b14849620997d8507a6 Mon Sep 17 00:00:00 2001
+From dfe6ae050b21c85f4fe90a193dd26c89ec725f8b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
 
 The 'exception' command allows to test exception handling.
 
+This version supports ARM 32bit and the following exceptions:
+* 'breakpoint' - prefetch abort exception
+* 'unaligned'  - data abort exception
+* 'undefined'  - undefined instruction exception
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |   6 +++
  cmd/Makefile    |   1 +
- cmd/exception.c | 131 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 138 insertions(+)
+ cmd/exception.c | 136 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 143 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index eb14e08f77..32a9d656e1 100644
+index eb14e08f773..32a9d656e12 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -1261,6 +1261,12 @@ config CMD_DISPLAY
@@ -23,7 +28,7 @@ index eb14e08f77..32a9d656e1 100644
  
 +config CMD_EXCEPTION
 +	bool "Enable the 'exception' command"
-+	depends on ARM || !ARM64
++	depends on ARM && !ARM64
 +	help
 +	  Enable the 'exception' command which allows to raise an exception.
 +
@@ -31,7 +36,7 @@ index eb14e08f77..32a9d656e1 100644
  	bool "led"
  	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index 0d7322ee0a..becf8aa362 100644
+index 0d7322ee0a4..becf8aa362c 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
 @@ -43,6 +43,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
@@ -44,10 +49,10 @@ index 0d7322ee0a..becf8aa362 100644
  obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/exception.c b/cmd/exception.c
 new file mode 100644
-index 0000000000..375cec2546
+index 00000000000..7c647c64b3b
 --- /dev/null
 +++ b/cmd/exception.c
-@@ -0,0 +1,131 @@
+@@ -0,0 +1,136 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
@@ -94,7 +99,7 @@ index 0000000000..375cec2546
 +	 * 0xe7f...f.	is undefined in ARM mode
 +	 * 0xde..	is undefined in Thumb mode
 +	 */
-+	asm volatile (".word 0xe7ffdefe\n");
++	asm volatile (".word 0xe7f7defb\n");
 +}
 +#endif
 +
@@ -123,12 +128,17 @@ index 0000000000..375cec2546
 +		}
 +	}
 +	switch (id) {
++#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++	case BREAKPOINT:
++		breakpoint();
++		break;
 +	case DATA_ABORT:
 +		data_abort();
 +		break;
 +	case UNDEFINED_INSTRUCTION:
 +		undefined_instruction();
 +		break;
++#endif
 +	default:
 +		return CMD_RET_USAGE;
 +	}
@@ -167,7 +177,7 @@ index 0000000000..375cec2546
 +	"<ex>\n"
 +	"  The following exceptions are available:\n"
 +#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
-+	"  breakpoint - breakpoint instruction\n"
++	"  breakpoint - prefetch abort\n"
 +	"  unaligned  - data abort\n"
 +	"  undefined  - undefined instruction\n"
 +#endif
@@ -180,5 +190,5 @@ index 0000000000..375cec2546
 +	exception_help_text, exception_complete
 +);
 -- 
-2.17.0
+2.14.2
 
