@@ -1,5 +1,5 @@
 #!/bin/sh
-git am --abort
+git am --abort || true
 
 # Essential fixes
 git am ../patch/0001-rockchip-set-SYS_NS16550_MEM32-for-all-SoCs.patch
