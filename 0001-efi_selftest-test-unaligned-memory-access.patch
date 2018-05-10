@@ -51,7 +51,7 @@ index 0000000000..531eefffd4
 +};
 +
 +/*
-+ * Return an u32 at a give address.
++ * Return an u32 at a given address.
 + * If the address is not four byte aligned, an unaligned memory access
 + * occurs.
 + *

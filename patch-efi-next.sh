@@ -50,10 +50,10 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-efi_loader-avoid-using-unitialized-values-as-console.patch
 
 # Unaligned access
-# git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
-# git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
-# git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
-git am ../patch/0001-arm-armv7-enable-unaligned-access.patch
+git am ../patch/0001-cmd-add-exception-command.patch
+git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
+git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
+git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
 # TODO: ARMV7
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch

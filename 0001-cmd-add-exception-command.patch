@@ -1,0 +1,165 @@
+From 7e5a284954c357002a57921b28d2eba952a356ef Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 10 May 2018 13:03:12 +0200
+Subject: [PATCH 1/1] cmd: add exception command
+
+The 'exception' command allows to test exception handling.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig     |   5 +++
+ cmd/Makefile    |   1 +
+ cmd/exception.c | 113 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 119 insertions(+)
+ create mode 100644 cmd/exception.c
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index eb14e08f773..7b5af3c1695 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1261,6 +1261,11 @@ config CMD_DISPLAY
+ 	  displayed on a simple board-specific display. Implement
+ 	  display_putc() to use it.
+ 
++config CMD_EXCEPTION
++	bool "Enable the 'exception' command"
++	help
++	  Enable the 'exception' command which allows to raise an exception.
++
+ config CMD_LED
+ 	bool "led"
+ 	default y if LED
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 0d7322ee0a4..becf8aa362c 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
+ endif
+ obj-$(CONFIG_CMD_DISPLAY) += display.o
+ obj-$(CONFIG_CMD_ECHO) += echo.o
++obj-$(CONFIG_CMD_EXCEPTION) += exception.o
+ obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
+ obj-$(CONFIG_CMD_EEPROM) += eeprom.o
+ obj-$(CONFIG_EFI_STUB) += efi.o
+diff --git a/cmd/exception.c b/cmd/exception.c
+new file mode 100644
+index 00000000000..2347a22d5fe
+--- /dev/null
++++ b/cmd/exception.c
+@@ -0,0 +1,113 @@
++#include <common.h>
++#include <command.h>
++
++enum exception {
++	UNDEFINED_INSTRUCTION = 1,
++	DATA_ABORT,
++};
++
++struct exception_str {
++	enum exception id;
++	char *text;
++	void (*func)(void);
++};
++
++static void data_abort(void)
++{
++#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++	asm volatile (
++		"LDRD r6, r7, [sp, #1]\n\t"
++	);
++#endif
++}
++
++static void undefined_instruction(void)
++{
++#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++	/*
++	 * 0xe7f...f.	is undefined in ARM mode
++	 * 0xde..	is undefined in Thumb mode
++	 */
++	asm volatile (".word 0xe7ffdefe\n\t");
++#endif
++}
++
++struct exception_str exceptions[] = {
++#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++	{ UNDEFINED_INSTRUCTION, "undefined", undefined_instruction },
++	{ DATA_ABORT, "unaligned", data_abort },
++#endif
++	{ 0, NULL, NULL },
++};
++
++static int do_exception(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
++{
++	struct exception_str *ex;
++	enum exception id = 0;
++
++	if (argc != 2)
++		return CMD_RET_USAGE;
++	
++	for (ex = exceptions; ex->func ; ++ex) {
++		if (!strcmp(argv[1], ex->text)) {
++			id = ex->id;
++			break;
++		}
++	}
++	switch (id) {
++		case DATA_ABORT:
++			data_abort();
++			break;
++		case UNDEFINED_INSTRUCTION:
++			undefined_instruction();
++			break;
++		default:
++			return CMD_RET_USAGE;
++	}
++	
++	return CMD_RET_FAILURE;
++}
++
++static int exception_complete(int argc, char * const argv[], char last_char,
++			      int maxv, char *cmdv[])
++{
++	int len = 0;
++	struct exception_str *ex;
++	int i = 0;
++
++	switch (argc) {
++		case 1:
++			break;
++		case 2:
++			len = strlen(argv[1]);
++			break;
++		default:
++			return 0;
++	}
++	for (ex = exceptions; ex->func ; ++ex) {
++		if (i >= maxv)
++			return i;
++		if (!strncmp(argv[1], ex->text, len))
++			cmdv[i++] = ex->text;
++	}
++	return i;
++}
++
++#ifdef CONFIG_SYS_LONGHELP
++static char exception_help_text[] =
++	"<ex>\n"
++	"  The following exceptions are available:\n"
++#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++	"  undefined - undefined instruction\n"
++	"  unaligned - data abort\n"
++#endif
++	;
++#endif
++
++U_BOOT_CMD_COMPLETE(
++	exception, 2, 0, do_exception,
++	"Throws an exception",
++	exception_help_text, exception_complete
++);
++
+-- 
+2.14.2
+
