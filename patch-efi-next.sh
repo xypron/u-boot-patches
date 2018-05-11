@@ -45,11 +45,12 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-efi_loader-avoid-using-unitialized-values-as-console.patch
 
-# EFI boottime protocols
+# EFI boot services
 git am ../patch/0001-efi_selftest-correct-efi_selftest_manageprotocols.patch
 git am ../patch/0001-efi_loader-check-interface-when-uninstalling-protoco.patch
 git am ../patch/0001-efi_loader-implement-ReinstallProtocolInterface.patch
 git am ../patch/0001-efi_selftest-test-ReinstallProtocolInterface.patch
+git am ../patch/0001-efi_loader-DocBook-comments-for-boot-services.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
