@@ -37,6 +37,7 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-doc-expand-README.commands.patch
 
 # USB keyboard
+git am ../patch/0001-input-add-PS-2-keyboard-support.patch
 git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
 git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch

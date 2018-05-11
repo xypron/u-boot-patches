@@ -1,0 +1,1301 @@
+From 74154d44719d1201fa64c4b36be3ddc8653d8277 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 11 May 2018 22:29:18 +0200
+Subject: [PATCH 1/1] input: add PS/2 keyboard support
+
+Revert: b79b9f198bad ("input: Drop PS/2 keyboard support")
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/board_r.c             |  15 ++
+ drivers/input/Makefile       |   4 +
+ drivers/input/keyboard.c     |  87 +++++++
+ drivers/input/pc_keyb.c      | 251 +++++++++++++++++++
+ drivers/input/ps2mult.c      | 461 +++++++++++++++++++++++++++++++++++
+ drivers/input/ps2ser.c       | 147 +++++++++++
+ include/keyboard.h           |  27 ++
+ include/pc_keyb.h            | 121 +++++++++
+ include/ps2mult.h            |  56 +++++
+ scripts/config_whitelist.txt |   4 +
+ 10 files changed, 1173 insertions(+)
+ create mode 100644 drivers/input/keyboard.c
+ create mode 100644 drivers/input/pc_keyb.c
+ create mode 100644 drivers/input/ps2mult.c
+ create mode 100644 drivers/input/ps2ser.c
+ create mode 100644 include/pc_keyb.h
+ create mode 100644 include/ps2mult.h
+
+diff --git a/common/board_r.c b/common/board_r.c
+index 6b297068bd2..5ed45ae0312 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -22,6 +22,9 @@
+ #include <fdtdec.h>
+ #include <ide.h>
+ #include <initcall.h>
++#ifdef CONFIG_PS2KBD
++#include <keyboard.h>
++#endif
+ #if defined(CONFIG_CMD_KGDB)
+ #include <kgdb.h>
+ #endif
+@@ -637,6 +640,15 @@ static int initr_bedbug(void)
+ }
+ #endif
+ 
++#ifdef CONFIG_PS2KBD
++static int initr_kbd(void)
++{
++	puts("PS/2:  ");
++	kbd_init();
++	return 0;
++}
++#endif
++
+ static int run_main_loop(void)
+ {
+ #ifdef CONFIG_SANDBOX
+@@ -844,6 +856,9 @@ static init_fnc_t init_sequence_r[] = {
+ #endif
+ #if defined(CONFIG_PRAM)
+ 	initr_mem,
++#endif
++#ifdef CONFIG_PS2KBD
++	initr_kbd,
+ #endif
+ 	run_main_loop,
+ };
+diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+index d13baf3576a..da74a7a448e 100644
+--- a/drivers/input/Makefile
++++ b/drivers/input/Makefile
+@@ -10,5 +10,9 @@ obj-$(CONFIG_TEGRA_KEYBOARD) += tegra-kbc.o
+ obj-$(CONFIG_TWL4030_INPUT) += twl4030.o
+ obj-$(CONFIG_TWL6030_INPUT) += twl6030.o
+ obj-$(CONFIG_CROS_EC_KEYB) += cros_ec_keyb.o
++ifdef CONFIG_PS2KBD
++obj-y += keyboard.o pc_keyb.o
++obj-$(CONFIG_PS2MULT) += ps2mult.o ps2ser.o
++endif
+ obj-y += input.o
+ obj-$(CONFIG_$(SPL_)OF_CONTROL) += key_matrix.o
+diff --git a/drivers/input/keyboard.c b/drivers/input/keyboard.c
+new file mode 100644
+index 00000000000..84ee015cb33
+--- /dev/null
++++ b/drivers/input/keyboard.c
+@@ -0,0 +1,87 @@
++/***********************************************************************
++ *
++ * (C) Copyright 2004
++ * DENX Software Engineering
++ * Wolfgang Denk, wd@denx.de
++ *
++ * Keyboard driver
++ *
++ ***********************************************************************/
++
++#include <common.h>
++#include <console.h>
++#include <input.h>
++
++#include <stdio_dev.h>
++#include <keyboard.h>
++#include <stdio_dev.h>
++
++static struct input_config config;
++
++static int kbd_read_keys(struct input_config *config)
++{
++#if defined(CONFIG_ARCH_MPC8540) || \
++		defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
++	/* no ISR is used, so received chars must be polled */
++	ps2ser_check();
++#endif
++
++	return 1;
++}
++
++static int check_leds(int ret)
++{
++	int leds;
++
++	leds = input_leds_changed(&config);
++	if (leds >= 0)
++		pckbd_leds(leds);
++
++	return ret;
++}
++
++/* test if a character is in the queue */
++static int kbd_testc(struct stdio_dev *dev)
++{
++	return check_leds(input_tstc(&config));
++}
++
++/* gets the character from the queue */
++static int kbd_getc(struct stdio_dev *dev)
++{
++	return check_leds(input_getc(&config));
++}
++
++void handle_scancode(unsigned char scan_code)
++{
++	bool release = false;
++
++	/* Compare with i8042_kbd_check() in i8042.c if some logic is missing */
++	if (scan_code & 0x80) {
++		scan_code &= 0x7f;
++		release = true;
++	}
++
++	input_add_keycode(&config, scan_code, release);
++}
++
++/* TODO: convert to driver model */
++int kbd_init (void)
++{
++	struct stdio_dev kbddev;
++	struct input_config *input = &config;
++
++	if(kbd_init_hw()==-1)
++		return -1;
++	memset (&kbddev, 0, sizeof(kbddev));
++	strcpy(kbddev.name, "kbd");
++	kbddev.flags =  DEV_FLAGS_INPUT;
++	kbddev.getc = kbd_getc;
++	kbddev.tstc = kbd_testc;
++
++	input_init(input, 0);
++	input->read_keys = kbd_read_keys;
++	input_add_tables(input, true);
++
++	return input_stdio_register(&kbddev);
++}
+diff --git a/drivers/input/pc_keyb.c b/drivers/input/pc_keyb.c
+new file mode 100644
+index 00000000000..1606ab33ff4
+--- /dev/null
++++ b/drivers/input/pc_keyb.c
+@@ -0,0 +1,251 @@
++/***********************************************************************
++ *
++ * (C) Copyright 2004
++ * DENX Software Engineering
++ * Wolfgang Denk, wd@denx.de
++ *
++ * PS/2 keyboard driver
++ *
++ * Originally from linux source (drivers/char/pc_keyb.c)
++ *
++ ***********************************************************************/
++
++#include <common.h>
++
++#include <keyboard.h>
++#include <pc_keyb.h>
++
++#undef KBG_DEBUG
++
++#ifdef KBG_DEBUG
++#define	PRINTF(fmt,args...)	printf (fmt ,##args)
++#else
++#define PRINTF(fmt,args...)
++#endif
++
++
++/*
++ * This reads the keyboard status port, and does the
++ * appropriate action.
++ *
++ */
++static unsigned char handle_kbd_event(void)
++{
++	unsigned char status = kbd_read_status();
++	unsigned int work = 10000;
++
++	while ((--work > 0) && (status & KBD_STAT_OBF)) {
++		unsigned char scancode;
++
++		scancode = kbd_read_input();
++
++		/* Error bytes must be ignored to make the
++		   Synaptics touchpads compaq use work */
++		/* Ignore error bytes */
++		if (!(status & (KBD_STAT_GTO | KBD_STAT_PERR))) {
++			if (status & KBD_STAT_MOUSE_OBF)
++				; /* not supported: handle_mouse_event(scancode); */
++			else
++				handle_scancode(scancode);
++		}
++		status = kbd_read_status();
++	}
++	if (!work)
++		PRINTF("pc_keyb: controller jammed (0x%02X).\n", status);
++	return status;
++}
++
++
++static int kbd_read_data(void)
++{
++	int val;
++	unsigned char status;
++
++	val = -1;
++	status = kbd_read_status();
++	if (status & KBD_STAT_OBF) {
++		val = kbd_read_input();
++		if (status & (KBD_STAT_GTO | KBD_STAT_PERR))
++			val = -2;
++	}
++	return val;
++}
++
++static int kbd_wait_for_input(void)
++{
++	unsigned long timeout;
++	int val;
++
++	timeout = KBD_TIMEOUT;
++	val=kbd_read_data();
++	while(val < 0) {
++		if(timeout--==0)
++			return -1;
++		udelay(1000);
++		val=kbd_read_data();
++	}
++	return val;
++}
++
++
++static int kb_wait(void)
++{
++	unsigned long timeout = KBC_TIMEOUT * 10;
++
++	do {
++		unsigned char status = handle_kbd_event();
++		if (!(status & KBD_STAT_IBF))
++			return 0; /* ok */
++		udelay(1000);
++		timeout--;
++	} while (timeout);
++	return 1;
++}
++
++static void kbd_write_command_w(int data)
++{
++	if(kb_wait())
++		PRINTF("timeout in kbd_write_command_w\n");
++	kbd_write_command(data);
++}
++
++static void kbd_write_output_w(int data)
++{
++	if(kb_wait())
++		PRINTF("timeout in kbd_write_output_w\n");
++	kbd_write_output(data);
++}
++
++static void kbd_send_data(unsigned char data)
++{
++	kbd_write_output_w(data);
++	kbd_wait_for_input();
++}
++
++
++static char * kbd_initialize(void)
++{
++	int status;
++
++	/*
++	 * Test the keyboard interface.
++	 * This seems to be the only way to get it going.
++	 * If the test is successful a x55 is placed in the input buffer.
++	 */
++	kbd_write_command_w(KBD_CCMD_SELF_TEST);
++	if (kbd_wait_for_input() != 0x55)
++		return "Kbd:   failed self test";
++	/*
++	 * Perform a keyboard interface test.  This causes the controller
++	 * to test the keyboard clock and data lines.  The results of the
++	 * test are placed in the input buffer.
++	 */
++	kbd_write_command_w(KBD_CCMD_KBD_TEST);
++	if (kbd_wait_for_input() != 0x00)
++		return "Kbd:   interface failed self test";
++	/*
++	 * Enable the keyboard by allowing the keyboard clock to run.
++	 */
++	kbd_write_command_w(KBD_CCMD_KBD_ENABLE);
++
++	/*
++	 * Reset keyboard. If the read times out
++	 * then the assumption is that no keyboard is
++	 * plugged into the machine.
++	 * This defaults the keyboard to scan-code set 2.
++	 *
++	 * Set up to try again if the keyboard asks for RESEND.
++	 */
++	do {
++		kbd_write_output_w(KBD_CMD_RESET);
++		status = kbd_wait_for_input();
++		if (status == KBD_REPLY_ACK)
++			break;
++		if (status != KBD_REPLY_RESEND) {
++			PRINTF("status: %X\n",status);
++			return "Kbd:   reset failed, no ACK";
++		}
++	} while (1);
++	if (kbd_wait_for_input() != KBD_REPLY_POR)
++		return "Kbd:   reset failed, no POR";
++
++	/*
++	 * Set keyboard controller mode. During this, the keyboard should be
++	 * in the disabled state.
++	 *
++	 * Set up to try again if the keyboard asks for RESEND.
++	 */
++	do {
++		kbd_write_output_w(KBD_CMD_DISABLE);
++		status = kbd_wait_for_input();
++		if (status == KBD_REPLY_ACK)
++			break;
++		if (status != KBD_REPLY_RESEND)
++			return "Kbd:   disable keyboard: no ACK";
++	} while (1);
++
++	kbd_write_command_w(KBD_CCMD_WRITE_MODE);
++	kbd_write_output_w(KBD_MODE_KBD_INT
++			      | KBD_MODE_SYS
++			      | KBD_MODE_DISABLE_MOUSE
++			      | KBD_MODE_KCC);
++
++	/* AMCC powerpc portables need this to use scan-code set 1 -- Cort */
++	kbd_write_command_w(KBD_CCMD_READ_MODE);
++	if (!(kbd_wait_for_input() & KBD_MODE_KCC)) {
++		/*
++		 * If the controller does not support conversion,
++		 * Set the keyboard to scan-code set 1.
++		 */
++		kbd_write_output_w(0xF0);
++		kbd_wait_for_input();
++		kbd_write_output_w(0x01);
++		kbd_wait_for_input();
++	}
++	kbd_write_output_w(KBD_CMD_ENABLE);
++	if (kbd_wait_for_input() != KBD_REPLY_ACK)
++		return "Kbd:   enable keyboard: no ACK";
++
++	/*
++	 * Finally, set the typematic rate to maximum.
++	 */
++	kbd_write_output_w(KBD_CMD_SET_RATE);
++	if (kbd_wait_for_input() != KBD_REPLY_ACK)
++		return "Kbd:   Set rate: no ACK";
++	kbd_write_output_w(0x00);
++	if (kbd_wait_for_input() != KBD_REPLY_ACK)
++		return "Kbd:   Set rate: no ACK";
++	return NULL;
++}
++
++static void kbd_interrupt(void *dev_id)
++{
++	handle_kbd_event();
++}
++
++/******************************************************************
++ * Init
++ ******************************************************************/
++
++int kbd_init_hw(void)
++{
++	char* result;
++
++	kbd_request_region();
++
++	result=kbd_initialize();
++	if (result==NULL) {
++		PRINTF("AT Keyboard initialized\n");
++		kbd_request_irq(kbd_interrupt);
++		return (1);
++	} else {
++		printf("%s\n",result);
++		return (-1);
++	}
++}
++
++void pckbd_leds(unsigned char leds)
++{
++	kbd_send_data(KBD_CMD_SET_LEDS);
++	kbd_send_data(leds);
++}
+diff --git a/drivers/input/ps2mult.c b/drivers/input/ps2mult.c
+new file mode 100644
+index 00000000000..ab749336bf5
+--- /dev/null
++++ b/drivers/input/ps2mult.c
+@@ -0,0 +1,461 @@
++/***********************************************************************
++ *
++ * (C) Copyright 2004
++ * DENX Software Engineering
++ * Wolfgang Denk, wd@denx.de
++ *
++ * PS/2 multiplexer driver
++ *
++ * Originally from linux source (drivers/char/ps2mult.c)
++ *
++ * Uses simple serial driver (ps2ser.c) to access the multiplexer
++ * Used by PS/2 keyboard driver (pc_keyb.c)
++ *
++ ***********************************************************************/
++
++#include <common.h>
++
++#include <pc_keyb.h>
++#include <asm/atomic.h>
++#include <ps2mult.h>
++
++/* #define DEBUG_MULT */
++/* #define DEBUG_KEYB */
++
++#define KBD_STAT_DEFAULT		(KBD_STAT_SELFTEST | KBD_STAT_UNLOCKED)
++
++#define PRINTF(format, args...)		printf("ps2mult.c: " format, ## args)
++
++#ifdef DEBUG_MULT
++#define PRINTF_MULT(format, args...)	printf("PS2MULT: " format, ## args)
++#else
++#define PRINTF_MULT(format, args...)
++#endif
++
++#ifdef DEBUG_KEYB
++#define PRINTF_KEYB(format, args...)	printf("KEYB: " format, ## args)
++#else
++#define PRINTF_KEYB(format, args...)
++#endif
++
++
++static ulong start_time;
++static int init_done = 0;
++
++static int received_escape = 0;
++static int received_bsync = 0;
++static int received_selector = 0;
++
++static int kbd_command_active = 0;
++static int mouse_command_active = 0;
++static int ctl_command_active = 0;
++
++static u_char command_byte = 0;
++
++static void (*keyb_handler)(void *dev_id);
++
++static u_char ps2mult_buf [PS2BUF_SIZE];
++static atomic_t ps2mult_buf_cnt;
++static int ps2mult_buf_in_idx;
++static int ps2mult_buf_out_idx;
++
++static u_char ps2mult_buf_status [PS2BUF_SIZE];
++
++#ifndef CONFIG_BOARD_EARLY_INIT_R
++#error #define CONFIG_BOARD_EARLY_INIT_R and call ps2mult_early_init() in board_early_init_r()
++#endif
++void ps2mult_early_init (void)
++{
++	start_time = get_timer(0);
++}
++
++static void ps2mult_send_byte(u_char byte, u_char sel)
++{
++	ps2ser_putc(sel);
++
++	if (sel == PS2MULT_KB_SELECTOR) {
++		PRINTF_MULT("0x%02x send KEYBOARD\n", byte);
++		kbd_command_active = 1;
++	} else {
++		PRINTF_MULT("0x%02x send MOUSE\n", byte);
++		mouse_command_active = 1;
++	}
++
++	switch (byte) {
++	case PS2MULT_ESCAPE:
++	case PS2MULT_BSYNC:
++	case PS2MULT_KB_SELECTOR:
++	case PS2MULT_MS_SELECTOR:
++	case PS2MULT_SESSION_START:
++	case PS2MULT_SESSION_END:
++		ps2ser_putc(PS2MULT_ESCAPE);
++		break;
++	default:
++		break;
++	}
++
++	ps2ser_putc(byte);
++}
++
++static void ps2mult_receive_byte(u_char byte, u_char sel)
++{
++	u_char status = KBD_STAT_DEFAULT;
++
++#if 1 /* Ignore mouse in U-Boot */
++	if (sel == PS2MULT_MS_SELECTOR) return;
++#endif
++
++	if (sel == PS2MULT_KB_SELECTOR) {
++		if (kbd_command_active) {
++			if (!received_bsync) {
++				PRINTF_MULT("0x%02x lost KEYBOARD !!!\n", byte);
++				return;
++			} else {
++				kbd_command_active = 0;
++				received_bsync = 0;
++			}
++		}
++		PRINTF_MULT("0x%02x receive KEYBOARD\n", byte);
++		status |= KBD_STAT_IBF | KBD_STAT_OBF;
++	} else {
++		if (mouse_command_active) {
++			if (!received_bsync) {
++				PRINTF_MULT("0x%02x lost MOUSE !!!\n", byte);
++				return;
++			} else {
++				mouse_command_active = 0;
++				received_bsync = 0;
++			}
++		}
++		PRINTF_MULT("0x%02x receive MOUSE\n", byte);
++		status |= KBD_STAT_IBF | KBD_STAT_OBF | KBD_STAT_MOUSE_OBF;
++	}
++
++	if (atomic_read(&ps2mult_buf_cnt) < PS2BUF_SIZE) {
++		ps2mult_buf_status[ps2mult_buf_in_idx] = status;
++		ps2mult_buf[ps2mult_buf_in_idx++] = byte;
++		ps2mult_buf_in_idx &= (PS2BUF_SIZE - 1);
++		atomic_inc(&ps2mult_buf_cnt);
++	} else {
++		PRINTF("buffer overflow\n");
++	}
++
++	if (received_bsync) {
++		PRINTF("unexpected BSYNC\n");
++		received_bsync = 0;
++	}
++}
++
++void ps2mult_callback (int in_cnt)
++{
++	int i;
++	u_char byte;
++	static int keyb_handler_active = 0;
++
++	if (!init_done) {
++		return;
++	}
++
++	for (i = 0; i < in_cnt; i ++) {
++		byte = ps2ser_getc();
++
++		if (received_escape) {
++			ps2mult_receive_byte(byte, received_selector);
++			received_escape = 0;
++		} else switch (byte) {
++		case PS2MULT_ESCAPE:
++			PRINTF_MULT("ESCAPE receive\n");
++			received_escape = 1;
++			break;
++
++		case PS2MULT_BSYNC:
++			PRINTF_MULT("BSYNC receive\n");
++			received_bsync = 1;
++			break;
++
++		case PS2MULT_KB_SELECTOR:
++		case PS2MULT_MS_SELECTOR:
++			PRINTF_MULT("%s receive\n",
++			    byte == PS2MULT_KB_SELECTOR ? "KB_SEL" : "MS_SEL");
++			received_selector = byte;
++			break;
++
++		case PS2MULT_SESSION_START:
++		case PS2MULT_SESSION_END:
++			PRINTF_MULT("%s receive\n",
++			    byte == PS2MULT_SESSION_START ?
++			    "SESSION_START" : "SESSION_END");
++			break;
++
++		default:
++			ps2mult_receive_byte(byte, received_selector);
++		}
++	}
++
++	if (keyb_handler && !keyb_handler_active &&
++	    atomic_read(&ps2mult_buf_cnt)) {
++		keyb_handler_active = 1;
++		keyb_handler(NULL);
++		keyb_handler_active = 0;
++	}
++}
++
++u_char ps2mult_read_status(void)
++{
++	u_char byte;
++
++	if (atomic_read(&ps2mult_buf_cnt) == 0) {
++		ps2ser_check();
++	}
++
++	if (atomic_read(&ps2mult_buf_cnt)) {
++		byte = ps2mult_buf_status[ps2mult_buf_out_idx];
++	} else {
++		byte = KBD_STAT_DEFAULT;
++	}
++	PRINTF_KEYB("read_status()=0x%02x\n", byte);
++	return byte;
++}
++
++u_char ps2mult_read_input(void)
++{
++	u_char byte = 0;
++
++	if (atomic_read(&ps2mult_buf_cnt) == 0) {
++		ps2ser_check();
++	}
++
++	if (atomic_read(&ps2mult_buf_cnt)) {
++		byte = ps2mult_buf[ps2mult_buf_out_idx++];
++		ps2mult_buf_out_idx &= (PS2BUF_SIZE - 1);
++		atomic_dec(&ps2mult_buf_cnt);
++	}
++	PRINTF_KEYB("read_input()=0x%02x\n", byte);
++	return byte;
++}
++
++void ps2mult_write_output(u_char val)
++{
++	int i;
++
++	PRINTF_KEYB("write_output(0x%02x)\n", val);
++
++	for (i = 0; i < KBD_TIMEOUT; i++) {
++		if (!kbd_command_active && !mouse_command_active) {
++			break;
++		}
++		udelay(1000);
++		ps2ser_check();
++	}
++
++	if (kbd_command_active) {
++		PRINTF("keyboard command not acknoledged\n");
++		kbd_command_active = 0;
++	}
++
++	if (mouse_command_active) {
++		PRINTF("mouse command not acknoledged\n");
++		mouse_command_active = 0;
++	}
++
++	if (ctl_command_active) {
++		switch (ctl_command_active) {
++		case KBD_CCMD_WRITE_MODE:
++			  /* Scan code conversion not supported */
++			command_byte = val & ~KBD_MODE_KCC;
++			break;
++
++		case KBD_CCMD_WRITE_AUX_OBUF:
++			ps2mult_receive_byte(val, PS2MULT_MS_SELECTOR);
++			break;
++
++		case KBD_CCMD_WRITE_MOUSE:
++			ps2mult_send_byte(val, PS2MULT_MS_SELECTOR);
++			break;
++
++		default:
++			PRINTF("invalid controller command\n");
++			break;
++		}
++
++		ctl_command_active = 0;
++		return;
++	}
++
++	ps2mult_send_byte(val, PS2MULT_KB_SELECTOR);
++}
++
++void ps2mult_write_command(u_char val)
++{
++	ctl_command_active = 0;
++
++	PRINTF_KEYB("write_command(0x%02x)\n", val);
++
++	switch (val) {
++	case KBD_CCMD_READ_MODE:
++		ps2mult_receive_byte(command_byte, PS2MULT_KB_SELECTOR);
++		break;
++
++	case KBD_CCMD_WRITE_MODE:
++		ctl_command_active = val;
++		break;
++
++	case KBD_CCMD_MOUSE_DISABLE:
++		break;
++
++	case KBD_CCMD_MOUSE_ENABLE:
++		break;
++
++	case KBD_CCMD_SELF_TEST:
++		ps2mult_receive_byte(0x55, PS2MULT_KB_SELECTOR);
++		break;
++
++	case KBD_CCMD_KBD_TEST:
++		ps2mult_receive_byte(0x00, PS2MULT_KB_SELECTOR);
++		break;
++
++	case KBD_CCMD_KBD_DISABLE:
++		break;
++
++	case KBD_CCMD_KBD_ENABLE:
++		break;
++
++	case KBD_CCMD_WRITE_AUX_OBUF:
++		ctl_command_active = val;
++		break;
++
++	case KBD_CCMD_WRITE_MOUSE:
++		ctl_command_active = val;
++		break;
++
++	default:
++		PRINTF("invalid controller command\n");
++		break;
++	}
++}
++
++static int ps2mult_getc_w (void)
++{
++	int res = -1;
++	int i;
++
++	for (i = 0; i < KBD_TIMEOUT; i++) {
++		if (ps2ser_check()) {
++			res = ps2ser_getc();
++			break;
++		}
++		udelay(1000);
++	}
++
++	switch (res) {
++	case PS2MULT_KB_SELECTOR:
++	case PS2MULT_MS_SELECTOR:
++		received_selector = res;
++		break;
++	default:
++		break;
++	}
++
++	return res;
++}
++
++int ps2mult_init (void)
++{
++	int byte;
++	int kbd_found = 0;
++	int mouse_found = 0;
++
++	while (get_timer(start_time) < CONFIG_PS2MULT_DELAY);
++
++	ps2ser_init();
++
++	ps2ser_putc(PS2MULT_SESSION_START);
++
++	ps2ser_putc(PS2MULT_KB_SELECTOR);
++	ps2ser_putc(KBD_CMD_RESET);
++
++	do {
++		byte = ps2mult_getc_w();
++	} while (byte >= 0 && byte != KBD_REPLY_ACK);
++
++	if (byte == KBD_REPLY_ACK) {
++		byte = ps2mult_getc_w();
++		if (byte == 0xaa) {
++			kbd_found = 1;
++			puts("keyboard");
++		}
++	}
++
++	if (!kbd_found) {
++		while (byte >= 0) {
++			byte = ps2mult_getc_w();
++		}
++	}
++
++#if 1 /* detect mouse */
++	ps2ser_putc(PS2MULT_MS_SELECTOR);
++	ps2ser_putc(AUX_RESET);
++
++	do {
++		byte = ps2mult_getc_w();
++	} while (byte >= 0 && byte != AUX_ACK);
++
++	if (byte == AUX_ACK) {
++		byte = ps2mult_getc_w();
++		if (byte == 0xaa) {
++			byte = ps2mult_getc_w();
++			if (byte == 0x00) {
++				mouse_found = 1;
++				puts(", mouse");
++			}
++		}
++	}
++
++	if (!mouse_found) {
++		while (byte >= 0) {
++			byte = ps2mult_getc_w();
++		}
++	}
++#endif
++
++	if (mouse_found || kbd_found) {
++		if (!received_selector) {
++			if (mouse_found) {
++				received_selector = PS2MULT_MS_SELECTOR;
++			} else {
++				received_selector = PS2MULT_KB_SELECTOR;
++			}
++		}
++
++		init_done = 1;
++	} else {
++		puts("No device found");
++	}
++
++	puts("\n");
++
++#if 0 /* for testing */
++	{
++		int i;
++		u_char key[] = {
++			0x1f, 0x12, 0x14, 0x12, 0x31, 0x2f, 0x39,	/* setenv */
++			0x1f, 0x14, 0x20, 0x17, 0x31, 0x39,		/* stdin */
++			0x1f, 0x12, 0x13, 0x17, 0x1e, 0x26, 0x1c,	/* serial */
++		};
++
++		for (i = 0; i < sizeof (key); i++) {
++			ps2mult_receive_byte (key[i],	     PS2MULT_KB_SELECTOR);
++			ps2mult_receive_byte (key[i] | 0x80, PS2MULT_KB_SELECTOR);
++		}
++	}
++#endif
++
++	return init_done ? 0 : -1;
++}
++
++int ps2mult_request_irq(void (*handler)(void *))
++{
++	keyb_handler = handler;
++
++	return 0;
++}
+diff --git a/drivers/input/ps2ser.c b/drivers/input/ps2ser.c
+new file mode 100644
+index 00000000000..0b5ce06853e
+--- /dev/null
++++ b/drivers/input/ps2ser.c
+@@ -0,0 +1,147 @@
++/***********************************************************************
++ *
++ * (C) Copyright 2004-2009
++ * DENX Software Engineering
++ * Wolfgang Denk, wd@denx.de
++ *
++ * Simple 16550A serial driver
++ *
++ * Originally from linux source (drivers/char/ps2ser.c)
++ *
++ * Used by the PS/2 multiplexer driver (ps2mult.c)
++ *
++ ***********************************************************************/
++
++#include <common.h>
++
++#include <asm/io.h>
++#include <asm/atomic.h>
++#include <ps2mult.h>
++/* This is needed for ns16550.h */
++#ifndef CONFIG_SYS_NS16550_REG_SIZE
++#define CONFIG_SYS_NS16550_REG_SIZE 1
++#endif
++#include <ns16550.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++/* #define	DEBUG */
++
++#define PS2SER_BAUD	57600
++
++#if CONFIG_PS2SERIAL == 1
++#define COM_BASE (CONFIG_SYS_CCSRBAR+0x4500)
++#elif CONFIG_PS2SERIAL == 2
++#define COM_BASE (CONFIG_SYS_CCSRBAR+0x4600)
++#else
++#error CONFIG_PS2SERIAL must be in 1 ... 2
++#endif
++
++static int	ps2ser_getc_hw(void);
++static void	ps2ser_interrupt(void *dev_id);
++
++extern struct	serial_state rs_table[]; /* in serial.c */
++
++static u_char	ps2buf[PS2BUF_SIZE];
++static atomic_t	ps2buf_cnt;
++static int	ps2buf_in_idx;
++static int	ps2buf_out_idx;
++
++int ps2ser_init(void)
++{
++	NS16550_t com_port = (NS16550_t)COM_BASE;
++
++	com_port->ier = 0x00;
++	com_port->lcr = UART_LCR_BKSE | UART_LCR_8N1;
++	com_port->dll = (CONFIG_SYS_NS16550_CLK / 16 / PS2SER_BAUD) & 0xff;
++	com_port->dlm = ((CONFIG_SYS_NS16550_CLK / 16 / PS2SER_BAUD) >> 8) & 0xff;
++	com_port->lcr = UART_LCR_8N1;
++	com_port->mcr = (UART_MCR_DTR | UART_MCR_RTS);
++	com_port->fcr = (UART_FCR_FIFO_EN | UART_FCR_RXSR | UART_FCR_TXSR);
++
++	return (0);
++}
++
++void ps2ser_putc(int chr)
++{
++	NS16550_t com_port = (NS16550_t)COM_BASE;
++	debug(">>>> 0x%02x\n", chr);
++
++	while ((com_port->lsr & UART_LSR_THRE) == 0);
++	com_port->thr = chr;
++}
++
++static int ps2ser_getc_hw(void)
++{
++	NS16550_t com_port = (NS16550_t)COM_BASE;
++	int res = -1;
++
++	if (com_port->lsr & UART_LSR_DR) {
++		res = com_port->rbr;
++	}
++
++	return res;
++}
++
++int ps2ser_getc(void)
++{
++	volatile int chr;
++	int flags;
++
++	debug("<< ");
++
++	flags = disable_interrupts();
++
++	do {
++		if (atomic_read(&ps2buf_cnt) != 0) {
++			chr = ps2buf[ps2buf_out_idx++];
++			ps2buf_out_idx &= (PS2BUF_SIZE - 1);
++			atomic_dec(&ps2buf_cnt);
++		} else {
++			chr = ps2ser_getc_hw();
++		}
++	}
++	while (chr < 0);
++
++	if (flags)
++		enable_interrupts();
++
++	debug("0x%02x\n", chr);
++
++	return chr;
++}
++
++int ps2ser_check(void)
++{
++	int flags;
++
++	flags = disable_interrupts();
++	ps2ser_interrupt(NULL);
++	if (flags) enable_interrupts();
++
++	return atomic_read(&ps2buf_cnt);
++}
++
++static void ps2ser_interrupt(void *dev_id)
++{
++	NS16550_t com_port = (NS16550_t)COM_BASE;
++	int chr;
++	int status;
++
++	do {
++		chr = ps2ser_getc_hw();
++		status = com_port->lsr;
++		if (chr < 0) continue;
++
++		if (atomic_read(&ps2buf_cnt) < PS2BUF_SIZE) {
++			ps2buf[ps2buf_in_idx++] = chr;
++			ps2buf_in_idx &= (PS2BUF_SIZE - 1);
++			atomic_inc(&ps2buf_cnt);
++		} else {
++			printf ("ps2ser.c: buffer overflow\n");
++		}
++	} while (status & UART_LSR_DR);
++	if (atomic_read(&ps2buf_cnt)) {
++		ps2mult_callback(atomic_read(&ps2buf_cnt));
++	}
++}
+diff --git a/include/keyboard.h b/include/keyboard.h
+index 7561954f755..9b51e20322a 100644
+--- a/include/keyboard.h
++++ b/include/keyboard.h
+@@ -1,6 +1,7 @@
+ #ifndef __KEYBOARD_H
+ #define __KEYBOARD_H
+ 
++#ifdef CONFIG_DM_KEYBOARD
+ #include <input.h>
+ #include <stdio_dev.h>
+ 
+@@ -76,4 +77,30 @@ struct keyboard_ops {
+ 
+ #define keyboard_get_ops(dev)	((struct keyboard_ops *)(dev)->driver->ops)
+ 
++#else
++
++#ifdef CONFIG_PS2MULT
++#include <ps2mult.h>
++#endif
++
++#if !defined(kbd_request_region) || \
++    !defined(kbd_request_irq) || \
++    !defined(kbd_read_input) || \
++    !defined(kbd_read_status) || \
++    !defined(kbd_write_output) || \
++    !defined(kbd_write_command)
++#error PS/2 low level routines not defined
++#endif
++
++extern int kbd_init (void);
++extern void handle_scancode(unsigned char scancode);
++extern int kbd_init_hw(void);
++extern void pckbd_leds(unsigned char leds);
++#endif /* !CONFIG_DM_KEYBOARD */
++
++#if defined(CONFIG_ARCH_MPC8540) || \
++		defined(CONFIG_ARCH_MPC8541) || defined(CONFIG_ARCH_MPC8555)
++int ps2ser_check(void);
++#endif
++
+ #endif /* __KEYBOARD_H */
+diff --git a/include/pc_keyb.h b/include/pc_keyb.h
+new file mode 100644
+index 00000000000..5ba99e35a2e
+--- /dev/null
++++ b/include/pc_keyb.h
+@@ -0,0 +1,121 @@
++/*
++ *	include/linux/pc_keyb.h
++ *
++ *	PC Keyboard And Keyboard Controller
++ *
++ *	(c) 1997 Martin Mares <mj@atrey.karlin.mff.cuni.cz>
++ */
++
++/*
++ *	Configuration Switches
++ */
++#undef KBD_REPORT_ERR			/* Report keyboard errors */
++#define KBD_REPORT_UNKN			/* Report unknown scan codes */
++#define KBD_REPORT_TIMEOUTS		/* Report keyboard timeouts */
++#undef KBD_IS_FOCUS_9000		/* We have the brain-damaged FOCUS-9000 keyboard */
++#undef INITIALIZE_MOUSE			/* Define if your PS/2 mouse needs initialization. */
++
++#define KBD_INIT_TIMEOUT 1000		/* Timeout in ms for initializing the keyboard */
++#define KBC_TIMEOUT 250			/* Timeout in ms for sending to keyboard controller */
++#define KBD_TIMEOUT 1000		/* Timeout in ms for keyboard command acknowledge */
++
++/*
++ *	Internal variables of the driver
++ */
++extern unsigned char pckbd_read_mask;
++extern unsigned char aux_device_present;
++
++/*
++ *	Keyboard Controller Registers on normal PCs.
++ */
++#define KBD_STATUS_REG		0x64	/* Status register (R) */
++#define KBD_CNTL_REG		0x64	/* Controller command register (W) */
++#define KBD_DATA_REG		0x60	/* Keyboard data register (R/W) */
++
++/*
++ *	Keyboard Controller Commands
++ */
++#define KBD_CCMD_READ_MODE	0x20	/* Read mode bits */
++#define KBD_CCMD_WRITE_MODE	0x60	/* Write mode bits */
++#define KBD_CCMD_GET_VERSION	0xA1	/* Get controller version */
++#define KBD_CCMD_MOUSE_DISABLE	0xA7	/* Disable mouse interface */
++#define KBD_CCMD_MOUSE_ENABLE	0xA8	/* Enable mouse interface */
++#define KBD_CCMD_TEST_MOUSE	0xA9	/* Mouse interface test */
++#define KBD_CCMD_SELF_TEST	0xAA	/* Controller self test */
++#define KBD_CCMD_KBD_TEST	0xAB	/* Keyboard interface test */
++#define KBD_CCMD_KBD_DISABLE	0xAD	/* Keyboard interface disable */
++#define KBD_CCMD_KBD_ENABLE	0xAE	/* Keyboard interface enable */
++#define KBD_CCMD_WRITE_AUX_OBUF	0xD3    /* Write to output buffer as if
++					   initiated by the auxiliary device */
++#define KBD_CCMD_WRITE_MOUSE	0xD4	/* Write the following byte to the mouse */
++
++/*
++ *	Keyboard Commands
++ */
++#define KBD_CMD_SET_LEDS	0xED	/* Set keyboard leds */
++#define KBD_CMD_SET_RATE	0xF3	/* Set typematic rate */
++#define KBD_CMD_ENABLE		0xF4	/* Enable scanning */
++#define KBD_CMD_DISABLE		0xF5	/* Disable scanning */
++#define KBD_CMD_RESET		0xFF	/* Reset */
++
++/*
++ *	Keyboard Replies
++ */
++#define KBD_REPLY_POR		0xAA	/* Power on reset */
++#define KBD_REPLY_ACK		0xFA	/* Command ACK */
++#define KBD_REPLY_RESEND	0xFE	/* Command NACK, send the cmd again */
++
++/*
++ *	Status Register Bits
++ */
++#define KBD_STAT_OBF		0x01	/* Keyboard output buffer full */
++#define KBD_STAT_IBF		0x02	/* Keyboard input buffer full */
++#define KBD_STAT_SELFTEST	0x04	/* Self test successful */
++#define KBD_STAT_CMD		0x08	/* Last write was a command write (0=data) */
++#define KBD_STAT_UNLOCKED	0x10	/* Zero if keyboard locked */
++#define KBD_STAT_MOUSE_OBF	0x20	/* Mouse output buffer full */
++#define KBD_STAT_GTO		0x40	/* General receive/xmit timeout */
++#define KBD_STAT_PERR		0x80	/* Parity error */
++
++#define AUX_STAT_OBF (KBD_STAT_OBF | KBD_STAT_MOUSE_OBF)
++
++/*
++ *	Controller Mode Register Bits
++ */
++#define KBD_MODE_KBD_INT	0x01	/* Keyboard data generate IRQ1 */
++#define KBD_MODE_MOUSE_INT	0x02	/* Mouse data generate IRQ12 */
++#define KBD_MODE_SYS		0x04	/* The system flag (?) */
++#define KBD_MODE_NO_KEYLOCK	0x08	/* The keylock doesn't affect the keyboard if set */
++#define KBD_MODE_DISABLE_KBD	0x10	/* Disable keyboard interface */
++#define KBD_MODE_DISABLE_MOUSE	0x20	/* Disable mouse interface */
++#define KBD_MODE_KCC		0x40	/* Scan code conversion to PC format */
++#define KBD_MODE_RFU		0x80
++
++/*
++ *	Mouse Commands
++ */
++#define AUX_SET_RES		0xE8	/* Set resolution */
++#define AUX_SET_SCALE11		0xE6	/* Set 1:1 scaling */
++#define AUX_SET_SCALE21		0xE7	/* Set 2:1 scaling */
++#define AUX_GET_SCALE		0xE9	/* Get scaling factor */
++#define AUX_SET_STREAM		0xEA	/* Set stream mode */
++#define AUX_SET_SAMPLE		0xF3	/* Set sample rate */
++#define AUX_ENABLE_DEV		0xF4	/* Enable aux device */
++#define AUX_DISABLE_DEV		0xF5	/* Disable aux device */
++#define AUX_RESET		0xFF	/* Reset aux device */
++#define AUX_ACK			0xFA	/* Command byte ACK. */
++
++#define AUX_BUF_SIZE		2048	/* This might be better divisible by
++					   three to make overruns stay in sync
++					   but then the read function would need
++					   a lock etc - ick */
++
++#if 0
++struct aux_queue {
++	unsigned long head;
++	unsigned long tail;
++	wait_queue_head_t proc_list;
++	struct fasync_struct *fasync;
++	unsigned char buf[AUX_BUF_SIZE];
++};
++#endif
+diff --git a/include/ps2mult.h b/include/ps2mult.h
+new file mode 100644
+index 00000000000..1a38733b764
+--- /dev/null
++++ b/include/ps2mult.h
+@@ -0,0 +1,56 @@
++#ifndef __LINUX_PS2MULT_H
++#define __LINUX_PS2MULT_H
++
++#define kbd_request_region()		ps2mult_init()
++#define kbd_request_irq(handler)	ps2mult_request_irq(handler)
++
++#define kbd_read_input()		ps2mult_read_input()
++#define kbd_read_status()		ps2mult_read_status()
++#define kbd_write_output(val)		ps2mult_write_output(val)
++#define kbd_write_command(val)		ps2mult_write_command(val)
++
++#define aux_request_irq(hand, dev_id)	0
++#define aux_free_irq(dev_id)
++
++#define PS2MULT_KB_SELECTOR		0xA0
++#define PS2MULT_MS_SELECTOR		0xA1
++#define PS2MULT_ESCAPE			0x7D
++#define PS2MULT_BSYNC			0x7E
++#define PS2MULT_SESSION_START		0x55
++#define PS2MULT_SESSION_END		0x56
++
++#define	PS2BUF_SIZE			512	/* power of 2, please */
++
++#ifndef CONFIG_PS2MULT_DELAY
++#define CONFIG_PS2MULT_DELAY	(CONFIG_SYS_HZ/2)	/* Initial delay	*/
++#endif
++
++  /* PS/2 controller interface (include/asm/keyboard.h)
++   */
++extern int ps2mult_init (void);
++extern int ps2mult_request_irq(void (*handler)(void *));
++extern u_char ps2mult_read_input(void);
++extern u_char ps2mult_read_status(void);
++extern void ps2mult_write_output(u_char val);
++extern void ps2mult_write_command(u_char val);
++
++extern void ps2mult_early_init (void);
++extern void ps2mult_callback (int in_cnt);
++
++  /* Simple serial interface
++   */
++extern int ps2ser_init(void);
++extern void ps2ser_putc(int chr);
++extern int ps2ser_getc(void);
++extern int ps2ser_check(void);
++
++
++  /* Serial related stuff
++   */
++struct serial_state {
++	int	baud_base;
++	int	irq;
++	u8	*iomem_base;
++};
++
++#endif /* __LINUX_PS2MULT_H */
+diff --git a/scripts/config_whitelist.txt b/scripts/config_whitelist.txt
+index bdbfcbeb70c..1d949294ca5 100644
+--- a/scripts/config_whitelist.txt
++++ b/scripts/config_whitelist.txt
+@@ -1609,6 +1609,10 @@ CONFIG_PROG_UBOOT1
+ CONFIG_PROG_UBOOT2
+ CONFIG_PROOF_POINTS
+ CONFIG_PRPMC_PCI_ALIAS
++CONFIG_PS2KBD
++CONFIG_PS2MULT
++CONFIG_PS2MULT_DELAY
++CONFIG_PS2SERIAL
+ CONFIG_PSRAM_SCFG
+ CONFIG_PWM
+ CONFIG_PWM_IMX
+-- 
+2.17.0
+
