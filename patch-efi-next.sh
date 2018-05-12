@@ -52,7 +52,11 @@ git am ../patch/0001-efi_loader-check-interface-when-uninstalling-protoco.patch
 git am ../patch/0001-efi_loader-implement-ReinstallProtocolInterface.patch
 git am ../patch/0001-efi_selftest-test-ReinstallProtocolInterface.patch
 git am ../patch/0001-efi_loader-DocBook-comments-for-boot-services.patch
+
 git am ../patch/0001-README.uefi-update-list-of-missing-functionality.patch
+
+# EFI runtime services
+git am ../patch/0001-efi_loader-fix-off-by-one-bug-in-efi_get_variable.patch
 git am ../patch/0001-efi_loader-adjust-definitions-of-variable-services.patch
 git am ../patch/0001-efi_selftest-unit-test-for-variable-services.patch
 
