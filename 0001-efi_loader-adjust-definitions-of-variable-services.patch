@@ -1,9 +1,9 @@
-From 3a4ba4a6143273dea49007ae057efde45169b968 Mon Sep 17 00:00:00 2001
+From ff1178ff293177fa436f8c2e5805d7c57df1e84d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 May 2018 03:46:20 +0200
 Subject: [PATCH 1/1] efi_loader: adjust definitions of variable services
 
-The definiton of the variable services is adjusted:
+The definitons of the variable services are adjusted:
 - use efi_uintn_t instead of unsigned long
 - use u16 * instead of s16 * for Unicode strings
 - correct definition of QueryVariableInfo
@@ -11,15 +11,15 @@ The definiton of the variable services is adjusted:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h             | 20 ++++++++++----------
- include/efi_loader.h          | 14 +++++++-------
+ include/efi_api.h             | 24 ++++++++++++------------
+ include/efi_loader.h          | 18 +++++++++---------
  lib/efi_loader/efi_bootmgr.c  | 10 +++++-----
  lib/efi_loader/efi_runtime.c  | 10 +++++-----
- lib/efi_loader/efi_variable.c | 18 +++++++++---------
- 5 files changed, 36 insertions(+), 36 deletions(-)
+ lib/efi_loader/efi_variable.c | 24 ++++++++++++------------
+ 5 files changed, 43 insertions(+), 43 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 64c27e494bc..64489184345 100644
+index 64c27e494bc..094be6edf9b 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -214,15 +214,15 @@ struct efi_runtime_services {
@@ -27,21 +27,23 @@ index 64c27e494bc..64489184345 100644
  			struct efi_mem_desc *virtmap);
  	efi_status_t (*convert_pointer)(unsigned long dbg, void **address);
 -	efi_status_t (EFIAPI *get_variable)(s16 *variable_name,
-+	efi_status_t (EFIAPI *get_variable)(u16 *variable_name,
- 			efi_guid_t *vendor, u32 *attributes,
+-			efi_guid_t *vendor, u32 *attributes,
 -			unsigned long *data_size, void *data);
 -	efi_status_t (EFIAPI *get_next_variable)(
 -			unsigned long *variable_name_size,
 -			s16 *variable_name, efi_guid_t *vendor);
 -	efi_status_t (EFIAPI *set_variable)(s16 *variable_name,
-+			efi_uintn_t *data_size, void *data);
+-			efi_guid_t *vendor, u32 attributes,
+-			unsigned long data_size, void *data);
++	efi_status_t (EFIAPI *get_variable)(u16 *variable_name,
++					    efi_guid_t *vendor, u32 *attributes,
++					    efi_uintn_t *data_size, void *data);
 +	efi_status_t (EFIAPI *get_next_variable_name)(
 +			efi_uintn_t *variable_name_size,
 +			u16 *variable_name, efi_guid_t *vendor);
 +	efi_status_t (EFIAPI *set_variable)(u16 *variable_name,
- 			efi_guid_t *vendor, u32 attributes,
--			unsigned long data_size, void *data);
-+			efi_uintn_t data_size, void *data);
++					    efi_guid_t *vendor, u32 attributes,
++					    efi_uintn_t data_size, void *data);
  	efi_status_t (EFIAPI *get_next_high_mono_count)(
  			uint32_t *high_count);
  	void (EFIAPI *reset_system)(enum efi_reset_type reset_type,
@@ -59,7 +61,7 @@ index 64c27e494bc..64489184345 100644
  
  /* EFI event group GUID definitions */
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 2868ca25abb..d758b99ec33 100644
+index 2868ca25abb..4e9e9d05c76 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -415,15 +415,15 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
@@ -67,21 +69,23 @@ index 2868ca25abb..d758b99ec33 100644
  #endif
  
 -efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
-+efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
- 		efi_guid_t *vendor, u32 *attributes,
+-		efi_guid_t *vendor, u32 *attributes,
 -		unsigned long *data_size, void *data);
 -efi_status_t EFIAPI efi_get_next_variable(
 -		unsigned long *variable_name_size,
 -		s16 *variable_name, efi_guid_t *vendor);
 -efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
-+		efi_uintn_t *data_size, void *data);
-+efi_status_t EFIAPI efi_get_next_variable_name(
-+		efi_uintn_t *variable_name_size,
-+		u16 *variable_name, efi_guid_t *vendor);
-+efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
- 		efi_guid_t *vendor, u32 attributes,
+-		efi_guid_t *vendor, u32 attributes,
 -		unsigned long data_size, void *data);
-+		efi_uintn_t data_size, void *data);
++efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
++				     u32 *attributes, efi_uintn_t *data_size,
++				     void *data);
++efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
++					       u16 *variable_name,
++					       efi_guid_t *vendor);
++efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
++				     u32 attributes, efi_uintn_t data_size,
++				     void *data);
  
  void *efi_bootmgr_load(struct efi_device_path **device_path,
  		       struct efi_device_path **file_path);
@@ -164,27 +168,30 @@ index 779e1e1d78d..9ea9493c8b5 100644
  	.get_next_high_mono_count = (void *)&efi_device_error,
  	.reset_system = &efi_reset_system_boottime,
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 45454118f2a..45fd7b50e96 100644
+index 45454118f2a..90b637215e4 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -101,7 +101,7 @@ static char *mem2hex(char *hexstr, const u8 *mem, int count)
+@@ -101,8 +101,8 @@ static char *mem2hex(char *hexstr, const u8 *mem, int count)
  	return hexstr;
  }
  
 -static efi_status_t efi_to_native(char *native, s16 *variable_name,
+-		efi_guid_t *vendor)
 +static efi_status_t efi_to_native(char *native, u16 *variable_name,
- 		efi_guid_t *vendor)
++				  efi_guid_t *vendor)
  {
  	size_t len;
+ 
 @@ -164,9 +164,9 @@ static const char *parse_attr(const char *str, u32 *attrp)
  }
  
  /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#GetVariable.28.29 */
 -efi_status_t EFIAPI efi_get_variable(s16 *variable_name,
-+efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
- 		efi_guid_t *vendor, u32 *attributes,
+-		efi_guid_t *vendor, u32 *attributes,
 -		unsigned long *data_size, void *data)
-+		efi_uintn_t *data_size, void *data)
++efi_status_t EFIAPI efi_get_variable(u16 *variable_name, efi_guid_t *vendor,
++				     u32 *attributes, efi_uintn_t *data_size,
++				     void *data)
  {
  	char native_name[MAX_NATIVE_VAR_NAME + 1];
  	efi_status_t ret;
@@ -195,9 +202,9 @@ index 45454118f2a..45fd7b50e96 100644
 -efi_status_t EFIAPI efi_get_next_variable(
 -		unsigned long *variable_name_size,
 -		s16 *variable_name, efi_guid_t *vendor)
-+efi_status_t EFIAPI efi_get_next_variable_name(
-+		efi_uintn_t *variable_name_size,
-+		u16 *variable_name, efi_guid_t *vendor)
++efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
++					       u16 *variable_name,
++					       efi_guid_t *vendor)
  {
  	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
  
@@ -206,10 +213,11 @@ index 45454118f2a..45fd7b50e96 100644
  
  /* http://wiki.phoenix.com/wiki/index.php/EFI_RUNTIME_SERVICES#SetVariable.28.29 */
 -efi_status_t EFIAPI efi_set_variable(s16 *variable_name,
-+efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
- 		efi_guid_t *vendor, u32 attributes,
+-		efi_guid_t *vendor, u32 attributes,
 -		unsigned long data_size, void *data)
-+		efi_uintn_t data_size, void *data)
++efi_status_t EFIAPI efi_set_variable(u16 *variable_name, efi_guid_t *vendor,
++				     u32 attributes, efi_uintn_t data_size,
++				     void *data)
  {
  	char native_name[MAX_NATIVE_VAR_NAME + 1];
  	efi_status_t ret = EFI_SUCCESS;
