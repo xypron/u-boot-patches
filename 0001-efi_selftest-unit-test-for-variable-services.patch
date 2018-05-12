@@ -1,7 +1,7 @@
 From 9eb59f6048fe297122355ced78cf4ec8bfe89360 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 May 2018 02:52:18 +0200
-Subject: [PATCH 1/1] efi_selftst: unit test for variable services
+Subject: [PATCH 1/1] efi_selftest: unit test for variable services
 
 Provide a unit test for variable services.
 
