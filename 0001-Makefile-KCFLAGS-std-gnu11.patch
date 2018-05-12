@@ -1,0 +1,29 @@
+From 141118199e2aa0984cbb072f97f98a0f45ceb32c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 12 May 2018 09:00:18 +0200
+Subject: [PATCH 1/1] Makefile: KBUILD_CFLAGS += -std=gnu11
+
+Ensure that the the SPDX license tags do not lead to an error with old
+tool chains.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index f31ee60e4cc..714ac9e1183 100644
+--- a/Makefile
++++ b/Makefile
+@@ -355,7 +355,7 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+ 
+ KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
+ 
+-KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
++KBUILD_CFLAGS   := -std=gnu11 -Wall -Wstrict-prototypes \
+ 		   -Wno-format-security \
+ 		   -fno-builtin -ffreestanding
+ KBUILD_CFLAGS	+= -fshort-wchar
+-- 
+2.17.0
+
