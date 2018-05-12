@@ -1,4 +1,4 @@
-From 9eb59f6048fe297122355ced78cf4ec8bfe89360 Mon Sep 17 00:00:00 2001
+From e902ca34bbc8a38f1c797f50fa2057737cd45f5b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 May 2018 02:52:18 +0200
 Subject: [PATCH 1/1] efi_selftest: unit test for variable services
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 1 insertion(+)
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 3233ea055af..4fe404d88d8 100644
+index 80c43026458..2b943bc4d84 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -28,6 +28,7 @@ efi_selftest_textinput.o \
@@ -21,7 +21,7 @@ index 3233ea055af..4fe404d88d8 100644
 +efi_selftest_variables.o \
  efi_selftest_watchdog.o
  
- ifeq ($(CONFIG_CMD_BOOTEFI_SELFTEST),y)
+ ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 -- 
 2.17.0
 
