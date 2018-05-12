@@ -53,6 +53,7 @@ git am ../patch/0001-efi_loader-implement-ReinstallProtocolInterface.patch
 git am ../patch/0001-efi_selftest-test-ReinstallProtocolInterface.patch
 git am ../patch/0001-efi_loader-DocBook-comments-for-boot-services.patch
 git am ../patch/0001-README.uefi-update-list-of-missing-functionality.patch
+git am ../patch/0001-efi_selftst-unit-test-for-variable-services.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
