@@ -1,52 +1,71 @@
-From d85f1355bedc1d87ba3a7987561644454f64f2c0 Mon Sep 17 00:00:00 2001
+From 0d9d7b6198f3517e4dcc7d3b12a4e955ed052d83 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 18 Apr 2018 20:35:14 +0200
-Subject: [PATCH v2 1/1] arm: print instructions pointed to by pc
+Subject: [PATCH v3 1/1] arm: print instructions pointed to by pc
 
 If an exception occurs in a loaded image and the relocation offset is
 unknown, it is helful to know the instructions pointed to by the
 program counter. This patch adds the missing output.
 
 A possible output is:
-    *pc: fb de f7 e7 1e ff 2f e1 01 00 50 e3 f0 4d 2d e9 01 80 a0 e1
+    Code: e1c560d0 e12fff1e e120077b e12fff1e (e7f7defb)
 
-The output can be disassembled with
-    xxd -pc -r - > a.out
-    $(CROSS_COMPILE)objdump -D -marm -b binary a.out
+The parentheses indicate the instruction causing the exception.
+
+The output can be disassembled using the decodecode script provided
+by the Linux kernel project.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2
-	print bytes not halfwords
+v2:
+	use the same output format as the Linux kernel
 ---
- arch/arm/lib/interrupts.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/lib/interrupts.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
 diff --git a/arch/arm/lib/interrupts.c b/arch/arm/lib/interrupts.c
-index 28ba3f14f36..25489e34462 100644
+index 28ba3f14f36..930b25ccb81 100644
 --- a/arch/arm/lib/interrupts.c
 +++ b/arch/arm/lib/interrupts.c
-@@ -59,6 +59,9 @@ static void show_efi_loaded_images(struct pt_regs *regs)
+@@ -56,6 +56,30 @@ static void show_efi_loaded_images(struct pt_regs *regs)
+ 	efi_print_image_infos((void *)instruction_pointer(regs));
+ }
+ 
++static void dump_instr(struct pt_regs *regs)
++{
++	unsigned long addr = instruction_pointer(regs);
++	const int thumb = thumb_mode(regs);
++	const int width = thumb ? 4 : 8;
++	int i;
++
++	if (thumb)
++		addr &= ~1L;
++	else
++		addr &= ~3L;
++	printf("Code: ");
++	for (i = -4; i < 1 + !!thumb; i++) {
++		unsigned int val;
++
++		if (thumb)
++			val = ((u16 *)addr)[i];
++		else
++			val = ((u32 *)addr)[i];
++		printf(i == 0 ? "(%0*x) " : "%0*x ", width, val);
++	}
++	printf("\n");
++}
++
  void show_regs (struct pt_regs *regs)
  {
  	unsigned long __maybe_unused flags;
-+	/* The least significant bit chooses thumb, remove it. */
-+	u8 *pc = (u8 *)(instruction_pointer(regs) & ~1);
-+	int i;
- 	const char __maybe_unused *processor_modes[] = {
- 	"USER_26",	"FIQ_26",	"IRQ_26",	"SVC_26",
- 	"UK4_26",	"UK5_26",	"UK6_26",	"UK7_26",
-@@ -96,6 +99,10 @@ void show_regs (struct pt_regs *regs)
+@@ -96,6 +120,7 @@ void show_regs (struct pt_regs *regs)
  		fast_interrupts_enabled (regs) ? "on" : "off",
  		processor_modes[processor_mode (regs)],
  		thumb_mode (regs) ? " (T)" : "");
-+	printf("*pc:");
-+	for (i = 0; i < 24; ++i)
-+		printf(" %02x", pc[i]);
-+	printf("\n");
++	dump_instr(regs);
  }
  
  /* fixup PC to point to the instruction leading to the exception */
 -- 
-2.14.2
+2.17.0
 
