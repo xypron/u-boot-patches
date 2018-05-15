@@ -1,7 +1,7 @@
-From 0d9d7b6198f3517e4dcc7d3b12a4e955ed052d83 Mon Sep 17 00:00:00 2001
+From 01cd778d4225914377e61c7d9f4b2bed04c60fe3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 18 Apr 2018 20:35:14 +0200
-Subject: [PATCH v3 1/1] arm: print instructions pointed to by pc
+Subject: [PATCH v3 1/2] arm: print instructions pointed to by pc
 
 If an exception occurs in a loaded image and the relocation offset is
 unknown, it is helful to know the instructions pointed to by the
@@ -17,8 +17,8 @@ by the Linux kernel project.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2:
-	use the same output format as the Linux kernel
+v3:
+	use the Linux output format for the 'Code:' line
 ---
  arch/arm/lib/interrupts.c | 25 +++++++++++++++++++++++++
  1 file changed, 25 insertions(+)
