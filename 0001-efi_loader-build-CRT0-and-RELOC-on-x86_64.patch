@@ -1,0 +1,38 @@
+From ca31c8202580b8d607daacdc394af11d4c776f76 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 17 May 2018 19:42:59 +0200
+Subject: [PATCH 1/1] efi_loader: build CRT0 and RELOC on x86_64
+
+The efi selftest and the hello application require CRT0 and RELOC to be
+built.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/x86/lib/Makefile | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/lib/Makefile b/arch/x86/lib/Makefile
+index 51d451f9522..4e37de20fb2 100644
+--- a/arch/x86/lib/Makefile
++++ b/arch/x86/lib/Makefile
+@@ -68,8 +68,16 @@ extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
+ 
+ endif
+ 
+-ifneq ($(CONFIG_EFI_STUB)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
++ifdef CONFIG_EFI_STUB
++
+ ifeq ($(CONFIG_$(SPL_)X86_64),)
+ extra-y += $(EFI_CRT0) $(EFI_RELOC)
+ endif
++
++else
++
++ifneq ($(CMD_BOOTEFI_SELFTEST)$(CMD_BOOTEFI_HELLO_COMPILE),)
++extra-y += $(EFI_CRT0) $(EFI_RELOC)
++endif
++
+ endif
+-- 
+2.14.2
+
