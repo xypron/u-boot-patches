@@ -1,0 +1,29 @@
+From 90ec8b528efc2e4f46c1d6b91f9f8938591abb96 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 17 May 2018 18:50:15 +0200
+Subject: [PATCH 1/1] Makefile: clean should delete *.efi
+
+Files *.efi are generated files. So the clean target should delete them.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 714ac9e1183..96c53250484 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1611,7 +1611,8 @@ clean: $(clean-dirs)
+ 		-o -name '*.symtypes' -o -name 'modules.order' \
+ 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
+ 		-o -name 'dsdt.aml' -o -name 'dsdt.asl.tmp' -o -name 'dsdt.c' \
+-		-o -name '*.gcno' \) -type f -print | xargs rm -f
++		-o -name '*.efi' -o -name '*.gcno' \) \
++		-type f -print | xargs rm -f
+ 
+ # mrproper - Delete all generated files, including .config
+ #
+-- 
+2.14.2
+
