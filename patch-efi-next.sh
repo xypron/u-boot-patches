@@ -53,6 +53,9 @@ git am ../patch/0001-efi_loader-DocBook-comments-for-boot-services.patch
 
 git am ../patch/0001-README.uefi-update-list-of-missing-functionality.patch
 
+# selftest on x86_64
+git am ../patch/0001-efi_selftest-allow-building-relocation-code-on-x86_6.patch
+
 # EFI runtime services
 git am ../patch/0001-efi_loader-fix-off-by-one-bug-in-efi_get_variable.patch
 git am ../patch/0001-efi_loader-adjust-definitions-of-variable-services.patch
