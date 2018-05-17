@@ -58,7 +58,6 @@ git am ../patch/0001-README.uefi-update-list-of-missing-functionality.patch
 # selftest on x86_64
 git am ../patch/0001-efi_selftest-allow-building-relocation-code-on-x86_6.patch
 git am ../patch/0001-efi_loader-build-CRT0-and-RELOC-on-x86_64.patch
-git am ../patch/0001-efi_selftest-build-miniapps-on-x86_64.patch
 
 # EFI runtime services
 git am ../patch/0001-efi_loader-fix-off-by-one-bug-in-efi_get_variable.patch
