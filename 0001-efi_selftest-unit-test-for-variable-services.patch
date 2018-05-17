@@ -1,4 +1,4 @@
-From 0f54204b726a7eb5d51da39524324825542536b5 Mon Sep 17 00:00:00 2001
+From c866fbf4fcfaa38a4fc09fe3b7b135ca0b741956 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 May 2018 02:52:18 +0200
 Subject: [PATCH 1/1] efi_selftest: unit test for variable services
@@ -8,12 +8,12 @@ Provide a unit test for variable services.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |   1 +
- lib/efi_selftest/efi_selftest_variables.c | 178 ++++++++++++++++++++++
- 2 files changed, 179 insertions(+)
+ lib/efi_selftest/efi_selftest_variables.c | 179 ++++++++++++++++++++++
+ 2 files changed, 180 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_variables.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 80c43026458..2b943bc4d84 100644
+index 8c416178478..5dbe3363b30 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -28,6 +28,7 @@ efi_selftest_textinput.o \
@@ -26,10 +26,10 @@ index 80c43026458..2b943bc4d84 100644
  ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
 diff --git a/lib/efi_selftest/efi_selftest_variables.c b/lib/efi_selftest/efi_selftest_variables.c
 new file mode 100644
-index 00000000000..992f45d60a5
+index 00000000000..b1972cc09be
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_variables.c
-@@ -0,0 +1,178 @@
+@@ -0,0 +1,179 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_variables
@@ -120,7 +120,8 @@ index 00000000000..992f45d60a5
 +		return EFI_ST_FAILURE;
 +	}
 +	if (len != 8) {
-+		efi_st_error("GetVariable returned wrong length %u\n", len);
++		efi_st_error("GetVariable returned wrong length %u\n",
++			     (unsigned int)len);
 +		return EFI_ST_FAILURE;
 +	}
 +	if (efi_st_memcmp(data, v, 8)) {
