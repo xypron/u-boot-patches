@@ -1,4 +1,4 @@
-From 29a2d9e8db433cd15cc4aaa9be1a4734eb5934b8 Mon Sep 17 00:00:00 2001
+From 4e09e54132ba8cda6d59751fdc2a968fe9814bbf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 17 May 2018 07:33:07 +0200
 Subject: [PATCH 1/1] efi_selftest: build miniapps on x86_64
@@ -10,23 +10,9 @@ As setjmp is missing we can only use the Exit service and not return directly.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi.h             | 2 +-
  lib/efi_selftest/Makefile | 9 +++------
- 2 files changed, 4 insertions(+), 7 deletions(-)
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/include/efi.h b/include/efi.h
-index 98bddbac1ad..28bced8676d 100644
---- a/include/efi.h
-+++ b/include/efi.h
-@@ -21,7 +21,7 @@
- 
- #if CONFIG_EFI_STUB_64BIT || (!defined(CONFIG_EFI_STUB) && defined(__x86_64__))
- /* EFI uses the Microsoft ABI which is not the default for GCC */
--#define EFIAPI __attribute__((ms_abi))
-+#define EFIAPI
- #else
- #define EFIAPI asmlinkage
- #endif
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
 index 80c43026458..932b0443ce9 100644
 --- a/lib/efi_selftest/Makefile
@@ -46,7 +32,7 @@ index 80c43026458..932b0443ce9 100644
  	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exit.efi > \
  	$(obj)/efi_miniapp_file_image_exit.h
  
-+# setjmp is not yet implemented
++# TODO: setjmp is not implemented for x86_64
 +ifeq ($(CONFIG_X86_64),)
  $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
  	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_return.efi > \
