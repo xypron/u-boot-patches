@@ -34,6 +34,7 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-doc-expand-README.commands.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-Makefile-clean-should-delete-.efi.patch
+git am ../patch/0001-logos-provide-U-Boot-logo.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
