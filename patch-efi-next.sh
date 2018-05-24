@@ -31,9 +31,7 @@ git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
-git am ../patch/0001-doc-expand-README.commands.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
-git am ../patch/0001-Makefile-clean-should-delete-.efi.patch
 git am ../patch/0001-logos-provide-U-Boot-logo.patch
 
 # USB keyboard
@@ -44,39 +42,14 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
 # diverse protocols
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
-git am ../patch/0001-efi_loader-avoid-using-unitialized-values-as-console.patch
-
-# EFI boot services
-git am ../patch/0001-efi_selftest-correct-efi_selftest_manageprotocols.patch
-git am ../patch/0001-efi_loader-check-interface-when-uninstalling-protoco.patch
-git am ../patch/0001-efi_loader-implement-ReinstallProtocolInterface.patch
-git am ../patch/0001-efi_selftest-test-ReinstallProtocolInterface.patch
-git am ../patch/0001-efi_loader-DocBook-comments-for-boot-services.patch
-git am ../patch/0001-efi_selftest-do-not-call-efi_init_obj_list-twice.patch
-
-git am ../patch/0001-README.uefi-update-list-of-missing-functionality.patch
-
-# selftest on x86_64
-git am ../patch/0001-efi_selftest-allow-building-relocation-code-on-x86_6.patch
-git am ../patch/0001-efi_loader-build-CRT0-and-RELOC-on-x86_64.patch
-
-# EFI runtime services
-git am ../patch/0001-efi_loader-fix-off-by-one-bug-in-efi_get_variable.patch
-git am ../patch/0001-efi_loader-adjust-definitions-of-variable-services.patch
-git am ../patch/0001-efi_selftest-unit-test-for-variable-services.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
-git am ../patch/0001-efi_loader-allow-unaligned-memory-access.patch
-git am ../patch/0001-arm-armv7-allow-unaligned-memory-access.patch
-git am ../patch/0001-efi_selftest-test-unaligned-memory-access.patch
 
 # TODO: ARMV7
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
 
 # KGDB
-git am ../patch/0001-arm-print-instructions-pointed-to-by-pc.patch
-git am ../patch/0001-scripts-add-decodecode-from-Linux.patch
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
