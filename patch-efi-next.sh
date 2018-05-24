@@ -43,6 +43,7 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
 # diverse protocols
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
+git am ../patch/0001-efi_selftest-imply-FAT-FAT_WRITE.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
