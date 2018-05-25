@@ -57,7 +57,7 @@ index 4af8bd8cb28..9db6ba63710 100644
 +		return EFI_ST_FAILURE;
 +	}
 +	ret = root->close(root);
-+	/* Read file */
++	/* Verify file */
 +	boottime->set_mem(buf, sizeof(buf), 0);
 +	ret = root->open(root, &file, (s16 *)L"u-boot.txt", EFI_FILE_MODE_READ,
 +			 0);
@@ -76,7 +76,7 @@ index 4af8bd8cb28..9db6ba63710 100644
 +			     (unsigned int) buf_size);
 +		return EFI_ST_FAILURE;
 +	}
-+	if (efi_st_memcmp(buf, "Hello world!", 12)) {
++	if (efi_st_memcmp(buf, "U-Boot", 7)) {
 +		efi_st_error("Unexpected file content %s\n", buf);
 +		return EFI_ST_FAILURE;
 +	}

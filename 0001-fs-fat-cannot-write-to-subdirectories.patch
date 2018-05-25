@@ -1,0 +1,62 @@
+From 33b5748c5da1ce3ffe5602016e5a7579fb15260b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 25 May 2018 20:15:05 +0200
+Subject: [PATCH 1/1] fs: fat: cannot write to subdirectories
+
+fs_fat_write() is not able to write to subdirectories.
+
+Currently if a filepath with a leading slash is passed, the slash is
+treated as part of the filename to be created in the root directory.
+
+Strip leading (back-)slashes.
+
+Check that the remaining filename does not contain any illegal characters
+(<>:"/\|?*). This way we will throw an error when trying to write to a
+subdirectory.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 5ca8fcda73c..f32745febb4 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -908,9 +908,11 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
+ 	volume_info volinfo;
+ 	fsdata datablock;
+ 	fsdata *mydata = &datablock;
+-	int cursect;
++	int cursect, i;
+ 	int ret = -1, name_len;
+ 	char l_filename[VFAT_MAXLEN_BYTES];
++	char bad[2] = " ";
++	const char illegal[] = "<>:\"/\\|?*";
+ 
+ 	*actwrite = size;
+ 	dir_curclust = 0;
+@@ -970,6 +972,20 @@ static int do_fat_write(const char *filename, void *buffer, loff_t size,
+ 	}
+ 	dentptr = (dir_entry *) do_fat_read_at_block;
+ 
++	/* Strip leading (back-)slashes */
++	while (*filename == '/')
++		++filename;
++	while (*filename == '\\')
++		++filename;
++	/* Check that the filename is valid */
++	for (i = 0; i < strlen(illegal); ++i) {
++		*bad = illegal[i];
++		if (strstr(filename, bad)) {
++			printf("FAT: illegal filename (%s)\n", filename);
++			return -1;
++		}
++	}
++
+ 	name_len = strlen(filename);
+ 	if (name_len >= VFAT_MAXLEN_BYTES)
+ 		name_len = VFAT_MAXLEN_BYTES - 1;
+-- 
+2.17.0
+
