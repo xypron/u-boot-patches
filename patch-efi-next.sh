@@ -47,7 +47,10 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
+
+# EFI memory
 git am ../patch/0001-efi_loader-avoid-anonymous-constants-for-AllocatePag.patch
+git am ../patch/0001-efi_loader-efi_mem_carve_out-should-return-s64.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
