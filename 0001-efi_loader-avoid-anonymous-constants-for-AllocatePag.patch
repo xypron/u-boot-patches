@@ -1,0 +1,69 @@
+From 1d9428b95bd8ae539498113f75f431007397567f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 26 May 2018 10:14:06 +0200
+Subject: [PATCH 1/1] efi_loader: avoid anonymous constants for AllocatePages
+
+Do not use anonymous constants when calling efi_allocage_pages.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c               | 6 ++++--
+ lib/efi_loader/efi_memory.c | 8 +++++---
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 806339823ff..707d159baca 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -143,11 +143,13 @@ static void *copy_fdt(void *fdt)
+ 
+ 	/* Safe fdt location is at 128MB */
+ 	new_fdt_addr = fdt_ram_start + (128 * 1024 * 1024) + fdt_size;
+-	if (efi_allocate_pages(1, EFI_RUNTIME_SERVICES_DATA, fdt_pages,
++	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
++			       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+ 			       &new_fdt_addr) != EFI_SUCCESS) {
+ 		/* If we can't put it there, put it somewhere */
+ 		new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
+-		if (efi_allocate_pages(1, EFI_RUNTIME_SERVICES_DATA, fdt_pages,
++		if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
++				       EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+ 				       &new_fdt_addr) != EFI_SUCCESS) {
+ 			printf("ERROR: Failed to reserve space for FDT\n");
+ 			return NULL;
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index d0777959b76..9191342bab5 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -353,7 +353,8 @@ void *efi_alloc(uint64_t len, int memory_type)
+ 	uint64_t pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+ 	efi_status_t r;
+ 
+-	r = efi_allocate_pages(0, memory_type, pages, &ret);
++	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
++			       &ret);
+ 	if (r == EFI_SUCCESS)
+ 		return (void*)(uintptr_t)ret;
+ 
+@@ -400,7 +401,8 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
+ 		return EFI_SUCCESS;
+ 	}
+ 
+-	r = efi_allocate_pages(0, pool_type, num_pages, &t);
++	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, pool_type, num_pages,
++			       &t);
+ 
+ 	if (r == EFI_SUCCESS) {
+ 		struct efi_pool_allocation *alloc = (void *)(uintptr_t)t;
+@@ -531,7 +533,7 @@ int efi_memory_init(void)
+ 	/* Request a 32bit 64MB bounce buffer region */
+ 	uint64_t efi_bounce_buffer_addr = 0xffffffff;
+ 
+-	if (efi_allocate_pages(1, EFI_LOADER_DATA,
++	if (efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS, EFI_LOADER_DATA,
+ 			       (64 * 1024 * 1024) >> EFI_PAGE_SHIFT,
+ 			       &efi_bounce_buffer_addr) != EFI_SUCCESS)
+ 		return -1;
+-- 
+2.17.0
+
