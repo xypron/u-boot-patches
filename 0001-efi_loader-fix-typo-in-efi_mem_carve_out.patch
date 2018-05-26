@@ -1,0 +1,28 @@
+From c31c861a4e83c009b6fd4a8535550874d5fae0fa Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 26 May 2018 11:08:09 +0200
+Subject: [PATCH 1/1] efi_loader: fix typo in efi_mem_carve_out
+
+%s/readd/read/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 4ea25c03053..48a4323ec12 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -82,7 +82,7 @@ static void efi_mem_sort(void)
+  *     the mapping list.
+  *
+  * In case of EFI_CARVE_OVERLAPS_NONRAM it is the callers responsibility
+- * to readd the already carved out pages to the mapping.
++ * to read the already carved out pages to the mapping.
+  */
+ static int efi_mem_carve_out(struct efi_mem_list *map,
+ 			     struct efi_mem_desc *carve_desc,
+-- 
+2.17.0
+
