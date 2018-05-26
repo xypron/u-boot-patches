@@ -51,6 +51,7 @@ git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 # EFI memory
 git am ../patch/0001-efi_loader-avoid-anonymous-constants-for-AllocatePag.patch
 git am ../patch/0001-efi_loader-efi_mem_carve_out-should-return-s64.patch
+git am ../patch/0001-efi_loader-create-handles-from-normal-memory.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
