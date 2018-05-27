@@ -1,0 +1,44 @@
+From 817da09f502fe842df5ccecb87daa3191112af63 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 26 May 2018 13:19:52 +0200
+Subject: [PATCH 1/1] efi_loader: create handles from normal memory
+
+Handles are not used at runtime. They are freed by the firmware when the
+last protocol interface is uninstalled. So there is no reason to use EFI
+memory when creating handles.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index b7ab2e8208e..50d311548e2 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -431,16 +431,15 @@ void efi_add_handle(struct efi_object *obj)
+ efi_status_t efi_create_handle(efi_handle_t *handle)
+ {
+ 	struct efi_object *obj;
+-	efi_status_t r;
+ 
+-	r = efi_allocate_pool(EFI_ALLOCATE_ANY_PAGES,
+-			      sizeof(struct efi_object),
+-			      (void **)&obj);
+-	if (r != EFI_SUCCESS)
+-		return r;
++	obj = calloc(1, sizeof(struct efi_object));
++	if (!obj)
++		return EFI_OUT_OF_RESOURCES;
++
+ 	efi_add_handle(obj);
+ 	*handle = obj->handle;
+-	return r;
++
++	return EFI_SUCCESS;
+ }
+ 
+ /**
+-- 
+2.17.0
+
