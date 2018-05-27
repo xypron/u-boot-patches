@@ -36,6 +36,7 @@ git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-logos-provide-U-Boot-logo.patch
 git am ../patch/0001-Makefile-clean-should-delete-.so.patch
 git am ../patch/0001-Remove-snapshot.commit.patch
+git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
