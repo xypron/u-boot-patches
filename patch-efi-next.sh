@@ -20,9 +20,6 @@ git am ../patch/0001-fs-fat-avoid-useless-conversion-when-calling-get_clu.patch
 git am ../patch/0001-fs-fat-avoid-superfluous-conversion-calling-set_clus.patch
 git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
-git am ../patch/0001-spi-atcspi200-avoid-NULL-dereference.patch
-git am ../patch/0001-spi-fsl_qspi-remove-superfluous-assignment.patch
-git am ../patch/0001-spi-lpc32xx-simplify-logical-expression.patch
 git am ../patch/0001-usb-dwc3-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-sl811-hcd-remove-duplicate-assignment.patch
 git am ../patch/0001-usb-xhci-exynos5-correct-error-checking.patch
@@ -33,9 +30,7 @@ git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
-git am ../patch/0001-logos-provide-U-Boot-logo.patch
 git am ../patch/0001-Makefile-clean-should-delete-.so.patch
-git am ../patch/0001-Remove-snapshot.commit.patch
 git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
 git am ../patch/0001-rockchip-tinker-rk3288_defconfig-use-natural-order.patch
 
