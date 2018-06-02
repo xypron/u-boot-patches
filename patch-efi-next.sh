@@ -32,6 +32,7 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-Makefile-clean-should-delete-.so.patch
 git am ../patch/0001-rockchip-tinker-rk3288_defconfig-use-natural-order.patch
+git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
