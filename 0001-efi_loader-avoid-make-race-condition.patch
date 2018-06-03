@@ -1,7 +1,7 @@
 From f17220b8f35b19206eaaf08b38cc7cb13e6d14e5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 2 Jun 2018 18:13:19 +0200
-Subject: [RFC v2 1/1] efi_loader: avoid make race condition
+Subject: [PATCH v2 1/1] efi_loader: avoid make race condition
 
 When U-Boot is built with 'make -j' there is not guarantee that targets in
 directory arch/ are built before targets in directory lib/. The current
@@ -20,6 +20,14 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 v2
 	Build separate copies of $(EFI_CRT0) and $(EFI_RELOC) in each
 	build directory for .efi binaries.
+
+Hello Tuomas,
+
+please, test if this resolves your problem.
+
+Best regards
+
+Heinrich
 ---
  scripts/Makefile.lib | 10 ++++++++--
  1 file changed, 8 insertions(+), 2 deletions(-)
