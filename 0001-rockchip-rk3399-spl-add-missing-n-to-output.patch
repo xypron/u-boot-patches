@@ -1,0 +1,35 @@
+From 618733f9727ac18b0872ef2d15d8bb224f71f5d8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 3 Jun 2018 21:04:53 +0200
+Subject: [PATCH 1/1] rockchip: rk3399: spl: add missing \n to output
+
+Without the patch SPL (in case of an error) creates an output like:
+
+	U-Boot SPL board initMissing DTB
+
+The patch adds the missing line feed. So now we get:
+
+	U-Boot SPL board init
+	Missing DTB
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/mach-rockchip/rk3399-board-spl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-rockchip/rk3399-board-spl.c b/arch/arm/mach-rockchip/rk3399-board-spl.c
+index d4e9a161a4f..0ffdcb88bda 100644
+--- a/arch/arm/mach-rockchip/rk3399-board-spl.c
++++ b/arch/arm/mach-rockchip/rk3399-board-spl.c
+@@ -124,7 +124,7 @@ void board_init_f(ulong dummy)
+ 	 * printascii("string");
+ 	 */
+ 	debug_uart_init();
+-	printascii("U-Boot SPL board init");
++	printascii("U-Boot SPL board init\n");
+ #endif
+ 
+ 	ret = spl_early_init();
+-- 
+2.17.1
+

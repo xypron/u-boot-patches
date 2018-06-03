@@ -32,7 +32,6 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-rockchip-tinker-rk3288_defconfig-use-natural-order.patch
 git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
-git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
 git am ../patch/0001-scripts-mailmapper-SPDX-license-identifier.patch
 git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 
@@ -52,6 +51,10 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 # TODO: ARMV7
 git am ../patch/0001-efi_loader-support-ARMV7_NONSEC.patch
+
+# Firefly-RK3399
+git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
+git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
