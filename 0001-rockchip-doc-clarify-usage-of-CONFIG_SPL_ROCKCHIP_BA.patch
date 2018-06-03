@@ -1,0 +1,39 @@
+From e33021ca9587ecc639527f8433d0992f38ca064e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 3 Jun 2018 20:36:10 +0200
+Subject: [PATCH 1/1] rockchip: doc: clarify usage of
+ CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
+
+Change the description relating to CONFIG_SPL_ROCKCHIP_BACK_TO_BROM to
+clarify that both RK3288 and RK3036 use
+
+	CONFIG_SPL_ROCKCHIP_BACK_TO_BROM=y
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/README.rockchip | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/doc/README.rockchip b/doc/README.rockchip
+index d35071d653e..a35ca6f2c4e 100644
+--- a/doc/README.rockchip
++++ b/doc/README.rockchip
+@@ -124,11 +124,11 @@ something like:
+    =>
+ 
+ The rockchip bootrom can load and boot an initial spl, then continue to
+-load a second-level bootloader(ie. U-BOOT) as soon as it returns to bootrom.
+-Therefore RK3288 has another loading sequence like RK3036. The option of
+-U-Boot is controlled with this setting in U-Boot:
++load a second-stage bootloader (ie. U-Boot) as soon as the control is returned
++to the bootrom. Both the RK3288 and the RK3036 use this special boot sequence.
++The configuration option enabling this is:
+ 
+-	#define CONFIG_SPL_ROCKCHIP_BACK_TO_BROM
++	CONFIG_SPL_ROCKCHIP_BACK_TO_BROM=y
+ 
+ You can create the image via the following operations:
+ 
+-- 
+2.17.1
+
