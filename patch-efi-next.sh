@@ -31,7 +31,6 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
-git am ../patch/0001-scripts-mailmapper-SPDX-license-identifier.patch
 git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 
 # USB keyboard

@@ -1,0 +1,66 @@
+From 015c7197302a40ea24ed1c343cc0df17d6075cff Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 Jun 2018 11:01:02 +0200
+Subject: [PATCH] efi_loader: avoid initializer element is not constant
+
+When building with -pedantic the current definition of EFI_GUID() causes
+an error 'initializer element is not constant'.
+
+A conversion to efi_guid_t is not needed when using EFI_GUID() as an
+initializer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/common.h | 2 ++
+ include/efi.h    | 3 +--
+ lib/fdtdec.c     | 2 ++
+ 3 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/include/common.h b/include/common.h
+index 60c79137e21..5f5f087afb0 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -7,6 +7,8 @@
+ #ifndef __COMMON_H_
+ #define __COMMON_H_	1
+ 
++#define DEBUG 1
++
+ #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+ 
+ typedef unsigned char		uchar;
+diff --git a/include/efi.h b/include/efi.h
+index 98bddbac1ad..e30a3c51c67 100644
+--- a/include/efi.h
++++ b/include/efi.h
+@@ -89,12 +89,11 @@ typedef u64 efi_virtual_addr_t;
+ typedef void *efi_handle_t;
+ 
+ #define EFI_GUID(a, b, c, d0, d1, d2, d3, d4, d5, d6, d7) \
+-	((efi_guid_t) \
+ 	{{ (a) & 0xff, ((a) >> 8) & 0xff, ((a) >> 16) & 0xff, \
+ 		((a) >> 24) & 0xff, \
+ 		(b) & 0xff, ((b) >> 8) & 0xff, \
+ 		(c) & 0xff, ((c) >> 8) & 0xff, \
+-		(d0), (d1), (d2), (d3), (d4), (d5), (d6), (d7) } })
++		(d0), (d1), (d2), (d3), (d4), (d5), (d6), (d7) } }
+ 
+ /* Generic EFI table header */
+ struct efi_table_hdr {
+diff --git a/lib/fdtdec.c b/lib/fdtdec.c
+index f4e8dbf699a..83cfa5067a1 100644
+--- a/lib/fdtdec.c
++++ b/lib/fdtdec.c
+@@ -1314,7 +1314,9 @@ int fdtdec_setup(void)
+ #  endif
+ # elif defined(CONFIG_OF_BOARD) || defined(CONFIG_OF_SEPARATE)
+ 	/* Allow the board to override the fdt address. */
++	debug("Using board_fdt_blob_setup\n");
+ 	gd->fdt_blob = board_fdt_blob_setup();
++	debug("gd->fdt_blob = %p\n", gd->fdt_blob);
+ # elif defined(CONFIG_OF_HOSTFILE)
+ 	if (sandbox_read_fdt_from_file()) {
+ 		puts("Failed to read control FDT\n");
+-- 
+2.17.1
+
