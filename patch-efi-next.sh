@@ -44,6 +44,7 @@ git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 git am ../patch/0001-efi_loader-avoid-initializer-element-is-not-constant.patch
+git am ../patch/0001-efi_selftest-build-miniapp-test-cases-on-x86_64.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
