@@ -1,0 +1,154 @@
+From ca6d6633cb755243351f37c7ba4bc9c10a046e80 Mon Sep 17 00:00:00 2001
+From: Ivan Gorinov <ivan.gorinov@intel.com>
+Date: Wed, 6 Jun 2018 11:28:01 -0700
+Subject: [PATCH] x86: Add 64-bit setjmp/longjmp implementation
+
+Add setjmp/longjmp functions for x86_64.
+The FPU control word and MXCSR control bits are preserved across calls.
+
+Signed-off-by: Ivan Gorinov <ivan.gorinov@intel.com>
+---
+ arch/x86/cpu/x86_64/setjmp.S  | 66 +++++++++++++++++++++++++++++++++++
+ arch/x86/cpu/x86_64/setjmp.c  | 19 ----------
+ arch/x86/include/asm/setjmp.h | 19 ++++++++++
+ 3 files changed, 85 insertions(+), 19 deletions(-)
+ create mode 100644 arch/x86/cpu/x86_64/setjmp.S
+ delete mode 100644 arch/x86/cpu/x86_64/setjmp.c
+
+diff --git a/arch/x86/cpu/x86_64/setjmp.S b/arch/x86/cpu/x86_64/setjmp.S
+new file mode 100644
+index 00000000000..ef61a4a59c7
+--- /dev/null
++++ b/arch/x86/cpu/x86_64/setjmp.S
+@@ -0,0 +1,66 @@
++/*
++ * Copyright (C) 2018 Intel Corporation
++ *
++ * SPDX-License-Identifier: GPL-2.0+
++ *
++ * See arch/x86/include/asm/setjmp.h for jmp_buf format
++ */
++
++#include <linux/linkage.h>
++
++.text
++.align 8
++
++ENTRY(setjmp)
++
++	pop	%rcx
++	movq	%rcx, (%rdi)	/* Return address */
++	movq	%rsp, 8 (%rdi)
++	movq	%rbp, 16 (%rdi)
++	movq	%rbx, 24 (%rdi)
++	movq	%r12, 32 (%rdi)
++	movq	%r13, 40 (%rdi)
++	movq	%r14, 48 (%rdi)
++	movq	%r15, 56 (%rdi)
++	fnstcw	64 (%rdi)
++	stmxcsr	68 (%rdi)
++	xorq	%rax, %rax	/* Direct invocation returns 0 */
++	jmpq	*%rcx
++
++ENDPROC(setjmp)
++
++.align 8
++
++ENTRY(longjmp)
++
++	subq	$8, %rsp
++
++/* Restore the control bits of MXCSR */
++
++	stmxcsr	(%rsp)
++	movl	$0x3f, %eax
++	andl	%eax, (%rsp)
++	notl	%eax
++	andl	68 (%rdi), %eax
++	orl	%eax, (%rsp)
++	ldmxcsr	(%rsp)
++
++	fldcw	64 (%rdi)
++
++	movq	(%rdi), %rcx	/* Return address */
++	movq	8 (%rdi), %rsp
++	movq	16 (%rdi), %rbp
++	movq	24 (%rdi), %rbx
++	movq	32 (%rdi), %r12
++	movq	40 (%rdi), %r13
++	movq	48 (%rdi), %r14
++	movq	56 (%rdi), %r15
++
++	movq	%rsi, %rax	/* Value to be returned by setjmp() */
++	testq	%rax, %rax	/* cannot be 0 in this case */
++	jnz	1f
++	incq	%rax		/* Return 1 instead */
++1:
++	jmpq	*%rcx
++
++ENDPROC(longjmp)
+diff --git a/arch/x86/cpu/x86_64/setjmp.c b/arch/x86/cpu/x86_64/setjmp.c
+deleted file mode 100644
+index 5d4a74a571a..00000000000
+--- a/arch/x86/cpu/x86_64/setjmp.c
++++ /dev/null
+@@ -1,19 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Copyright (c) 2016 Google, Inc
+- */
+-
+-#include <common.h>
+-#include <asm/setjmp.h>
+-
+-int setjmp(struct jmp_buf_data *jmp_buf)
+-{
+-	printf("WARNING: setjmp() is not supported\n");
+-
+-	return 0;
+-}
+-
+-void longjmp(struct jmp_buf_data *jmp_buf, int val)
+-{
+-	printf("WARNING: longjmp() is not supported\n");
+-}
+diff --git a/arch/x86/include/asm/setjmp.h b/arch/x86/include/asm/setjmp.h
+index f25975fe1d1..eae33fb3657 100644
+--- a/arch/x86/include/asm/setjmp.h
++++ b/arch/x86/include/asm/setjmp.h
+@@ -8,6 +8,23 @@
+ #ifndef __setjmp_h
+ #define __setjmp_h
+ 
++#ifdef CONFIG_X86_64
++
++struct jmp_buf_data {
++	unsigned long __rip;
++	unsigned long __rsp;
++	unsigned long __rbp;
++	unsigned long __rbx;
++	unsigned long __r12;
++	unsigned long __r13;
++	unsigned long __r14;
++	unsigned long __r15;
++	unsigned int __fcw;
++	unsigned int __mxcsr;
++};
++
++#else
++
+ struct jmp_buf_data {
+ 	unsigned int __ebx;
+ 	unsigned int __esp;
+@@ -17,6 +34,8 @@ struct jmp_buf_data {
+ 	unsigned int __eip;
+ };
+ 
++#endif
++
+ int setjmp(struct jmp_buf_data *jmp_buf);
+ void longjmp(struct jmp_buf_data *jmp_buf, int val);
+ 
+-- 
+2.17.1
+
