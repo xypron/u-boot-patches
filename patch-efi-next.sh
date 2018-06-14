@@ -51,7 +51,7 @@ git am ../patch/0001-x86-Add-64-bit-setjmp-longjmp-implementation.patch
 git am ../patch/0001-cmd-add-exception-command.patch
 
 # TODO: ARMV7
-git am ../patch/0001-ARM-HYP-non-sec-save-and-restore-stack.patch 
+git am ../patch/0001-ARM-HYP-non-sec-migrate-stack.patch
 git am ../patch/0001-efi_loader-ARM-run-EFI-payloads-non-secure.patch 
 git am ../patch/0001-Revert-efi_loader-no-support-for-ARMV7_NONSEC-y.patch 
 

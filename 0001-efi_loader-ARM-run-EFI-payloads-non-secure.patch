@@ -1,7 +1,7 @@
-From 4bd7b600de0b2d56ce12f98aeddf9e2ff70ae5c7 Mon Sep 17 00:00:00 2001
+From d97dcf6f6fac5b1d3a4407be29d0dbaac7e51c39 Mon Sep 17 00:00:00 2001
 From: Mark Kettenis <kettenis@openbsd.org>
-Date: Tue, 12 Jun 2018 19:27:47 +0200
-Subject: [PATCH 1/1] efi_loader: ARM: run EFI payloads non-secure
+Date: Thu, 14 Jun 2018 00:41:07 +0200
+Subject: [PATCH] efi_loader: ARM: run EFI payloads non-secure
 
 If desired (and possible) switch into HYP mode or non-secure SVC mode
 before calling the entry point of an EFI application.  This allows
@@ -16,14 +16,14 @@ Signed-off-by: Mark Kettenis <kettenis@openbsd.org>
  1 file changed, 32 insertions(+)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 707d159baca..a5d144d9a49 100644
+index f55a40dc84c..4a6e744b5af 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -20,6 +20,11 @@
  #include <asm-generic/unaligned.h>
  #include <linux/linkage.h>
  
-+#ifdef CONFIG_ARM
++#ifdef CONFIG_ARMV7_NONSEC
 +#include <asm/armv7.h>
 +#include <asm/secure.h>
 +#endif
@@ -50,7 +50,7 @@ index 707d159baca..a5d144d9a49 100644
  /* Carve out DT reserved memory ranges */
  static efi_status_t efi_carve_out_dt_rsv(void *fdt)
  {
-@@ -338,6 +355,21 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -345,6 +362,21 @@ static efi_status_t do_bootefi_exec(void *efi,
  	}
  #endif
  
