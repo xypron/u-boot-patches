@@ -30,7 +30,6 @@ git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
-git am ../patch/0001-efi_loader-avoid-make-race-condition.patch
 git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 
 # USB keyboard
@@ -43,7 +42,6 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
-git am ../patch/0001-efi_loader-avoid-initializer-element-is-not-constant.patch
 
 git am ../patch/0001-x86-qemu-do-not-build-car.o-with-start64.o.patch
 git am ../patch/0001-x86-Add-64-bit-setjmp-longjmp-implementation.patch
