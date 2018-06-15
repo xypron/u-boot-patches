@@ -1,0 +1,32 @@
+From f0df0420b0de7d050355cf9b4d4629d5a0cb5694 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 15 Jun 2018 06:56:30 +0200
+Subject: [PATCH 1/1] common: print \n in initr_scsi()
+
+Typically init_scsi() does not output anything. So initr_scsi() should
+provide a \n or we may see borked output like
+
+	SCSI:  Net:   No ethernet found.
+
+as observed with sandbox_defconfig.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/board_r.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/common/board_r.c b/common/board_r.c
+index 6b297068bd..23b5d2c21b 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -553,6 +553,7 @@ static int initr_scsi(void)
+ {
+ 	puts("SCSI:  ");
+ 	scsi_init();
++	puts("\n");
+ 
+ 	return 0;
+ }
+-- 
+2.17.1
+
