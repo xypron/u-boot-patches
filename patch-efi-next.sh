@@ -42,6 +42,7 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
+git am ../patch/0001-efi_selftest-update-.gitignore.patch
 
 git am ../patch/0001-x86-qemu-do-not-build-car.o-with-start64.o.patch
 git am ../patch/0001-x86-Add-64-bit-setjmp-longjmp-implementation.patch
@@ -54,7 +55,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-ARM-HYP-non-sec-migrate-stack.patch
 git am ../patch/0001-efi_loader-ARM-run-EFI-payloads-non-secure.patch 
 git am ../patch/0001-Revert-efi_loader-no-support-for-ARMV7_NONSEC-y.patch 
-
 
 # Firefly-RK3399
 git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
