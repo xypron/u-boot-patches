@@ -1,0 +1,49 @@
+From 5cefdc4cb1843b892b0a6954d28be57364e329d5 Mon Sep 17 00:00:00 2001
+From: Mark Kettenis <kettenis@openbsd.org>
+Date: Fri, 15 Jun 2018 23:47:13 +0200
+Subject: [PATCH 1/1] efi_loader: ARM: don't attempt to enter non-secure mode
+ twice
+
+Multiple EFI binaries may be executed in sequence.  So if we already
+are in non-secure mode after running the first one we should skip
+the switching code since it no longer works once we're non-secure.
+
+Signed-off-by: Mark Kettenis <kettenis@openbsd.org>
+---
+ cmd/bootefi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 4a6e744b5af..dd4e16a04d2 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -195,6 +195,8 @@ static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
+ #endif
+ 
+ #ifdef CONFIG_ARMV7_NONSEC
++static bool is_nonsec;
++
+ static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
+ 			efi_handle_t image_handle, struct efi_system_table *st),
+ 			efi_handle_t image_handle, struct efi_system_table *st)
+@@ -202,6 +204,8 @@ static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
+ 	/* Enable caches again */
+ 	dcache_enable();
+ 
++	is_nonsec = true;
++
+ 	return efi_do_enter(image_handle, st, entry);
+ }
+ #endif
+@@ -363,7 +367,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ #endif
+ 
+ #ifdef CONFIG_ARMV7_NONSEC
+-	if (armv7_boot_nonsec()) {
++	if (armv7_boot_nonsec() && !is_nonsec) {
+ 		dcache_disable();	/* flush cache before switch to HYP */
+ 
+ 		armv7_init_nonsec();
+-- 
+2.17.1
+

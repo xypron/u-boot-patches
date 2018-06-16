@@ -1,7 +1,7 @@
-From 08c470b3dee902f48dcdfc19ff95c5fef9ac79ce Mon Sep 17 00:00:00 2001
+From 72becf287a43b8849b9ab37697b1079526ba85d4 Mon Sep 17 00:00:00 2001
 From: Mark Kettenis <kettenis@openbsd.org>
-Date: Thu, 14 Jun 2018 00:41:08 +0200
-Subject: [PATCH] Revert "efi_loader: no support for ARMV7_NONSEC=y"
+Date: Fri, 15 Jun 2018 23:47:15 +0200
+Subject: [PATCH 1/1] Revert "efi_loader: no support for ARMV7_NONSEC=y"
 
 This reverts commit c524997acb3d322e1bbd36c06ad02ef589705e7c.
 

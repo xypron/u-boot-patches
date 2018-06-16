@@ -1,7 +1,7 @@
-From d97dcf6f6fac5b1d3a4407be29d0dbaac7e51c39 Mon Sep 17 00:00:00 2001
+From 221e8ff80050fa0e89582391f46dbd581d2391b0 Mon Sep 17 00:00:00 2001
 From: Mark Kettenis <kettenis@openbsd.org>
-Date: Thu, 14 Jun 2018 00:41:07 +0200
-Subject: [PATCH] efi_loader: ARM: run EFI payloads non-secure
+Date: Fri, 15 Jun 2018 23:47:12 +0200
+Subject: [PATCH 1/1] efi_loader: ARM: run EFI payloads non-secure
 
 If desired (and possible) switch into HYP mode or non-secure SVC mode
 before calling the entry point of an EFI application.  This allows

@@ -1,7 +1,7 @@
-From 0c44a966cdb8fad150eaf390d61b2d1ddd85dcf0 Mon Sep 17 00:00:00 2001
+From 51244d604f04428601c6f94c375f7c766431ac26 Mon Sep 17 00:00:00 2001
 From: Mark Kettenis <kettenis@openbsd.org>
-Date: Thu, 14 Jun 2018 00:41:06 +0200
-Subject: [PATCH] ARM: HYP/non-sec: migrate stack
+Date: Fri, 15 Jun 2018 23:47:11 +0200
+Subject: [PATCH 1/1] ARM: HYP/non-sec: migrate stack
 
 The current code that switches into HYP mode doesn't bother to set
 up a stack for HYP mode.  This doesn't work for EFI applications

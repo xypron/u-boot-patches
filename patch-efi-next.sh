@@ -54,8 +54,10 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 # TODO: ARMV7
 git am ../patch/0001-ARM-HYP-non-sec-migrate-stack.patch
-git am ../patch/0001-efi_loader-ARM-run-EFI-payloads-non-secure.patch 
-git am ../patch/0001-Revert-efi_loader-no-support-for-ARMV7_NONSEC-y.patch 
+git am ../patch/0001-efi_loader-ARM-run-EFI-payloads-non-secure.patch
+git am ../patch/0001-efi_loader-ARM-don-t-attempt-to-enter-non-secure-mod.patch
+git am ../patch/0001-ARM-HYP-non-sec-enable-ARMV7_LPAE-if-HYP-mode-is-sup.patch
+git am ../patch/0001-Revert-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
 
 # Firefly-RK3399
 git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
