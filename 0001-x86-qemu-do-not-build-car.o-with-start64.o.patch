@@ -1,20 +1,15 @@
 From ec763f6cd3eae3ebe761abea4e73215ec6a53598 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 12 Jun 2018 17:37:12 +0200
-Subject: [PATCH 1/1] x86: qemu: do not build car.o with start64.o
+Subject: [PATCH v2 1/1] x86: qemu: do not build car.o with start64.o
 
 car.o can only be used with start.o, not with start64.o.
 
-So on qemu 64bit it should only be built for 32bit SPL but not for u-boot.
-
-Without this patch but with an unrelated pending patch
-("x86: Add 64-bit setjmp/longjmp implementation") the
-following error occurred for qemu-x86_64_defconfig:
-
-arch/x86/cpu/built-in.o: In function `car_init':
-arch/x86/cpu/qemu/car.S:25: undefined reference to `car_init_ret'
-
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	rebase to current master
+	shorten commit message
 ---
  arch/x86/cpu/qemu/Makefile | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
