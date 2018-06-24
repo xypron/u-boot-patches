@@ -29,7 +29,6 @@ git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
-git am ../patch/0001-Makefile-KCFLAGS-std-gnu11.patch
 git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 git am ../patch/0001-common-print-n-in-initr_scsi.patch
 git am ../patch/0001-Sandbox-provide-default-dtb.patch
@@ -41,7 +40,6 @@ git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
 # diverse protocols
-git am ../patch/0001-efi_loader-efi_allocate_pages-is-too-restrictive.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 
@@ -51,13 +49,6 @@ git am ../patch/0001-x86-Add-64-bit-setjmp-longjmp-implementation.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
-
-# TODO: ARMV7
-git am ../patch/0001-ARM-HYP-non-sec-migrate-stack.patch
-git am ../patch/0001-efi_loader-ARM-run-EFI-payloads-non-secure.patch
-git am ../patch/0001-efi_loader-ARM-don-t-attempt-to-enter-non-secure-mod.patch
-git am ../patch/0001-ARM-HYP-non-sec-enable-ARMV7_LPAE-if-HYP-mode-is-sup.patch
-git am ../patch/0001-Revert-efi_loader-no-support-for-ARMV7_NONSEC-y.patch
 
 # Firefly-RK3399
 git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
