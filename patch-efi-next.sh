@@ -43,10 +43,6 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
 git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 
-git am ../patch/0001-x86-qemu-do-not-build-car.o-with-start64.o.patch
-git am ../patch/0001-x86-Add-64-bit-setjmp-longjmp-implementation.patch
-# git am ../patch/0001-efi_selftest-build-miniapp-test-cases-on-x86_64.patch
-
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
