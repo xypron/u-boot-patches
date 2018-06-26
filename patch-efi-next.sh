@@ -46,6 +46,9 @@ git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
+# Configuration tables
+git am ../patch/0001-efi_loader-increase-number-of-configuration-tables.patch
+
 # Firefly-RK3399
 git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
 git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
