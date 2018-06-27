@@ -1,0 +1,30 @@
+From ca3c7f171dc9622062e81282d78dacd609ccb0da Mon Sep 17 00:00:00 2001
+From: Bin Meng <bmeng.cn@gmail.com>
+Date: Wed, 27 Jun 2018 03:16:09 -0700
+Subject: [PATCH] efi_loader: Increase number of configuration tables to 16
+
+At present the number of configuration tables is set to 2. By
+looking at which tables the Linux EFI stub or iPXE can process,
+it looks 16 is a reasonable number.
+
+Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
+---
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 404743fe01..3654410666 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -43,7 +43,7 @@ static bool efi_is_direct_boot = true;
+  * In most cases we want to pass an FDT to the payload, so reserve one slot of
+  * config table space for it. The pointer gets populated by do_bootefi_exec().
+  */
+-static struct efi_configuration_table __efi_runtime_data efi_conf_table[2];
++static struct efi_configuration_table __efi_runtime_data efi_conf_table[16];
+ 
+ #ifdef CONFIG_ARM
+ /*
+-- 
+2.18.0
+

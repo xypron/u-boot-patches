@@ -1,0 +1,86 @@
+From 7eaeb326e1fa480039c55b75d15379926a5b0cb7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 27 Jun 2018 19:39:12 +0200
+Subject: [PATCH 1/1] efi_loader: specify UEFI spec revision
+
+Both in the boot and the runtime services tables we have to specify the
+UEFI spec revision. The same value is already used for the system
+table. So let's use a common constant.
+
+In the boot services table we have to provide the header signature.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h             | 5 ++++-
+ lib/efi_loader/efi_boottime.c | 4 +++-
+ lib/efi_loader/efi_runtime.c  | 2 +-
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 69dcbacbf4..bb61937059 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -21,6 +21,9 @@
+ #include <asm/setjmp.h>
+ #endif
+ 
++/* UEFI spec version 2.7 */
++#define EFI_SPECIFICATION_VERSION (2 << 16 | 70)
++
+ /* Types and defines for EFI CreateEvent */
+ enum efi_timer_delay {
+ 	EFI_TIMER_STOP = 0,
+@@ -46,6 +49,7 @@ typedef uint16_t *efi_string_t;
+ struct efi_event;
+ 
+ /* EFI Boot Services table */
++#define EFI_BOOT_SERVICES_SIGNATURE 0x56524553544f4f42
+ struct efi_boot_services {
+ 	struct efi_table_hdr hdr;
+ 	efi_status_t (EFIAPI *raise_tpl)(efi_uintn_t new_tpl);
+@@ -186,7 +190,6 @@ enum efi_reset_type {
+ 
+ /* EFI Runtime Services table */
+ #define EFI_RUNTIME_SERVICES_SIGNATURE	0x5652453544e5552ULL
+-#define EFI_RUNTIME_SERVICES_REVISION	0x00010000
+ 
+ #define CAPSULE_FLAGS_PERSIST_ACROSS_RESET	0x00010000
+ #define CAPSULE_FLAGS_POPULATE_SYSTEM_TABLE	0x00020000
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 00fca784d7..be89142f63 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -2980,6 +2980,8 @@ out:
+ 
+ static const struct efi_boot_services efi_boot_services = {
+ 	.hdr = {
++		.signature = EFI_BOOT_SERVICES_SIGNATURE,
++		.revision = EFI_SPECIFICATION_VERSION,
+ 		.headersize = sizeof(struct efi_table_hdr),
+ 	},
+ 	.raise_tpl = efi_raise_tpl,
+@@ -3035,7 +3037,7 @@ static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
+ struct efi_system_table __efi_runtime_data systab = {
+ 	.hdr = {
+ 		.signature = EFI_SYSTEM_TABLE_SIGNATURE,
+-		.revision = 2 << 16 | 70, /* 2.7 */
++		.revision = EFI_SPECIFICATION_VERSION,
+ 		.headersize = sizeof(struct efi_table_hdr),
+ 	},
+ 	.fw_vendor = (long)firmware_vendor,
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 08c77e12a1..77c1e2b6ab 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -489,7 +489,7 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
+ 	.hdr = {
+ 		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
+-		.revision = EFI_RUNTIME_SERVICES_REVISION,
++		.revision = EFI_SPECIFICATION_VERSION,
+ 		.headersize = sizeof(struct efi_table_hdr),
+ 	},
+ 	.get_time = &efi_get_time_boottime,
+-- 
+2.18.0
+

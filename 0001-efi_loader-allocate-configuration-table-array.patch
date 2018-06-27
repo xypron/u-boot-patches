@@ -1,42 +1,23 @@
-From 35d88464385edf60219ca6a4b84fdf99e9741106 Mon Sep 17 00:00:00 2001
+From c4270c4313f3f74c0148333183d4422fafb35d4b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 26 Jun 2018 18:30:59 +0200
-Subject: [PATCH 1/1] efi_loader: increase number of configuration tables
+Subject: [PATCH 1/1] efi_loader: allocate configuration table array
 
 The system table contains a link to the list of configurations tables.
 These include the device tree, SMBIOS table, and the ACPI table.
 
-Currently only two tables are supported. With the patch this number is
-raised to sixteen. The array is allocated as EFI_RUNTIME_SERVICES_DATA.
-Due to the structure of the system table we cannot work with a linked
-list.
+This array is currently statically linked. With the patch it is allocated
+as EFI_RUNTIME_SERVICES_DATA. Due to the structure of the system table we
+cannot work with a linked list here.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c                 |  5 +++++
- include/efi_loader.h          |  5 +++++
- lib/efi_loader/efi_boottime.c | 28 +++++++++-------------------
- lib/efi_loader/efi_runtime.c  | 19 +++++++++++++++++++
- 4 files changed, 38 insertions(+), 19 deletions(-)
+ include/efi_loader.h          |  3 +++
+ lib/efi_loader/efi_boottime.c | 39 +++++++++++++++++------------------
+ 2 files changed, 22 insertions(+), 20 deletions(-)
 
-diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 91277106a2..2799240851 100644
---- a/cmd/bootefi.c
-+++ b/cmd/bootefi.c
-@@ -44,6 +44,11 @@ efi_status_t efi_init_obj_list(void)
- 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
- 		return efi_obj_list_initialized;
- 
-+	/* Initalize runtime */
-+	ret = efi_initialize_runtime();
-+	if (ret != EFI_SUCCESS)
-+		goto out;
-+
- 	/* Initialize EFI driver uclass */
- 	ret = efi_driver_init();
- 	if (ret != EFI_SUCCESS)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index d6e1f50e22..5507b13195 100644
+index c6487059c0..74402a7e42 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -17,6 +17,9 @@
@@ -49,17 +30,8 @@ index d6e1f50e22..5507b13195 100644
  int __efi_entry_check(void);
  int __efi_exit_check(void);
  const char *__efi_nesting(void);
-@@ -199,6 +202,8 @@ extern struct list_head efi_obj_list;
- /* List of all events */
- extern struct list_head efi_events;
- 
-+/* Called by bootefi to initialize runtime */
-+efi_status_t efi_initialize_runtime(void);
- /* Called by bootefi to make console interface available */
- int efi_console_register(void);
- /* Called by bootefi to make all disk storage accessible as EFI objects */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 404743fe01..00fca784d7 100644
+index add61f86ff..904553e288 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -35,16 +35,6 @@ LIST_HEAD(efi_events);
@@ -74,12 +46,12 @@ index 404743fe01..00fca784d7 100644
 - * In most cases we want to pass an FDT to the payload, so reserve one slot of
 - * config table space for it. The pointer gets populated by do_bootefi_exec().
 - */
--static struct efi_configuration_table __efi_runtime_data efi_conf_table[2];
+-static struct efi_configuration_table __efi_runtime_data efi_conf_table[16];
 -
  #ifdef CONFIG_ARM
  /*
   * The "gd" pointer lives in a register on ARM and AArch64 that we declare
-@@ -1346,9 +1336,9 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
+@@ -1359,9 +1349,9 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
   */
  static void efi_remove_configuration_table(int i)
  {
@@ -92,7 +64,7 @@ index 404743fe01..00fca784d7 100644
  
  	memmove(this, next, (ulong)end - (ulong)next);
  	systab.nr_tables--;
-@@ -1376,9 +1366,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
+@@ -1389,9 +1379,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
  
  	/* Check for guid override */
  	for (i = 0; i < systab.nr_tables; i++) {
@@ -104,7 +76,7 @@ index 404743fe01..00fca784d7 100644
  			else
  				efi_remove_configuration_table(i);
  			goto out;
-@@ -1389,12 +1379,12 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
+@@ -1402,12 +1392,12 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
  		return EFI_NOT_FOUND;
  
  	/* No override, check for overflow */
@@ -120,43 +92,35 @@ index 404743fe01..00fca784d7 100644
  	systab.nr_tables = i + 1;
  
  out:
-@@ -3055,5 +3045,5 @@ struct efi_system_table __efi_runtime_data systab = {
+@@ -3066,7 +3056,7 @@ struct efi_system_table __efi_runtime_data systab = {
  	.runtime = (void *)&efi_runtime_services,
  	.boottime = (void *)&efi_boot_services,
  	.nr_tables = 0,
 -	.tables = (void *)efi_conf_table,
 +	.tables = NULL,
  };
-diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index dd3ff8ad23..9d34395714 100644
---- a/lib/efi_loader/efi_runtime.c
-+++ b/lib/efi_loader/efi_runtime.c
-@@ -78,6 +78,25 @@ struct elf_rela {
- 	long addend;
- };
  
-+/**
-+ * efi_initialize_runtime() - Initialize runtime
-+ *
-+ * Return Value:        status code
-+ */
-+efi_status_t efi_initialize_runtime(void)
-+{
+ /**
+@@ -3076,9 +3066,18 @@ struct efi_system_table __efi_runtime_data systab = {
+  */
+ efi_status_t efi_initialize_system_table(void)
+ {
 +	efi_status_t ret;
 +
++	/* Allocate configuration table array */
 +	ret = efi_allocate_pool(EFI_RUNTIME_SERVICES_DATA,
 +				EFI_MAX_CONFIGURATION_TABLES *
 +				sizeof(struct efi_configuration_table),
 +				(void **) &systab.tables);
-+	systab.hdr.crc32 = 0;
-+	systab.hdr.crc32 = crc32(0, (const unsigned char *)&systab,
-+				 systab.hdr.headersize);
-+	return ret;
-+}
 +
- /*
-  * EFI Runtime code lives in 2 stages. In the first stage, U-Boot and an EFI
-  * payload are running concurrently at the same time. In this mode, we can
+ 	/* Set crc32 field in table headers */
+ 	efi_update_table_header_crc32(&systab.hdr);
+ 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
+ 	efi_update_table_header_crc32(&efi_boot_services.hdr);
+-	return EFI_SUCCESS;
++
++	return ret;
+ }
 -- 
-2.17.1
+2.18.0
 
