@@ -8,6 +8,7 @@ looking at which tables the Linux EFI stub or iPXE can process,
 it looks 16 is a reasonable number.
 
 Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_boottime.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
