@@ -1,4 +1,4 @@
-From 8ea08b7fb12ecc9c9a86f0c8947d32de7b6d035b Mon Sep 17 00:00:00 2001
+From d33fa382ecca148947b014d3f1a89af831df6cd4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 27 Jun 2018 21:51:17 +0200
 Subject: [PATCH 1/1] efi_selftest: test InstallConfigurationTable()
@@ -11,8 +11,8 @@ triggering of events is checked.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                    |   1 +
- lib/efi_selftest/efi_selftest_config_table.c | 219 +++++++++++++++++++
- 2 files changed, 220 insertions(+)
+ lib/efi_selftest/efi_selftest_config_table.c | 223 +++++++++++++++++++
+ 2 files changed, 224 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_config_table.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -29,10 +29,10 @@ index bf5c8199cb..c0fd490d2e 100644
  efi_selftest_devicepath.o \
 diff --git a/lib/efi_selftest/efi_selftest_config_table.c b/lib/efi_selftest/efi_selftest_config_table.c
 new file mode 100644
-index 0000000000..7170dbcb4c
+index 0000000000..627b73cdf8
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_config_table.c
-@@ -0,0 +1,219 @@
+@@ -0,0 +1,223 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_config_tables
@@ -132,7 +132,8 @@ index 0000000000..7170dbcb4c
 +	}
 +	if (table_count != sys_table->nr_tables) {
 +		efi_st_error("Incorrect table count %u, expected %u\n",
-+			     sys_table->nr_tables, table_count);
++			     (unsigned int)sys_table->nr_tables,
++			     (unsigned int)table_count);
 +		return EFI_ST_FAILURE;
 +	}
 +
@@ -151,7 +152,8 @@ index 0000000000..7170dbcb4c
 +	}
 +	if (++table_count != sys_table->nr_tables) {
 +		efi_st_error("Incorrect table count %u, expected %u\n",
-+			     sys_table->nr_tables, table_count);
++			     (unsigned int)sys_table->nr_tables,
++			     (unsigned int)table_count);
 +		return EFI_ST_FAILURE;
 +	}
 +	table = NULL;
@@ -183,7 +185,8 @@ index 0000000000..7170dbcb4c
 +	}
 +	if (table_count != sys_table->nr_tables) {
 +		efi_st_error("Incorrect table count %u, expected %u\n",
-+			     sys_table->nr_tables, table_count);
++			     (unsigned int)sys_table->nr_tables,
++			     (unsigned int)table_count);
 +		return EFI_ST_FAILURE;
 +	}
 +	table = NULL;
@@ -222,7 +225,8 @@ index 0000000000..7170dbcb4c
 +	}
 +	if (--table_count != sys_table->nr_tables) {
 +		efi_st_error("Incorrect table count %u, expected %u\n",
-+			     sys_table->nr_tables, table_count);
++			     (unsigned int)sys_table->nr_tables,
++			     (unsigned int)table_count);
 +		return EFI_ST_FAILURE;
 +	}
 +	table = NULL;
