@@ -18,7 +18,7 @@ index dd3ff8ad23..35f10ed9ff 100644
 @@ -460,7 +460,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
  	.hdr = {
  		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
- 		.revision = EFI_RUNTIME_SERVICES_REVISION,
+ 		.revision = EFI_SPECIFICATION_VERSION,
 -		.headersize = sizeof(struct efi_table_hdr),
 +		.headersize = sizeof(struct efi_runtime_services),
  	},

@@ -84,8 +84,8 @@ index 3654410666..add61f86ff 100644
 -static const struct efi_boot_services efi_boot_services = {
 +static struct efi_boot_services efi_boot_services = {
  	.hdr = {
- 		.headersize = sizeof(struct efi_table_hdr),
- 	},
+ 		.signature = EFI_BOOT_SERVICES_SIGNATURE,
+ 		.revision = EFI_SPECIFICATION_VERSION,
 @@ -3057,3 +3068,17 @@ struct efi_system_table __efi_runtime_data systab = {
  	.nr_tables = 0,
  	.tables = (void *)efi_conf_table,
