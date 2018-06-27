@@ -46,16 +46,17 @@ git am ../patch/0001-efi_selftest-test-writing-to-file.patch
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
+# Firefly-RK3399
+git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
+git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
+
 # Configuration tables
 git am ../patch/0001-efi_loader-Increase-number-of-configuration-tables-t.patch
 git am ../patch/0001-efi_loader-specify-UEFI-spec-revision.patch
 git am ../patch/0001-efi_loader-correct-headersize-of-runtime-services-ta.patch
 git am ../patch/0001-efi_loader-calculate-crc32-for-EFI-tables.patch
 git am ../patch/0001-efi_loader-allocate-configuration-table-array.patch
-
-# Firefly-RK3399
-git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
-git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
+git am ../patch/0001-efi_selftest-test-InstallConfigurationTable.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
