@@ -1,7 +1,7 @@
-From c4270c4313f3f74c0148333183d4422fafb35d4b Mon Sep 17 00:00:00 2001
+From 70359b331c33eef879b68f7fccf70fbd4e2f6842 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 26 Jun 2018 18:30:59 +0200
-Subject: [PATCH 1/1] efi_loader: allocate configuration table array
+Subject: [PATCH 6/7] efi_loader: allocate configuration table array
 
 The system table contains a link to the list of configurations tables.
 These include the device tree, SMBIOS table, and the ACPI table.
@@ -17,7 +17,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 22 insertions(+), 20 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index c6487059c0..74402a7e42 100644
+index 8c9c36556b..c4ddb26e48 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -17,6 +17,9 @@
@@ -31,7 +31,7 @@ index c6487059c0..74402a7e42 100644
  int __efi_exit_check(void);
  const char *__efi_nesting(void);
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index add61f86ff..904553e288 100644
+index 3d855eeb69..a7bfe3bb79 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -35,16 +35,6 @@ LIST_HEAD(efi_events);
@@ -92,7 +92,7 @@ index add61f86ff..904553e288 100644
  	systab.nr_tables = i + 1;
  
  out:
-@@ -3066,7 +3056,7 @@ struct efi_system_table __efi_runtime_data systab = {
+@@ -3069,7 +3059,7 @@ struct efi_system_table __efi_runtime_data systab = {
  	.runtime = (void *)&efi_runtime_services,
  	.boottime = (void *)&efi_boot_services,
  	.nr_tables = 0,
@@ -101,7 +101,7 @@ index add61f86ff..904553e288 100644
  };
  
  /**
-@@ -3076,9 +3066,18 @@ struct efi_system_table __efi_runtime_data systab = {
+@@ -3079,9 +3069,18 @@ struct efi_system_table __efi_runtime_data systab = {
   */
  efi_status_t efi_initialize_system_table(void)
  {
@@ -111,7 +111,7 @@ index add61f86ff..904553e288 100644
 +	ret = efi_allocate_pool(EFI_RUNTIME_SERVICES_DATA,
 +				EFI_MAX_CONFIGURATION_TABLES *
 +				sizeof(struct efi_configuration_table),
-+				(void **) &systab.tables);
++				(void **)&systab.tables);
 +
  	/* Set crc32 field in table headers */
  	efi_update_table_header_crc32(&systab.hdr);

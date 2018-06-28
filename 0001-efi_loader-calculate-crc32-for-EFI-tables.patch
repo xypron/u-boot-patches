@@ -1,7 +1,7 @@
-From 63644d7185e850c6fe83d2b7193268bc18d84bdc Mon Sep 17 00:00:00 2001
+From d04ab46ebe509f98f4012d7896c545d4389fb3ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 27 Jun 2018 20:03:24 +0200
-Subject: [PATCH 1/1] efi_loader: calculate crc32 for EFI tables
+Subject: [PATCH 5/7] efi_loader: calculate crc32 for EFI tables
 
 For the boot and runtime services tables and for the system table the
 crc32 has to be set in the header.
@@ -14,14 +14,14 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 36 insertions(+), 4 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 4097277c9c..7dd65be8f6 100644
+index 91277106a2..c5b9993370 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -44,6 +44,11 @@ efi_status_t efi_init_obj_list(void)
  	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
  		return efi_obj_list_initialized;
  
-+	/* Initalize system table */
++	/* Initialize system table */
 +	ret = efi_initialize_system_table();
 +	if (ret != EFI_SUCCESS)
 +		goto out;
@@ -30,7 +30,7 @@ index 4097277c9c..7dd65be8f6 100644
  	ret = efi_driver_init();
  	if (ret != EFI_SUCCESS)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index a0495db291..c6487059c0 100644
+index d6e1f50e22..8c9c36556b 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -199,6 +199,8 @@ extern struct list_head efi_obj_list;
@@ -43,10 +43,10 @@ index a0495db291..c6487059c0 100644
  int efi_console_register(void);
  /* Called by bootefi to make all disk storage accessible as EFI objects */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 3654410666..add61f86ff 100644
+index 7c619c652c..3d855eeb69 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -163,6 +163,19 @@ const char *__efi_nesting_dec(void)
+@@ -163,6 +163,18 @@ const char *__efi_nesting_dec(void)
  	return indent_string(--nesting_level);
  }
  
@@ -59,8 +59,7 @@ index 3654410666..add61f86ff 100644
 +{
 +	table->crc32 = 0;
 +	table->crc32 = crc32(0, (const unsigned char *)table,
-+				 table->headersize);
-+
++			     table->headersize);
 +}
 +
  /**
@@ -86,7 +85,7 @@ index 3654410666..add61f86ff 100644
  	.hdr = {
  		.signature = EFI_BOOT_SERVICES_SIGNATURE,
  		.revision = EFI_SPECIFICATION_VERSION,
-@@ -3057,3 +3068,17 @@ struct efi_system_table __efi_runtime_data systab = {
+@@ -3060,3 +3071,17 @@ struct efi_system_table __efi_runtime_data systab = {
  	.nr_tables = 0,
  	.tables = (void *)efi_conf_table,
  };
