@@ -54,7 +54,7 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 git am ../patch/0001-efi_loader-Increase-number-of-configuration-tables-t.patch
 git am ../patch/0001-efi_loader-specify-UEFI-spec-revision.patch
 git am ../patch/0001-efi_loader-correct-EFI_RUNTIME_SERVICES_SIGNATURE.patch
-git am ../patch/0001-efi_loader-correct-headersize-of-runtime-services-ta.patch
+git am ../patch/0001-efi_loader-correct-headersize-EFI-tables.patch
 git am ../patch/0001-efi_loader-provide-firmware-revision.patch
 git am ../patch/0001-efi_loader-calculate-crc32-for-EFI-tables.patch
 git am ../patch/0001-efi_loader-allocate-configuration-table-array.patch

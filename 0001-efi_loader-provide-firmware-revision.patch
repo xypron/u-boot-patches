@@ -56,8 +56,8 @@ index 50d311548e..ebd5a8809b 100644
  struct efi_system_table __efi_runtime_data systab = {
  	.hdr = {
 @@ -3048,7 +3048,8 @@ struct efi_system_table __efi_runtime_data systab = {
- 		.revision = 2 << 16 | 70, /* 2.7 */
- 		.headersize = sizeof(struct efi_table_hdr),
+ 		.revision = EFI_SPECIFICATION_VERSION,
+ 		.headersize = sizeof(struct efi_system_table),
  	},
 -	.fw_vendor = (long)firmware_vendor,
 +	.fw_vendor = firmware_vendor,
