@@ -1,0 +1,70 @@
+From 4b4620323bba454f6c252810032d558256b651ee Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 28 Jun 2018 03:33:08 +0200
+Subject: [PATCH 1/1] efi_loader: provide firmware revision
+
+Provide a firmware revision in the system table using the Makefile
+variables VERSION and PATCHLEVEL, e.g. 0x20180700 for v2018.07.
+
+Correct the type of the firmware vendor. It is a u16* pointer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h             | 2 +-
+ lib/efi_loader/Makefile       | 3 +++
+ lib/efi_loader/efi_boottime.c | 5 +++--
+ 3 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 094be6edf9..84e9444be1 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -296,7 +296,7 @@ struct efi_configuration_table
+ 
+ struct efi_system_table {
+ 	struct efi_table_hdr hdr;
+-	unsigned long fw_vendor;   /* physical addr of wchar_t vendor string */
++	u16 *fw_vendor;   /* physical addr of wchar_t vendor string */
+ 	u32 fw_revision;
+ 	efi_handle_t con_in_handle;
+ 	struct efi_simple_input_interface *con_in;
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index c6046e36d2..049b923553 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -6,6 +6,9 @@
+ # This file only gets included with CONFIG_EFI_LOADER set, so all
+ # object inclusion implicitly depends on it
+ 
++CFLAGS_efi_boottime.o += \
++  -DFW_VERSION="0x0$(VERSION)" \
++  -DFW_PATCHLEVEL="0x0$(PATCHLEVEL)"
+ CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI) -Os
+ 
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 50d311548e..ebd5a8809b 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -3040,7 +3040,7 @@ static const struct efi_boot_services efi_boot_services = {
+ 	.create_event_ex = efi_create_event_ex,
+ };
+ 
+-static uint16_t __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
++static u16 __efi_runtime_data firmware_vendor[] = L"Das U-Boot";
+ 
+ struct efi_system_table __efi_runtime_data systab = {
+ 	.hdr = {
+@@ -3048,7 +3048,8 @@ struct efi_system_table __efi_runtime_data systab = {
+ 		.revision = 2 << 16 | 70, /* 2.7 */
+ 		.headersize = sizeof(struct efi_table_hdr),
+ 	},
+-	.fw_vendor = (long)firmware_vendor,
++	.fw_vendor = firmware_vendor,
++	.fw_revision = FW_VERSION << 16 | FW_PATCHLEVEL << 8,
+ 	.con_in = (void *)&efi_con_in,
+ 	.con_out = (void *)&efi_con_out,
+ 	.std_err = (void *)&efi_con_out,
+-- 
+2.18.0
+
