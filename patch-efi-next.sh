@@ -33,6 +33,7 @@ git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 git am ../patch/0001-common-print-n-in-initr_scsi.patch
 git am ../patch/0001-Sandbox-provide-default-dtb.patch
 git am ../patch/0001-lib-div64-fix-typeo-in-include-div64.h.patch
+git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
