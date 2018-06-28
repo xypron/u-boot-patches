@@ -1,4 +1,4 @@
-From d04ab46ebe509f98f4012d7896c545d4389fb3ba Mon Sep 17 00:00:00 2001
+From a1470c8672d4fbaccdcec46c8a3e50a8aa5161c2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 27 Jun 2018 20:03:24 +0200
 Subject: [PATCH 5/7] efi_loader: calculate crc32 for EFI tables
@@ -10,11 +10,11 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/bootefi.c                 |  5 +++++
  include/efi_loader.h          |  2 ++
- lib/efi_loader/efi_boottime.c | 33 +++++++++++++++++++++++++++++----
- 3 files changed, 36 insertions(+), 4 deletions(-)
+ lib/efi_loader/efi_boottime.c | 32 ++++++++++++++++++++++++++++----
+ 3 files changed, 35 insertions(+), 4 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 91277106a2..c5b9993370 100644
+index 91277106a2..07c61ac542 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -44,6 +44,11 @@ efi_status_t efi_init_obj_list(void)
@@ -43,7 +43,7 @@ index d6e1f50e22..8c9c36556b 100644
  int efi_console_register(void);
  /* Called by bootefi to make all disk storage accessible as EFI objects */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 7c619c652c..3d855eeb69 100644
+index 7c619c652c..904056dbfd 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -163,6 +163,18 @@ const char *__efi_nesting_dec(void)
@@ -65,7 +65,7 @@ index 7c619c652c..3d855eeb69 100644
  /**
   * efi_queue_event - queue an EFI event
   *
-@@ -1848,9 +1861,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+@@ -1848,9 +1860,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
  	systab.boottime = NULL;
  
  	/* Recalculate CRC32 */
@@ -76,7 +76,7 @@ index 7c619c652c..3d855eeb69 100644
  
  	/* Give the payload some time to boot */
  	efi_set_watchdog(0);
-@@ -2988,7 +2999,7 @@ out:
+@@ -2988,7 +2998,7 @@ out:
  	return EFI_EXIT(r);
  }
  
@@ -85,7 +85,7 @@ index 7c619c652c..3d855eeb69 100644
  	.hdr = {
  		.signature = EFI_BOOT_SERVICES_SIGNATURE,
  		.revision = EFI_SPECIFICATION_VERSION,
-@@ -3060,3 +3071,17 @@ struct efi_system_table __efi_runtime_data systab = {
+@@ -3060,3 +3070,17 @@ struct efi_system_table __efi_runtime_data systab = {
  	.nr_tables = 0,
  	.tables = (void *)efi_conf_table,
  };
