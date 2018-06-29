@@ -1,4 +1,4 @@
-From c0f1e00b0485bbe173213c173a0c604af616da8b Mon Sep 17 00:00:00 2001
+From 2bdad68b7bfef6e16b73a6ec35c01c5c4953d571 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 29 Jun 2018 18:02:39 +0200
 Subject: [PATCH 1/1] efi_loader: complete implementation of GetTime()
@@ -12,14 +12,22 @@ Provide dummy values for capabilities.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_runtime.c | 96 ++++++++++++++++++++++++++++++------
- 1 file changed, 81 insertions(+), 15 deletions(-)
+ lib/efi_loader/efi_runtime.c | 97 ++++++++++++++++++++++++++++++------
+ 1 file changed, 82 insertions(+), 15 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 866387530a..3f768536b7 100644
+index 5ec17867fb..86b1e294ed 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
-@@ -117,24 +117,82 @@ static void EFIAPI efi_reset_system_boottime(
+@@ -10,6 +10,7 @@
+ #include <dm.h>
+ #include <elf.h>
+ #include <efi_loader.h>
++#include <i2c.h>
+ #include <rtc.h>
+ 
+ /* For manual relocation support */
+@@ -117,24 +118,82 @@ static void EFIAPI efi_reset_system_boottime(
  	while (1) { }
  }
  
@@ -111,7 +119,7 @@ index 866387530a..3f768536b7 100644
  
  	memset(time, 0, sizeof(*time));
  	time->year = tm.tm_year;
-@@ -142,12 +200,20 @@ static efi_status_t EFIAPI efi_get_time_boottime(
+@@ -142,12 +201,20 @@ static efi_status_t EFIAPI efi_get_time_boottime(
  	time->day = tm.tm_mday;
  	time->hour = tm.tm_hour;
  	time->minute = tm.tm_min;
