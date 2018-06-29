@@ -1,0 +1,102 @@
+From e89a67fc52bc43ac09b40ed877c4ac0db0fa827e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Jun 2018 18:15:44 +0200
+Subject: [PATCH 1/1] efi_selftest: unit test for GetTime()
+
+Provide a unit test for the GetTime() runtime service.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile           |  1 +
+ lib/efi_selftest/efi_selftest_rtc.c | 67 +++++++++++++++++++++++++++++
+ 2 files changed, 68 insertions(+)
+ create mode 100644 lib/efi_selftest/efi_selftest_rtc.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index c0fd490d2e..d927208700 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -24,6 +24,7 @@ efi_selftest_exitbootservices.o \
+ efi_selftest_fdt.o \
+ efi_selftest_gop.o \
+ efi_selftest_manageprotocols.o \
++efi_selftest_rtc.o \
+ efi_selftest_snp.o \
+ efi_selftest_textinput.o \
+ efi_selftest_textoutput.o \
+diff --git a/lib/efi_selftest/efi_selftest_rtc.c b/lib/efi_selftest/efi_selftest_rtc.c
+new file mode 100644
+index 0000000000..8d440dc0b3
+--- /dev/null
++++ b/lib/efi_selftest/efi_selftest_rtc.c
+@@ -0,0 +1,67 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * efi_selftest_rtc
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Test the real time clock runtime services.
++ */
++
++#include <efi_selftest.h>
++
++#define EFI_ST_NO_RTC "Could not read real time clock\n"
++
++static struct efi_runtime_services *runtime;
++
++/*
++ * Setup unit test.
++ *
++ * @handle:	handle of the loaded image
++ * @systable:	system table
++ * @return:	EFI_ST_SUCCESS for success
++ */
++static int setup(const efi_handle_t handle,
++		 const struct efi_system_table *systable)
++{
++	runtime = systable->runtime;
++	return EFI_ST_SUCCESS;
++}
++
++/*
++ * Execute unit test.
++ *
++ * Display current time.
++ *
++ * @return:	EFI_ST_SUCCESS for success
++ */
++static int execute(void)
++{
++	efi_status_t ret;
++	struct efi_time tm;
++
++	/* Display current time */
++	ret = runtime->get_time(&tm, NULL);
++	if (ret != EFI_SUCCESS) {
++#ifdef CONFIG_CMD_DATE
++		efi_st_error(EFI_ST_NO_RTC);
++		return EFI_ST_FAILURE;
++#else
++		efi_st_todo(EFI_ST_NO_RTC);
++		return EFI_ST_SUCCESS;
++#endif
++	} else {
++		efi_st_printf("Time according to real time clock: "
++			      "%.4u-%.2u-%.2u %.2u:%.2u:%.2u\n",
++			      tm.year, tm.month, tm.day,
++			      tm.hour, tm.minute, tm.second);
++	}
++
++	return EFI_ST_SUCCESS;
++}
++
++EFI_UNIT_TEST(rtc) = {
++	.name = "real time clock",
++	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
++	.setup = setup,
++	.execute = execute,
++};
+-- 
+2.17.1
+

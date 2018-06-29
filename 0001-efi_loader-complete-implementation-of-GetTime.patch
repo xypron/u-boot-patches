@@ -1,0 +1,143 @@
+From c0f1e00b0485bbe173213c173a0c604af616da8b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Jun 2018 18:02:39 +0200
+Subject: [PATCH 1/1] efi_loader: complete implementation of GetTime()
+
+Implement the missing parts of the GetTime() runtime service.
+
+Support CONFIG_DM_RTC=n.
+Fill seconds.
+Fill daylight saving time flag correctly.
+Provide dummy values for capabilities.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 96 ++++++++++++++++++++++++++++++------
+ 1 file changed, 81 insertions(+), 15 deletions(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 866387530a..3f768536b7 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -117,24 +117,82 @@ static void EFIAPI efi_reset_system_boottime(
+ 	while (1) { }
+ }
+ 
++int __weak rtc_get (struct rtc_time *tm)
++{
++	return 1;
++}
++
++#ifndef CONFIG_DM_RTC
++/**
++ * efi_set_rtc_i2c_bus - select I2C bus for real time clock
++ *
++ * @bus:		bus to select, -1 for default
++ * Return Value:	previously selected bus
++ */
++static int efi_set_rtc_i2c_bus(int bus)
++{
++	int old_bus;
++
++	if (bus < 0)
++		bus = CONFIG_SYS_RTC_BUS_NUM;
++
++#ifdef CONFIG_SYS_I2C
++	old_bus = i2c_get_bus_num();
++	i2c_set_bus_num(bus);
++#else
++	old_bus = I2C_GET_BUS();
++	I2C_SET_BUS(bus);
++#endif
++	return old_bus;
++}
++#endif /* !CONFIG_DM_RTC */
++
++/**
++ * efi_get_time_boottime - get current time
++ *
++ * This function implements the GetTime runtime service.
++ * See the Unified Extensible Firmware Interface (UEFI) specification
++ * for details.
++ *
++ * @time:		pointer to structure to receive current time
++ * @capabilities:	pointer to structure to receive RTC properties
++ * Return Value:	status code
++ */
+ static efi_status_t EFIAPI efi_get_time_boottime(
+ 			struct efi_time *time,
+ 			struct efi_time_cap *capabilities)
+ {
+-#if defined(CONFIG_CMD_DATE) && defined(CONFIG_DM_RTC)
+-	struct rtc_time tm;
++	efi_status_t ret = EFI_SUCCESS;
+ 	int r;
+-	struct udevice *dev;
++	struct rtc_time tm;
+ 
+ 	EFI_ENTRY("%p %p", time, capabilities);
+ 
+-	r = uclass_get_device(UCLASS_RTC, 0, &dev);
+-	if (r)
+-		return EFI_EXIT(EFI_DEVICE_ERROR);
++	if (!time) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++
++#ifdef CONFIG_DM_RTC
++	{
++		struct udevice *dev;
++
++		r = uclass_get_device(UCLASS_RTC, 0, &dev);
++		if (!r)
++			r = dm_rtc_get(dev, &tm);
++	}
++#else
++	{
++		int oldbus = efi_set_rtc_i2c_bus(-1);
+ 
+-	r = dm_rtc_get(dev, &tm);
+-	if (r)
+-		return EFI_EXIT(EFI_DEVICE_ERROR);
++		r = rtc_get(&tm);
++		efi_set_rtc_i2c_bus(oldbus);
++	}
++#endif
++	if (r) {
++		ret = EFI_DEVICE_ERROR;
++		goto out;
++	}
+ 
+ 	memset(time, 0, sizeof(*time));
+ 	time->year = tm.tm_year;
+@@ -142,12 +200,20 @@ static efi_status_t EFIAPI efi_get_time_boottime(
+ 	time->day = tm.tm_mday;
+ 	time->hour = tm.tm_hour;
+ 	time->minute = tm.tm_min;
+-	time->daylight = tm.tm_isdst;
+-
+-	return EFI_EXIT(EFI_SUCCESS);
+-#else
+-	return EFI_DEVICE_ERROR;
+-#endif
++	time->second = tm.tm_sec;
++	time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
++	if (tm.tm_isdst > 0)
++		time->daylight |= EFI_TIME_IN_DAYLIGHT;
++	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
++
++	if (capabilities) {
++		/* Set reasonable dummy values */
++		capabilities->resolution = 1;		/* 1 Hz */
++		capabilities->accuracy = 100000000;	/* 100 ppm */
++		capabilities->sets_to_zero = false;
++	}
++out:
++	return EFI_EXIT(ret);
+ }
+ 
+ /* Boards may override the helpers below to implement RTS functionality */
+-- 
+2.17.1
+

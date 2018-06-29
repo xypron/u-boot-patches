@@ -1,0 +1,62 @@
+From 1b2e9c7180ab3a47debf7419b7162bec5b549f2a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Jun 2018 18:43:19 +0200
+Subject: [PATCH 1/1] efi_loader: remove unused efi_get_time_init()
+
+Remove unused function efi_get_time_init().
+
+Initialization of the RTC has to be done in board bring up not in the EFI
+subsystem.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                | 3 ---
+ include/efi_loader.h         | 1 -
+ lib/efi_loader/efi_runtime.c | 5 -----
+ 3 files changed, 9 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 07c61ac542..53e379e59e 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -85,9 +85,6 @@ efi_status_t efi_init_obj_list(void)
+ 	ret = efi_reset_system_init();
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+-	ret = efi_get_time_init();
+-	if (ret != EFI_SUCCESS)
+-		goto out;
+ 
+ out:
+ 	efi_obj_list_initialized = ret;
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index c4ddb26e48..628dd801a8 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -423,7 +423,6 @@ efi_status_t efi_reset_system_init(void);
+ efi_status_t __efi_runtime EFIAPI efi_get_time(
+ 			struct efi_time *time,
+ 			struct efi_time_cap *capabilities);
+-efi_status_t efi_get_time_init(void);
+ 
+ #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+ /*
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 1acb06a206..866387530a 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -174,11 +174,6 @@ efi_status_t __weak __efi_runtime EFIAPI efi_get_time(
+ 	return EFI_DEVICE_ERROR;
+ }
+ 
+-efi_status_t __weak efi_get_time_init(void)
+-{
+-	return EFI_SUCCESS;
+-}
+-
+ struct efi_runtime_detach_list_struct {
+ 	void *ptr;
+ 	void *patchto;
+-- 
+2.17.1
+
