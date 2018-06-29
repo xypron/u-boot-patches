@@ -1,4 +1,4 @@
-From 13f93d68799ec77ebb91c7c4d6fac62691799885 Mon Sep 17 00:00:00 2001
+From ff8733fb729c2219c60675b9a5f8f9dc823963ad Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 29 Jun 2018 18:37:18 +0200
 Subject: [PATCH 1/1] rtc: remove CONFIG_CMD_DATE dependency
@@ -25,7 +25,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/rtc/m41t62.c       | 4 ----
  drivers/rtc/m48t35ax.c     | 4 ----
  drivers/rtc/max6900.c      | 4 ----
- drivers/rtc/mc146818.c     | 4 ----
+ drivers/rtc/mc146818.c     | 3 ---
  drivers/rtc/mcfrtc.c       | 4 ----
  drivers/rtc/mk48t59.c      | 4 ----
  drivers/rtc/pcf8563.c      | 4 ----
@@ -34,7 +34,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/rtc/rx8025.c       | 4 ----
  drivers/rtc/s3c24x0_rtc.c  | 4 ----
  drivers/rtc/x1205.c        | 4 ----
- 25 files changed, 94 deletions(-)
+ 25 files changed, 93 deletions(-)
 
 diff --git a/drivers/rtc/at91sam9_rtt.c b/drivers/rtc/at91sam9_rtt.c
 index da5bb3e2f7..6f92660ef1 100644
@@ -339,7 +339,7 @@ index f5c651bad0..b35186579a 100644
 -
 -#endif
 diff --git a/drivers/rtc/mc146818.c b/drivers/rtc/mc146818.c
-index 500eef2ee0..02e33c3796 100644
+index 500eef2ee0..444d4baf0b 100644
 --- a/drivers/rtc/mc146818.c
 +++ b/drivers/rtc/mc146818.c
 @@ -19,8 +19,6 @@
@@ -351,12 +351,14 @@ index 500eef2ee0..02e33c3796 100644
  /* Set this to 1 to clear the CMOS RAM */
  #define CLEAR_CMOS		0
  
-@@ -302,5 +300,3 @@ void rtc_init(void)
- {
- 	mc146818_init();
+@@ -191,7 +189,6 @@ static void mc146818_init(void)
+ 	/* Clear any pending interrupts */
+ 	mc146818_read8(RTC_CONFIG_C);
  }
--
--#endif /* CONFIG_DM_RTC */
+-#endif /* CONFIG_CMD_DATE */
+ 
+ #ifdef CONFIG_DM_RTC
+ 
 diff --git a/drivers/rtc/mcfrtc.c b/drivers/rtc/mcfrtc.c
 index 0ac8e4dbc5..e10638ec7d 100644
 --- a/drivers/rtc/mcfrtc.c
