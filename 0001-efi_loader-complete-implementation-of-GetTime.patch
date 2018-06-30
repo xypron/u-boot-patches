@@ -1,7 +1,7 @@
-From 63386487c93e8b043a9a6437c1426cd97d18ccb2 Mon Sep 17 00:00:00 2001
+From 1a36588fffbb20d868ed0bf38ed90983ecd51ad0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 29 Jun 2018 18:02:39 +0200
-Subject: [PATCH 1/1] efi_loader: complete implementation of GetTime()
+Subject: [PATCH 3/5] efi_loader: complete implementation of GetTime()
 
 Implement the missing parts of the GetTime() runtime service.
 
@@ -31,7 +31,7 @@ index 5ec17867fb..ac58163cfc 100644
  	while (1) { }
  }
  
-+int __weak rtc_get (struct rtc_time *tm)
++int __weak rtc_get(struct rtc_time *tm)
 +{
 +	return 1;
 +}
