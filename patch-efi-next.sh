@@ -73,6 +73,7 @@ git am ../patch/0001-efi_selftest-test-InstallConfigurationTable.patch
 git am ../patch/0001-efi_loader-check-parameters-of-CreateEvent.patch
 git am ../patch/0001-efi_loader-check-parameters-in-memory-allocation.patch
 git am ../patch/0001-efi_loader-check-parameters-of-GetMemoryMap.patch
+git am ../patch/0001-efi_loader-check-map_key-in-ExitBootServices.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch

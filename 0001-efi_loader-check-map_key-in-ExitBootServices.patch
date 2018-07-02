@@ -1,0 +1,60 @@
+From e2ef40755cdc4e59ee7387d33b0389b1ed4d9702 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 2 Jul 2018 12:07:26 +0200
+Subject: [PATCH 1/1] efi_loader: check map_key in ExitBootServices
+
+The UEFI spec requires that the memory map key is checked in
+ExitBootServices().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          | 3 +++
+ lib/efi_loader/efi_boottime.c | 4 ++++
+ lib/efi_loader/efi_memory.c   | 2 +-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index cd6c722e00..10e2663e63 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -17,6 +17,9 @@
+ 
+ #include <linux/list.h>
+ 
++/* Key identifying the memory map */
++#define EFI_MEMORY_MAP_KEY 0x293e2c7d
++
+ int __efi_entry_check(void);
+ int __efi_exit_check(void);
+ const char *__efi_nesting(void);
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 51e5a201e0..250aff37a2 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1835,6 +1835,10 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+ 
+ 	EFI_ENTRY("%p, %ld", image_handle, map_key);
+ 
++	/* Check that the caller has read the memory map */
++	if (map_key != EFI_MEMORY_MAP_KEY)
++		return EFI_INVALID_PARAMETER;
++
+ 	/* Make sure that notification functions are not called anymore */
+ 	efi_tpl = TPL_HIGH_LEVEL;
+ 
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index bad8704269..a81cf22ac2 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -487,7 +487,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 	}
+ 
+ 	if (map_key)
+-		*map_key = 0;
++		*map_key = EFI_MEMORY_MAP_KEY;
+ 
+ 	return EFI_SUCCESS;
+ }
+-- 
+2.18.0
+
