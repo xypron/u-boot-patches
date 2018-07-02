@@ -69,6 +69,9 @@ git am ../patch/0001-efi_loader-calculate-crc32-for-EFI-tables.patch
 git am ../patch/0001-efi_loader-allocate-configuration-table-array.patch
 git am ../patch/0001-efi_selftest-test-InstallConfigurationTable.patch
 
+# SCT
+git am ../patch/0001-efi_loader-check-parameters-of-CreateEvent.patch
+
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
