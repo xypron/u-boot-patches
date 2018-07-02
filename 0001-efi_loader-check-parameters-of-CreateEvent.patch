@@ -5,9 +5,6 @@ Subject: [PATCH 1/1] efi_loader: check parameters of CreateEvent
 
 Rigorously check the TPL level and the event type.
 
-The problem was indicated by the UEFI self certification test
-CreateEvent_Conf.
-
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_boottime.c | 35 ++++++++++++++++++++++++++++++++---
