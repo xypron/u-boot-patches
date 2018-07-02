@@ -60,7 +60,6 @@ git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
 git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 
 # Configuration tables
-git am ../patch/0001-efi_loader-Increase-number-of-configuration-tables-t.patch
 git am ../patch/0001-efi_loader-specify-UEFI-spec-revision.patch
 git am ../patch/0001-efi_loader-correct-EFI_RUNTIME_SERVICES_SIGNATURE.patch
 git am ../patch/0001-efi_loader-correct-headersize-EFI-tables.patch
