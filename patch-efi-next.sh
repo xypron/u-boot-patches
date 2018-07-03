@@ -74,6 +74,8 @@ git am ../patch/0001-efi_loader-check-parameters-in-memory-allocation.patch
 git am ../patch/0001-efi_loader-check-parameters-of-GetMemoryMap.patch
 git am ../patch/0001-efi_loader-check-map_key-in-ExitBootServices.patch
 
+git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
+
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
