@@ -74,6 +74,8 @@ git am ../patch/0001-efi_loader-check-parameters-in-memory-allocation.patch
 git am ../patch/0001-efi_loader-check-parameters-of-GetMemoryMap.patch
 git am ../patch/0001-efi_loader-check-map_key-in-ExitBootServices.patch
 
+# Unicode collation protocol
+git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
 
 # KGDB
