@@ -1,4 +1,4 @@
-From 3e9c2a907e7ab41521524b534e758934f9a70450 Mon Sep 17 00:00:00 2001
+From a0df9bb62f139e97c19c0e62f7a3d7d1a0cfb336 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Jul 2018 19:24:17 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_UNICODE_COLLATION_PROTOCOL
@@ -8,9 +8,11 @@ The patch implements the EFI_UNICODE_COLLATION_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h                      |  20 +++
+ include/efi_loader.h                   |   5 +
  lib/efi_loader/Makefile                |  18 ++-
+ lib/efi_loader/efi_boottime.c          |   6 +
  lib/efi_loader/efi_unicode_collation.c | 161 +++++++++++++++++++++++++
- 3 files changed, 195 insertions(+), 4 deletions(-)
+ 5 files changed, 206 insertions(+), 4 deletions(-)
  create mode 100644 lib/efi_loader/efi_unicode_collation.c
 
 diff --git a/include/efi_api.h b/include/efi_api.h
@@ -49,6 +51,29 @@ index 99ea2c5b69..e38d3ad11b 100644
 +};
 +
  #endif
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 57ca550272..0be89efd1f 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -98,6 +98,9 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
+ /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
+ extern const struct efi_device_path_utilities_protocol
+ 					efi_device_path_utilities;
++/* Implementation of the EFI_UNICODE_COLLATION_PROTOCOL */
++extern const struct efi_unicode_collation_protocol
++					efi_unicode_collation_protocol;
+ 
+ uint16_t *efi_dp_str(struct efi_device_path *dp);
+ 
+@@ -127,6 +130,8 @@ extern const efi_guid_t efi_file_info_guid;
+ /* GUID for file system information */
+ extern const efi_guid_t efi_file_system_info_guid;
+ extern const efi_guid_t efi_guid_device_path_utilities_protocol;
++/* GUID of the Unicode collation protocol */
++extern const efi_guid_t efi_guid_unicode_collation_protocol;
+ 
+ extern unsigned int __efi_runtime_start, __efi_runtime_stop;
+ extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 1ffbf52a89..0769df20f7 100644
 --- a/lib/efi_loader/Makefile
@@ -78,9 +103,26 @@ index 1ffbf52a89..0769df20f7 100644
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
  obj-$(CONFIG_PARTITIONS) += efi_disk.o
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 105e80bb52..b5dc34cc84 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1518,6 +1518,12 @@ efi_status_t efi_setup_loaded_image(
+ 	if (ret != EFI_SUCCESS)
+ 		goto failure;
+ 
++	ret = efi_add_protocol(obj->handle,
++			       &efi_guid_unicode_collation_protocol,
++			       (void *)&efi_unicode_collation_protocol);
++	if (ret != EFI_SUCCESS)
++		goto failure;
++
+ 	return ret;
+ failure:
+ 	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 new file mode 100644
-index 0000000000..05a17b4e65
+index 0000000000..10a29c5361
 --- /dev/null
 +++ b/lib/efi_loader/efi_unicode_collation.c
 @@ -0,0 +1,161 @@
@@ -236,7 +278,7 @@ index 0000000000..05a17b4e65
 +	return ret;
 +}
 +
-+struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
++const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
 +	.stri_coll = efi_stri_coll,
 +	.metai_match = efi_metai_match,
 +	.str_lwr = efi_str_lwr,
