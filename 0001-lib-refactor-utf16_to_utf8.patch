@@ -1,4 +1,4 @@
-From 0a17319d93320c36db6b13da7382e7d2048e30fe Mon Sep 17 00:00:00 2001
+From 9729220d4a44d9b984883495d9724d0b6ab46e8f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 5 Jul 2018 12:42:09 +0200
 Subject: [PATCH 1/1] lib: refactor utf16_to_utf8()
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 53 insertions(+), 43 deletions(-)
 
 diff --git a/lib/charset.c b/lib/charset.c
-index cd186a5a5ae..0d0373b6b22 100644
+index cd186a5a5a..39cf37f6bb 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -8,6 +8,37 @@
@@ -22,11 +22,11 @@ index cd186a5a5ae..0d0373b6b22 100644
 + * utf16_next - get next UTF-16 code point
 + *
 + * @src:		pointer to current word, updated to point to next word
-+ * ReturnValue:		code point, or 0 for end of string, or -ENOENT if no
-+ *			legal code point is found. In case of an error src
-+ *			points to the incorrect word.
++ * ReturnValue:		code point, or 0 for end of string, or -1 if no legal
++ *			code point is found. In case of an error src points to
++ *			the incorrect word.
 + */
-+static s32 utf16_next(u16 **src) {
++static s32 utf16_next(const u16 **src) {
 +	u32 code, code2;
 +
 +	if (!**src)
@@ -35,13 +35,13 @@ index cd186a5a5ae..0d0373b6b22 100644
 +	++*src;
 +	if (code >= 0xD800 && code <= 0xDBFF) {
 +		if (!**src)
-+			return -ENOENT;
++			return -1;
 +		code &= 0x3ff;
 +		code <<= 10;
 +		code += 0x10000;
 +		code2 = **src;
 +		if (code2 <= 0xDC00 || code2 >= 0xDFFF)
-+			return -ENOENT;
++			return -1;
 +		++*src;
 +		code2 &= 0x3ff;
 +		code += code2;
@@ -83,7 +83,7 @@ index cd186a5a5ae..0d0373b6b22 100644
 +	for (;;) {
 +		code = utf16_next(&src);
 +		if (!code)
-+			return;
++			break;
 +		if (code < 0) {
 +			*dest++ = '?';
 +		} else if (code <= 0x007F) {
