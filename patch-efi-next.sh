@@ -62,7 +62,7 @@ git am ../patch/0001-MAINTAINERS-assign-lib-charset.c.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
-git am ../patch/0001-lib-refactor-utf16_to_utf8.patch
+# git am ../patch/0001-lib-refactor-utf16_to_utf8.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
