@@ -1,0 +1,27 @@
+From d725473c9b39d2dbb2bfa85e191dbd0d8244acb8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 5 Jul 2018 19:41:54 +0200
+Subject: [PATCH 1/1] MAINTAINERS: assign lib/charset.c
+
+lib/charset.c is only used by the EFI subsystem.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b2c9717cb7..2aef214ea0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -348,6 +348,7 @@ F:	doc/README.iscsi
+ F:	include/efi*
+ F:	include/pe.h
+ F:	include/asm-generic/pe.h
++F:	lib/charset.c
+ F:	lib/efi*/
+ F:	test/py/tests/test_efi*
+ F:	cmd/bootefi.c
+-- 
+2.18.0
+

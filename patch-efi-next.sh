@@ -58,6 +58,8 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
 # Unicode collation protocol
+git am ../patch/0001-MAINTAINERS-assign-lib-charset.c.patch
+git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
 git am ../patch/0001-lib-refactor-utf16_to_utf8.patch

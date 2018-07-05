@@ -1,0 +1,171 @@
+From 2cadff17f8a96772121ee3e09bc0dfea908920a2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 5 Jul 2018 19:25:20 +0200
+Subject: [PATCH 1/1] efi_loader: rename utf16_strlen, utf16_strnlen
+
+The function names utf16_strlen() and utf16_strnlen() are misnomers.
+The functions do not count utf-16 characters but non-zero words.
+So let's rename them to u16_strlen and u16_strnlen().
+
+In utf16_dup() avoid assignment in if clause.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h             | 29 ++++++++++++-----------------
+ lib/charset.c                 | 10 +++++++---
+ lib/efi_loader/efi_bootmgr.c  |  2 +-
+ lib/efi_loader/efi_console.c  |  2 +-
+ lib/efi_loader/efi_file.c     |  2 +-
+ lib/efi_loader/efi_variable.c |  2 +-
+ lib/vsprintf.c                |  2 +-
+ 7 files changed, 24 insertions(+), 25 deletions(-)
+
+diff --git a/include/charset.h b/include/charset.h
+index 11832cbd12..be6e6fe2c7 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -12,30 +12,25 @@
+ 
+ #define MAX_UTF8_PER_UTF16 3
+ 
++size_t u16_strlen(const u16 *in);
+ /**
+- * utf16_strlen() - Get the length of an utf16 string
++ * u16_strlen - count non-zero words
+  *
+- * Returns the number of 16 bit characters in an utf16 string, not
+- * including the terminating NULL character.
+- *
+- * @in     the string to measure
+- * @return the string length
++ * @in:			utf-16 string
++ * ReturnValue:		number of non-zero words.
++ *			This is not the number of utf-16 letters!
+  */
+-size_t utf16_strlen(const uint16_t *in);
++size_t u16_strlen(const u16 *in);
+ 
+ /**
+- * utf16_strnlen() - Get the length of a fixed-size utf16 string.
+- *
+- * Returns the number of 16 bit characters in an utf16 string,
+- * not including the terminating NULL character, but at most
+- * 'count' number of characters.  In doing this, utf16_strnlen()
+- * looks at only the first 'count' characters.
++ * u16_strlen - count non-zero words
+  *
+- * @in     the string to measure
+- * @count  the maximum number of characters to count
+- * @return the string length, up to a maximum of 'count'
++ * @in:			utf-16 string
++ * @count:		maximum number of words to count
++ * ReturnValue:		number of non-zero words.
++ *			This is not the number of utf-16 letters!
+  */
+-size_t utf16_strnlen(const uint16_t *in, size_t count);
++size_t u16_strnlen(const u16 *in, size_t count);
+ 
+ /**
+  * utf16_strcpy() - UTF16 equivalent of strcpy()
+diff --git a/lib/charset.c b/lib/charset.c
+index cd186a5a5a..8ff8d59957 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -12,14 +12,14 @@
+  * utf8/utf16 conversion mostly lifted from grub
+  */
+ 
+-size_t utf16_strlen(const uint16_t *in)
++size_t u16_strlen(const u16 *in)
+ {
+ 	size_t i;
+ 	for (i = 0; in[i]; i++);
+ 	return i;
+ }
+ 
+-size_t utf16_strnlen(const uint16_t *in, size_t count)
++size_t u16_strnlen(const u16 *in, size_t count)
+ {
+ 	size_t i;
+ 	for (i = 0; count-- && in[i]; i++);
+@@ -39,7 +39,11 @@ uint16_t *utf16_strcpy(uint16_t *dest, const uint16_t *src)
+ uint16_t *utf16_strdup(const uint16_t *s)
+ {
+ 	uint16_t *new;
+-	if (!s || !(new = malloc((utf16_strlen(s) + 1) * 2)))
++
++	if (!s)
++		return NULL;
++	new = malloc((u16_strlen(s) + 1) * 2);
++	if (!new)
+ 		return NULL;
+ 	utf16_strcpy(new, s);
+ 	return new;
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 853358ab93..0c5764db12 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -60,7 +60,7 @@ static void parse_load_option(struct load_option *lo, void *ptr)
+ 	ptr += sizeof(u16);
+ 
+ 	lo->label = ptr;
+-	ptr += (utf16_strlen(lo->label) + 1) * 2;
++	ptr += (u16_strlen(lo->label) + 1) * 2;
+ 
+ 	lo->file_path = ptr;
+ 	ptr += lo->file_path_length;
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 3fd0d2fd51..47fe54d79e 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -122,7 +122,7 @@ static efi_status_t EFIAPI efi_cout_output_string(
+ 
+ 	EFI_ENTRY("%p, %p", this, string);
+ 
+-	unsigned int n16 = utf16_strlen(string);
++	unsigned int n16 = u16_strlen(string);
+ 	char buf[MAX_UTF8_PER_UTF16 * n16 + 1];
+ 	u16 *p;
+ 
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index e6a15bcb52..c21881b32c 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -139,7 +139,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
+ 
+ 	if (file_name) {
+ 		utf16_to_utf8((u8 *)f0, (u16 *)file_name, 1);
+-		flen = utf16_strlen((u16 *)file_name);
++		flen = u16_strlen((u16 *)file_name);
+ 	}
+ 
+ 	/* we could have a parent, but also an absolute path: */
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 90b637215e..770c67abb9 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -106,7 +106,7 @@ static efi_status_t efi_to_native(char *native, u16 *variable_name,
+ {
+ 	size_t len;
+ 
+-	len = utf16_strlen((u16 *)variable_name);
++	len = u16_strlen((u16 *)variable_name);
+ 	if (len >= MAX_VAR_NAME)
+ 		return EFI_DEVICE_ERROR;
+ 
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 914fbd30cb..c805b998f9 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -278,7 +278,7 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
+ 		int precision, int flags)
+ {
+ 	u16 *str = s ? s : L"<NULL>";
+-	int utf16_len = utf16_strnlen(str, precision);
++	int utf16_len = u16_strnlen(str, precision);
+ 	u8 utf8[utf16_len * MAX_UTF8_PER_UTF16];
+ 	int utf8_len, i;
+ 
+-- 
+2.18.0
+
