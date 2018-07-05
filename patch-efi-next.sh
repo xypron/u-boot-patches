@@ -32,7 +32,6 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 git am ../patch/0001-common-print-n-in-initr_scsi.patch
 git am ../patch/0001-Sandbox-provide-default-dtb.patch
-git am ../patch/0001-efi_driver-set-DM_FLAG_NAME_ALLOCED-flag.patch
 
 # RTC
 git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
@@ -48,10 +47,6 @@ git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
 git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
-# diverse protocols
-git am ../patch/0001-fs-fat-cannot-write-to-subdirectories.patch
-git am ../patch/0001-efi_selftest-test-writing-to-file.patch
-
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
@@ -59,24 +54,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
 git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 
-# Configuration tables
-git am ../patch/0001-efi_loader-specify-UEFI-spec-revision.patch
-git am ../patch/0001-efi_loader-correct-EFI_RUNTIME_SERVICES_SIGNATURE.patch
-git am ../patch/0001-efi_loader-correct-headersize-EFI-tables.patch
-git am ../patch/0001-efi_loader-provide-firmware-revision.patch
-git am ../patch/0001-efi_loader-calculate-crc32-for-EFI-tables.patch
-git am ../patch/0001-efi_loader-allocate-configuration-table-array.patch
-git am ../patch/0001-efi_selftest-test-InstallConfigurationTable.patch
-
 # SCT
-git am ../patch/0001-efi_loader-check-parameters-of-CreateEvent.patch
-git am ../patch/0001-efi_loader-check-parameters-in-memory-allocation.patch
-git am ../patch/0001-efi_loader-check-parameters-of-GetMemoryMap.patch
-git am ../patch/0001-efi_loader-check-map_key-in-ExitBootServices.patch
-
-git am ../patch/0001-efi_loader-set-revision-in-loaded-image-protocol.patch
-git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.Reset.patch
-git am ../patch/0001-efi_loader-clear-screen-has-to-reset-cursor-position.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
 # Unicode collation protocol
