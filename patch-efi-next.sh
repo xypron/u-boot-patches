@@ -77,6 +77,7 @@ git am ../patch/0001-efi_loader-check-map_key-in-ExitBootServices.patch
 git am ../patch/0001-efi_loader-set-revision-in-loaded-image-protocol.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.Reset.patch
 git am ../patch/0001-efi_loader-clear-screen-has-to-reset-cursor-position.patch
+git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
 # Unicode collation protocol
 git am ../patch/0001-efi_loader-capitalization-table.patch
