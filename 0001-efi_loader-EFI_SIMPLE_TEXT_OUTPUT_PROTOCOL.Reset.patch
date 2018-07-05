@@ -1,7 +1,7 @@
-From fa18e4efcd9359007a622ec14384d325a92c8eaf Mon Sep 17 00:00:00 2001
+From e5239d2c45f046971c197dbaf7b1eb39c99bc28f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 5 Jul 2018 07:58:58 +0200
-Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset()
+Subject: [PATCH 4/4] efi_loader: EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset()
 
 Implement the reset service of the EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.
 
@@ -24,11 +24,11 @@ index 3fd0d2fd51..17aced86a5 100644
 -	return EFI_EXIT(EFI_UNSUPPORTED);
 +
 +	/* Clear screen */
-+	printf(ESC"[2J");
++	printf(ESC "[2J");
 +	efi_con_mode.cursor_column = 0;
 +	efi_con_mode.cursor_row = 0;
 +	/* Set default colors */
-+	printf(ESC"[0;37;40m");
++	printf(ESC "[0;37;40m");
 +
 +	return EFI_EXIT(EFI_SUCCESS);
  }
