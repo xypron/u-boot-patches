@@ -56,6 +56,7 @@ git am ../patch/0001-lib-crc32-mark-function-crc32-as-__efi_runtime.patch
 git am ../patch/0001-efi_loader-update-runtime-services-table-crc32.patch
 
 # RTC
+git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch

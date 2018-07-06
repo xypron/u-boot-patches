@@ -1,0 +1,204 @@
+From 918be6984d872f255596e68c5a95e0a7cb14a11c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 6 Jul 2018 20:35:23 +0200
+Subject: [PATCH 1/1] drivers: rtc: resolve year 2038 problem in rtc_to_tm
+
+Our implementation of rtc_to_tm() cannot handle dates of more than
+0x7fffffff seconds after 1970-01-01.
+
+Adopt the Linux kernel implementation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rtc/Makefile  |  1 +
+ drivers/rtc/date.c    | 43 --------------------------
+ drivers/rtc/rtc-lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++
+ include/rtc.h         | 14 +++++++--
+ 4 files changed, 83 insertions(+), 45 deletions(-)
+ create mode 100644 drivers/rtc/rtc-lib.c
+
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index 09f2b08244..513e3ffc07 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_DM_RTC) += rtc-uclass.o
+ 
+ obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
+ obj-y += date.o
++obj-y += rtc-lib.o
+ obj-$(CONFIG_RTC_DAVINCI) += davinci.o
+ obj-$(CONFIG_RTC_DS1302) += ds1302.o
+ obj-$(CONFIG_RTC_DS1306) += ds1306.o
+diff --git a/drivers/rtc/date.c b/drivers/rtc/date.c
+index 1256ffe374..f2568cf886 100644
+--- a/drivers/rtc/date.c
++++ b/drivers/rtc/date.c
+@@ -19,10 +19,6 @@
+ #define	days_in_year(a)		(leapyear(a) ? 366 : 365)
+ #define	days_in_month(a)	(month_days[(a) - 1])
+ 
+-static int month_days[12] = {
+-	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+-};
+-
+ static int month_offset[] = {
+ 	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+ };
+@@ -65,45 +61,6 @@ int rtc_calc_weekday(struct rtc_time *tm)
+ 	return 0;
+ }
+ 
+-int rtc_to_tm(int tim, struct rtc_time *tm)
+-{
+-	register int i;
+-	register long hms, day;
+-
+-	day = tim / SECDAY;
+-	hms = tim % SECDAY;
+-
+-	/* Hours, minutes, seconds are easy */
+-	tm->tm_hour = hms / 3600;
+-	tm->tm_min = (hms % 3600) / 60;
+-	tm->tm_sec = (hms % 3600) % 60;
+-
+-	/* Number of years in days */
+-	for (i = STARTOFTIME; day >= days_in_year(i); i++)
+-		day -= days_in_year(i);
+-	tm->tm_year = i;
+-
+-	/* Number of months in days left */
+-	if (leapyear(tm->tm_year))
+-		days_in_month(FEBRUARY) = 29;
+-	for (i = 1; day >= days_in_month(i); i++)
+-		day -= days_in_month(i);
+-	days_in_month(FEBRUARY) = 28;
+-	tm->tm_mon = i;
+-
+-	/* Days are what is left over (+1) from all that */
+-	tm->tm_mday = day + 1;
+-
+-	/* Zero unused fields */
+-	tm->tm_yday = 0;
+-	tm->tm_isdst = 0;
+-
+-	/*
+-	 * Determine the day of week
+-	 */
+-	return rtc_calc_weekday(tm);
+-}
+-
+ /*
+  * Converts Gregorian date to seconds since 1970-01-01 00:00:00.
+  * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+new file mode 100644
+index 0000000000..5f4be156ab
+--- /dev/null
++++ b/drivers/rtc/rtc-lib.c
+@@ -0,0 +1,70 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * rtc and date/time utility functions
++ *
++ * Copyright (C) 2005-06 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++*/
++
++#include <common.h>
++#include <rtc.h>
++#include <linux/math64.h>
++
++static const unsigned char rtc_days_in_month[] = {
++	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
++};
++
++#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
++
++/*
++ * The number of days in the month.
++ */
++static int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return rtc_days_in_month[month] + (is_leap_year(year) && month == 1);
++}
++
++/*
++ * rtc_to_tm - Converts u64 to rtc_time.
++ * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++ */
++void rtc_to_tm(u64 time, struct rtc_time *tm)
++{
++	unsigned int month, year;
++	int secs, days;
++
++	/* time must be positive */
++	days = div_s64_rem(time, 86400, &secs);
++
++	/* day of the week, 1970-01-01 was a Thursday */
++	tm->tm_wday = (days + 4) % 7;
++
++	year = 1970 + days / 365;
++	days -= (year - 1970) * 365
++		+ LEAPS_THRU_END_OF(year - 1)
++		- LEAPS_THRU_END_OF(1970 - 1);
++	while (days < 0) {
++		year -= 1;
++		days += 365 + is_leap_year(year);
++	}
++	tm->tm_year = year - 1900;
++	tm->tm_yday = days + 1;
++
++	for (month = 0; month < 11; month++) {
++		int newdays;
++
++		newdays = days - rtc_month_days(month, year);
++		if (newdays < 0)
++			break;
++		days = newdays;
++	}
++	tm->tm_mon = month;
++	tm->tm_mday = days + 1;
++
++	tm->tm_hour = secs / 3600;
++	secs -= tm->tm_hour * 3600;
++	tm->tm_min = secs / 60;
++	tm->tm_sec = secs - tm->tm_min * 60;
++
++	tm->tm_isdst = 0;
++}
+diff --git a/include/rtc.h b/include/rtc.h
+index 746624d799..1377ca2186 100644
+--- a/include/rtc.h
++++ b/include/rtc.h
+@@ -76,6 +76,17 @@ struct rtc_ops {
+ /* Access the operations for an RTC device */
+ #define rtc_get_ops(dev)	((struct rtc_ops *)(dev)->driver->ops)
+ 
++/**
++ * is_leap_year - Check if year is a leap year
++ *
++ * @year	Year
++ * @return	1 if leap year
++ */
++static inline bool is_leap_year(unsigned int year)
++{
++	return (!(year % 4) && (year % 100)) || !(year % 400);
++}
++
+ /**
+  * dm_rtc_get() - Read the time from an RTC
+  *
+@@ -231,9 +242,8 @@ int rtc_calc_weekday(struct rtc_time *time);
+  *
+  * @time_t:	Number of seconds since 1970-01-01 00:00:00
+  * @time:	Place to put the broken-out time
+- * @return 0 if OK, -EINVAL if the weekday could not be determined
+  */
+-int rtc_to_tm(int time_t, struct rtc_time *time);
++void rtc_to_tm(u64 time_t, struct rtc_time *time);
+ 
+ /**
+  * rtc_mktime() - Convert a broken-out time into a time_t value
+-- 
+2.18.0
+
