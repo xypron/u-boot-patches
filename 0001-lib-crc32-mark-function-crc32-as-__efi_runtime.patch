@@ -1,0 +1,71 @@
+From e9a176557c4ae79aba530ff7d41bd8cc501912a4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 6 Jul 2018 18:00:32 +0200
+Subject: [PATCH 1/1] lib: crc32: mark function crc32() as __efi_runtime
+
+The function crc32() is needed by the EFI subsystem at runtime. So it has
+to be linked into the runtime section together with all dependencies.
+
+Eliminate empty define ZEXPORT.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/crc32.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/lib/crc32.c b/lib/crc32.c
+index 7f545fde4a..146380af48 100644
+--- a/lib/crc32.c
++++ b/lib/crc32.c
+@@ -12,6 +12,7 @@
+ #include <arpa/inet.h>
+ #else
+ #include <common.h>
++#include <efi_loader.h>
+ #endif
+ #include <compiler.h>
+ #include <u-boot/crc.h>
+@@ -21,8 +22,11 @@
+ #endif
+ #include "u-boot/zlib.h"
+ 
+-#define local static
+-#define ZEXPORT	/* empty */
++#ifdef USE_HOSTCC
++#define __efi_runtime
++#define __efi_runtime_data
++#endif
++#define local static __efi_runtime_data
+ 
+ #define tole(x) cpu_to_le32(x)
+ 
+@@ -176,7 +180,7 @@ const uint32_t * ZEXPORT get_crc_table()
+ /* No ones complement version. JFFS2 (and other things ?)
+  * don't use ones compliment in their CRC calculations.
+  */
+-uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
++uint32_t __efi_runtime crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
+ {
+     const uint32_t *tab = crc_table;
+     const uint32_t *b =(const uint32_t *)buf;
+@@ -218,7 +222,7 @@ uint32_t ZEXPORT crc32_no_comp(uint32_t crc, const Bytef *buf, uInt len)
+ }
+ #undef DO_CRC
+ 
+-uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
++uint32_t __efi_runtime crc32(uint32_t crc, const Bytef *p, uInt len)
+ {
+      return crc32_no_comp(crc ^ 0xffffffffL, p, len) ^ 0xffffffffL;
+ }
+@@ -227,7 +231,7 @@ uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
+  * Calculate the crc32 checksum triggering the watchdog every 'chunk_sz' bytes
+  * of input.
+  */
+-uint32_t ZEXPORT crc32_wd (uint32_t crc,
++uint32_t crc32_wd (uint32_t crc,
+ 			   const unsigned char *buf,
+ 			   uInt len, uInt chunk_sz)
+ {
+-- 
+2.17.1
+
