@@ -56,7 +56,10 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 
 # SCT
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
+
+git am ../patch/0001-efi_loader-correctly-initialize-system-table-crc32.patch
 git am ../patch/0001-efi_loader-correct-signature-of-CalculateCrc32.patch
+git am ../patch/0001-efi_selftest-unit-test-for-CalculateCrc32.patch
 
 # Unicode collation protocol
 git am ../patch/0001-MAINTAINERS-assign-lib-charset.c.patch
