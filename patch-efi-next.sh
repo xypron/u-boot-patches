@@ -33,14 +33,6 @@ git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 git am ../patch/0001-common-print-n-in-initr_scsi.patch
 git am ../patch/0001-Sandbox-provide-default-dtb.patch
 
-# RTC
-git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
-git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch
-git am ../patch/0001-efi_loader-remove-unused-efi_get_time_init.patch
-git am ../patch/0001-efi_loader-complete-implementation-of-GetTime.patch
-git am ../patch/0001-efi_selftest-support-printing-leading-zeroes.patch
-git am ../patch/0001-efi_selftest-unit-test-for-GetTime.patch
-
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
 git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
@@ -57,9 +49,13 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 # SCT
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
-git am ../patch/0001-efi_loader-correctly-initialize-system-table-crc32.patch
-git am ../patch/0001-efi_loader-correct-signature-of-CalculateCrc32.patch
-git am ../patch/0001-efi_selftest-unit-test-for-CalculateCrc32.patch
+# RTC
+git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
+git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch
+git am ../patch/0001-efi_loader-remove-unused-efi_get_time_init.patch
+git am ../patch/0001-efi_loader-complete-implementation-of-GetTime.patch
+git am ../patch/0001-efi_selftest-support-printing-leading-zeroes.patch
+git am ../patch/0001-efi_selftest-unit-test-for-GetTime.patch
 
 # Unicode collation protocol
 git am ../patch/0001-MAINTAINERS-assign-lib-charset.c.patch

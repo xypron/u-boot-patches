@@ -1,4 +1,4 @@
-From 1b2e9c7180ab3a47debf7419b7162bec5b549f2a Mon Sep 17 00:00:00 2001
+From e37860987ec4adefe6133005490f1799e97fd76a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 29 Jun 2018 18:43:19 +0200
 Subject: [PATCH 1/1] efi_loader: remove unused efi_get_time_init()
@@ -16,24 +16,24 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 9 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 07c61ac542..53e379e59e 100644
+index b044587c7d..1bf75e2bba 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -85,9 +85,6 @@ efi_status_t efi_init_obj_list(void)
+@@ -83,9 +83,6 @@ efi_status_t efi_init_obj_list(void)
+ 
+ 	/* Initialize EFI runtime services */
  	ret = efi_reset_system_init();
- 	if (ret != EFI_SUCCESS)
- 		goto out;
--	ret = efi_get_time_init();
 -	if (ret != EFI_SUCCESS)
 -		goto out;
+-	ret = efi_get_time_init();
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
  
- out:
- 	efi_obj_list_initialized = ret;
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index c4ddb26e48..628dd801a8 100644
+index 051f9c4514..57ca550272 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -423,7 +423,6 @@ efi_status_t efi_reset_system_init(void);
+@@ -434,7 +434,6 @@ efi_status_t efi_reset_system_init(void);
  efi_status_t __efi_runtime EFIAPI efi_get_time(
  			struct efi_time *time,
  			struct efi_time_cap *capabilities);
