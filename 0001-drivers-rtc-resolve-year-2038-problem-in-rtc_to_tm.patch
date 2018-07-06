@@ -1,4 +1,4 @@
-From 918be6984d872f255596e68c5a95e0a7cb14a11c Mon Sep 17 00:00:00 2001
+From bc9903b582a8b1d104ae7543be3fac60539402b3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Jul 2018 20:35:23 +0200
 Subject: [PATCH 1/1] drivers: rtc: resolve year 2038 problem in rtc_to_tm
@@ -11,10 +11,10 @@ Adopt the Linux kernel implementation.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  drivers/rtc/Makefile  |  1 +
- drivers/rtc/date.c    | 43 --------------------------
- drivers/rtc/rtc-lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/rtc/date.c    | 43 -------------------------
+ drivers/rtc/rtc-lib.c | 73 +++++++++++++++++++++++++++++++++++++++++++
  include/rtc.h         | 14 +++++++--
- 4 files changed, 83 insertions(+), 45 deletions(-)
+ 4 files changed, 86 insertions(+), 45 deletions(-)
  create mode 100644 drivers/rtc/rtc-lib.c
 
 diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
@@ -92,17 +92,21 @@ index 1256ffe374..f2568cf886 100644
   * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
 diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
 new file mode 100644
-index 0000000000..5f4be156ab
+index 0000000000..ecc4f4ba89
 --- /dev/null
 +++ b/drivers/rtc/rtc-lib.c
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,73 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * rtc and date/time utility functions
 + *
 + * Copyright (C) 2005-06 Tower Technologies
 + * Author: Alessandro Zummo <a.zummo@towertech.it>
-+*/
++ *
++ * U-Boot rtc_time differs from Linux rtc_time:
++ * - The year field takes the actual value, not year - 1900.
++ * - January is month 1.
++ */
 +
 +#include <common.h>
 +#include <rtc.h>
@@ -128,11 +132,9 @@ index 0000000000..5f4be156ab
 + */
 +void rtc_to_tm(u64 time, struct rtc_time *tm)
 +{
-+	unsigned int month, year;
-+	int secs, days;
++	unsigned int month, year, secs, days;
 +
-+	/* time must be positive */
-+	days = div_s64_rem(time, 86400, &secs);
++	days = div_u64_rem(time, 86400, &secs);
 +
 +	/* day of the week, 1970-01-01 was a Thursday */
 +	tm->tm_wday = (days + 4) % 7;
@@ -145,7 +147,7 @@ index 0000000000..5f4be156ab
 +		year -= 1;
 +		days += 365 + is_leap_year(year);
 +	}
-+	tm->tm_year = year - 1900;
++	tm->tm_year = year; /* Not year - 1900 */
 +	tm->tm_yday = days + 1;
 +
 +	for (month = 0; month < 11; month++) {
@@ -156,7 +158,7 @@ index 0000000000..5f4be156ab
 +			break;
 +		days = newdays;
 +	}
-+	tm->tm_mon = month;
++	tm->tm_mon = month + 1; /* January = 1 */
 +	tm->tm_mday = days + 1;
 +
 +	tm->tm_hour = secs / 3600;
@@ -164,6 +166,7 @@ index 0000000000..5f4be156ab
 +	tm->tm_min = secs / 60;
 +	tm->tm_sec = secs - tm->tm_min * 60;
 +
++	/* Zero unused fields */
 +	tm->tm_isdst = 0;
 +}
 diff --git a/include/rtc.h b/include/rtc.h
