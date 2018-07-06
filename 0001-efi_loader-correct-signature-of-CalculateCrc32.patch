@@ -1,7 +1,7 @@
-From e16dcaa153ca35debeb029d3fcbfe4396e024e1c Mon Sep 17 00:00:00 2001
+From e208383be2ede6e8a464eff85dd6709ba5f78f11 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 5 Jul 2018 20:18:29 +0200
-Subject: [PATCH 2/3] efi_loader: correct signature of CalculateCrc32()
+Subject: [PATCH] efi_loader: correct signature of CalculateCrc32()
 
 Use const for the buffer. We are not changing the buffer.
 Use efi_uintn_t where prescribed by the UEFI spec.
@@ -9,12 +9,12 @@ Prefer u32 over uint32_t.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h             | 4 ++--
- lib/efi_loader/efi_boottime.c | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ include/efi_api.h             | 5 +++--
+ lib/efi_loader/efi_boottime.c | 8 ++++----
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index c98cc34908..d722845dbc 100644
+index c98cc34908..ebf2a3bc18 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -165,8 +165,9 @@ struct efi_boot_services {
@@ -30,10 +30,10 @@ index c98cc34908..d722845dbc 100644
  			size_t length);
  	void (EFIAPI *set_mem)(void *buffer, size_t size, uint8_t value);
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 9ac8e18680..5a011f0b36 100644
+index 9ac8e18680..3689cebf8f 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -2418,9 +2418,9 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
+@@ -2418,11 +2418,11 @@ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
   * @crc32_p:		cyclic redundancy code
   * Return Value:	status code
   */
@@ -44,8 +44,11 @@ index 9ac8e18680..5a011f0b36 100644
 +					       efi_uintn_t data_size,
 +					       u32 *crc32_p)
  {
- 	EFI_ENTRY("%p, %ld", data, data_size);
+-	EFI_ENTRY("%p, %ld", data, data_size);
++	EFI_ENTRY("%p, %zu", data, data_size);
  	*crc32_p = crc32(0, data, data_size);
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
 -- 
 2.18.0
 
