@@ -49,6 +49,10 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 # SCT
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
+git am ../patch/0001-efi_selftest-in-crc32-test-remove-comment.patch
+git am ../patch/0001-efi_loader-update-crc32-in-InstallConfigurationTable.patch
+git am ../patch/0001-efi_selftest-check-crc32-for-InstallConfigurationTab.patch
+
 # RTC
 git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
 git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch

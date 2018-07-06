@@ -1,0 +1,30 @@
+From 693b670d808063a71915feaf1021c2062a5fd88a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 6 Jul 2018 17:46:54 +0200
+Subject: [PATCH 1/1] efi_loader: update crc32 in InstallConfigurationTable
+
+If the number of installed tables is changed in
+InstallConfigurationTable() update the crc32 of the system table.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 1e5993d030..4dbe15facd 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1429,6 +1429,9 @@ efi_status_t efi_install_configuration_table(const efi_guid_t *guid,
+ 	systab.nr_tables = i + 1;
+ 
+ out:
++	/* systab.nr_tables may have changed. So we need to update the crc32 */
++	efi_update_table_header_crc32(&systab.hdr);
++
+ 	/* Notify that the configuration table was changed */
+ 	list_for_each_entry(evt, &efi_events, link) {
+ 		if (evt->group && !guidcmp(evt->group, guid)) {
+-- 
+2.17.1
+

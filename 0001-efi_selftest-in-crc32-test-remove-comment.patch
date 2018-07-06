@@ -1,0 +1,28 @@
+From 6f118e043389ddeefa890cfbb9de7a0f9c56eeba Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 6 Jul 2018 17:47:45 +0200
+Subject: [PATCH 1/1] efi_selftest: in crc32 test remove comment
+
+Make sure we throw an error if the crc32 is incorrect.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_crc32.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_crc32.c b/lib/efi_selftest/efi_selftest_crc32.c
+index 8555b8f114..d961701bc5 100644
+--- a/lib/efi_selftest/efi_selftest_crc32.c
++++ b/lib/efi_selftest/efi_selftest_crc32.c
+@@ -54,7 +54,7 @@ static int check_table(const void *table)
+ 	}
+ 	if (res != crc32) {
+ 		efi_st_error("Incorrect CRC32\n");
+-		// return EFI_ST_FAILURE;
++		return EFI_ST_FAILURE;
+ 	}
+ 	return EFI_ST_SUCCESS;
+ }
+-- 
+2.17.1
+
