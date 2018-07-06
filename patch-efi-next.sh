@@ -54,7 +54,8 @@ git am ../patch/0001-efi_loader-update-crc32-in-InstallConfigurationTable.patch
 git am ../patch/0001-efi_selftest-check-crc32-for-InstallConfigurationTab.patch
 
 # RTC
-git am ../patch/0001-ARM-qemu-arm-enable-RTC.patch
+git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
+git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch
 git am ../patch/0001-efi_loader-remove-unused-efi_get_time_init.patch
 git am ../patch/0001-efi_loader-complete-implementation-of-GetTime.patch

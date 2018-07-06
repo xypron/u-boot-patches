@@ -29,7 +29,6 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/rtc/mcfrtc.c       | 4 ----
  drivers/rtc/mk48t59.c      | 4 ----
  drivers/rtc/pcf8563.c      | 4 ----
- drivers/rtc/pl031.c        | 4 ----
  drivers/rtc/rs5c372.c      | 3 ---
  drivers/rtc/rx8025.c       | 4 ----
  drivers/rtc/s3c24x0_rtc.c  | 4 ----
@@ -413,25 +412,6 @@ index e2fa6b6aab..a839d6cc98 100644
 @@ -117,5 +115,3 @@ static void rtc_write (uchar reg, uchar val)
  {
  	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
- }
--
--#endif
-diff --git a/drivers/rtc/pl031.c b/drivers/rtc/pl031.c
-index 8955805e3b..4a1044ec98 100644
---- a/drivers/rtc/pl031.c
-+++ b/drivers/rtc/pl031.c
-@@ -10,8 +10,6 @@
- #include <command.h>
- #include <rtc.h>
- 
--#if defined(CONFIG_CMD_DATE)
--
- #ifndef CONFIG_SYS_RTC_PL031_BASE
- #error CONFIG_SYS_RTC_PL031_BASE is not defined!
- #endif
-@@ -103,5 +101,3 @@ int rtc_get(struct rtc_time *tmp)
- 
- 	return 0;
  }
 -
 -#endif
