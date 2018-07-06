@@ -1,4 +1,4 @@
-From bc9903b582a8b1d104ae7543be3fac60539402b3 Mon Sep 17 00:00:00 2001
+From ec048a6bf32abfdbd8388cfca9551476949c7d95 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Jul 2018 20:35:23 +0200
 Subject: [PATCH 1/1] drivers: rtc: resolve year 2038 problem in rtc_to_tm
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/rtc/Makefile  |  1 +
  drivers/rtc/date.c    | 43 -------------------------
  drivers/rtc/rtc-lib.c | 73 +++++++++++++++++++++++++++++++++++++++++++
- include/rtc.h         | 14 +++++++--
- 4 files changed, 86 insertions(+), 45 deletions(-)
+ include/rtc.h         | 16 ++++++++--
+ 4 files changed, 87 insertions(+), 46 deletions(-)
  create mode 100644 drivers/rtc/rtc-lib.c
 
 diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
@@ -170,13 +170,16 @@ index 0000000000..ecc4f4ba89
 +	tm->tm_isdst = 0;
 +}
 diff --git a/include/rtc.h b/include/rtc.h
-index 746624d799..1377ca2186 100644
+index 746624d799..0d964d56d5 100644
 --- a/include/rtc.h
 +++ b/include/rtc.h
-@@ -76,6 +76,17 @@ struct rtc_ops {
- /* Access the operations for an RTC device */
- #define rtc_get_ops(dev)	((struct rtc_ops *)(dev)->driver->ops)
- 
+@@ -208,7 +208,18 @@ void rtc_write32(int reg, u32 value);
+  * rtc_init() - Set up the real time clock ready for use
+  */
+ void rtc_init(void);
+-#endif
++#endif /* CONFIG_DM_RTC */
++
 +/**
 + * is_leap_year - Check if year is a leap year
 + *
@@ -187,10 +190,9 @@ index 746624d799..1377ca2186 100644
 +{
 +	return (!(year % 4) && (year % 100)) || !(year % 400);
 +}
-+
+ 
  /**
-  * dm_rtc_get() - Read the time from an RTC
-  *
+  * rtc_calc_weekday() - Work out the weekday from a time
 @@ -231,9 +242,8 @@ int rtc_calc_weekday(struct rtc_time *time);
   *
   * @time_t:	Number of seconds since 1970-01-01 00:00:00
