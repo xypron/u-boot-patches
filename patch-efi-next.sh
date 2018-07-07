@@ -1,6 +1,19 @@
 #!/bin/sh
 git am --abort || true
 
+# Fix crc32
+# git reset --hard da168b1972fa40b4aa4930d6e455b7f0e631361f
+
+git am ../patch/0001-efi_loader-correct-signature-of-CalculateCrc32.patch
+git am ../patch/0001-efi_loader-update-crc32-in-InstallConfigurationTable.patch
+git am ../patch/0001-efi_selftest-check-crc32-for-InstallConfigurationTab.patch
+git am ../patch/0001-efi_selftest-unit-test-for-CalculateCrc32.patch
+
+git am ../patch/0001-lib-crc32-mark-function-crc32-as-__efi_runtime.patch
+git am ../patch/0001-efi_loader-update-runtime-services-table-crc32.patch
+
+# exit
+
 # Xypron specific patches
 git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
@@ -49,11 +62,6 @@ git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
 # SCT
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
-git am ../patch/0001-efi_selftest-in-crc32-test-remove-comment.patch
-git am ../patch/0001-efi_loader-update-crc32-in-InstallConfigurationTable.patch
-git am ../patch/0001-efi_selftest-check-crc32-for-InstallConfigurationTab.patch
-git am ../patch/0001-lib-crc32-mark-function-crc32-as-__efi_runtime.patch
-git am ../patch/0001-efi_loader-update-runtime-services-table-crc32.patch
 
 # RTC
 git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
