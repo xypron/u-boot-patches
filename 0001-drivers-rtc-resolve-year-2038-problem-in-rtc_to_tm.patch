@@ -1,4 +1,4 @@
-From ec048a6bf32abfdbd8388cfca9551476949c7d95 Mon Sep 17 00:00:00 2001
+From 888e0774bbb5d25e2a563ce9510dff5b62ca381c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Jul 2018 20:35:23 +0200
 Subject: [PATCH 1/1] drivers: rtc: resolve year 2038 problem in rtc_to_tm
@@ -10,11 +10,12 @@ Adopt the Linux kernel implementation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/rtc/Makefile  |  1 +
- drivers/rtc/date.c    | 43 -------------------------
- drivers/rtc/rtc-lib.c | 73 +++++++++++++++++++++++++++++++++++++++++++
- include/rtc.h         | 16 ++++++++--
- 4 files changed, 87 insertions(+), 46 deletions(-)
+ drivers/rtc/Makefile       |  1 +
+ drivers/rtc/date.c         | 43 ----------------------
+ drivers/rtc/i2c_rtc_emul.c |  4 ++-
+ drivers/rtc/rtc-lib.c      | 73 ++++++++++++++++++++++++++++++++++++++
+ include/rtc.h              | 16 +++++++--
+ 5 files changed, 90 insertions(+), 47 deletions(-)
  create mode 100644 drivers/rtc/rtc-lib.c
 
 diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
@@ -90,9 +91,24 @@ index 1256ffe374..f2568cf886 100644
  /*
   * Converts Gregorian date to seconds since 1970-01-01 00:00:00.
   * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
+diff --git a/drivers/rtc/i2c_rtc_emul.c b/drivers/rtc/i2c_rtc_emul.c
+index bad61c377f..d4b33e59d6 100644
+--- a/drivers/rtc/i2c_rtc_emul.c
++++ b/drivers/rtc/i2c_rtc_emul.c
+@@ -96,7 +96,9 @@ static int sandbox_i2c_rtc_get(struct udevice *dev, struct rtc_time *time)
+ 		now = plat->base_time;
+ 	}
+ 
+-	return rtc_to_tm(now + plat->offset, time);
++	rtc_to_tm(now + plat->offset, time);
++
++	return 0;
+ }
+ 
+ static int sandbox_i2c_rtc_set(struct udevice *dev, const struct rtc_time *time)
 diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
 new file mode 100644
-index 0000000000..ecc4f4ba89
+index 0000000000..b8a7a8b2d3
 --- /dev/null
 +++ b/drivers/rtc/rtc-lib.c
 @@ -0,0 +1,73 @@
@@ -116,7 +132,7 @@ index 0000000000..ecc4f4ba89
 +	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 +};
 +
-+#define LEAPS_THRU_END_OF(y) ((y)/4 - (y)/100 + (y)/400)
++#define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
 +
 +/*
 + * The number of days in the month.
