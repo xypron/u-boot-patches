@@ -1,7 +1,7 @@
-From e9a176557c4ae79aba530ff7d41bd8cc501912a4 Mon Sep 17 00:00:00 2001
+From 4d7f9999aa2d44f2a9fc4de475334742a69d413a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Jul 2018 18:00:32 +0200
-Subject: [PATCH 1/1] lib: crc32: mark function crc32() as __efi_runtime
+Subject: [PATCH v3 5/6] lib: crc32: mark function crc32() as __efi_runtime
 
 The function crc32() is needed by the EFI subsystem at runtime. So it has
 to be linked into the runtime section together with all dependencies.
@@ -10,11 +10,14 @@ Eliminate empty define ZEXPORT.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/crc32.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+v3
+	new patch
+---
+ lib/crc32.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/lib/crc32.c b/lib/crc32.c
-index 7f545fde4a..146380af48 100644
+index 7f545fde4a..bcb140ba06 100644
 --- a/lib/crc32.c
 +++ b/lib/crc32.c
 @@ -12,6 +12,7 @@
@@ -57,15 +60,18 @@ index 7f545fde4a..146380af48 100644
  {
       return crc32_no_comp(crc ^ 0xffffffffL, p, len) ^ 0xffffffffL;
  }
-@@ -227,7 +231,7 @@ uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
+@@ -227,9 +231,8 @@ uint32_t ZEXPORT crc32 (uint32_t crc, const Bytef *p, uInt len)
   * Calculate the crc32 checksum triggering the watchdog every 'chunk_sz' bytes
   * of input.
   */
 -uint32_t ZEXPORT crc32_wd (uint32_t crc,
-+uint32_t crc32_wd (uint32_t crc,
- 			   const unsigned char *buf,
- 			   uInt len, uInt chunk_sz)
+-			   const unsigned char *buf,
+-			   uInt len, uInt chunk_sz)
++uint32_t crc32_wd(uint32_t crc, const unsigned char *buf, uInt len,
++		  uInt chunk_sz)
  {
+ #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
+ 	const unsigned char *end, *curr;
 -- 
-2.17.1
+2.18.0
 
