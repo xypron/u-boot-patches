@@ -64,9 +64,10 @@ git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 
 
 # RTC
-git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
+git am ../patch/0001-drivers-rtc-correct-week-day-for-mc146818.patch
+git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
 git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch
 git am ../patch/0001-efi_loader-remove-unused-efi_get_time_init.patch
 git am ../patch/0001-efi_loader-complete-implementation-of-GetTime.patch
