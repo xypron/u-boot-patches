@@ -2,13 +2,6 @@
 git am --abort || true
 
 # Fix crc32
-# git reset --hard da168b1972fa40b4aa4930d6e455b7f0e631361f
-
-git am ../patch/0001-efi_loader-correct-signature-of-CalculateCrc32.patch
-git am ../patch/0001-efi_loader-update-crc32-in-InstallConfigurationTable.patch
-git am ../patch/0001-efi_selftest-check-crc32-for-InstallConfigurationTab.patch
-git am ../patch/0001-efi_selftest-unit-test-for-CalculateCrc32.patch
-
 git am ../patch/0001-lib-crc32-mark-function-crc32-as-__efi_runtime.patch
 git am ../patch/0001-efi_loader-update-runtime-services-table-crc32.patch
 
@@ -68,14 +61,8 @@ git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-drivers-rtc-correct-week-day-for-mc146818.patch
 git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
-git am ../patch/0001-rtc-remove-CONFIG_CMD_DATE-dependency.patch
-git am ../patch/0001-efi_loader-remove-unused-efi_get_time_init.patch
-git am ../patch/0001-efi_loader-complete-implementation-of-GetTime.patch
-git am ../patch/0001-efi_selftest-support-printing-leading-zeroes.patch
-git am ../patch/0001-efi_selftest-unit-test-for-GetTime.patch
 
 # Unicode collation protocol
-git am ../patch/0001-MAINTAINERS-assign-lib-charset.c.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
