@@ -27,7 +27,7 @@ index 2307559890..4249035066 100644
 + *			code point is found. In case of an error src points to
 + *			the incorrect word.
 + */
-+static s32 utf16_next(const u16 **src);
++s32 utf16_next(const u16 **src);
 +
  /**
   * u16_strlen - count non-zero words
@@ -43,7 +43,7 @@ index 8ff8d59957..9aeaf89a8f 100644
 -/*
 - * utf8/utf16 conversion mostly lifted from grub
 - */
-+static s32 utf16_next(const u16 **src) {
++s32 utf16_next(const u16 **src) {
 +	u32 code, code2;
 +
 +	if (!**src)
