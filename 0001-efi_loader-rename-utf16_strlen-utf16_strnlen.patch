@@ -24,11 +24,10 @@ diff --git a/include/charset.h b/include/charset.h
 index 11832cbd12..be6e6fe2c7 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -12,30 +12,25 @@
+@@ -12,30 +12,24 @@
  
  #define MAX_UTF8_PER_UTF16 3
  
-+size_t u16_strlen(const u16 *in);
  /**
 - * utf16_strlen() - Get the length of an utf16 string
 + * u16_strlen - count non-zero words

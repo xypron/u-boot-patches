@@ -1,0 +1,73 @@
+From 0b4eb406e0cafcc980d6d02cdf1ab1513a9abc5e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 9 Jul 2018 17:51:07 +0200
+Subject: [PATCH 1/1] lib: charset: utility functions for utf-16
+
+utf16_next() - get next utf code point
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h | 10 ++++++++++
+ lib/charset.c     | 25 ++++++++++++++++++++++---
+ 2 files changed, 32 insertions(+), 3 deletions(-)
+
+diff --git a/include/charset.h b/include/charset.h
+index 2307559890..4249035066 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -12,6 +12,16 @@
+ 
+ #define MAX_UTF8_PER_UTF16 3
+ 
++/**
++ * utf16_next - get next UTF-16 code point
++ *
++ * @src:		pointer to current word, updated to point to next word
++ * ReturnValue:		code point, or 0 for end of string, or -1 if no legal
++ *			code point is found. In case of an error src points to
++ *			the incorrect word.
++ */
++static s32 utf16_next(const u16 **src);
++
+ /**
+  * u16_strlen - count non-zero words
+  *
+diff --git a/lib/charset.c b/lib/charset.c
+index 8ff8d59957..9aeaf89a8f 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -8,9 +8,28 @@
+ #include <charset.h>
+ #include <malloc.h>
+ 
+-/*
+- * utf8/utf16 conversion mostly lifted from grub
+- */
++static s32 utf16_next(const u16 **src) {
++	u32 code, code2;
++
++	if (!**src)
++		return 0;
++	code = **src;
++	++*src;
++	if (code >= 0xD800 && code <= 0xDBFF) {
++		if (!**src)
++			return -1;
++		code &= 0x3ff;
++		code <<= 10;
++		code += 0x10000;
++		code2 = **src;
++		if (code2 <= 0xDC00 || code2 >= 0xDFFF)
++			return -1;
++		++*src;
++		code2 &= 0x3ff;
++		code += code2;
++	}
++	return code;
++}
+ 
+ size_t u16_strlen(const u16 *in)
+ {
+-- 
+2.18.0
+
