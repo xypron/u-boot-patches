@@ -1,4 +1,4 @@
-From 5755ed5ad0d7e7d13c3040a66f213a18e2b2a590 Mon Sep 17 00:00:00 2001
+From 8a49470282daae48c8ec63c6fc0bcfd14f3f7c5e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for utf-16
@@ -7,9 +7,9 @@ utf16_next() - get next utf code point
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 19 +++++++++++++++++++
- lib/charset.c     | 48 ++++++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 64 insertions(+), 3 deletions(-)
+ include/charset.h | 19 ++++++++++++++++++
+ lib/charset.c     | 49 ++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 65 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
 index 2307559890..42b6c025bb 100644
@@ -42,10 +42,10 @@ index 2307559890..42b6c025bb 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..72711d513a 100644
+index 8ff8d59957..ccacd5f1ff 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,51 @@
+@@ -8,9 +8,52 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -79,7 +79,7 @@ index 8ff8d59957..72711d513a 100644
 +{
 +	size_t len = 0;
 +
-+	for (;;)  {
++	for (; *src; ++src)  {
 +		s32 code = utf16_next(&src);
 +		if (!code)
 +			break;
@@ -96,6 +96,7 @@ index 8ff8d59957..72711d513a 100644
 +		else
 +			return -1;
 +	}
++	return len;
 +}
  
  size_t u16_strlen(const u16 *in)

@@ -1,4 +1,4 @@
-From 19c173b03ecdd18192d036736ce898ee6e34a33f Mon Sep 17 00:00:00 2001
+From 3536396469343cc7cabd4e0ca57a24f86d571eb8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -7,12 +7,13 @@ Provide unit tests for Unicode functions.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/test/suites.h |  3 ++-
- test/Kconfig          |  8 ++++++++
+ include/test/suites.h |  3 +-
+ lib/charset.c         |  2 +-
+ test/Kconfig          |  8 +++++
  test/Makefile         |  1 +
- test/cmd_ut.c         | 12 +++++++++---
- test/unicode_ut.c     | 19 +++++++++++++++++++
- 5 files changed, 39 insertions(+), 4 deletions(-)
+ test/cmd_ut.c         | 12 +++++--
+ test/unicode_ut.c     | 74 +++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 95 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/include/test/suites.h b/include/test/suites.h
@@ -32,6 +33,19 @@ index b5019a7cd2..8e4eac60eb 100644
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  
  #endif /* __TEST_SUITES_H__ */
+diff --git a/lib/charset.c b/lib/charset.c
+index ccacd5f1ff..6a5b621040 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -35,7 +35,7 @@ ssize_t utf16_utf8_strlen(const u16 *src)
+ {
+ 	size_t len = 0;
+ 
+-	for (; *src; ++src)  {
++	for (; *src;)  {
+ 		s32 code = utf16_next(&src);
+ 		if (!code)
+ 			break;
 diff --git a/test/Kconfig b/test/Kconfig
 index 3643761bc6..de16d179d0 100644
 --- a/test/Kconfig
@@ -102,10 +116,10 @@ index 934a5a931b..e0bb6ae3d8 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..9767526269
+index 0000000000..5e66a9f9ff
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,19 @@
+@@ -0,0 +1,74 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -114,12 +128,67 @@ index 0000000000..9767526269
 + */
 +
 +#include <common.h>
++#include <charset.h>
 +#include <command.h>
 +#include <errno.h>
++
++/* Six characters translating to one utf-8 byte each. */
++static const u16 c1[] = {0x55, 0x2d, 0x42, 0x6f, 0x6f, 0x74, 0x00};
++/* One character translating to two utf-8 bytes */
++static const u16 c2[] = {0x6b, 0x61, 0x66, 0x62, 0xe1, 0x74, 0x75, 0x72, 0x00};
++/* Three characters translating to three utf-8 bytes each */
++static const u16 c3[] = {0x6f5c, 0x6c34, 0x8266, 0x00};
++/* Three letters translating to four utf-8 bytes each */
++static const u16 c4[] = {0xd801, 0xdc8d, 0xd801, 0xdc96, 0xd801, 0xdc87, 0x0000};
++
++static int ut_utf16_next(void)
++{
++	const u16 *s;
++	s32 code;
++	int i;
++
++	/* Check characters less than 0x10000 */
++	s = c2;
++	for (i = 0; i < 9; ++i) {
++		code = utf16_next((const u16 **)&s);
++		if (code != c2[i])
++			return -1;
++		if (!code)
++			break;
++	}
++	if (s != c2 + 8)
++		return -1;
++
++	/* Check character greater 0xffff */
++	s = c4;
++	code = utf16_next((const u16 **)&s);
++	if (code != 0x0001048d)
++		return -1;
++	if (s != c4 + 2)
++		return -1;
++
++	return 0;
++}
++
++int ut_utf16_utf8_strlen(void)
++{
++	if (utf16_utf8_strlen(c1) != 6)
++		return 1;
++	if (utf16_utf8_strlen(c2) != 9)
++		return 1;
++	if (utf16_utf8_strlen(c3) != 9)
++		return 1;
++	if (utf16_utf8_strlen(c4) != 12)
++		return 1;
++	return 0;
++}
 +
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 +{
 +	int ret = 0;
++
++	ret |= ut_utf16_next();
++	ret |= ut_utf16_utf8_strlen();
 +
 +	printf("Test %s\n", ret ? "failed" : "passed");
 +
