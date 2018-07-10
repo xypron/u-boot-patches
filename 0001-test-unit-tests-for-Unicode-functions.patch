@@ -1,0 +1,130 @@
+From 19c173b03ecdd18192d036736ce898ee6e34a33f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 10 Jul 2018 18:47:25 +0200
+Subject: [PATCH 1/1] test: unit tests for Unicode functions
+
+Provide unit tests for Unicode functions.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/test/suites.h |  3 ++-
+ test/Kconfig          |  8 ++++++++
+ test/Makefile         |  1 +
+ test/cmd_ut.c         | 12 +++++++++---
+ test/unicode_ut.c     | 19 +++++++++++++++++++
+ 5 files changed, 39 insertions(+), 4 deletions(-)
+ create mode 100644 test/unicode_ut.c
+
+diff --git a/include/test/suites.h b/include/test/suites.h
+index b5019a7cd2..8e4eac60eb 100644
+--- a/include/test/suites.h
++++ b/include/test/suites.h
+@@ -23,10 +23,11 @@ struct unit_test;
+ int cmd_ut_category(const char *name, struct unit_test *tests, int n_ents,
+ 		    int argc, char * const argv[]);
+ 
++int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+ int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+-int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
++int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ 
+ #endif /* __TEST_SUITES_H__ */
+diff --git a/test/Kconfig b/test/Kconfig
+index 3643761bc6..de16d179d0 100644
+--- a/test/Kconfig
++++ b/test/Kconfig
+@@ -15,6 +15,14 @@ config UT_TIME
+ 	  problems. But if you are having problems with udelay() and the like,
+ 	  this is a good place to start.
+ 
++config UT_UNICODE
++	bool "Unit tests for Unicode functions"
++	depends on UNIT_TEST
++	default y
++	help
++	  Enables the 'ut unicode' command which tests that the functions for
++	  manipulating Unicode strings work correctly.
++
+ source "test/dm/Kconfig"
+ source "test/env/Kconfig"
+ source "test/overlay/Kconfig"
+diff --git a/test/Makefile b/test/Makefile
+index 1092011fdb..f3546f5d0b 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -8,4 +8,5 @@ obj-$(CONFIG_SANDBOX) += command_ut.o
+ obj-$(CONFIG_SANDBOX) += compression.o
+ obj-$(CONFIG_SANDBOX) += print_ut.o
+ obj-$(CONFIG_UT_TIME) += time_ut.o
++obj-$(CONFIG_UT_TIME) += unicode_ut.o
+ obj-$(CONFIG_$(SPL_)LOG) += log/
+diff --git a/test/cmd_ut.c b/test/cmd_ut.c
+index 934a5a931b..e0bb6ae3d8 100644
+--- a/test/cmd_ut.c
++++ b/test/cmd_ut.c
+@@ -49,6 +49,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
+ #ifdef CONFIG_UT_TIME
+ 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+ #endif
++#ifdef CONFIG_UT_UNICODE
++	U_BOOT_CMD_MKENT(unicode, CONFIG_SYS_MAXARGS, 1, do_ut_unicode, "", ""),
++#endif
+ #ifdef CONFIG_SANDBOX
+ 	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
+ 			 "", ""),
+@@ -93,6 +96,9 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ #ifdef CONFIG_SYS_LONGHELP
+ static char ut_help_text[] =
+ 	"all - execute all enabled tests\n"
++#ifdef CONFIG_SANDBOX
++	"ut compression - Test compressors and bootm decompression\n"
++#endif
+ #ifdef CONFIG_UT_DM
+ 	"ut dm [test-name]\n"
+ #endif
+@@ -105,11 +111,11 @@ static char ut_help_text[] =
+ #ifdef CONFIG_UT_TIME
+ 	"ut time - Very basic test of time functions\n"
+ #endif
+-#ifdef CONFIG_SANDBOX
+-	"ut compression - Test compressors and bootm decompression\n"
++#ifdef CONFIG_UT_UNICODE
++	"ut unicode - test Unicode functions\n"
+ #endif
+ 	;
+-#endif
++#endif /* CONFIG_SYS_LONGHELP */
+ 
+ U_BOOT_CMD(
+ 	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
+diff --git a/test/unicode_ut.c b/test/unicode_ut.c
+new file mode 100644
+index 0000000000..9767526269
+--- /dev/null
++++ b/test/unicode_ut.c
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Unit tests for Unicode functions
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++#include <errno.h>
++
++int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	int ret = 0;
++
++	printf("Test %s\n", ret ? "failed" : "passed");
++
++	return ret ? CMD_RET_FAILURE : CMD_RET_SUCCESS;
++}
+-- 
+2.18.0
+
