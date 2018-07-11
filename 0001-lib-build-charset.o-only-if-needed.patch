@@ -24,9 +24,9 @@ index 7b805388bf..fd79ea866e 100644
 +ifndef API_BUILD
 +obj-$(CONFIG_EFI_LOADER) += charset.o
 +endif
- ifneq ($(CONFIG_USB_TTY)$(CONFIG_USB_KEYBOARD),)
- obj-y += circbuf.o
- endif
+ obj-$(CONFIG_USB_TTY) += circbuf.o
+ obj-y += crc7.o
+ obj-y += crc8.o
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
 index c805b998f9..a07128ad96 100644
 --- a/lib/vsprintf.c
