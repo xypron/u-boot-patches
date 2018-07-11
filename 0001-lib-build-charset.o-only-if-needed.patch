@@ -1,0 +1,71 @@
+From cc0429be8359e4afaf6b8e36b2544e468709b3d5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 11 Jul 2018 07:38:37 +0200
+Subject: [PATCH 1/1] lib: build charset.o only if needed
+
+charset.o is only needed for the EFI subsystem
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/Makefile   |  5 ++++-
+ lib/vsprintf.c | 12 ++++++++----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/lib/Makefile b/lib/Makefile
+index 7b805388bf..fd79ea866e 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -19,7 +19,10 @@ obj-$(CONFIG_ARCH_AT91) += at91/
+ obj-$(CONFIG_OPTEE) += optee/
+ 
+ obj-$(CONFIG_AES) += aes.o
+-obj-y += charset.o
++
++ifndef API_BUILD
++obj-$(CONFIG_EFI_LOADER) += charset.o
++endif
+ ifneq ($(CONFIG_USB_TTY)$(CONFIG_USB_KEYBOARD),)
+ obj-y += circbuf.o
+ endif
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index c805b998f9..a07128ad96 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -274,6 +274,8 @@ static char *string(char *buf, char *end, char *s, int field_width,
+ 	return buf;
+ }
+ 
++#if defined(CONFIG_EFI_LOADER) && \
++	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+ static char *string16(char *buf, char *end, u16 *s, int field_width,
+ 		int precision, int flags)
+ {
+@@ -294,8 +296,6 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
+ 	return buf;
+ }
+ 
+-#if defined(CONFIG_EFI_LOADER) && \
+-	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
+ static char *device_path_string(char *buf, char *end, void *dp, int field_width,
+ 				int precision, int flags)
+ {
+@@ -612,10 +612,14 @@ repeat:
+ 			continue;
+ 
+ 		case 's':
+-			if (qualifier == 'l' && !IS_ENABLED(CONFIG_SPL_BUILD)) {
++#if defined(CONFIG_EFI_LOADER) && \
++	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
++			if (qualifier == 'l') {
+ 				str = string16(str, end, va_arg(args, u16 *),
+ 					       field_width, precision, flags);
+-			} else {
++			} else
++#endif
++			{
+ 				str = string(str, end, va_arg(args, char *),
+ 					     field_width, precision, flags);
+ 			}
+-- 
+2.18.0
+
