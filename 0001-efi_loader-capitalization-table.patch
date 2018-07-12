@@ -1,4 +1,4 @@
-From 98921f58b6bb4eea7d1352a6906c036ba0244bb0 Mon Sep 17 00:00:00 2001
+From 125444ae1459b296c6f1b203577fdadaa8805d0e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 4 Jul 2018 22:41:07 +0200
 Subject: [PATCH 1/1] efi_loader: capitalization table
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 include/capitalization.h
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index b2c9717cb7..cf7d598d54 100644
+index 51de568b48..d6fdee81e4 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -345,6 +345,7 @@ T:	git git://github.com/agraf/u-boot.git
+@@ -364,6 +364,7 @@ T:	git git://github.com/agraf/u-boot.git
  F:	doc/DocBook/efi.tmpl
  F:	doc/README.uefi
  F:	doc/README.iscsi
@@ -27,7 +27,7 @@ index b2c9717cb7..cf7d598d54 100644
  F:	include/asm-generic/pe.h
 diff --git a/include/capitalization.h b/include/capitalization.h
 new file mode 100644
-index 0000000000..d4065955d7
+index 0000000000..50d5108f98
 --- /dev/null
 +++ b/include/capitalization.h
 @@ -0,0 +1,1909 @@
@@ -35,7 +35,7 @@ index 0000000000..d4065955d7
 +/*
 + * Correspondence table for small and capital Unicode letters in the range of
 + * 0x0000 - 0xffff based on http://www.unicode.org/Public/UCA/11.0.0/allkeys.txt
-+ */ },
++ */
 +
 +struct capitalization_table {
 +	u16 upper;
