@@ -79,7 +79,7 @@ index 8ff8d59957..ccacd5f1ff 100644
 +{
 +	size_t len = 0;
 +
-+	for (; *src; ++src)  {
++	for (; *src;)  {
 +		s32 code = utf16_next(&src);
 +		if (!code)
 +			break;

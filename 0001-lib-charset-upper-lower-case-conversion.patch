@@ -1,0 +1,103 @@
+From 5661a455b8425a83b16c9c57afc5873aababcaa9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 12 Jul 2018 19:39:31 +0200
+Subject: [PATCH 1/1] lib: charset: upper/lower case conversion
+
+Provide functions for upper and lower case conversion.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h | 16 ++++++++++++++++
+ lib/charset.c     | 40 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 56 insertions(+)
+
+diff --git a/include/charset.h b/include/charset.h
+index 42b6c025bb..52adc16e8f 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -31,6 +31,22 @@ s32 utf16_next(const u16 **src);
+  */
+ ssize_t utf16_utf8_strlen(const u16 *src);
+ 
++/**
++ * utf_to_lower() - convert a Unicode letter to lower case
++ *
++ * @code:		letter to convert
++ * Return:		lower case letter or unchanged letter
++ */
++s32 utf_to_lower(const s32 code);
++
++/**
++ * utf_to_upper() - convert a Unicode letter to upper case
++ *
++ * @code:		letter to convert
++ * Return:		upper case letter or unchanged letter
++ */
++s32 utf_to_upper(const s32 code);
++
+ /**
+  * u16_strlen - count non-zero words
+  *
+diff --git a/lib/charset.c b/lib/charset.c
+index ccacd5f1ff..7c8d80396b 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -6,8 +6,12 @@
+  */
+ 
+ #include <charset.h>
++#include <capitalization.h>
+ #include <malloc.h>
+ 
++static struct capitalization_table capitalization_table[] =
++	UNICODE_CAPITALIZATION_TABLE;
++
+ s32 utf16_next(const u16 **src) {
+ 	s32 code, code2;
+ 
+@@ -55,6 +59,42 @@ ssize_t utf16_utf8_strlen(const u16 *src)
+ 	return len;
+ }
+ 
++s32 utf_to_lower(const s32 code) {
++	struct capitalization_table *pos = capitalization_table;
++	s32 ret = code;
++
++	if (code <= 0x7f) {
++		if (code >= 'A' || code <= 'Z')
++			ret += 0x20;
++		return ret;
++	}
++	for (; pos->upper; ++pos) {
++		if (pos->upper == code) {
++			ret = pos->lower;
++			break;
++		}
++	}
++	return ret;
++}
++
++s32 utf_to_upper(const s32 code) {
++	struct capitalization_table *pos = capitalization_table;
++	s32 ret = code;
++
++	if (code <= 0x7f) {
++		if (code >= 'a' || code <= 'z')
++			ret -= 0x20;
++		return ret;
++	}
++	for (; pos->lower; ++pos) {
++		if (pos->lower == code) {
++			ret = pos->upper;
++			break;
++		}
++	}
++	return ret;
++}
++
+ size_t u16_strlen(const u16 *in)
+ {
+ 	size_t i;
+-- 
+2.18.0
+
