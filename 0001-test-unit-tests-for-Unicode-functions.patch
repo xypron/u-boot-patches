@@ -33,19 +33,6 @@ index b5019a7cd2..8e4eac60eb 100644
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  
  #endif /* __TEST_SUITES_H__ */
-diff --git a/lib/charset.c b/lib/charset.c
-index ccacd5f1ff..6a5b621040 100644
---- a/lib/charset.c
-+++ b/lib/charset.c
-@@ -35,7 +35,7 @@ ssize_t utf16_utf8_strlen(const u16 *src)
- {
- 	size_t len = 0;
- 
--	for (; *src; ++src)  {
-+	for (; *src;)  {
- 		s32 code = utf16_next(&src);
- 		if (!code)
- 			break;
 diff --git a/test/Kconfig b/test/Kconfig
 index 3643761bc6..5a19e534a0 100644
 --- a/test/Kconfig
