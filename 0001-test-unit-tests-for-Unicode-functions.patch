@@ -1,4 +1,4 @@
-From 653bc481678324c3f89f2313c186ab03507b9496 Mon Sep 17 00:00:00 2001
+From 54ebffb51e206ada691d36cfa359bf2e78f82d41 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -8,12 +8,11 @@ Provide unit tests for Unicode functions.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/test/suites.h |  3 +-
- lib/charset.c         |  2 +-
  test/Kconfig          |  9 ++++++
  test/Makefile         |  1 +
  test/cmd_ut.c         | 14 ++++++--
  test/unicode_ut.c     | 74 +++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 98 insertions(+), 5 deletions(-)
+ 5 files changed, 97 insertions(+), 4 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/include/test/suites.h b/include/test/suites.h
@@ -54,14 +53,14 @@ index 3643761bc6..5a19e534a0 100644
  source "test/env/Kconfig"
  source "test/overlay/Kconfig"
 diff --git a/test/Makefile b/test/Makefile
-index 1092011fdb..f3546f5d0b 100644
+index 1092011fdb..a5f52fd5ad 100644
 --- a/test/Makefile
 +++ b/test/Makefile
 @@ -8,4 +8,5 @@ obj-$(CONFIG_SANDBOX) += command_ut.o
  obj-$(CONFIG_SANDBOX) += compression.o
  obj-$(CONFIG_SANDBOX) += print_ut.o
  obj-$(CONFIG_UT_TIME) += time_ut.o
-+obj-$(CONFIG_UT_TIME) += unicode_ut.o
++obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
  obj-$(CONFIG_$(SPL_)LOG) += log/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
 index 934a5a931b..d6a2593850 100644
