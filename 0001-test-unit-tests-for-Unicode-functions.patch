@@ -1,4 +1,4 @@
-From 54ebffb51e206ada691d36cfa359bf2e78f82d41 Mon Sep 17 00:00:00 2001
+From 6dfc9e1e1d89f6b30764cefe1b6b4c6aa40223f9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -7,12 +7,12 @@ Provide unit tests for Unicode functions.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/test/suites.h |  3 +-
- test/Kconfig          |  9 ++++++
- test/Makefile         |  1 +
- test/cmd_ut.c         | 14 ++++++--
- test/unicode_ut.c     | 74 +++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 97 insertions(+), 4 deletions(-)
+ include/test/suites.h |   3 +-
+ test/Kconfig          |   8 ++++
+ test/Makefile         |   1 +
+ test/cmd_ut.c         |  14 ++++--
+ test/unicode_ut.c     | 108 ++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 130 insertions(+), 4 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/include/test/suites.h b/include/test/suites.h
@@ -33,17 +33,16 @@ index b5019a7cd2..8e4eac60eb 100644
  
  #endif /* __TEST_SUITES_H__ */
 diff --git a/test/Kconfig b/test/Kconfig
-index 3643761bc6..5a19e534a0 100644
+index 3643761bc6..de16d179d0 100644
 --- a/test/Kconfig
 +++ b/test/Kconfig
-@@ -15,6 +15,15 @@ config UT_TIME
+@@ -15,6 +15,14 @@ config UT_TIME
  	  problems. But if you are having problems with udelay() and the like,
  	  this is a good place to start.
  
 +config UT_UNICODE
 +	bool "Unit tests for Unicode functions"
 +	depends on UNIT_TEST
-+	depends on EFI_LOADER
 +	default y
 +	help
 +	  Enables the 'ut unicode' command which tests that the functions for
@@ -105,10 +104,10 @@ index 934a5a931b..d6a2593850 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..5e66a9f9ff
+index 0000000000..accc4a2dad
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,108 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -172,12 +171,46 @@ index 0000000000..5e66a9f9ff
 +	return 0;
 +}
 +
++int ut_utf_to_lower(void)
++{
++	if (utf_to_lower('m') != 'm')
++		return 1;
++	if (utf_to_lower('A') != 'a')
++		return 1;
++	if (utf_to_lower('Z') != 'z')
++		return 1;
++	if (utf_to_lower('-') != '-')
++		return 1;
++	/* Cyrillic letter I*/
++	if (utf_to_lower(0x0418) != 0x0438)
++		return 0;
++	return 0;
++}
++
++int ut_utf_to_upper(void)
++{
++	if (utf_to_upper('M') != 'M')
++		return 1;
++	if (utf_to_upper('a') != 'A')
++		return 1;
++	if (utf_to_upper('z') != 'Z')
++		return 1;
++	if (utf_to_upper('-') != '-')
++		return 1;
++	/* Cyrillic letter I */
++	if (utf_to_upper(0x0438) != 0x0418)
++		return 1;
++	return 0;
++}
++
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 +{
 +	int ret = 0;
 +
 +	ret |= ut_utf16_next();
 +	ret |= ut_utf16_utf8_strlen();
++	ret |= ut_utf_to_lower();
++	ret |= ut_utf_to_upper();
 +
 +	printf("Test %s\n", ret ? "failed" : "passed");
 +
