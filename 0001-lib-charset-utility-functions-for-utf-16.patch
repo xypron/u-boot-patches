@@ -1,4 +1,4 @@
-From 8a49470282daae48c8ec63c6fc0bcfd14f3f7c5e Mon Sep 17 00:00:00 2001
+From fbe79fcb3d24c5d059243019103b1806dc4df161 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for utf-16
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 65 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 2307559890..42b6c025bb 100644
+index 23075598906..57b978a309a 100644
 --- a/include/charset.h
 +++ b/include/charset.h
 @@ -12,6 +12,25 @@
@@ -20,14 +20,14 @@ index 2307559890..42b6c025bb 100644
  #define MAX_UTF8_PER_UTF16 3
  
 +/**
-+ * utf16_next - get next UTF-16 code point
++ * utf16_get - get next UTF-16 code point
 + *
 + * @src:		pointer to current word, updated to point to next word
 + * Return:		code point, or 0 for end of string, or -1 if no legal
 + *			code point is found. In case of an error src points to
 + *			the incorrect word.
 + */
-+s32 utf16_next(const u16 **src);
++s32 utf16_get(const u16 **src);
 +
 +/**
 + * utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
@@ -42,7 +42,7 @@ index 2307559890..42b6c025bb 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..ccacd5f1ff 100644
+index 8ff8d59957d..76176593f75 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -8,9 +8,52 @@
@@ -52,7 +52,7 @@ index 8ff8d59957..ccacd5f1ff 100644
 -/*
 - * utf8/utf16 conversion mostly lifted from grub
 - */
-+s32 utf16_next(const u16 **src) {
++s32 utf16_get(const u16 **src) {
 +	s32 code, code2;
 +
 +	if (!**src)
@@ -80,7 +80,7 @@ index 8ff8d59957..ccacd5f1ff 100644
 +	size_t len = 0;
 +
 +	for (; *src;)  {
-+		s32 code = utf16_next(&src);
++		s32 code = utf16_get(&src);
 +		if (!code)
 +			break;
 +		if (code < 0)

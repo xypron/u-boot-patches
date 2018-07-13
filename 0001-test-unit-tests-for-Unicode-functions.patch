@@ -129,7 +129,7 @@ index 0000000000..accc4a2dad
 +/* Three letters translating to four utf-8 bytes each */
 +static const u16 c4[] = {0xd801, 0xdc8d, 0xd801, 0xdc96, 0xd801, 0xdc87, 0x0000};
 +
-+static int ut_utf16_next(void)
++static int ut_utf16_get(void)
 +{
 +	const u16 *s;
 +	s32 code;
@@ -138,7 +138,7 @@ index 0000000000..accc4a2dad
 +	/* Check characters less than 0x10000 */
 +	s = c2;
 +	for (i = 0; i < 9; ++i) {
-+		code = utf16_next((const u16 **)&s);
++		code = utf16_get((const u16 **)&s);
 +		if (code != c2[i])
 +			return -1;
 +		if (!code)
@@ -149,7 +149,7 @@ index 0000000000..accc4a2dad
 +
 +	/* Check character greater 0xffff */
 +	s = c4;
-+	code = utf16_next((const u16 **)&s);
++	code = utf16_get((const u16 **)&s);
 +	if (code != 0x0001048d)
 +		return -1;
 +	if (s != c4 + 2)
@@ -207,7 +207,7 @@ index 0000000000..accc4a2dad
 +{
 +	int ret = 0;
 +
-+	ret |= ut_utf16_next();
++	ret |= ut_utf16_get();
 +	ret |= ut_utf16_utf8_strlen();
 +	ret |= ut_utf_to_lower();
 +	ret |= ut_utf_to_upper();

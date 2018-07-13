@@ -16,7 +16,7 @@ diff --git a/include/charset.h b/include/charset.h
 index 42b6c025bb..52adc16e8f 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -31,6 +31,22 @@ s32 utf16_next(const u16 **src);
+@@ -31,6 +31,22 @@ s32 utf16_get(const u16 **src);
   */
  ssize_t utf16_utf8_strlen(const u16 *src);
  
@@ -68,7 +68,7 @@ index 6a5b621040..cef664879e 100644
 +static struct capitalization_table capitalization_table[] =
 +	UNICODE_CAPITALIZATION_TABLE;
 +
- s32 utf16_next(const u16 **src) {
+ s32 utf16_get(const u16 **src) {
  	s32 code, code2;
  
 @@ -55,6 +59,42 @@ ssize_t utf16_utf8_strlen(const u16 *src)
