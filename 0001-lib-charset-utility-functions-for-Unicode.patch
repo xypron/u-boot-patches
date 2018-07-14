@@ -1,4 +1,4 @@
-From 264439194dfb0c48b732e6fcdc2bd9ae56b57c30 Mon Sep 17 00:00:00 2001
+From 1a8c60d275860baca7ba33503aec79df67283593 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -11,8 +11,8 @@ utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/charset.h | 37 ++++++++++++++++++
- lib/charset.c     | 97 +++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 131 insertions(+), 3 deletions(-)
+ lib/charset.c     | 96 +++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 130 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
 index 2307559890..ab59f36af1 100644
@@ -63,10 +63,10 @@ index 2307559890..ab59f36af1 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..a3a9ea1018 100644
+index 8ff8d59957..aa9a6895cb 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,100 @@
+@@ -8,9 +8,99 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -135,10 +135,9 @@ index 8ff8d59957..a3a9ea1018 100644
 +		**dst = code;
 +	} else {
 +		code -= 0x10000;
-+		**dst = (code & 0x3ff) | 0xD800;
++		**dst = code >> 10 | 0xD800;
 +		++*dst;
-+		code >>= 10;
-+		**dst = code | 0xDC00;
++		**dst = (code & 0x3ff) | 0xDC00;
 +	}
 +	++*dst;
 +	return 0;
