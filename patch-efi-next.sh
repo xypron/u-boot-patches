@@ -64,7 +64,7 @@ git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
 # Unicode collation protocol
 git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
-git am ../patch/0001-lib-charset-utility-functions-for-utf-16.patch
+git am ../patch/0001-lib-charset-utility-functions-for-Unicode.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
 git am ../patch/0001-test-unit-tests-for-Unicode-functions.patch
