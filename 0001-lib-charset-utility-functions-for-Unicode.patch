@@ -1,8 +1,9 @@
-From 81397866f1621bc6adc8d98c84ef1ad59b128fd1 Mon Sep 17 00:00:00 2001
+From 820b38b6135beb03e0f4e374221d332d0d0a33ae Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
 
+utf8_get() - get next UTF-8 code point from buffer
 utf8_put() - write UTF-8 code point to buffer
 utf16_get() - get next UTF-16 code point from buffer
 utf16_put() - write UTF-16 code point to buffer
@@ -10,15 +11,15 @@ utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 49 ++++++++++++++++++++++++
- lib/charset.c     | 96 +++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 142 insertions(+), 3 deletions(-)
+ include/charset.h |  59 ++++++++++++++++++
+ lib/charset.c     | 154 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 210 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 2307559890..3446039acd 100644
+index 2307559890..7d6ab8be25 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -8,10 +8,59 @@
+@@ -8,10 +8,69 @@
  #ifndef __CHARSET_H_
  #define __CHARSET_H_
  
@@ -27,6 +28,16 @@ index 2307559890..3446039acd 100644
  
  #define MAX_UTF8_PER_UTF16 3
  
++/**
++ * utf8_get() - get next UTF-8 code point from buffer
++ *
++ * @src:		pointer to current byte, updated to point to next byte
++ * Return:		code point, or 0 for end of string, or -1 if no legal
++ *			code point is found. In case of an error src points to
++ *			the incorrect byte.
++ */
++s32 utf8_get(const char **src);
++
 +/**
 + * utf8_put() - write UTF-8 code point to buffer
 + *
@@ -79,36 +90,69 @@ index 2307559890..3446039acd 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..c136ea5358 100644
+index 8ff8d59957..8dfcfa215f 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,99 @@
+@@ -8,9 +8,157 @@
  #include <charset.h>
  #include <malloc.h>
  
 -/*
 - * utf8/utf16 conversion mostly lifted from grub
 - */
-+s32 utf16_get(const u16 **src) {
-+	s32 code, code2;
++s32 utf8_get(const char **src) {
++	s32 code = 0;
++	char c;
 +
++	if (!src || !*src)
++		return -1;
 +	if (!**src)
 +		return 0;
-+	code = **src;
-+	++*src;
-+	if (code >= 0xD800 && code <= 0xDBFF) {
-+		if (!**src)
++	c = **src;
++	if (c >= 0x80) {
++		/* 
++		 * We do not expect a continuation byte (0x80 - 0xbf).
++		 * 0x80 is coded as 0xc2 0x80, so we cannot have less then 0xc2
++		 * here.
++		 * The highest code point is 0x10ffff which is coded as
++		 * 0xf4 0x8f 0xbf 0xbf. So we cannot have a byte above 0xf4.
++		 */
++		if (c < 0xc2 || code > 0xf4)
 +			return -1;
-+		code &= 0x3ff;
-+		code <<= 10;
-+		code += 0x10000;
-+		code2 = **src;
-+		if (code2 <= 0xDC00 || code2 >= 0xDFFF)
-+			return -1;
++		if (c >= 0xe0) {
++			if (c >= 0xf0) {
++				/* 0xf0 - 0xf4 */
++				c &= 0x07;
++				code = c << 18;
++				++*src;
++				c = **src;
++				if (c < 0x80 || c > 0xbf)
++					return -1;
++				c &= 0x3f;
++			} else {
++				/* 0xe0 - 0xef */
++				c &= 0x0f;
++			}
++			code += c << 12;
++			if ((code >= 0xD800 && code <= 0xDFFF) ||
++			     code >= 0x110000)
++				return -1;
++			++*src;
++			c = **src;
++			if (c < 0x80 || c > 0xbf)
++				return -1;
++		}
++		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
++		c &= 0x3f;
++		code += c << 6;
 +		++*src;
-+		code2 &= 0x3ff;
-+		code += code2;
++		c = **src;
++		if (c < 0x80 || c > 0xbf)
++			return -1;
++		c &= 0x3f;
 +	}
++	code += c;
++	++*src;
 +	return code;
 +}
 +
@@ -139,6 +183,31 @@ index 8ff8d59957..c136ea5358 100644
 +	}
 +	++*dst;
 +	return 0;
++}
++
++s32 utf16_get(const u16 **src) {
++	s32 code, code2;
++
++	if (!src || !*src)
++		return -1;
++	if (!**src)
++		return 0;
++	code = **src;
++	++*src;
++	if (code >= 0xD800 && code <= 0xDBFF) {
++		if (!**src)
++			return -1;
++		code &= 0x3ff;
++		code <<= 10;
++		code += 0x10000;
++		code2 = **src;
++		if (code2 <= 0xDC00 || code2 >= 0xDFFF)
++			return -1;
++		++*src;
++		code2 &= 0x3ff;
++		code += code2;
++	}
++	return code;
 +}
 +
 +int utf16_put(s32 code, u16 **dst)
