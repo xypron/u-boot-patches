@@ -1,4 +1,4 @@
-From 1a8c60d275860baca7ba33503aec79df67283593 Mon Sep 17 00:00:00 2001
+From 81397866f1621bc6adc8d98c84ef1ad59b128fd1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -10,15 +10,20 @@ utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 37 ++++++++++++++++++
+ include/charset.h | 49 ++++++++++++++++++++++++
  lib/charset.c     | 96 +++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 130 insertions(+), 3 deletions(-)
+ 2 files changed, 142 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 2307559890..ab59f36af1 100644
+index 2307559890..3446039acd 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -12,6 +12,43 @@
+@@ -8,10 +8,59 @@
+ #ifndef __CHARSET_H_
+ #define __CHARSET_H_
+ 
++#include <linux/kernel.h>
+ #include <linux/types.h>
  
  #define MAX_UTF8_PER_UTF16 3
  
@@ -51,19 +56,30 @@ index 2307559890..ab59f36af1 100644
 +int utf16_put(s32 code, u16 **dst);
 +
 +/**
++ * utf16_utf8_strnlen() - length of a truncated utf-16 string after conversion
++ *			  to utf-8
++ *
++ * @src:		utf-16 string
++ * @count:		maximum number of code points to convert
++ * Return:		length in bytes after conversion to utf-8 without the
++ *			trailing \0. -1 if the utf-16 string is not valid.
++ */
++ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
++
++/**
 + * utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
 + *
 + * @src:		utf-16 string
 + * Return:		length in bytes after conversion to utf-8 without the
 + *			trailing \0. -1 if the utf-16 string is not valid.
 + */
-+ssize_t utf16_utf8_strlen(const u16 *src);
++#define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
 +
  /**
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..aa9a6895cb 100644
+index 8ff8d59957..c136ea5358 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -8,9 +8,99 @@
@@ -143,11 +159,11 @@ index 8ff8d59957..aa9a6895cb 100644
 +	return 0;
 +}
 +
-+ssize_t utf16_utf8_strlen(const u16 *src)
++ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
 +{
 +	size_t len = 0;
 +
-+	for (; *src;)  {
++	for (; *src && count; --count)  {
 +		s32 code = utf16_get(&src);
 +		if (!code)
 +			break;
