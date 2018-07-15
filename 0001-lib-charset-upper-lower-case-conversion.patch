@@ -1,4 +1,4 @@
-From 42255bc2c47d1880afd3ec779296bff065ad9691 Mon Sep 17 00:00:00 2001
+From ab8e564e1e871fa06eb70bb6312919685cfc6907 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 12 Jul 2018 19:39:31 +0200
 Subject: [PATCH 1/1] lib: charset: upper/lower case conversion
@@ -9,14 +9,14 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/charset.h | 16 ++++++++++++++++
  lib/Makefile      |  4 +++-
- lib/charset.c     | 40 ++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 59 insertions(+), 1 deletion(-)
+ lib/charset.c     | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 61 insertions(+), 1 deletion(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 3446039acd..2cbbf1f47b 100644
+index 7d6ab8be25..8e0bf22ca8 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -61,6 +61,22 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
+@@ -71,6 +71,22 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
   */
  #define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
  
@@ -55,7 +55,7 @@ index 2fd32798a0..f169644850 100644
  obj-$(CONFIG_USB_TTY) += circbuf.o
  obj-y += crc7.o
 diff --git a/lib/charset.c b/lib/charset.c
-index c136ea5358..918347308d 100644
+index 557c32f572..17f77908de 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -6,8 +6,12 @@
@@ -71,11 +71,12 @@ index c136ea5358..918347308d 100644
  s32 utf8_get(const char **src)
  {
  	s32 code = 0;
-@@ -102,6 +106,42 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
+@@ -163,6 +167,44 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
  	return len;
  }
  
-+s32 utf_to_lower(const s32 code) {
++s32 utf_to_lower(const s32 code)
++{
 +	struct capitalization_table *pos = capitalization_table;
 +	s32 ret = code;
 +
@@ -93,7 +94,8 @@ index c136ea5358..918347308d 100644
 +	return ret;
 +}
 +
-+s32 utf_to_upper(const s32 code) {
++s32 utf_to_upper(const s32 code)
++{
 +	struct capitalization_table *pos = capitalization_table;
 +	s32 ret = code;
 +
