@@ -68,9 +68,9 @@ index c136ea5358..918347308d 100644
 +static struct capitalization_table capitalization_table[] =
 +	UNICODE_CAPITALIZATION_TABLE;
 +
- s32 utf16_get(const u16 **src) {
- 	s32 code, code2;
- 
+ s32 utf8_get(const char **src)
+ {
+ 	s32 code = 0;
 @@ -102,6 +106,42 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
  	return len;
  }

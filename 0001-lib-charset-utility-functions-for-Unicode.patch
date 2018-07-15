@@ -93,14 +93,15 @@ diff --git a/lib/charset.c b/lib/charset.c
 index 8ff8d59957..8dfcfa215f 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,157 @@
+@@ -8,9 +8,160 @@
  #include <charset.h>
  #include <malloc.h>
  
 -/*
 - * utf8/utf16 conversion mostly lifted from grub
 - */
-+s32 utf8_get(const char **src) {
++s32 utf8_get(const char **src)
++{
 +	s32 code = 0;
 +	char c;
 +
@@ -110,7 +111,7 @@ index 8ff8d59957..8dfcfa215f 100644
 +		return 0;
 +	c = **src;
 +	if (c >= 0x80) {
-+		/* 
++		/*
 +		 * We do not expect a continuation byte (0x80 - 0xbf).
 +		 * 0x80 is coded as 0xc2 0x80, so we cannot have less then 0xc2
 +		 * here.
@@ -135,7 +136,7 @@ index 8ff8d59957..8dfcfa215f 100644
 +			}
 +			code += c << 12;
 +			if ((code >= 0xD800 && code <= 0xDFFF) ||
-+			     code >= 0x110000)
++			    code >= 0x110000)
 +				return -1;
 +			++*src;
 +			c = **src;
@@ -185,7 +186,8 @@ index 8ff8d59957..8dfcfa215f 100644
 +	return 0;
 +}
 +
-+s32 utf16_get(const u16 **src) {
++s32 utf16_get(const u16 **src)
++{
 +	s32 code, code2;
 +
 +	if (!src || !*src)
@@ -234,6 +236,7 @@ index 8ff8d59957..8dfcfa215f 100644
 +
 +	for (; *src && count; --count)  {
 +		s32 code = utf16_get(&src);
++
 +		if (!code)
 +			break;
 +		if (code < 0)
