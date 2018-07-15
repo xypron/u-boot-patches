@@ -1,4 +1,4 @@
-From ebaaacb8b4a59614fc7af8037ab9dcce0297d5aa Mon Sep 17 00:00:00 2001
+From c94ec182c571b3d4ed4fa291fd68382de91b5b73 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -7,14 +7,27 @@ Provide unit tests for Unicode functions.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ MAINTAINERS           |   1 +
  include/test/suites.h |   3 +-
  test/Kconfig          |   8 ++
  test/Makefile         |   1 +
  test/cmd_ut.c         |  14 ++-
- test/unicode_ut.c     | 272 ++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 294 insertions(+), 4 deletions(-)
+ test/unicode_ut.c     | 273 ++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 296 insertions(+), 4 deletions(-)
  create mode 100644 test/unicode_ut.c
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d6fdee81e4..146a644a84 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -371,6 +371,7 @@ F:	include/asm-generic/pe.h
+ F:	lib/charset.c
+ F:	lib/efi*/
+ F:	test/py/tests/test_efi*
++F:	test/unicode_ut.c
+ F:	cmd/bootefi.c
+ F:	tools/file2include.c
+ 
 diff --git a/include/test/suites.h b/include/test/suites.h
 index b5019a7cd2..8e4eac60eb 100644
 --- a/include/test/suites.h
@@ -104,10 +117,10 @@ index 934a5a931b..d6a2593850 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..9540c059e5
+index 0000000000..2d7cb942cc
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,272 @@
+@@ -0,0 +1,273 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -129,7 +142,8 @@ index 0000000000..9540c059e5
 +/* Three characters translating to three utf-8 bytes each */
 +static const u16 c3[] = {0x6f5c, 0x6c34, 0x8266, 0x00};
 +/* Three letters translating to four utf-8 bytes each */
-+static const u16 c4[] = {0xd801, 0xdc8d, 0xd801, 0xdc96, 0xd801, 0xdc87, 0x0000};
++static const u16 c4[] = {0xd801, 0xdc8d, 0xd801, 0xdc96, 0xd801, 0xdc87,
++			 0x0000};
 +
 +/* Six characters translating to one utf-16 word each. */
 +static const char d1[] = {0x55, 0x2d, 0x42, 0x6f, 0x6f, 0x74, 0x00};
@@ -193,7 +207,7 @@ index 0000000000..9540c059e5
 +
 +	/* Commercial at, translates to one character */
 +	pos = buffer;
-+	if(utf8_put('@', &pos))
++	if (utf8_put('@', &pos))
 +		return -1;
 +	if (pos - buffer != 1)
 +		return -1;
@@ -273,7 +287,7 @@ index 0000000000..9540c059e5
 +
 +	/* Commercial at, translates to one word */
 +	pos = buffer;
-+	if(utf16_put('@', &pos))
++	if (utf16_put('@', &pos))
 +		return -1;
 +	if (pos - buffer != 1)
 +		return -1;
