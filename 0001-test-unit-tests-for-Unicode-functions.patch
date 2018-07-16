@@ -1,4 +1,4 @@
-From 6a9e3b6c18e224aebbbab9ac2a4f3bd08faf1999 Mon Sep 17 00:00:00 2001
+From efbde228cd59d7494e968125d729ffb860497314 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -12,12 +12,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  14 +-
- test/unicode_ut.c     | 416 ++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 439 insertions(+), 4 deletions(-)
+ test/unicode_ut.c     | 470 ++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 493 insertions(+), 4 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 51de568b48..c8487673ba 100644
+index 51de568b48d..c8487673ba6 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
 @@ -370,6 +370,7 @@ F:	include/asm-generic/pe.h
@@ -29,7 +29,7 @@ index 51de568b48..c8487673ba 100644
  F:	tools/file2include.c
  
 diff --git a/include/test/suites.h b/include/test/suites.h
-index b5019a7cd2..8e4eac60eb 100644
+index b5019a7cd2f..8e4eac60ebc 100644
 --- a/include/test/suites.h
 +++ b/include/test/suites.h
 @@ -23,10 +23,11 @@ struct unit_test;
@@ -46,7 +46,7 @@ index b5019a7cd2..8e4eac60eb 100644
  
  #endif /* __TEST_SUITES_H__ */
 diff --git a/test/Kconfig b/test/Kconfig
-index 3643761bc6..de16d179d0 100644
+index 3643761bc6e..de16d179d07 100644
 --- a/test/Kconfig
 +++ b/test/Kconfig
 @@ -15,6 +15,14 @@ config UT_TIME
@@ -65,7 +65,7 @@ index 3643761bc6..de16d179d0 100644
  source "test/env/Kconfig"
  source "test/overlay/Kconfig"
 diff --git a/test/Makefile b/test/Makefile
-index 1092011fdb..a5f52fd5ad 100644
+index 1092011fdb0..a5f52fd5ad6 100644
 --- a/test/Makefile
 +++ b/test/Makefile
 @@ -8,4 +8,5 @@ obj-$(CONFIG_SANDBOX) += command_ut.o
@@ -75,7 +75,7 @@ index 1092011fdb..a5f52fd5ad 100644
 +obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
  obj-$(CONFIG_$(SPL_)LOG) += log/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
-index 934a5a931b..d6a2593850 100644
+index 934a5a931b0..d6a25938508 100644
 --- a/test/cmd_ut.c
 +++ b/test/cmd_ut.c
 @@ -49,6 +49,10 @@ static cmd_tbl_t cmd_ut_sub[] = {
@@ -117,10 +117,10 @@ index 934a5a931b..d6a2593850 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..d58aa529c1
+index 00000000000..29316606c43
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,416 @@
+@@ -0,0 +1,470 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -281,7 +281,8 @@ index 0000000000..d58aa529c1
 +	return 0;
 +}
 +
-+int ut_u16_strcmp(const u16 *a1, const u16 *a2, size_t count) {
++int ut_u16_strcmp(const u16 *a1, const u16 *a2, size_t count)
++{
 +	for (; (*a1 || *a2) && count; ++a1, ++a2, --count) {
 +		if (*a1 < *a2)
 +			return -1;
@@ -513,6 +514,59 @@ index 0000000000..d58aa529c1
 +
 +int ut_utf16_utf8_strncpy(void)
 +{
++	char buf[16];
++	char *pos;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf16_utf8_strncpy(&pos, c1, 4);
++	if (pos - buf != 4)
++		return 1;
++	if (buf[4])
++		return 1;
++	if (strncmp(buf, d1, 4))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf16_utf8_strncpy(&pos, c2, 10);
++	if (pos - buf != 9)
++		return 1;
++	if (!buf[4])
++		return 1;
++	if (strncmp(buf, d2, SIZE_MAX))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf16_utf8_strncpy(&pos, c3, 2);
++	if (pos - buf != 6)
++		return 1;
++	if (buf[6])
++		return 1;
++	if (strncmp(buf, d3, 6))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf16_utf8_strncpy(&pos, c4, 2);
++	if (pos - buf != 8)
++		return 1;
++	if (buf[8])
++		return 1;
++	if (strncmp(buf, d4, 8))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf16_utf8_strncpy(&pos, c4, 10);
++	if (pos - buf != 12)
++		return 1;
++	if (!buf[5])
++		return 1;
++	if (strncmp(buf, d4, SIZE_MAX))
++		return 1;
++
 +	return 0;
 +}
 +
