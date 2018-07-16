@@ -1,4 +1,4 @@
-From 753cfc6330db380ec2d37ba003096b2e9433450f Mon Sep 17 00:00:00 2001
+From 39cf488064d3592a52074823a47c742ccbb5828f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -11,15 +11,15 @@ utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h |  79 ++++++++++++++++++++
- lib/charset.c     | 178 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 254 insertions(+), 3 deletions(-)
+ include/charset.h |  81 ++++++++++++++++++++
+ lib/charset.c     | 184 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 262 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 2307559890..d015d61cfa 100644
+index 23075598906..f55f18b930b 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -8,10 +8,89 @@
+@@ -8,10 +8,91 @@
  #ifndef __CHARSET_H_
  #define __CHARSET_H_
  
@@ -54,7 +54,8 @@ index 2307559890..d015d61cfa 100644
 + * @src:		utf-8 string
 + * @count:		maximum number of code points to convert
 + * Return:		length in bytes after conversion to utf-16 without the
-+ *			trailing \0. -1 if the utf-8 string is not valid.
++ *			trailing \0. If an invalid UTF-8 sequence is hit one
++ *			word will be reserved for a replacement character.
 + */
 +ssize_t utf8_utf16_strnlen(const char *src, size_t count);
 +
@@ -93,7 +94,8 @@ index 2307559890..d015d61cfa 100644
 + * @src:		utf-16 string
 + * @count:		maximum number of code points to convert
 + * Return:		length in bytes after conversion to utf-8 without the
-+ *			trailing \0. -1 if the utf-16 string is not valid.
++ *			trailing \0. If an invalid UTF-16 sequence is hit one
++ *			byte will be reserved for a replacement character.
 + */
 +ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
 +
@@ -110,10 +112,10 @@ index 2307559890..d015d61cfa 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..8df3683ded 100644
+index 8ff8d59957d..ec3df0d93a7 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,181 @@
+@@ -8,9 +8,187 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -215,14 +217,17 @@ index 8ff8d59957..8df3683ded 100644
 +
 +		if (!code)
 +			break;
-+		if (code < 0)
-+			return -1;
-+		if (code < 0x10000)
++		if (code < 0) {
++			/* Reserve space for a replacement character */
 +			len += 1;
-+		else if (code < 0x110000)
++			++src;
++		} else if (code < 0x10000) {
++			len += 1;
++		} else if (code < 0x110000) {
 +			len += 2;
-+		else
++		} else {
 +			return -1;
++		}
 +	}
 +	return len;
 +}
@@ -280,18 +285,21 @@ index 8ff8d59957..8df3683ded 100644
 +
 +		if (!code)
 +			break;
-+		if (code < 0)
-+			return -1;
-+		if (code < 0x80)
++		if (code < 0) {
++			/* Reserve space for a replacement character */
 +			len += 1;
-+		else if (code < 0x800)
++			++src;
++		} else if (code < 0x80) {
++			len += 1;
++		} else if (code < 0x800) {
 +			len += 2;
-+		else if (code < 0x10000)
++		} else if (code < 0x10000) {
 +			len += 3;
-+		else if (code < 0x110000)
++		} else if (code < 0x110000) {
 +			len += 4;
-+		else
++		} else {
 +			return -1;
++		}
 +	}
 +	return len;
 +}
