@@ -1,4 +1,4 @@
-From 3782c75fcf28381920b5d60df1ece25807b2fabe Mon Sep 17 00:00:00 2001
+From 90a428874697c607a19b2b60cb1288f9e4efc98b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -9,18 +9,18 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS           |   1 +
  include/test/suites.h |   3 +-
- test/Kconfig          |   8 ++
+ test/Kconfig          |   8 +
  test/Makefile         |   1 +
- test/cmd_ut.c         |  14 ++-
- test/unicode_ut.c     | 267 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 292 insertions(+), 6 deletions(-)
+ test/cmd_ut.c         |  14 +-
+ test/unicode_ut.c     | 385 ++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 408 insertions(+), 4 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index d6fdee81e45..146a644a842 100644
+index 51de568b48..c8487673ba 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -371,6 +371,7 @@ F:	include/asm-generic/pe.h
+@@ -370,6 +370,7 @@ F:	include/asm-generic/pe.h
  F:	lib/charset.c
  F:	lib/efi*/
  F:	test/py/tests/test_efi*
@@ -29,7 +29,7 @@ index d6fdee81e45..146a644a842 100644
  F:	tools/file2include.c
  
 diff --git a/include/test/suites.h b/include/test/suites.h
-index b5019a7cd2f..8e4eac60ebc 100644
+index b5019a7cd2..8e4eac60eb 100644
 --- a/include/test/suites.h
 +++ b/include/test/suites.h
 @@ -23,10 +23,11 @@ struct unit_test;
@@ -46,7 +46,7 @@ index b5019a7cd2f..8e4eac60ebc 100644
  
  #endif /* __TEST_SUITES_H__ */
 diff --git a/test/Kconfig b/test/Kconfig
-index 3643761bc6e..de16d179d07 100644
+index 3643761bc6..de16d179d0 100644
 --- a/test/Kconfig
 +++ b/test/Kconfig
 @@ -15,6 +15,14 @@ config UT_TIME
@@ -65,7 +65,7 @@ index 3643761bc6e..de16d179d07 100644
  source "test/env/Kconfig"
  source "test/overlay/Kconfig"
 diff --git a/test/Makefile b/test/Makefile
-index 1092011fdb0..a5f52fd5ad6 100644
+index 1092011fdb..a5f52fd5ad 100644
 --- a/test/Makefile
 +++ b/test/Makefile
 @@ -8,4 +8,5 @@ obj-$(CONFIG_SANDBOX) += command_ut.o
@@ -75,7 +75,7 @@ index 1092011fdb0..a5f52fd5ad6 100644
 +obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
  obj-$(CONFIG_$(SPL_)LOG) += log/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
-index 934a5a931b0..d6a25938508 100644
+index 934a5a931b..d6a2593850 100644
 --- a/test/cmd_ut.c
 +++ b/test/cmd_ut.c
 @@ -49,6 +49,10 @@ static cmd_tbl_t cmd_ut_sub[] = {
@@ -117,10 +117,10 @@ index 934a5a931b0..d6a25938508 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 00000000000..96b4852c0cd
+index 0000000000..89ad503e35
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,267 @@
+@@ -0,0 +1,385 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -281,6 +281,110 @@ index 00000000000..96b4852c0cd
 +	return 0;
 +}
 +
++int ut_u16_strcmp(const u16 *a1, const u16 *a2, size_t count) {
++	for (; (*a1 || *a2) && count; ++count) {
++		if (*a1 < *a2)
++			return -1;
++		if (*a1 > *a2)
++			return 1;
++	}
++	return 0;
++}
++
++int ut_utf8_utf16_strcpy(void)
++{
++	u16 buf[16];
++	u16 *pos;
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, d1);
++	if (pos - buf != 6)
++		return 1;
++	if (ut_u16_strcmp(buf, c1, 16))
++		return 1;
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, d2);
++	if (pos - buf != 8)
++		return 1;
++	if (ut_u16_strcmp(buf, c2, 16))
++		return 1;
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, d3);
++	if (pos - buf != 3)
++		return 1;
++	if (ut_u16_strcmp(buf, c3, 16))
++		return 1;
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, d4);
++	if (pos - buf != 3)
++		return 1;
++	if (ut_u16_strcmp(buf, c4, 16))
++		return 1;
++
++	return 0;
++}
++
++int ut_utf8_utf16_strncpy(void)
++{
++	u16 buf[16];
++	u16 *pos;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf8_utf16_strncpy(&pos, d1, 4);
++	if (pos - buf != 4)
++		return 1;
++	if (buf[4])
++		return 1;
++	if (ut_u16_strcmp(buf, c1, 4))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf8_utf16_strncpy(&pos, d2, 10);
++	if (pos - buf != 8)
++		return 1;
++	if (buf[4])
++		return 1;
++	if (ut_u16_strcmp(buf, c2, SIZE_MAX))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf8_utf16_strncpy(&pos, d3, 2);
++	if (pos - buf != 2)
++		return 1;
++	if (buf[2])
++		return 1;
++	if (ut_u16_strcmp(buf, c3, 2))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf8_utf16_strncpy(&pos, d4, 2);
++	if (pos - buf != 2)
++		return 1;
++	if (buf[4])
++		return 1;
++	if (ut_u16_strcmp(buf, c4, 4))
++		return 1;
++
++	pos = buf;
++	memset(buf, 0, sizeof(buf));
++	utf8_utf16_strncpy(&pos, d4, 10);
++	if (pos - buf != 4)
++		return 1;
++	if (!buf[5])
++		return 1;
++	if (ut_u16_strcmp(buf, c4, SIZE_MAX))
++		return 1;
++
++	return 0;
++}
++
 +static int ut_utf16_get(void)
 +{
 +	const u16 *s;
@@ -371,6 +475,16 @@ index 00000000000..96b4852c0cd
 +	return 0;
 +}
 +
++int ut_utf16_utf8_strcpy(void)
++{
++	return 0;
++}
++
++int ut_utf16_utf8_strncpy(void)
++{
++	return 0;
++}
++
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 +{
 +	int ret = 0;
@@ -379,10 +493,14 @@ index 00000000000..96b4852c0cd
 +	ret |= ut_utf8_put();
 +	ret |= ut_utf8_utf16_strlen();
 +	ret |= ut_utf8_utf16_strnlen();
++	ret |= ut_utf8_utf16_strcpy();
++	ret |= ut_utf8_utf16_strncpy();
 +	ret |= ut_utf16_get();
 +	ret |= ut_utf16_put();
 +	ret |= ut_utf16_utf8_strlen();
 +	ret |= ut_utf16_utf8_strnlen();
++	ret |= ut_utf16_utf8_strcpy();
++	ret |= ut_utf16_utf8_strncpy();
 +
 +	printf("Test %s\n", ret ? "failed" : "passed");
 +
