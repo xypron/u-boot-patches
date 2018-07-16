@@ -1,4 +1,4 @@
-From ab8e564e1e871fa06eb70bb6312919685cfc6907 Mon Sep 17 00:00:00 2001
+From 6aa2e53be86e3da876836b10ec95aa833009760f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 12 Jul 2018 19:39:31 +0200
 Subject: [PATCH 1/1] lib: charset: upper/lower case conversion
@@ -9,16 +9,16 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/charset.h | 16 ++++++++++++++++
  lib/Makefile      |  4 +++-
- lib/charset.c     | 42 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 61 insertions(+), 1 deletion(-)
+ lib/charset.c     | 41 +++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+), 1 deletion(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 7d6ab8be25..8e0bf22ca8 100644
+index 180eb958b0..47a163de1b 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -71,6 +71,22 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
+@@ -131,6 +131,22 @@ int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count);
   */
- #define utf16_utf8_strlen(a) utf16_utf8_strnlen((a), SIZE_MAX)
+ #define utf16_utf8_strcpy(d, s) utf16_utf8_strncpy((d), (s), SIZE_MAX)
  
 +/**
 + * utf_to_lower() - convert a Unicode letter to lower case
@@ -55,7 +55,7 @@ index 2fd32798a0..f169644850 100644
  obj-$(CONFIG_USB_TTY) += circbuf.o
  obj-y += crc7.o
 diff --git a/lib/charset.c b/lib/charset.c
-index 557c32f572..17f77908de 100644
+index 93d00d0dc5..e5ad014ca5 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -6,8 +6,12 @@
@@ -71,8 +71,8 @@ index 557c32f572..17f77908de 100644
  s32 utf8_get(const char **src)
  {
  	s32 code = 0;
-@@ -163,6 +167,44 @@ ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
- 	return len;
+@@ -227,6 +231,43 @@ int utf16_utf8_strncpy(char **dst, const u16 *src, size_t count)
+ 	return 0;
  }
  
 +s32 utf_to_lower(const s32 code)
@@ -112,10 +112,9 @@ index 557c32f572..17f77908de 100644
 +	}
 +	return ret;
 +}
-+
+ 
  size_t u16_strlen(const u16 *in)
  {
- 	size_t i;
 -- 
 2.18.0
 
