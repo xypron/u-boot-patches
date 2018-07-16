@@ -1,4 +1,4 @@
-From 90a428874697c607a19b2b60cb1288f9e4efc98b Mon Sep 17 00:00:00 2001
+From de8328ae439a2a0b0d3625c3140956267a46f043 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -117,7 +117,7 @@ index 934a5a931b..d6a2593850 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..89ad503e35
+index 0000000000..6f4a9fb303
 --- /dev/null
 +++ b/test/unicode_ut.c
 @@ -0,0 +1,385 @@
@@ -282,7 +282,7 @@ index 0000000000..89ad503e35
 +}
 +
 +int ut_u16_strcmp(const u16 *a1, const u16 *a2, size_t count) {
-+	for (; (*a1 || *a2) && count; ++count) {
++	for (; (*a1 || *a2) && count; ++a1, ++a2, --count) {
 +		if (*a1 < *a2)
 +			return -1;
 +		if (*a1 > *a2)
@@ -319,7 +319,7 @@ index 0000000000..89ad503e35
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d4);
-+	if (pos - buf != 3)
++	if (pos - buf != 6)
 +		return 1;
 +	if (ut_u16_strcmp(buf, c4, 16))
 +		return 1;
@@ -347,7 +347,7 @@ index 0000000000..89ad503e35
 +	utf8_utf16_strncpy(&pos, d2, 10);
 +	if (pos - buf != 8)
 +		return 1;
-+	if (buf[4])
++	if (!buf[4])
 +		return 1;
 +	if (ut_u16_strcmp(buf, c2, SIZE_MAX))
 +		return 1;
@@ -365,7 +365,7 @@ index 0000000000..89ad503e35
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d4, 2);
-+	if (pos - buf != 2)
++	if (pos - buf != 4)
 +		return 1;
 +	if (buf[4])
 +		return 1;
@@ -375,7 +375,7 @@ index 0000000000..89ad503e35
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d4, 10);
-+	if (pos - buf != 4)
++	if (pos - buf != 6)
 +		return 1;
 +	if (!buf[5])
 +		return 1;
