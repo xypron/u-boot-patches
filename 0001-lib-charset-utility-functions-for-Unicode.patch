@@ -1,4 +1,4 @@
-From 5d94cc52c8a9fe0bacaf026507d6a84d5f334515 Mon Sep 17 00:00:00 2001
+From b6f06215ba7f7c0200853f45c8a5685d28db85ea Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -15,8 +15,9 @@ utf16_utf8_strncpy() - copy a utf-16 string to utf-8
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/charset.h | 119 +++++++++++++++++++++++++
+ lib/Makefile      |   4 +-
  lib/charset.c     | 222 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 338 insertions(+), 3 deletions(-)
+ 3 files changed, 341 insertions(+), 4 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
 index 2307559890..180eb958b0 100644
@@ -152,6 +153,21 @@ index 2307559890..180eb958b0 100644
  /**
   * u16_strlen - count non-zero words
   *
+diff --git a/lib/Makefile b/lib/Makefile
+index 2fd32798a0..f169644850 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -21,7 +21,9 @@ obj-$(CONFIG_OPTEE) += optee/
+ obj-$(CONFIG_AES) += aes.o
+ 
+ ifndef API_BUILD
+-obj-$(CONFIG_EFI_LOADER) += charset.o
++ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
++obj-y += charset.o
++endif
+ endif
+ obj-$(CONFIG_USB_TTY) += circbuf.o
+ obj-y += crc7.o
 diff --git a/lib/charset.c b/lib/charset.c
 index 8ff8d59957..93d00d0dc5 100644
 --- a/lib/charset.c

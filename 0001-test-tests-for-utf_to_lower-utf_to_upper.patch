@@ -1,4 +1,4 @@
-From ba4c4788f268f0b31f7079332447ebf6ce4fa568 Mon Sep 17 00:00:00 2001
+From 8780e0d8501d243844a4216481294cf30ad78b7f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 16 Jul 2018 07:36:14 +0200
 Subject: [PATCH 1/1] test: tests for utf_to_lower() utf_to_upper().
@@ -11,10 +11,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 38 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index 96b4852c0cd..488e1df6daf 100644
+index 89ad503e35..a32e72ff08 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -248,6 +248,42 @@ int ut_utf16_utf8_strnlen(void)
+@@ -362,6 +362,42 @@ int ut_utf16_utf8_strncpy(void)
  	return 0;
  }
  
@@ -57,10 +57,10 @@ index 96b4852c0cd..488e1df6daf 100644
  int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  {
  	int ret = 0;
-@@ -260,6 +296,8 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- 	ret |= ut_utf16_put();
- 	ret |= ut_utf16_utf8_strlen();
+@@ -378,6 +414,8 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	ret |= ut_utf16_utf8_strnlen();
+ 	ret |= ut_utf16_utf8_strcpy();
+ 	ret |= ut_utf16_utf8_strncpy();
 +	ret |= ut_utf_to_lower();
 +	ret |= ut_utf_to_upper();
  
