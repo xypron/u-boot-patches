@@ -1,4 +1,4 @@
-From 030e7b27684401f50e5db022e472ff0d9348b0d2 Mon Sep 17 00:00:00 2001
+From 51d6b08c42e1c3a6f64e6bd83f19acee42488b2d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -14,16 +14,16 @@ utf16_utf8_strncpy() - copy a utf-16 string to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 119 +++++++++++++++++++++++++
+ include/charset.h | 130 ++++++++++++++++++++++++
  lib/Makefile      |   4 +-
- lib/charset.c     | 222 +++++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 341 insertions(+), 4 deletions(-)
+ lib/charset.c     | 244 +++++++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 374 insertions(+), 4 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 2307559890..180eb958b0 100644
+index 23075598906..81e31d1b268 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -8,10 +8,129 @@
+@@ -8,10 +8,140 @@
  #ifndef __CHARSET_H_
  #define __CHARSET_H_
  
@@ -61,7 +61,7 @@ index 2307559890..180eb958b0 100644
 + *			trailing \0. If an invalid UTF-8 sequence is hit one
 + *			word will be reserved for a replacement character.
 + */
-+ssize_t utf8_utf16_strnlen(const char *src, size_t count);
++size_t utf8_utf16_strnlen(const char *src, size_t count);
 +
 +/**
 + * utf8_utf16_strlen() - length of a utf-8 string after conversion to utf-16
@@ -111,6 +111,17 @@ index 2307559890..180eb958b0 100644
 +int utf16_put(s32 code, u16 **dst);
 +
 +/**
++ * utf16_strnlen() - length of a truncated utf-16 string
++ *
++ * @src:		utf-16 string
++ * @count:		maximum number of code points to convert
++ * Return:		length in code points. If an invalid UTF-16 sequence is
++ *			hit one position will be reserved for a replacement
++ *			character.
++ */
++size_t utf16_strnlen(const u16 *src, size_t count);
++
++/**
 + * utf16_utf8_strnlen() - length of a truncated utf-16 string after conversion
 + *			  to utf-8
 + *
@@ -120,7 +131,7 @@ index 2307559890..180eb958b0 100644
 + *			trailing \0. If an invalid UTF-16 sequence is hit one
 + *			byte will be reserved for a replacement character.
 + */
-+ssize_t utf16_utf8_strnlen(const u16 *src, size_t count);
++size_t utf16_utf8_strnlen(const u16 *src, size_t count);
 +
 +/**
 + * utf16_utf8_strlen() - length of a utf-16 string after conversion to utf-8
@@ -154,7 +165,7 @@ index 2307559890..180eb958b0 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/Makefile b/lib/Makefile
-index 2fd32798a0..f169644850 100644
+index 2fd32798a08..f1696448506 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -21,7 +21,9 @@ obj-$(CONFIG_OPTEE) += optee/
@@ -169,10 +180,10 @@ index 2fd32798a0..f169644850 100644
  obj-$(CONFIG_USB_TTY) += circbuf.o
  obj-y += crc7.o
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..6ae6a4edbb 100644
+index 8ff8d59957d..d6b670cf87b 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,225 @@
+@@ -8,9 +8,247 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -265,7 +276,7 @@ index 8ff8d59957..6ae6a4edbb 100644
 +	return 0;
 +}
 +
-+ssize_t utf8_utf16_strnlen(const char *src, size_t count)
++size_t utf8_utf16_strnlen(const char *src, size_t count)
 +{
 +	size_t len = 0;
 +
@@ -277,13 +288,12 @@ index 8ff8d59957..6ae6a4edbb 100644
 +		if (code < 0) {
 +			/* Reserve space for a replacement character */
 +			len += 1;
-+			++src;
++			if (*src)
++				++src;
 +		} else if (code < 0x10000) {
 +			len += 1;
-+		} else if (code < 0x110000) {
-+			len += 2;
 +		} else {
-+			return -1;
++			len += 2;
 +		}
 +	}
 +	return len;
@@ -299,7 +309,8 @@ index 8ff8d59957..6ae6a4edbb 100644
 +
 +		if (code < 0) {
 +			code = '?';
-+			++src;
++			if (*src)
++				++src;
 +		}
 +		utf16_put(code, dst);
 +	}
@@ -352,7 +363,29 @@ index 8ff8d59957..6ae6a4edbb 100644
 +	return 0;
 +}
 +
-+ssize_t utf16_utf8_strnlen(const u16 *src, size_t count)
++size_t utf16_strnlen(const u16 *src, size_t count)
++{
++	size_t len = 0;
++
++	for (; *src && count; --count)  {
++		s32 code = utf16_get(&src);
++
++		if (!code)
++			break;
++		if (code < 0) {
++			if (*src)
++				++src;
++		}
++		/*
++		 * In case of an illegal sequence still reserve space for a
++		 * replacement character.
++		 */
++		++len;
++	}
++	return len;
++}
++
++size_t utf16_utf8_strnlen(const u16 *src, size_t count)
 +{
 +	size_t len = 0;
 +
@@ -364,17 +397,16 @@ index 8ff8d59957..6ae6a4edbb 100644
 +		if (code < 0) {
 +			/* Reserve space for a replacement character */
 +			len += 1;
-+			++src;
++			if (*src)
++				++src;
 +		} else if (code < 0x80) {
 +			len += 1;
 +		} else if (code < 0x800) {
 +			len += 2;
 +		} else if (code < 0x10000) {
 +			len += 3;
-+		} else if (code < 0x110000) {
-+			len += 4;
 +		} else {
-+			return -1;
++			len += 4;
 +		}
 +	}
 +	return len;
@@ -390,7 +422,8 @@ index 8ff8d59957..6ae6a4edbb 100644
 +
 +		if (code < 0) {
 +			code = '?';
-+			++src;
++			if (*src)
++				++src;
 +		}
 +		utf8_put(code, dst);
 +	}

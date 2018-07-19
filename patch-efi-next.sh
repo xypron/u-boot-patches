@@ -65,6 +65,7 @@ git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
 git am ../patch/0001-lib-charset-utility-functions-for-Unicode.patch
 git am ../patch/0001-test-unit-tests-for-Unicode-functions.patch
+git am ../patch/0001-lib-vsprintf-correct-printing-of-Unicode-strings.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
 git am ../patch/0001-test-tests-for-utf_to_lower-utf_to_upper.patch
