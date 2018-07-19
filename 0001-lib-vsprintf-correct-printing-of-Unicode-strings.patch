@@ -1,4 +1,4 @@
-From 6da58f444407da80596eab3e03146765b01cbbab Mon Sep 17 00:00:00 2001
+From 421e9bb3d0e5864bee2098b0effe7e352dd37d0d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Jul 2018 07:29:33 +0200
 Subject: [PATCH 1/1] lib: vsprintf: correct printing of Unicode strings
@@ -8,14 +8,14 @@ characters not to the number of bytes printed.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/vsprintf.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ lib/vsprintf.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index a07128ad96a..bf636619010 100644
+index a07128ad96..00f551f200 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -279,19 +279,22 @@ static char *string(char *buf, char *end, char *s, int field_width,
+@@ -279,19 +279,23 @@ static char *string(char *buf, char *end, char *s, int field_width,
  static char *string16(char *buf, char *end, u16 *s, int field_width,
  		int precision, int flags)
  {
@@ -41,6 +41,7 @@ index a07128ad96a..bf636619010 100644
 +			code = '?';
 +			if (*str)
 +				++str;
++		}
 +		utf8_put(code, &buf);
 +	}
 +	for (; i < field_width; --field_width)
