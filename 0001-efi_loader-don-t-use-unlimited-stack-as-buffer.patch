@@ -40,7 +40,7 @@ index f3d612880c..8fb1abf295 100644
 +	pos = buf;
 +	utf16_utf8_strcpy(&pos, string);
  	fputs(stdout, buf);
-+	free buf;
++	free(buf);
  
  	/*
  	 * Update the cursor position.
