@@ -32,7 +32,6 @@ git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
 git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
-git am ../patch/0001-rockchip-doc-clarify-usage-of-CONFIG_SPL_ROCKCHIP_BA.patch
 git am ../patch/0001-config-remove-unused-CONFIG_SPL_RELOC_STACK_SIZE.patch
 
 # USB keyboard
@@ -44,13 +43,8 @@ git am ../patch/0001-config-remove-unused-CONFIG_SPL_RELOC_STACK_SIZE.patch
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
-# Firefly-RK3399
-git am ../patch/0001-rockchip-evb-rk3399-correct-README-for-board-bring-u.patch
-git am ../patch/0001-rockchip-rk3399-spl-add-missing-n-to-output.patch
-
 # SCT
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
-
 
 # RTC
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
