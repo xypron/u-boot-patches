@@ -21,9 +21,6 @@ git am ../patch/0001-spl-u-boot-spl-nodtb.bin-remove-.got-and-.got.plt-se.patch
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
-git am ../patch/0001-ubifs-avoid-possible-NULL-dereference.patch
-git am ../patch/0001-fs-fat-avoid-useless-conversion-when-calling-get_clu.patch
-git am ../patch/0001-fs-fat-avoid-superfluous-conversion-calling-set_clus.patch
 git am ../patch/0001-env-typo-in-description-of-ENV_IS_IN_REMOTE.patch
 git am ../patch/0001-bios_emulator-remove-assignment-without-effect.patch
 git am ../patch/0001-usb-dwc3-remove-superfluous-assignment.patch
