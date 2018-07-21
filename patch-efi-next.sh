@@ -57,8 +57,6 @@ git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 # RTC
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
-git am ../patch/0001-drivers-rtc-correct-week-day-for-mc146818.patch
-git am ../patch/0001-drivers-rtc-resolve-year-2038-problem-in-rtc_to_tm.patch
 
 # Unicode collation protocol
 git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
