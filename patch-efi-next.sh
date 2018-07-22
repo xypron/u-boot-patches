@@ -63,6 +63,7 @@ git am ../patch/0001-lib-vsprintf-correct-printing-of-Unicode-strings.patch
 git am ../patch/0001-test-test-printing-Unicode.patch
 git am ../patch/0001-efi_loader-remove-limit-on-variable-length.patch
 git am ../patch/0001-efi_loader-don-t-use-unlimited-stack-as-buffer.patch
+git am ../patch/0001-efi_loader-buffer-size-for-load-options.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
 git am ../patch/0001-test-tests-for-utf_to_lower-utf_to_upper.patch
