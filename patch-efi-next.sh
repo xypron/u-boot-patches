@@ -33,6 +33,7 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-config-remove-unused-CONFIG_SPL_RELOC_STACK_SIZE.patch
 git am ../patch/0001-drivers-rtc-correctly-set-week-day-for-mc146818.patch
+git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
