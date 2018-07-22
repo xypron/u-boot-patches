@@ -52,9 +52,9 @@ git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 
 # Unicode collation protocol
-git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
+# git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 git am ../patch/0001-efi_selftest-correct-block-device-unit-test.patch
-git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
+# git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
 git am ../patch/0001-lib-charset-utility-functions-for-Unicode.patch
