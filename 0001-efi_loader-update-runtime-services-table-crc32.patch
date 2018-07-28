@@ -50,8 +50,8 @@ index 4dbe15facd..6a6cfbb034 100644
 -}
 -
  /**
-  * efi_queue_event - queue an EFI event
-  *
+  * efi_queue_event() - queue an EFI event
+  * @event:     event to signal
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
 index 06958f23fa..153838f273 100644
 --- a/lib/efi_loader/efi_runtime.c
