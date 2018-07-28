@@ -1,7 +1,7 @@
-From c06265cdca33235c53e886ed04fe40222983bb9a Mon Sep 17 00:00:00 2001
+From 61b4d0816c502e631921d60c1a240f4b94e34871 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Jul 2018 18:00:32 +0200
-Subject: [PATCH 1/1] lib: crc32: mark function crc32() as __efi_runtime
+Subject: [PATCH v4 1/2] lib: crc32: mark function crc32() as __efi_runtime
 
 The function crc32() is needed by the EFI subsystem at runtime. So it has
 to be linked into the runtime section together with all dependencies.
@@ -12,11 +12,17 @@ Mark variables as static which are not exported.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v4:
+	put all relevant functions into the runtime code section
+	put none into the runtime data section
+v3
+	new patch
+---
  lib/crc32.c | 26 ++++++++++++++------------
  1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/lib/crc32.c b/lib/crc32.c
-index 7f545fde4a..1914620435 100644
+index 7f545fde4a0..4dab6226427 100644
 --- a/lib/crc32.c
 +++ b/lib/crc32.c
 @@ -12,6 +12,7 @@
@@ -56,7 +62,7 @@ index 7f545fde4a..1914620435 100644
    combinations of CRC register values and incoming bytes.
  */
 -local void make_crc_table()
-+static void __efi_runtime make_crc_table()
++static void __efi_runtime make_crc_table(void)
  {
    uint32_t c;
    int n, k;
