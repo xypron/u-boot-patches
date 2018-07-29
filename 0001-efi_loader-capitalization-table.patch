@@ -1,4 +1,4 @@
-From 125444ae1459b296c6f1b203577fdadaa8805d0e Mon Sep 17 00:00:00 2001
+From 5e48f934154175fb2285cbc6944716688d0292e1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 4 Jul 2018 22:41:07 +0200
 Subject: [PATCH 1/1] efi_loader: capitalization table
@@ -14,20 +14,20 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 include/capitalization.h
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 51de568b48..d6fdee81e4 100644
+index be4c19be9f7..a2cea8245d7 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -364,6 +364,7 @@ T:	git git://github.com/agraf/u-boot.git
- F:	doc/DocBook/efi.tmpl
+@@ -366,6 +366,7 @@ F:	doc/DocBook/efi.tmpl
  F:	doc/README.uefi
  F:	doc/README.iscsi
+ F:	Documentation/efi.rst
 +F:	include/capitalization.h
  F:	include/efi*
  F:	include/pe.h
  F:	include/asm-generic/pe.h
 diff --git a/include/capitalization.h b/include/capitalization.h
 new file mode 100644
-index 0000000000..50d5108f98
+index 00000000000..50d5108f98f
 --- /dev/null
 +++ b/include/capitalization.h
 @@ -0,0 +1,1909 @@
