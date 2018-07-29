@@ -1,0 +1,35 @@
+From e1bf095c52f16da49027ee207547ecbba58391e3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 29 Jul 2018 10:38:17 +0200
+Subject: [PATCH 1/1] drivers: serial: document on_baudrate()
+
+Add parameter description.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/serial/serial.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/serial/serial.c b/drivers/serial/serial.c
+index 63b232b536c..c84fd83f210 100644
+--- a/drivers/serial/serial.c
++++ b/drivers/serial/serial.c
+@@ -36,7 +36,15 @@ static void serial_null(void)
+ /**
+  * on_baudrate() - Update the actual baudrate when the env var changes
+  *
++ * @name:	changed environment variable
++ * @value:	new value of the environment variable
++ * @op:		operation (create, overwrite, or delete)
++ * @flags:	attributes of environment variable change,
++ *		see flags H_* in include/search.h
++ *
+  * This will check for a valid baudrate and only apply it if valid.
++ *
++ * Return:	0 on success, 1 on error
+  */
+ static int on_baudrate(const char *name, const char *value, enum env_op op,
+ 	int flags)
+-- 
+2.18.0
+
