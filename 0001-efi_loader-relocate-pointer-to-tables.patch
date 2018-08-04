@@ -1,12 +1,22 @@
 From a90d3088abb506c6ae70762cafde86354c2625a8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 4 Aug 2018 13:05:38 +0200
-Subject: [PATCH 1/1] efi_loader: relocate pointer to tables
+Subject: [RFC 1/1] efi_loader: relocate pointer to tables
 
 When applying a virtual memory map we have to update the pointer to the
 list of configuration tables.
 
+Fixes: 4182a129ef73 ("efi_loader: allocate configuration table array")
+Reported-by: Mark Kettenis <mark.kettenis@xs4all.nl>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Hello Mark,
+
+could you, please, test if this solves the problem.
+
+Best regards
+
+Heinrich
 ---
  lib/efi_loader/efi_runtime.c | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)
