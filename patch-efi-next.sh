@@ -53,6 +53,8 @@ git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 
+git am ../patch/0001-efi_loader-relocate-pointer-to-tables.patch
+
 # Unicode collation protocol
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 git am ../patch/0001-efi_selftest-correct-block-device-unit-test.patch

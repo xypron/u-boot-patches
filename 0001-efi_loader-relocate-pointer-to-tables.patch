@@ -1,0 +1,57 @@
+From 69ed7dd748941792a78e98ebbe0e9f83b78bd0f7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 4 Aug 2018 13:05:38 +0200
+Subject: [RFC 1/1] efi_loader: relocate pointer to tables
+
+Since commit 4182a129ef73 ("efi_loader: allocate configuration table
+array") and error occurs when accessing configuration tables after the
+call to SetVirtualAddressMap().
+
+When applying a virtual memory map we have to update the pointer to the
+list of configuration tables.
+
+Reported-by: Mark Kettenis <mark.kettenis@xs4all.nl>
+Fixes: 4182a129ef73 ("efi_loader: allocate configuration table array")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Hello Mark,
+
+could you, please, check if this fixes your problem.
+
+Best regards
+
+Heinrich
+---
+ lib/efi_loader/efi_runtime.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 06958f23fa..63e28cd84e 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -360,6 +360,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+ 		efi_physical_addr_t map_start = map->physical_start;
+ 		efi_physical_addr_t map_len = map->num_pages << EFI_PAGE_SHIFT;
+ 		efi_physical_addr_t map_end = map_start + map_len;
++		u64 off = map->virtual_start - map_start;
+ 
+ 		/* Adjust all mmio pointers in this region */
+ 		list_for_each(lhandle, &efi_runtime_mmio) {
+@@ -370,11 +371,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+ 					   link);
+ 			if ((map_start <= lmmio->paddr) &&
+ 			    (map_end >= lmmio->paddr)) {
+-				u64 off = map->virtual_start - map_start;
+ 				uintptr_t new_addr = lmmio->paddr + off;
+ 				*lmmio->ptr = (void *)new_addr;
+ 			}
+ 		}
++		if ((map_start <= (uintptr_t)systab.tables) &&
++		    (map_end >= (uintptr_t)systab.tables))
++			*(char **)&systab.tables += off;
+ 	}
+ 
+ 	/* Move the actual runtime code over */
+-- 
+2.18.0
+
