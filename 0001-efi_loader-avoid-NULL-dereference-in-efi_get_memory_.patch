@@ -1,0 +1,37 @@
+From 6a7fefd5e9e5a0ef760b7472e7556bafd6077d65 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 6 Aug 2018 22:23:33 +0200
+Subject: [PATCH 1/1] efi_loader: avoid NULL dereference in
+ efi_get_memory_map()
+
+We should only dereference parameter memory_map_size after checking that
+it is valid.
+
+Fixes: 8e835554b36b ("efi_loader: check parameters of GetMemoryMap")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 967c3f733e..6441e9b202 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -457,11 +457,13 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 	efi_uintn_t map_size = 0;
+ 	int map_entries = 0;
+ 	struct list_head *lhandle;
+-	efi_uintn_t provided_map_size = *memory_map_size;
++	efi_uintn_t provided_map_size;
+ 
+ 	if (!memory_map_size)
+ 		return EFI_INVALID_PARAMETER;
+ 
++	provided_map_size = *memory_map_size;
++
+ 	list_for_each(lhandle, &efi_mem)
+ 		map_entries++;
+ 
+-- 
+2.18.0
+

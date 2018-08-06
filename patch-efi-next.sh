@@ -36,6 +36,9 @@ git am ../patch/0001-README-U_BOOT_ENV_CALLBACK-functions.patch
 git am ../patch/0001-doc-add-structure-to-Sphinx-generated-docs.patch
 git am ../patch/0001-doc-README.iscsi-make-compatible-with-restructured-t.patch
 git am ../patch/0001-efi_loader-document-runtime-functions.patch
+git am ../patch/0001-riscv-allow-native-compilation.patch
+git am ../patch/0001-efi_loader-avoid-NULL-dereference-in-efi_get_memory_.patch
+git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
