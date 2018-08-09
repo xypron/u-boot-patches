@@ -1,0 +1,30 @@
+From 093d7588afbda7fbd0a359cd39655c65647c07e6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 9 Aug 2018 18:44:19 +0200
+Subject: [PATCH 1/1] fat: provide position in debug message
+
+The debug message in file_fat_read_at() is not very useful without
+indicating the position at which the file is read.
+
+Suggested-by: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index 4efe8a3eda..27004823cd 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1095,7 +1095,7 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+ 	if (ret)
+ 		goto out_free_both;
+ 
+-	debug("reading %s\n", filename);
++	debug("reading %s at %llx\n", filename, pos);
+ 	ret = get_contents(&fsdata, itr->dent, pos, buffer, maxsize, actread);
+ 
+ out_free_both:
+-- 
+2.18.0
+
