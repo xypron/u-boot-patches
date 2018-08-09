@@ -1,4 +1,4 @@
-From 0bb655e7b3f17c7c29e5110fa8c2bce7f8a7924d Mon Sep 17 00:00:00 2001
+From 7d428b7dd4948dea5a5eb5fdf3fd75ee96dd1d0b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Jul 2018 19:24:17 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_UNICODE_COLLATION_PROTOCOL
@@ -7,14 +7,75 @@ The patch implements the EFI_UNICODE_COLLATION_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ MAINTAINERS                            |   1 +
+ include/cp437.h                        |  40 ++++++++
  include/efi_api.h                      |  21 ++++
  include/efi_loader.h                   |   5 +
- lib/efi_loader/Makefile                |  18 ++-
- lib/efi_loader/efi_boottime.c          |   6 +
- lib/efi_loader/efi_unicode_collation.c | 149 +++++++++++++++++++++++++
- 5 files changed, 195 insertions(+), 4 deletions(-)
+ lib/efi_loader/Makefile                |  18 +++-
+ lib/efi_loader/efi_boottime.c          |   6 ++
+ lib/efi_loader/efi_unicode_collation.c | 133 +++++++++++++++++++++++++
+ 7 files changed, 220 insertions(+), 4 deletions(-)
+ create mode 100644 include/cp437.h
  create mode 100644 lib/efi_loader/efi_unicode_collation.c
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0a543309f2..30ccef6739 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -369,6 +369,7 @@ F:	doc/README.uefi
+ F:	doc/README.iscsi
+ F:	Documentation/efi.rst
+ F:	include/capitalization.h
++F:	include/cp437.h
+ F:	include/efi*
+ F:	include/pe.h
+ F:	include/asm-generic/pe.h
+diff --git a/include/cp437.h b/include/cp437.h
+new file mode 100644
+index 0000000000..0b2b97132e
+--- /dev/null
++++ b/include/cp437.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++
++/*
++ * Constant CP437 contains the Unicode code points for characters 0x80 - 0xff
++ * of the code page 437.
++ */
++#define CP437 { \
++	0x00c7, 0x00fc, 0x00e9, 0x00e2, \
++	0x00e4, 0x00e0, 0x00e5, 0x00e7, \
++	0x00ea, 0x00eb, 0x00e8, 0x00ef, \
++	0x00ee, 0x00ec, 0x00c4, 0x00c5, \
++	0x00c9, 0x00e6, 0x00c6, 0x00f4, \
++	0x00f6, 0x00f2, 0x00fb, 0x00f9, \
++	0x00ff, 0x00d6, 0x00dc, 0x00a2, \
++	0x00a3, 0x00a5, 0x20a7, 0x0192, \
++	0x00e1, 0x00ed, 0x00f3, 0x00fa, \
++	0x00f1, 0x00d1, 0x00aa, 0x00ba, \
++	0x00bf, 0x2310, 0x00ac, 0x00bd, \
++	0x00bc, 0x00a1, 0x00ab, 0x00bb, \
++	0x2591, 0x2592, 0x2593, 0x2502, \
++	0x2524, 0x2561, 0x2562, 0x2556, \
++	0x2555, 0x2563, 0x2551, 0x2557, \
++	0x255d, 0x255c, 0x255b, 0x2510, \
++	0x2514, 0x2534, 0x252c, 0x251c, \
++	0x2500, 0x253c, 0x255e, 0x255f, \
++	0x255a, 0x2554, 0x2569, 0x2566, \
++	0x2560, 0x2550, 0x256c, 0x2567, \
++	0x2568, 0x2564, 0x2565, 0x2559, \
++	0x2558, 0x2552, 0x2553, 0x256b, \
++	0x256a, 0x2518, 0x250c, 0x2588, \
++	0x2584, 0x258c, 0x2590, 0x2580, \
++	0x03b1, 0x00df, 0x0393, 0x03c0, \
++	0x03a3, 0x03c3, 0x00b5, 0x03c4, \
++	0x03a6, 0x0398, 0x03a9, 0x03b4, \
++	0x221e, 0x03c6, 0x03b5, 0x2229, \
++	0x2261, 0x00b1, 0x2265, 0x2264, \
++	0x2320, 0x2321, 0x00f7, 0x2248, \
++	0x00b0, 0x2219, 0x00b7, 0x221a, \
++	0x207f, 0x00b2, 0x25a0, 0x00a0, \
++}
 diff --git a/include/efi_api.h b/include/efi_api.h
 index ebf2a3bc18..0459d27dda 100644
 --- a/include/efi_api.h
@@ -123,10 +184,10 @@ index 618e8a8d8c..8a0701e828 100644
  	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 new file mode 100644
-index 0000000000..f77c53501d
+index 0000000000..d1f939635b
 --- /dev/null
 +++ b/lib/efi_loader/efi_unicode_collation.c
-@@ -0,0 +1,149 @@
+@@ -0,0 +1,133 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * EFI Unicode collation protocol
@@ -136,30 +197,14 @@ index 0000000000..f77c53501d
 +
 +#include <common.h>
 +#include <charset.h>
++#include <cp437.h>
 +#include <efi_loader.h>
 +
 +/* Characters that may not be used in file names */
 +static const char illegal[] = "<>:\"/\\|?*";
 +
 +/* Unicode code points for code page 437 characters 0x80 - 0xff */
-+static const u16 cp437[] = {
-+	0x00C7, 0x00FC, 0x00E9, 0x00E2, 0x00E4, 0x00E0, 0x00E5, 0x00E7,
-+	0x00EA, 0x00EB, 0x00E8, 0x00EF, 0x00EE, 0x00EC, 0x00C4, 0x00C5,
-+	0x00C9, 0x00E6, 0x00C6, 0x00F4, 0x00F6, 0x00F2, 0x00FB, 0x00F9,
-+	0x00FF, 0x00D6, 0x00DC, 0x00A2, 0x00A3, 0x00A5, 0x20A7, 0x0192,
-+	0x00E1, 0x00ED, 0x00F3, 0x00FA, 0x00F1, 0x00D1, 0x00AA, 0x00BA,
-+	0x00BF, 0x2310, 0x00AC, 0x00BD, 0x00BC, 0x00A1, 0x00AB, 0x00BB,
-+	0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-+	0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
-+	0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
-+	0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
-+	0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
-+	0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
-+	0x03B1, 0x00DF, 0x0393, 0x03C0, 0x03A3, 0x03C3, 0x00B5, 0x03C4,
-+	0x03A6, 0x0398, 0x03A9, 0x03B4, 0x221E, 0x03C6, 0x03B5, 0x2229,
-+	0x2261, 0x00B1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00F7, 0x2248,
-+	0x00B0, 0x2219, 0x00B7, 0x221A, 0x207F, 0x00B2, 0x25A0, 0x00A0,
-+};
++static const u16 cp437[] = CP437;
 +
 +const efi_guid_t efi_guid_unicode_collation_protocol =
 +	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
