@@ -75,6 +75,7 @@ git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
 git am ../patch/0001-test-tests-for-utf_to_lower-utf_to_upper.patch
 git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-EFI_UNICODE_COLLATION_PROTOCOL.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch

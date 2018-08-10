@@ -1,0 +1,197 @@
+From 01888dd550744b43c8c1b491db3c159774e22a8b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Aug 2018 07:18:13 +0200
+Subject: [PATCH 1/1] efi_selftest: EFI_UNICODE_COLLATION_PROTOCOL
+
+Provide a unit tes for the EFI_UNICODE_COLLATION_PROTOCOL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile                     |   1 +
+ .../efi_selftest_unicode_collation.c          | 162 ++++++++++++++++++
+ 2 files changed, 163 insertions(+)
+ create mode 100644 lib/efi_selftest/efi_selftest_unicode_collation.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 590f90b16d..7ff879742f 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -30,6 +30,7 @@ efi_selftest_snp.o \
+ efi_selftest_textinput.o \
+ efi_selftest_textoutput.o \
+ efi_selftest_tpl.o \
++efi_selftest_unicode_collation.o \
+ efi_selftest_util.o \
+ efi_selftest_variables.o \
+ efi_selftest_watchdog.o
+diff --git a/lib/efi_selftest/efi_selftest_unicode_collation.c b/lib/efi_selftest/efi_selftest_unicode_collation.c
+new file mode 100644
+index 0000000000..2a34f18b3e
+--- /dev/null
++++ b/lib/efi_selftest/efi_selftest_unicode_collation.c
+@@ -0,0 +1,162 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * efi_selftest_unicode_collation
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Test unicode collation protocol.
++ */
++
++#include <efi_selftest.h>
++
++static const efi_guid_t unicode_collation_protocol_guid =
++	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
++
++static struct efi_boot_services *boottime;
++
++static struct efi_unicode_collation_protocol *unicode_collation_protocol;
++
++/**
++ * setup() - setup unit test.
++ *
++ * @handle:	handle of the loaded image
++ * @systable:	system table
++ * ReturnValue:	EFI_ST_SUCCESS for success
++ */
++static int setup(const efi_handle_t handle,
++		 const struct efi_system_table *systable)
++{
++	efi_status_t ret;
++
++	boottime = systable->boottime;
++
++	ret = boottime->locate_protocol(&unicode_collation_protocol_guid, NULL,
++					(void **)&unicode_collation_protocol);
++	if (ret != EFI_SUCCESS) {
++		unicode_collation_protocol = NULL;
++		efi_st_error("Unicode collation protocol is not available.\n");
++		return EFI_ST_FAILURE;
++	}
++
++	return EFI_ST_SUCCESS;
++}
++
++static int test_stri_coll(void)
++{
++	efi_intn_t ret;
++	u16 c1[] = L"first";
++	u16 c2[] = L"FIRST";
++	u16 c3[] = L"second";
++
++	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
++						    c1, c2);
++	if (ret) {
++		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %u\n", c1, c2, ret);
++		return EFI_ST_FAILURE;
++	}
++
++	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
++						    c1, c3);
++	if (ret >= 0) {
++		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %u\n", c1, c3, ret);
++		return EFI_ST_FAILURE;
++	}
++
++	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
++						    c3, c1);
++	if (ret <= 0) {
++		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %u\n", c3, c1, ret);
++		return EFI_ST_FAILURE;
++	}
++
++	return EFI_ST_SUCCESS;
++}
++
++static int test_metai_match(void)
++{
++	return EFI_ST_SUCCESS;
++}
++
++static int test_str_lwr(void)
++{
++	u16 c[] = L"U-Boot";
++
++	unicode_collation_protocol->str_lwr(unicode_collation_protocol, c);
++	if (efi_st_strcmp_16_8(c, "u-boot")) {
++		efi_st_error("str_lwr returned \"%ps\"\n", c);
++		return EFI_ST_FAILURE;
++	}
++
++	return EFI_ST_SUCCESS;
++}
++
++static int test_str_upr(void)
++{
++	u16 c[] = L"U-Boot";
++
++	unicode_collation_protocol->str_upr(unicode_collation_protocol, c);
++	if (efi_st_strcmp_16_8(c, "U-BOOT")) {
++		efi_st_error("str_lwr returned \"%ps\"\n", c);
++		return EFI_ST_FAILURE;
++	}
++
++	return EFI_ST_SUCCESS;
++}
++
++static int test_fat_to_str(void)
++{
++	return EFI_ST_SUCCESS;
++}
++
++static int test_str_to_fat(void)
++{
++	return EFI_ST_SUCCESS;
++}
++
++/**
++ * execute() - Execute unit test.
++ *
++ * ReturnValue:	EFI_ST_SUCCESS for success
++ */
++static int execute(void)
++{
++	int ret;
++
++	if (!unicode_collation_protocol) {
++		efi_st_printf("Unicode collation protocol missing\n");
++		return EFI_ST_FAILURE;
++	}
++
++	ret = test_stri_coll();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	ret = test_metai_match();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	ret = test_str_lwr();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	ret = test_str_upr();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	ret = test_fat_to_str();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	ret = test_str_to_fat();
++	if (ret != EFI_ST_SUCCESS)
++		return ret;
++
++	return EFI_ST_SUCCESS;
++}
++
++EFI_UNIT_TEST(unicoll) = {
++	.name = "unicode collation",
++	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
++	.execute = execute,
++	.setup = setup,
++};
+-- 
+2.18.0
+
