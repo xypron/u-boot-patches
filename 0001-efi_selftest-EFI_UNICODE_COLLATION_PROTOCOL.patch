@@ -1,4 +1,4 @@
-From 01888dd550744b43c8c1b491db3c159774e22a8b Mon Sep 17 00:00:00 2001
+From 6951531043a3c7f148476f478445cfc823f4ec8c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 10 Aug 2018 07:18:13 +0200
 Subject: [PATCH 1/1] efi_selftest: EFI_UNICODE_COLLATION_PROTOCOL
@@ -8,8 +8,8 @@ Provide a unit tes for the EFI_UNICODE_COLLATION_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                     |   1 +
- .../efi_selftest_unicode_collation.c          | 162 ++++++++++++++++++
- 2 files changed, 163 insertions(+)
+ .../efi_selftest_unicode_collation.c          | 257 ++++++++++++++++++
+ 2 files changed, 258 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_unicode_collation.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -26,10 +26,10 @@ index 590f90b16d..7ff879742f 100644
  efi_selftest_watchdog.o
 diff --git a/lib/efi_selftest/efi_selftest_unicode_collation.c b/lib/efi_selftest/efi_selftest_unicode_collation.c
 new file mode 100644
-index 0000000000..2a34f18b3e
+index 0000000000..c3eb1f3e30
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unicode_collation.c
-@@ -0,0 +1,162 @@
+@@ -0,0 +1,257 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_unicode_collation
@@ -106,6 +106,72 @@ index 0000000000..2a34f18b3e
 +
 +static int test_metai_match(void)
 +{
++	bool ret;
++	const u16 c[] = L"Das U-Boot";
++
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"*");
++	if (!ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da[rstu] U-Boot");
++	if (!ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da[q-v] U-Boot");
++	if (!ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da? U-Boot");
++	if (!ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"D*Bo*t");
++	if (!ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da[xyz] U-Boot");
++	if (ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da[a-d] U-Boot");
++	if (ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"Da?? U-Boot");
++	if (ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
++	ret = unicode_collation_protocol->metai_match(
++		unicode_collation_protocol, c, L"D*Bo*tt");
++	if (ret) {
++		efi_st_error("metai_match returned %u\n", ret);
++		return EFI_ST_FAILURE;
++	}
++	
 +	return EFI_ST_SUCCESS;
 +}
 +
@@ -137,11 +203,40 @@ index 0000000000..2a34f18b3e
 +
 +static int test_fat_to_str(void)
 +{
++	u16 str[16];
++
++	boottime->set_mem(str, sizeof(str), 0);
++	unicode_collation_protocol->fat_to_str(unicode_collation_protocol, 6,
++					       "U-BOOT", str);
++	if (efi_st_strcmp_16_8(str, "U-BOOT")) {
++		efi_st_error("fat_to_str returned \"%ps\"\n", str);
++		return EFI_ST_FAILURE;
++	}
++
 +	return EFI_ST_SUCCESS;
 +}
 +
 +static int test_str_to_fat(void)
 +{
++	char fat[16];
++	bool ret;
++
++	boottime->set_mem(fat, sizeof(fat), 0);
++	ret = unicode_collation_protocol->str_to_fat(unicode_collation_protocol,
++						     L"U -Boo.t", 6, fat);
++	if (ret || efi_st_strcmp_16_8(L"U-BOOT", fat)) {
++		efi_st_error("str_to_fat returned %u, \"%s\"\n", ret, fat);
++		return EFI_ST_FAILURE;
++	}
++
++	boottime->set_mem(fat, 16, 0);
++	ret = unicode_collation_protocol->str_to_fat(unicode_collation_protocol,
++						     L"U\\Boot", 6, fat);
++	if (!ret || efi_st_strcmp_16_8(L"U_BOOT", fat)) {
++		efi_st_error("str_to_fat returned %u, \"%s\"\n", ret, fat);
++		return EFI_ST_FAILURE;
++	}
++
 +	return EFI_ST_SUCCESS;
 +}
 +

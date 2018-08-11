@@ -1,4 +1,4 @@
-From 73fbd8bacaf878a5e9c227dd549c40f3bfa0d6e9 Mon Sep 17 00:00:00 2001
+From 4000a681be507b7a76ec5074560900dcd3f72fe5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Jul 2018 19:24:17 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_UNICODE_COLLATION_PROTOCOL
@@ -8,14 +8,14 @@ The patch implements the EFI_UNICODE_COLLATION_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS                            |   2 +
- include/cp1250.h                       |  40 +++++++
- include/cp437.h                        |  40 +++++++
- include/efi_api.h                      |  21 ++++
+ include/cp1250.h                       |  40 +++++
+ include/cp437.h                        |  40 +++++
+ include/efi_api.h                      |  21 +++
  include/efi_loader.h                   |   5 +
- lib/efi_loader/Makefile                |  18 +++-
- lib/efi_loader/efi_boottime.c          |   6 ++
- lib/efi_loader/efi_unicode_collation.c | 142 +++++++++++++++++++++++++
- 8 files changed, 270 insertions(+), 4 deletions(-)
+ lib/efi_loader/Makefile                |  18 +-
+ lib/efi_loader/efi_boottime.c          |   6 +
+ lib/efi_loader/efi_unicode_collation.c | 218 +++++++++++++++++++++++++
+ 8 files changed, 346 insertions(+), 4 deletions(-)
  create mode 100644 include/cp1250.h
  create mode 100644 include/cp437.h
  create mode 100644 lib/efi_loader/efi_unicode_collation.c
@@ -35,7 +35,7 @@ index 0a543309f2..33d5d545bd 100644
  F:	include/asm-generic/pe.h
 diff --git a/include/cp1250.h b/include/cp1250.h
 new file mode 100644
-index 0000000000..940ee7374e
+index 0000000000..adacf8a958
 --- /dev/null
 +++ b/include/cp1250.h
 @@ -0,0 +1,40 @@
@@ -126,7 +126,7 @@ index 0000000000..0b2b97132e
 +	0x207f, 0x00b2, 0x25a0, 0x00a0, \
 +}
 diff --git a/include/efi_api.h b/include/efi_api.h
-index ebf2a3bc18..0459d27dda 100644
+index ebf2a3bc18..1efc448184 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -31,6 +31,7 @@ enum efi_timer_delay {
@@ -148,7 +148,7 @@ index ebf2a3bc18..0459d27dda 100644
 +	efi_intn_t (EFIAPI *stri_coll)(
 +		struct efi_unicode_collation_protocol *this, u16 *s1, u16 *s2);
 +	bool (EFIAPI *metai_match)(struct efi_unicode_collation_protocol *this,
-+				   u16 *string, u16 *patter);
++				   const u16 *string, const u16 *patter);
 +	void (EFIAPI *str_lwr)(struct efi_unicode_collation_protocol
 +			       *this, u16 *string);
 +	void (EFIAPI *str_upr)(struct efi_unicode_collation_protocol *this,
@@ -233,10 +233,10 @@ index 618e8a8d8c..8a0701e828 100644
  	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 new file mode 100644
-index 0000000000..ece5d04643
+index 0000000000..da544ffefc
 --- /dev/null
 +++ b/lib/efi_loader/efi_unicode_collation.c
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,218 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * EFI Unicode collation protocol
@@ -246,7 +246,8 @@ index 0000000000..ece5d04643
 +
 +#include <common.h>
 +#include <charset.h>
-+#include <codepage.h>
++#include <cp1250.h>
++#include <cp437.h>
 +#include <efi_loader.h>
 +
 +/* Characters that may not be used in file names */
@@ -256,7 +257,7 @@ index 0000000000..ece5d04643
 + * EDK2 assumes codepage 1250 when creating FAT 8.3 file names.
 + * Linux defaults to codepage 437 for FAT 8.3 file names.
 + */
-+#if CONFIG_FAT_DEFAULT_CODEPAGE == "1250"
++#if CONFIG_FAT_DEFAULT_CODEPAGE == 1250
 +/* Unicode code points for code page 1250 characters 0x80 - 0xff */
 +static const u16 codepage[] = CP1250;
 +#else
@@ -273,6 +274,7 @@ index 0000000000..ece5d04643
 +	s32 c1, c2;
 +	efi_intn_t ret = 0;
 +
++	EFI_ENTRY("%p, %ls, %ls", this, s1, s2); 
 +	for (; *s1 | *s2; ++s1, ++s2) {
 +		c1 = utf_to_lower(*s1);
 +		c2 = utf_to_lower(*s2);
@@ -285,27 +287,96 @@ index 0000000000..ece5d04643
 +		}
 +	}
 +out:
++	EFI_EXIT(EFI_SUCCESS);
 +	return ret;
 +}
 +
-+static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
-+				   u16 *string, u16 *pattern)
++static bool metai_match(const u16 *s, const u16 *p)
 +{
++	u16 first;
++
++	for (; *s && *p; ++s, ++p) {
++		switch (*p) {
++		case '*':
++			/* Match 0 or more characters */
++			++p;
++			for (;; ++s) {
++				if (metai_match(s, p))
++					return true;
++				if (!*s)
++					return false;
++			}
++		case '?':
++			/* Match any one character */
++			break;
++		case '[':
++			/* Match any character in the set */
++			++p;
++			first = *p;
++			if (first == ']')
++				/* Empty set */
++				return false;
++			++p;
++			if (*p == '-') {
++				/* Range */
++				++p;
++				if (*s < first || *s > *p)
++					return false;
++				++p;
++				if (*p != ']')
++					return false;
++			} else {
++				/* Set */
++				bool hit = false;
++
++				if (*s == first)
++					hit = true;
++				for (; *p && *p != ']'; ++p) {
++					if (*p == *s)
++						hit = true;
++				}
++				if (!hit || *p != ']')
++					return false;
++			}
++			break;
++		default:
++			/* Match one character */
++			if (*p != *s)
++				return false;
++		}
++	}
++	if (!*p && !*s)
++		return true;
 +	return false;
++}
++
++static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
++				   const u16 *string, const u16 *pattern)
++{
++	bool ret;
++
++	EFI_ENTRY("%p, %ls, %ls", this, string, pattern);
++	ret =  metai_match(string, pattern);
++	EFI_EXIT(EFI_SUCCESS);
++	return ret;
 +}
 +
 +static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
 +			       u16 *string)
 +{
++	EFI_ENTRY("%p, %ls", this, string);
 +	for (; *string; ++string)
 +		*string = utf_to_lower(*string);
++	EFI_EXIT(EFI_SUCCESS);
 +}
 +
 +static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
 +			       u16 *string)
 +{
++	EFI_ENTRY("%p, %ls", this, string);
 +	for (; *string; ++string)
 +		*string = utf_to_upper(*string);
++	EFI_EXIT(EFI_SUCCESS);
 +}
 +
 +static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
@@ -314,6 +385,7 @@ index 0000000000..ece5d04643
 +	efi_uintn_t i;
 +	u16 c;
 +
++	EFI_ENTRY("%p, %zu, %s, %p", this, fat_size, fat, string);
 +	for (i = 0; i < fat_size; ++i) {
 +		c = (unsigned char)fat[i];
 +		if (c > 0x80)
@@ -323,6 +395,7 @@ index 0000000000..ece5d04643
 +			break;
 +	}
 +	string[i] = 0;
++	EFI_EXIT(EFI_SUCCESS);
 +}
 +
 +static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
@@ -333,7 +406,8 @@ index 0000000000..ece5d04643
 +	s32 c;
 +	bool ret = false;
 +
-+	for (i = 0; fat_size; ++i, --fat_size) {
++	EFI_ENTRY("%p, %ls, %zu, %p", this, string, fat_size, fat);
++	for (i = 0; i < fat_size;) {
 +		c = utf16_get(&string);
 +		switch (c) {
 +		/* Ignore period and space */
@@ -366,7 +440,9 @@ index 0000000000..ece5d04643
 +		fat[i] = c;
 +		if (!c)
 +			break;
++		++i;
 +	}
++	EFI_EXIT(EFI_SUCCESS);
 +	return ret;
 +}
 +
