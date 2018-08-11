@@ -1,9 +1,9 @@
-From 6951531043a3c7f148476f478445cfc823f4ec8c Mon Sep 17 00:00:00 2001
+From 42d669654661e5cd172450536db49d2dff14987f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 10 Aug 2018 07:18:13 +0200
 Subject: [PATCH 1/1] efi_selftest: EFI_UNICODE_COLLATION_PROTOCOL
 
-Provide a unit tes for the EFI_UNICODE_COLLATION_PROTOCOL.
+Provide a unit test for the EFI_UNICODE_COLLATION_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -26,7 +26,7 @@ index 590f90b16d..7ff879742f 100644
  efi_selftest_watchdog.o
 diff --git a/lib/efi_selftest/efi_selftest_unicode_collation.c b/lib/efi_selftest/efi_selftest_unicode_collation.c
 new file mode 100644
-index 0000000000..c3eb1f3e30
+index 0000000000..d7d15fc71c
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unicode_collation.c
 @@ -0,0 +1,257 @@
@@ -115,63 +115,63 @@ index 0000000000..c3eb1f3e30
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da[rstu] U-Boot");
 +	if (!ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da[q-v] U-Boot");
 +	if (!ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da? U-Boot");
 +	if (!ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"D*Bo*t");
 +	if (!ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da[xyz] U-Boot");
 +	if (ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da[a-d] U-Boot");
 +	if (ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"Da?? U-Boot");
 +	if (ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	ret = unicode_collation_protocol->metai_match(
 +		unicode_collation_protocol, c, L"D*Bo*tt");
 +	if (ret) {
 +		efi_st_error("metai_match returned %u\n", ret);
 +		return EFI_ST_FAILURE;
 +	}
-+	
++
 +	return EFI_ST_SUCCESS;
 +}
 +

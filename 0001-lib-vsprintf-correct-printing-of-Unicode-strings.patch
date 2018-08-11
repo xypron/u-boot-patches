@@ -15,7 +15,7 @@ diff --git a/lib/vsprintf.c b/lib/vsprintf.c
 index a07128ad96..5b0ec12688 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
-@@ -280,18 +280,21 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
+@@ -280,18 +280,22 @@ static char *string16(char *buf, char *end, u16 *s, int field_width,
  		int precision, int flags)
  {
  	u16 *str = s ? s : L"<NULL>";
@@ -35,6 +35,7 @@ index a07128ad96..5b0ec12688 100644
 -	while (utf8_len < field_width--)
 +	for (i = 0; i < len; ++i) {
 +		s32 code = utf16_get((const u16 **)&str);
++
 +		if (code < 0) {
 +			code = '?';
 +			if (*str)
