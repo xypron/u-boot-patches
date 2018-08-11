@@ -40,6 +40,7 @@ git am ../patch/0001-riscv-allow-native-compilation.patch
 git am ../patch/0001-efi_loader-avoid-NULL-dereference-in-efi_get_memory_.patch
 git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 git am ../patch/0001-fat-provide-position-in-debug-message.patch
+git am ../patch/0001-fs-fix-typo-dumm.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
