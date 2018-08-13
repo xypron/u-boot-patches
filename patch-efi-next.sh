@@ -31,10 +31,6 @@ git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
-git am ../patch/0001-drivers-serial-document-on_baudrate.patch
-git am ../patch/0001-README-U_BOOT_ENV_CALLBACK-functions.patch
-git am ../patch/0001-doc-add-structure-to-Sphinx-generated-docs.patch
-git am ../patch/0001-doc-README.iscsi-make-compatible-with-restructured-t.patch
 git am ../patch/0001-efi_loader-document-runtime-functions.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
 git am ../patch/0001-efi_loader-avoid-NULL-dereference-in-efi_get_memory_.patch
