@@ -73,7 +73,7 @@ git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
 git am ../patch/0001-efi_selftest-EFI_UNICODE_COLLATION_PROTOCOL.patch
 
 # Deletion of handles
-git am ../patch/0001-efi_loader-memory-device-path-for-booting.patch
+git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
