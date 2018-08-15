@@ -1,0 +1,270 @@
+From 6964441a5396c255b80f98e97ee5032084a68a01 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 15 Aug 2018 19:01:53 +0200
+Subject: [PATCH 1/1] efi_loader: refactor efi_setup_loaded_image()
+
+Create the handle of loaded images and the EFI_LOADED_IMAGE_PROTOCOL
+inside efi_setup_loaded_image(). Do not use local variables.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                 | 44 ++++++++++++++++----------------
+ include/efi_loader.h          |  8 +++---
+ lib/efi_loader/efi_boottime.c | 48 +++++++++++++++++++----------------
+ 3 files changed, 52 insertions(+), 48 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 1dffb8ab11..4c0e4aefbd 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -300,11 +300,11 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 				    struct efi_device_path *device_path,
+ 				    struct efi_device_path *image_path)
+ {
+-	struct efi_loaded_image loaded_image_info = {};
+-	struct efi_object loaded_image_info_obj = {};
+ 	efi_handle_t mem_handle = NULL;
+ 	struct efi_device_path *memdp = NULL;
+ 	efi_status_t ret;
++	efi_handle_t image_handle;
++	struct efi_loaded_image *loaded_image_info;
+ 
+ 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+ 				     struct efi_system_table *st);
+@@ -334,8 +334,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		assert(device_path && image_path);
+ 	}
+ 
+-	efi_setup_loaded_image(&loaded_image_info, &loaded_image_info_obj,
+-			       device_path, image_path);
++	efi_setup_loaded_image(device_path, image_path, &image_handle,
++			       &loaded_image_info);
+ 
+ 	/*
+ 	 * gd lives in a fixed register which may get clobbered while we execute
+@@ -344,9 +344,9 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	efi_save_gd();
+ 
+ 	/* Transfer environment variable bootargs as load options */
+-	set_load_options(&loaded_image_info, "bootargs");
++	set_load_options(loaded_image_info, "bootargs");
+ 	/* Load the EFI payload */
+-	entry = efi_load_pe(efi, &loaded_image_info);
++	entry = efi_load_pe(efi, loaded_image_info);
+ 	if (!entry) {
+ 		ret = EFI_LOAD_ERROR;
+ 		goto exit;
+@@ -354,10 +354,10 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 
+ 	if (memdp) {
+ 		struct efi_device_path_memory *mdp = (void *)memdp;
+-		mdp->memory_type = loaded_image_info.image_code_type;
+-		mdp->start_address = (uintptr_t)loaded_image_info.image_base;
++		mdp->memory_type = loaded_image_info->image_code_type;
++		mdp->start_address = (uintptr_t)loaded_image_info->image_base;
+ 		mdp->end_address = mdp->start_address +
+-				loaded_image_info.image_size;
++				loaded_image_info->image_size;
+ 	}
+ 
+ 	/* we don't support much: */
+@@ -367,8 +367,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	/* Call our payload! */
+ 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
+ 
+-	if (setjmp(&loaded_image_info.exit_jmp)) {
+-		ret = loaded_image_info.exit_status;
++	if (setjmp(&loaded_image_info->exit_jmp)) {
++		ret = loaded_image_info->exit_status;
+ 		goto exit;
+ 	}
+ 
+@@ -405,11 +405,12 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	}
+ #endif
+ 
+-	ret = efi_do_enter(loaded_image_info_obj.handle, &systab, entry);
++	ret = efi_do_enter(image_handle, &systab, entry);
+ 
+ exit:
+ 	/* image has returned, loaded-image obj goes *poof*: */
+-	list_del(&loaded_image_info_obj.link);
++	if (image_handle)
++		efi_delete_handle(image_handle);
+ 	if (mem_handle)
+ 		efi_delete_handle(mem_handle);
+ 
+@@ -451,6 +452,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	efi_status_t r;
+ 	unsigned long fdt_addr;
+ 	void *fdt;
++	efi_handle_t image_handle;
++	struct efi_loaded_image *loaded_image_info;
+ 
+ 	/* Allow unaligned memory access */
+ 	allow_unaligned();
+@@ -496,8 +499,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ #endif
+ #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+ 	if (!strcmp(argv[1], "selftest")) {
+-		struct efi_loaded_image loaded_image_info = {};
+-		struct efi_object loaded_image_info_obj = {};
+ 
+ 		/* Construct a dummy device path. */
+ 		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
+@@ -505,9 +506,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 						      (uintptr_t)&efi_selftest);
+ 		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
+ 
+-		efi_setup_loaded_image(&loaded_image_info,
+-				       &loaded_image_info_obj,
+-				       bootefi_device_path, bootefi_image_path);
++		efi_setup_loaded_image(bootefi_device_path, bootefi_image_path,
++				       &image_handle, &loaded_image_info);
+ 		/*
+ 		 * gd lives in a fixed register which may get clobbered while we
+ 		 * execute the payload. So save it here and restore it on every
+@@ -515,12 +515,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		 */
+ 		efi_save_gd();
+ 		/* Transfer environment variable efi_selftest as load options */
+-		set_load_options(&loaded_image_info, "efi_selftest");
++		set_load_options(loaded_image_info, "efi_selftest");
+ 		/* Execute the test */
+-		r = efi_selftest(loaded_image_info_obj.handle, &systab);
++		r = efi_selftest(image_handle, &systab);
+ 		efi_restore_gd();
+-		free(loaded_image_info.load_options);
+-		list_del(&loaded_image_info_obj.link);
++		free(loaded_image_info->load_options);
++		efi_delete_handle(image_handle);
+ 		return r != EFI_SUCCESS;
+ 	} else
+ #endif
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index c5ae7c3c36..9be29a7a05 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -336,10 +336,10 @@ int efi_memory_init(void);
+ /* Adds new or overrides configuration table entry to the system table */
+ efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
+ /* Sets up a loaded image */
+-efi_status_t efi_setup_loaded_image(
+-			struct efi_loaded_image *info, struct efi_object *obj,
+-			struct efi_device_path *device_path,
+-			struct efi_device_path *file_path);
++efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
++				    struct efi_device_path *file_path,
++				    efi_handle_t *handle_ptr,
++				    struct efi_loaded_image **info_ptr);
+ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 				      void **buffer);
+ /* Print information about a loaded image */
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 8a0701e828..e6790b9cc3 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1478,18 +1478,34 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+  *
+  * Return: status code
+  */
+-efi_status_t efi_setup_loaded_image(
+-			struct efi_loaded_image *info, struct efi_object *obj,
+-			struct efi_device_path *device_path,
+-			struct efi_device_path *file_path)
++efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
++				    struct efi_device_path *file_path,
++				    efi_handle_t *handle_ptr,
++				    struct efi_loaded_image **info_ptr)
+ {
+ 	efi_status_t ret;
++	struct efi_loaded_image *info;
++	struct efi_object *obj;
++
++	info = calloc(1, sizeof(*info));
++	if (!info)
++		return EFI_OUT_OF_RESOURCES;
++	obj = calloc(1, sizeof(*obj));
++	if (!obj) {
++		free(info);
++		return EFI_OUT_OF_RESOURCES;
++	}
+ 
+ 	/* Add internal object to object list */
+ 	efi_add_handle(obj);
+ 	/* efi_exit() assumes that the handle points to the info */
+ 	obj->handle = info;
+ 
++	if (handle_ptr)
++		*handle_ptr = obj->handle;
++	if (info_ptr)
++		*info_ptr = info;
++
+ 	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
+ 	info->file_path = file_path;
+ 
+@@ -1610,7 +1626,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 					  efi_handle_t *image_handle)
+ {
+ 	struct efi_loaded_image *info;
+-	struct efi_object *obj;
+ 	efi_status_t ret;
+ 
+ 	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
+@@ -1626,18 +1641,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 		goto error;
+ 	}
+ 
+-	info = calloc(1, sizeof(*info));
+-	if (!info) {
+-		ret = EFI_OUT_OF_RESOURCES;
+-		goto error;
+-	}
+-	obj = calloc(1, sizeof(*obj));
+-	if (!obj) {
+-		free(info);
+-		ret = EFI_OUT_OF_RESOURCES;
+-		goto error;
+-	}
+-
+ 	if (!source_buffer) {
+ 		struct efi_device_path *dp, *fp;
+ 
+@@ -1649,16 +1652,17 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 		 * file parts:
+ 		 */
+ 		efi_dp_split_file_path(file_path, &dp, &fp);
+-		ret = efi_setup_loaded_image(info, obj, dp, fp);
++		ret = efi_setup_loaded_image(dp, fp, image_handle, &info);
+ 		if (ret != EFI_SUCCESS)
+ 			goto failure;
+ 	} else {
+ 		/* In this case, file_path is the "device" path, ie.
+ 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
+ 		 */
+-		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
++		ret = efi_setup_loaded_image(file_path, NULL, image_handle,
++					     &info);
+ 		if (ret != EFI_SUCCESS)
+-			goto failure;
++			goto error;
+ 	}
+ 	info->reserved = efi_load_pe(source_buffer, info);
+ 	if (!info->reserved) {
+@@ -1667,11 +1671,11 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 	}
+ 	info->system_table = &systab;
+ 	info->parent_handle = parent_image;
+-	*image_handle = obj->handle;
+ 	return EFI_EXIT(EFI_SUCCESS);
+ failure:
++	efi_delete_handle(*image_handle);
++	*image_handle = NULL;
+ 	free(info);
+-	efi_delete_handle(obj);
+ error:
+ 	return EFI_EXIT(ret);
+ }
+-- 
+2.18.0
+
