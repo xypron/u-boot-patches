@@ -17,7 +17,7 @@ index f04aa7c104..7009b253c5 100644
 --- a/configs/vexpress_ca15_tc2_defconfig
 +++ b/configs/vexpress_ca15_tc2_defconfig
 @@ -4,6 +4,7 @@ CONFIG_SYS_TEXT_BASE=0x80800000
- CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_NR_DRAM_BANKS=2
  CONFIG_OF_BOARD_SETUP=y
  CONFIG_BOOTCOMMAND="run distro_bootcmd; run bootflash"
 +CONFIG_DEFAULT_FDT_FILE="vexpress-v2p-ca15_a7.dtb"
