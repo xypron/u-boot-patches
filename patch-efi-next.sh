@@ -1,12 +1,6 @@
 #!/bin/sh
 git am --abort || true
 
-# Fix crc32
-git am ../patch/0001-lib-crc32-mark-function-crc32-as-__efi_runtime.patch
-git am ../patch/0001-efi_loader-update-runtime-services-table-crc32.patch
-
-# exit
-
 # Xypron specific patches
 git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
@@ -31,7 +25,6 @@ git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
-git am ../patch/0001-efi_loader-document-runtime-functions.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
 git am ../patch/0001-efi_loader-avoid-NULL-dereference-in-efi_get_memory_.patch
 git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
