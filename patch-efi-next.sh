@@ -26,7 +26,6 @@ git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
-git am ../patch/0001-efi_loader-avoid-NULL-dereference-in-efi_get_memory_.patch
 git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 
 # USB keyboard
@@ -38,16 +37,12 @@ git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
 
-# SCT
-git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.Reset.patch
-
 # RTC
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
 git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 
 # Unicode collation protocol
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
-git am ../patch/0001-efi_selftest-correct-block-device-unit-test.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
 git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch

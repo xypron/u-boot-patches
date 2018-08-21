@@ -40,8 +40,8 @@ index e0088df33bd..8b82d805115 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
 @@ -44,6 +44,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
- endif
  obj-$(CONFIG_CMD_DISPLAY) += display.o
+ obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
 +obj-$(CONFIG_CMD_EXCEPTION) += exception.o
  obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
