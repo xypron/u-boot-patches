@@ -15,8 +15,6 @@ make[3]: *** [Makefile.housekeeping:1397: util/elf2efi64] Error 1
 Fixed: 1c47eb186e7e ("[build] Conditionalise use of -mabi=lp64 for ARM64
 builds")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  src/arch/arm64/Makefile | 1 -
  1 file changed, 1 deletion(-)
