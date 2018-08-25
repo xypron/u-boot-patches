@@ -5,7 +5,12 @@ Subject: [PATCH 1/1] [build] Don't use -mabi=lp64 for HOSTCC
 
 Patch 1c47eb186e7e ("[build] Conditionalise use of -mabi=lp64 for ARM64
 builds") causes HOSTCC util/elf2efi64 to be called with -mabi=lp64
-which is illegal on x86_64.
+which is illegal on the amd64 architecture:
+
+[HOSTCC] util/elf2efi64
+gcc: error: unrecognized argument in option ‘-mabi=lp64’
+gcc: note: valid arguments to ‘-mabi=’ are: ms sysv
+make[3]: *** [Makefile.housekeeping:1397: util/elf2efi64] Error 1
 
 Fixed: 1c47eb186e7e ("[build] Conditionalise use of -mabi=lp64 for ARM64
 builds")
