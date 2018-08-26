@@ -1,4 +1,4 @@
-From 742e2b3bcd1b1bde88dbbb2c1f4f086d6e74e983 Mon Sep 17 00:00:00 2001
+From 95bf78b9bef9e7d973a2d798287d15d64a7b33da Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 20 Aug 2018 19:50:51 +0200
 Subject: [PATCH 1/1] efi_loader: refactor loaded image handle
@@ -12,15 +12,15 @@ object.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c                     | 18 +++++++-------
+ cmd/bootefi.c                     | 20 +++++++--------
  include/efi_api.h                 |  8 ------
  include/efi_loader.h              | 21 +++++++++++++---
  lib/efi_loader/efi_boottime.c     | 41 +++++++++++++------------------
  lib/efi_loader/efi_image_loader.c | 23 +++++++++--------
- 5 files changed, 56 insertions(+), 55 deletions(-)
+ 5 files changed, 57 insertions(+), 56 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 9e2f0b49eb..5fedacb8ae 100644
+index 9e2f0b49eb..c0c6105bed 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -326,7 +326,7 @@ static efi_status_t do_bootefi_exec(void *efi,
@@ -79,19 +79,21 @@ index 9e2f0b49eb..5fedacb8ae 100644
  	if (mem_handle)
  		efi_delete_handle(mem_handle);
  
-@@ -474,7 +474,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -474,8 +474,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	char *saddr;
  	efi_status_t r;
  	unsigned long fdt_addr;
 -	efi_handle_t image_handle;
- 	struct efi_loaded_image *loaded_image_info;
+-	struct efi_loaded_image *loaded_image_info;
  
  	/* Allow unaligned memory access */
-@@ -520,6 +519,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	allow_unaligned();
+@@ -520,6 +518,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  #endif
  #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
  	if (!strcmp(argv[1], "selftest")) {
 +		struct efi_loaded_image_obj *image_handle;
++		struct efi_loaded_image *loaded_image_info;
  
  		/* Construct a dummy device path. */
  		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
