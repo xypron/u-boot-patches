@@ -15,13 +15,6 @@ git am ../patch/0001-spl-u-boot-spl-nodtb.bin-remove-.got-and-.got.plt-se.patch
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
-git am ../patch/0001-usb-dwc3-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-sl811-hcd-remove-duplicate-assignment.patch
-git am ../patch/0001-usb-xhci-exynos5-correct-error-checking.patch
-git am ../patch/0001-usb-xhci-keystone-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-xhci-ring-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-xhci-remove-superfluous-assignment.patch
-git am ../patch/0001-usb-musb-remove-superfluous-assignment.patch
 git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
@@ -70,10 +63,5 @@ git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
 
-# To be reworked
-# git am ../patch/0001-efi_loader-memory-reservations-according-to-e820-tab.patch
-
 # Work in progress
-# git am ../patch/0001-efi_loader-debug-print-memory-map.patch
-# git am ../patch/0001-efi_loader-Exit-must-remove-loaded-image-handle.patch
 # git am ../patch/0001-efi_loader-allow-multiple-source-files-for-EFI-apps.patch
