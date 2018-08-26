@@ -202,7 +202,7 @@ index 8a0701e828..e6790b9cc3 100644
 +
  	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
  	info->file_path = file_path;
- 
+ 	info->system_table = &systab;
 @@ -1610,7 +1626,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  					  efi_handle_t *image_handle)
  {
