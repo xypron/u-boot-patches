@@ -1,0 +1,76 @@
+From 75d5c723d7f817fc629f4182bd3ea137fb2c2497 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 26 Aug 2018 11:01:00 +0200
+Subject: [PATCH 1/1] build: Fix building with gcc 8.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit 1a7746603bca ("Fix use of inline assembly on GCC 4.8 ARM64 builds")
+introduced the usage of an operand modifiere that is only valid for x86:
+https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#x86Operandmodifiers
+So we could not expect this work for arm64 in following releases of GCC.
+And now with GCC 8.2 it is broken:
+
+In file included from core/open.c:28:
+core/open.c: In function ‘xfer_open_uri’:
+include/errno.h:261:2: error: invalid 'asm': invalid address mode
+  __asm__ ( ".section \".einfo\", \"\", " PROGBITS_OPS "\n\t" \
+  ^~~~~~~
+include/errno.h:534:16: note: in expansion of macro ‘__einfo_error’
+
+With the patch we use macros to access parts of einfo instead of the
+undocumented operand modifer.
+
+Fixes: 1a7746603bca ("Fix use of inline assembly on GCC 4.8 ARM64 builds")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ src/include/errno.h | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/src/include/errno.h b/src/include/errno.h
+index e80bf9ca..ff31c033 100644
+--- a/src/include/errno.h
++++ b/src/include/errno.h
+@@ -257,22 +257,22 @@ static inline void eplatform_discard ( int dummy __unused, ... ) {}
+  * @v einfo		Error information
+  * @ret error		Error
+  */
+-#define __einfo_error( einfo ) ( {					\
+-	__asm__ ( ".section \".einfo\", \"\", " PROGBITS_OPS "\n\t"	\
+-		  ".align 8\n\t"					\
+-		  "\n1:\n\t"						\
+-		  ".long ( 4f - 1b )\n\t"				\
+-		  ".long %a0\n\t"					\
+-		  ".long ( 2f - 1b )\n\t"				\
+-		  ".long ( 3f - 1b )\n\t"				\
+-		  ".long %a1\n\t"					\
+-		  "\n2:\t.asciz \"" __einfo_desc ( einfo ) "\"\n\t"	\
+-		  "\n3:\t.asciz \"" __FILE__ "\"\n\t"			\
+-		  ".align 8\n\t"					\
+-		  "\n4:\n\t"						\
+-		  ".previous\n\t" : :					\
+-		  "i" ( __einfo_errno ( einfo ) ),			\
+-		  "i" ( __LINE__ ) );					\
++#define __einfo_error( einfo ) ( {					    \
++	__asm__ ( ".section \".einfo\", \"\", " PROGBITS_OPS "\n\t"	    \
++		  ".align 8\n\t"					    \
++		  "\n1:\n\t"						    \
++		  ".long ( 4f - 1b )\n\t"				    \
++		  ".long " _S2 ( _S2 ( __einfo_platform (einfo) ) ) "\n\t"  \
++		  ".long ( 2f - 1b )\n\t"				    \
++		  ".long ( 3f - 1b )\n\t"				    \
++		  ".long " _S2 ( __einfo_posix (einfo) ) "\n\t"		    \
++		  "\n2:\t.asciz \"" __einfo_desc ( einfo ) "\"\n\t"	    \
++		  "\n3:\t.asciz \"" __FILE__ "\"\n\t"			    \
++		  ".align 8\n\t"					    \
++		  "\n4:\n\t"						    \
++		  ".previous\n\t" : :					    \
++		  "i" ( __einfo_errno ( einfo ) ),			    \
++		  "i" ( __LINE__ ) );					    \
+ 	__einfo_errno ( einfo ); } )
+ 
+ /**
+-- 
+2.18.0
+
