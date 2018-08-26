@@ -7,7 +7,7 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 Commit 1a7746603bca ("Fix use of inline assembly on GCC 4.8 ARM64 builds")
-introduced the usage of an operand modifiere that is only valid for x86:
+introduced the usage of an operand modifier that is only valid for x86:
 https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#x86Operandmodifiers
 So we could not expect this work for arm64 in following releases of GCC.
 And now with GCC 8.2 it is broken:
