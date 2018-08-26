@@ -1,4 +1,4 @@
-From 6964441a5396c255b80f98e97ee5032084a68a01 Mon Sep 17 00:00:00 2001
+From 202e2ffad63e0f8dd9be7d4ea074345009d1766a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Aug 2018 19:01:53 +0200
 Subject: [PATCH 1/1] efi_loader: refactor efi_setup_loaded_image()
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 52 insertions(+), 48 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 1dffb8ab11..4c0e4aefbd 100644
+index c8812b0f5e..9e2f0b49eb 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -300,11 +300,11 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -323,11 +323,11 @@ static efi_status_t do_bootefi_exec(void *efi,
  				    struct efi_device_path *device_path,
  				    struct efi_device_path *image_path)
  {
@@ -31,7 +31,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  
  	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
  				     struct efi_system_table *st);
-@@ -334,8 +334,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -357,8 +357,8 @@ static efi_status_t do_bootefi_exec(void *efi,
  		assert(device_path && image_path);
  	}
  
@@ -42,7 +42,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  
  	/*
  	 * gd lives in a fixed register which may get clobbered while we execute
-@@ -344,9 +344,9 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -367,9 +367,9 @@ static efi_status_t do_bootefi_exec(void *efi,
  	efi_save_gd();
  
  	/* Transfer environment variable bootargs as load options */
@@ -54,7 +54,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  	if (!entry) {
  		ret = EFI_LOAD_ERROR;
  		goto exit;
-@@ -354,10 +354,10 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -377,10 +377,10 @@ static efi_status_t do_bootefi_exec(void *efi,
  
  	if (memdp) {
  		struct efi_device_path_memory *mdp = (void *)memdp;
@@ -68,7 +68,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  	}
  
  	/* we don't support much: */
-@@ -367,8 +367,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -390,8 +390,8 @@ static efi_status_t do_bootefi_exec(void *efi,
  	/* Call our payload! */
  	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
  
@@ -79,7 +79,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  		goto exit;
  	}
  
-@@ -405,11 +405,12 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -428,11 +428,12 @@ static efi_status_t do_bootefi_exec(void *efi,
  	}
  #endif
  
@@ -94,16 +94,16 @@ index 1dffb8ab11..4c0e4aefbd 100644
  	if (mem_handle)
  		efi_delete_handle(mem_handle);
  
-@@ -451,6 +452,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -473,6 +474,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	char *saddr;
  	efi_status_t r;
  	unsigned long fdt_addr;
- 	void *fdt;
 +	efi_handle_t image_handle;
 +	struct efi_loaded_image *loaded_image_info;
  
  	/* Allow unaligned memory access */
  	allow_unaligned();
-@@ -496,8 +499,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -517,8 +520,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  #endif
  #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
  	if (!strcmp(argv[1], "selftest")) {
@@ -112,7 +112,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  
  		/* Construct a dummy device path. */
  		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-@@ -505,9 +506,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -526,9 +527,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  						      (uintptr_t)&efi_selftest);
  		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
  
@@ -124,7 +124,7 @@ index 1dffb8ab11..4c0e4aefbd 100644
  		/*
  		 * gd lives in a fixed register which may get clobbered while we
  		 * execute the payload. So save it here and restore it on every
-@@ -515,12 +515,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -536,12 +536,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  		 */
  		efi_save_gd();
  		/* Transfer environment variable efi_selftest as load options */
@@ -161,10 +161,10 @@ index c5ae7c3c36..9be29a7a05 100644
  				      void **buffer);
  /* Print information about a loaded image */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 8a0701e828..e6790b9cc3 100644
+index a478bbafe2..4fc6511b01 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1478,18 +1478,34 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+@@ -1479,18 +1479,34 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
   *
   * Return: status code
   */
@@ -203,7 +203,7 @@ index 8a0701e828..e6790b9cc3 100644
  	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
  	info->file_path = file_path;
  	info->system_table = &systab;
-@@ -1610,7 +1626,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1612,7 +1628,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  					  efi_handle_t *image_handle)
  {
  	struct efi_loaded_image *info;
@@ -211,7 +211,7 @@ index 8a0701e828..e6790b9cc3 100644
  	efi_status_t ret;
  
  	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
-@@ -1626,18 +1641,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1628,18 +1643,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  		goto error;
  	}
  
@@ -230,7 +230,7 @@ index 8a0701e828..e6790b9cc3 100644
  	if (!source_buffer) {
  		struct efi_device_path *dp, *fp;
  
-@@ -1649,16 +1652,17 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1651,16 +1654,17 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  		 * file parts:
  		 */
  		efi_dp_split_file_path(file_path, &dp, &fp);
@@ -251,7 +251,7 @@ index 8a0701e828..e6790b9cc3 100644
  	}
  	info->reserved = efi_load_pe(source_buffer, info);
  	if (!info->reserved) {
-@@ -1667,11 +1671,11 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1669,11 +1673,11 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  	}
  	info->system_table = &systab;
  	info->parent_handle = parent_image;
