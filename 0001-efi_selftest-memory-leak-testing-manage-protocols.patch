@@ -1,0 +1,68 @@
+From 39d3c5120538e55071663e05dc43529fa730778f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 26 Aug 2018 14:54:01 +0200
+Subject: [PATCH 1/1] efi_selftest: memory leak testing manage protocols
+
+Remove memory leak in efi_selftest_manageprotocols.c.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ .../efi_selftest_manageprotocols.c            | 21 +++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_manageprotocols.c b/lib/efi_selftest/efi_selftest_manageprotocols.c
+index 44b8da3ba5..b09e4cdcfa 100644
+--- a/lib/efi_selftest/efi_selftest_manageprotocols.c
++++ b/lib/efi_selftest/efi_selftest_manageprotocols.c
+@@ -179,7 +179,12 @@ static int execute(void)
+ 		efi_st_error("LocateHandleBuffer failed to locate new handle\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
++	/* Release buffer */
++	ret = boottime->free_pool(buffer);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("FreePool failed\n");
++		return EFI_ST_FAILURE;
++	}
+ 
+ 	/*
+ 	 * Test error handling in UninstallMultipleProtocols
+@@ -221,6 +226,7 @@ static int execute(void)
+ 		efi_st_error("LocateHandleBuffer failed to locate new handle\n");
+ 		return EFI_ST_FAILURE;
+ 	}
++	/* Clear the buffer, we are reusing it it the next step. */
+ 	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
+ 
+ 	/*
+@@ -248,7 +254,12 @@ static int execute(void)
+ 		efi_st_error("LocateHandle failed to locate new handles\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	boottime->set_mem(buffer, sizeof(efi_handle_t) * buffer_size, 0);
++	/* Release buffer */
++	ret = boottime->free_pool(buffer);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("FreePool failed\n");
++		return EFI_ST_FAILURE;
++	}
+ 
+ 	/*
+ 	 * Test LocateProtocol
+@@ -319,6 +330,12 @@ static int execute(void)
+ 		efi_st_error("Failed to get protocols per handle\n");
+ 		return EFI_ST_FAILURE;
+ 	}
++	/* Release buffer */
++	ret = boottime->free_pool(prot_buffer);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("FreePool failed\n");
++		return EFI_ST_FAILURE;
++	}
+ 
+ 	/*
+ 	 * Uninstall remaining protocols
+-- 
+2.18.0
+
