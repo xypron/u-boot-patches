@@ -1,4 +1,4 @@
-From efbde228cd59d7494e968125d729ffb860497314 Mon Sep 17 00:00:00 2001
+From 1ac6a49bc8e9b552d5d1a777c5932d06932e2886 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -9,18 +9,19 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS           |   1 +
  include/test/suites.h |   3 +-
+ lib/Makefile          |   4 +-
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
- test/cmd_ut.c         |  14 +-
+ test/cmd_ut.c         |  13 +-
  test/unicode_ut.c     | 470 ++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 493 insertions(+), 4 deletions(-)
+ 7 files changed, 495 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 51de568b48d..c8487673ba6 100644
+index 8f237128b2..46f826a0fe 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -370,6 +370,7 @@ F:	include/asm-generic/pe.h
+@@ -387,6 +387,7 @@ F:	include/asm-generic/pe.h
  F:	lib/charset.c
  F:	lib/efi*/
  F:	test/py/tests/test_efi*
@@ -29,7 +30,7 @@ index 51de568b48d..c8487673ba6 100644
  F:	tools/file2include.c
  
 diff --git a/include/test/suites.h b/include/test/suites.h
-index b5019a7cd2f..8e4eac60ebc 100644
+index b5019a7cd2..8e4eac60eb 100644
 --- a/include/test/suites.h
 +++ b/include/test/suites.h
 @@ -23,10 +23,11 @@ struct unit_test;
@@ -45,8 +46,23 @@ index b5019a7cd2f..8e4eac60ebc 100644
 +int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  
  #endif /* __TEST_SUITES_H__ */
+diff --git a/lib/Makefile b/lib/Makefile
+index 2fd32798a0..f169644850 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -21,7 +21,9 @@ obj-$(CONFIG_OPTEE) += optee/
+ obj-$(CONFIG_AES) += aes.o
+ 
+ ifndef API_BUILD
+-obj-$(CONFIG_EFI_LOADER) += charset.o
++ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
++obj-y += charset.o
++endif
+ endif
+ obj-$(CONFIG_USB_TTY) += circbuf.o
+ obj-y += crc7.o
 diff --git a/test/Kconfig b/test/Kconfig
-index 3643761bc6e..de16d179d07 100644
+index 3643761bc6..de16d179d0 100644
 --- a/test/Kconfig
 +++ b/test/Kconfig
 @@ -15,6 +15,14 @@ config UT_TIME
@@ -65,7 +81,7 @@ index 3643761bc6e..de16d179d07 100644
  source "test/env/Kconfig"
  source "test/overlay/Kconfig"
 diff --git a/test/Makefile b/test/Makefile
-index 1092011fdb0..a5f52fd5ad6 100644
+index 1092011fdb..a5f52fd5ad 100644
 --- a/test/Makefile
 +++ b/test/Makefile
 @@ -8,4 +8,5 @@ obj-$(CONFIG_SANDBOX) += command_ut.o
@@ -75,21 +91,20 @@ index 1092011fdb0..a5f52fd5ad6 100644
 +obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
  obj-$(CONFIG_$(SPL_)LOG) += log/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
-index 934a5a931b0..d6a25938508 100644
+index 934a5a931b..f5a5b034b7 100644
 --- a/test/cmd_ut.c
 +++ b/test/cmd_ut.c
-@@ -49,6 +49,10 @@ static cmd_tbl_t cmd_ut_sub[] = {
+@@ -49,6 +49,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
  #ifdef CONFIG_UT_TIME
  	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
  #endif
-+#if defined(CONFIG_UT_UNICODE) && \
-+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
++#if CONFIG_IS_ENABLED(UT_UNICODE) && !defined(API_BUILD)
 +	U_BOOT_CMD_MKENT(unicode, CONFIG_SYS_MAXARGS, 1, do_ut_unicode, "", ""),
 +#endif
  #ifdef CONFIG_SANDBOX
  	U_BOOT_CMD_MKENT(compression, CONFIG_SYS_MAXARGS, 1, do_ut_compression,
  			 "", ""),
-@@ -93,6 +97,9 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -93,6 +96,9 @@ static int do_ut(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  #ifdef CONFIG_SYS_LONGHELP
  static char ut_help_text[] =
  	"all - execute all enabled tests\n"
@@ -99,7 +114,7 @@ index 934a5a931b0..d6a25938508 100644
  #ifdef CONFIG_UT_DM
  	"ut dm [test-name]\n"
  #endif
-@@ -105,11 +112,12 @@ static char ut_help_text[] =
+@@ -105,11 +111,12 @@ static char ut_help_text[] =
  #ifdef CONFIG_UT_TIME
  	"ut time - Very basic test of time functions\n"
  #endif
@@ -117,7 +132,7 @@ index 934a5a931b0..d6a25938508 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 00000000000..29316606c43
+index 0000000000..29316606c4
 --- /dev/null
 +++ b/test/unicode_ut.c
 @@ -0,0 +1,470 @@

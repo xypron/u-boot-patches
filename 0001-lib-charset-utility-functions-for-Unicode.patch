@@ -1,4 +1,4 @@
-From 51d6b08c42e1c3a6f64e6bd83f19acee42488b2d Mon Sep 17 00:00:00 2001
+From 62b26fd89dca3cf345cd69828075a0ac3eef0985 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -14,13 +14,12 @@ utf16_utf8_strncpy() - copy a utf-16 string to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 130 ++++++++++++++++++++++++
- lib/Makefile      |   4 +-
- lib/charset.c     | 244 +++++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 374 insertions(+), 4 deletions(-)
+ include/charset.h | 130 +++++++++++++++++++++++++
+ lib/charset.c     | 243 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 370 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 23075598906..81e31d1b268 100644
+index 447b8811cc..e8cd4f2415 100644
 --- a/include/charset.h
 +++ b/include/charset.h
 @@ -8,10 +8,140 @@
@@ -164,23 +163,8 @@ index 23075598906..81e31d1b268 100644
  /**
   * u16_strlen - count non-zero words
   *
-diff --git a/lib/Makefile b/lib/Makefile
-index 2fd32798a08..f1696448506 100644
---- a/lib/Makefile
-+++ b/lib/Makefile
-@@ -21,7 +21,9 @@ obj-$(CONFIG_OPTEE) += optee/
- obj-$(CONFIG_AES) += aes.o
- 
- ifndef API_BUILD
--obj-$(CONFIG_EFI_LOADER) += charset.o
-+ifneq ($(CONFIG_UT_UNICODE)$(CONFIG_EFI_LOADER),)
-+obj-y += charset.o
-+endif
- endif
- obj-$(CONFIG_USB_TTY) += circbuf.o
- obj-y += crc7.o
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957d..d6b670cf87b 100644
+index 8ff8d59957..0f4c6f26eb 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -8,9 +8,246 @@
