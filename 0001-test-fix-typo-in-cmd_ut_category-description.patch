@@ -1,0 +1,31 @@
+From 79ce16d2d8b9dcbfc579050b52a7ab2dd0cf3c9b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 27 Aug 2018 22:00:52 +0200
+Subject: [PATCH 1/1] test: fix typo in cmd_ut_category() description
+
+argc = 1: all tests are run
+argc > 1: only argv[1] is run
+
+So we need argc >= 1.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/test/suites.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/test/suites.h b/include/test/suites.h
+index 8e4eac60eb..abb3a4b816 100644
+--- a/include/test/suites.h
++++ b/include/test/suites.h
+@@ -15,7 +15,7 @@ struct unit_test;
+  * @name:	Category name
+  * @tests:	List of tests to run
+  * @n_ents:	Number of tests in @tests
+- * @argc:	Argument count provided. Must be <= 1. If this is 1 then all
++ * @argc:	Argument count provided. Must be >= 1. If this is 1 then all
+  *		tests are run, otherwise only the one named @argv[1] is run.
+  * @argv:	Arguments: argv[1] is the test to run (if @argc >= 2)
+  * @return 0 if OK, CMD_RET_FAILURE on failure
+-- 
+2.18.0
+
