@@ -1,4 +1,4 @@
-From 8780e0d8501d243844a4216481294cf30ad78b7f Mon Sep 17 00:00:00 2001
+From 636d5319d9cf96fdd6582fb974ad844f60a4c894 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 16 Jul 2018 07:36:14 +0200
 Subject: [PATCH 1/1] test: tests for utf_to_lower() utf_to_upper().
@@ -7,62 +7,50 @@ Provide unit tests for utf_to_lower() utf_to_upper().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/unicode_ut.c | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ test/unicode_ut.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index 89ad503e35..a32e72ff08 100644
+index 7a3e5deecc..89920f1d28 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -362,6 +362,42 @@ int ut_utf16_utf8_strncpy(void)
+@@ -412,6 +412,30 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
  	return 0;
  }
  
-+int ut_utf_to_lower(void)
++int ut_utf_to_lower(struct unit_test_state *uts)
 +{
-+	if (utf_to_lower('@') != '@')
-+		return 1;
-+	if (utf_to_lower('A') != 'a')
-+		return 1;
-+	if (utf_to_lower('Z') != 'z')
-+		return 1;
-+	if (utf_to_lower('[') != '[')
-+		return 1;
-+	if (utf_to_lower('m') != 'm')
-+		return 1;
++	ut_asserteq('@', utf_to_lower('@'));
++	ut_asserteq('a', utf_to_lower('A'));
++	ut_asserteq('z', utf_to_lower('Z'));
++	ut_asserteq('[', utf_to_lower('['));
++	ut_asserteq('m', utf_to_lower('m'));
 +	/* Cyrillic letter I*/
-+	if (utf_to_lower(0x0418) != 0x0438)
-+		return 0;
++	ut_asserteq(0x0438, utf_to_lower(0x0418));
 +	return 0;
 +}
 +
-+int ut_utf_to_upper(void)
++int ut_utf_to_upper(struct unit_test_state *uts)
 +{
-+	if (utf_to_upper('M') != 'M')
-+		return 1;
-+	if (utf_to_lower('`') != '`')
-+		return 1;
-+	if (utf_to_upper('a') != 'A')
-+		return 1;
-+	if (utf_to_upper('z') != 'Z')
-+		return 1;
-+	if (utf_to_upper('{') != '{')
-+		return 1;
++	ut_asserteq('`', utf_to_upper('`'));
++	ut_asserteq('A', utf_to_upper('a'));
++	ut_asserteq('Z', utf_to_upper('z'));
++	ut_asserteq('{', utf_to_upper('{'));
++	ut_asserteq('M', utf_to_upper('M'));
 +	/* Cyrillic letter I */
-+	if (utf_to_upper(0x0438) != 0x0418)
-+		return 1;
++	ut_asserteq(0x0418, utf_to_upper(0x0438));
 +	return 0;
 +}
 +
  int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  {
  	int ret = 0;
-@@ -378,6 +414,8 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- 	ret |= ut_utf16_utf8_strnlen();
- 	ret |= ut_utf16_utf8_strcpy();
- 	ret |= ut_utf16_utf8_strncpy();
-+	ret |= ut_utf_to_lower();
-+	ret |= ut_utf_to_upper();
+@@ -429,6 +453,8 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	ret |= ut_utf16_utf8_strnlen(&uts);
+ 	ret |= ut_utf16_utf8_strcpy(&uts);
+ 	ret |= ut_utf16_utf8_strncpy(&uts);
++	ret |= ut_utf_to_lower(&uts);
++	ret |= ut_utf_to_upper(&uts);
  
  	printf("Test %s\n", ret ? "failed" : "passed");
  
