@@ -1,4 +1,4 @@
-From 51a02463dc332c12954c9c5e339349cbb729a9ec Mon Sep 17 00:00:00 2001
+From e5b902bb76583e0e0e777d564a9736b8d2d44a14 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  13 +-
- test/unicode_ut.c     | 452 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 477 insertions(+), 5 deletions(-)
+ test/unicode_ut.c     | 426 ++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 451 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -132,10 +132,10 @@ index 934a5a931b..f5a5b034b7 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..8ef6742a52
+index 0000000000..7d717cc5c3
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,452 @@
+@@ -0,0 +1,426 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -296,31 +296,23 @@ index 0000000000..8ef6742a52
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d1);
-+	if (pos - buf != 6)
-+		return 1;
-+	if (ut_u16_strcmp(buf, c1, 16))
-+		return 1;
++	ut_asserteq(pos - buf, 6);
++	ut_assert(!ut_u16_strcmp(buf, c1, 16));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d2);
-+	if (pos - buf != 8)
-+		return 1;
-+	if (ut_u16_strcmp(buf, c2, 16))
-+		return 1;
++	ut_asserteq(pos - buf, 8);
++	ut_assert(!ut_u16_strcmp(buf, c2, 16));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d3);
-+	if (pos - buf != 3)
-+		return 1;
-+	if (ut_u16_strcmp(buf, c3, 16))
-+		return 1;
++	ut_asserteq(pos - buf, 3);
++	ut_assert(!ut_u16_strcmp(buf, c3, 16));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d4);
-+	if (pos - buf != 6)
-+		return 1;
-+	if (ut_u16_strcmp(buf, c4, 16))
-+		return 1;
++	ut_asserteq(pos - buf, 6);
++	ut_assert(!ut_u16_strcmp(buf, c4, 16));
 +
 +	return 0;
 +}
@@ -333,52 +325,37 @@ index 0000000000..8ef6742a52
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d1, 4);
-+	if (pos - buf != 4)
-+		return 1;
-+	if (buf[4])
-+		return 1;
-+	if (ut_u16_strcmp(buf, c1, 4))
-+		return 1;
++	ut_asserteq(pos - buf, 4);
++	ut_assert(!buf[4]);
++	ut_assert(!ut_u16_strcmp(buf, c1, 4))
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d2, 10);
-+	if (pos - buf != 8)
-+		return 1;
-+	if (!buf[4])
-+		return 1;
-+	if (ut_u16_strcmp(buf, c2, SIZE_MAX))
-+		return 1;
++	ut_asserteq(pos - buf, 8);
++	ut_assert(buf[4]);
++	ut_assert(!ut_u16_strcmp(buf, c2, SIZE_MAX))
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d3, 2);
-+	if (pos - buf != 2)
-+		return 1;
-+	if (buf[2])
-+		return 1;
-+	if (ut_u16_strcmp(buf, c3, 2))
-+		return 1;
++	ut_asserteq(pos - buf, 2);
++	ut_assert(!buf[2]);
++	ut_assert(!ut_u16_strcmp(buf, c3, 2));
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d4, 2);
-+	if (pos - buf != 4)
-+		return 1;
-+	if (buf[4])
-+		return 1;
-+	if (ut_u16_strcmp(buf, c4, 4))
-+		return 1;
++	ut_asserteq(pos - buf, 4);
++	ut_assert(!buf[4]);
++	ut_assert(!ut_u16_strcmp(buf, c4, 4));
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d4, 10);
-+	if (pos - buf != 6)
-+		return 1;
-+	if (!buf[5])
-+		return 1;
-+	if (ut_u16_strcmp(buf, c4, SIZE_MAX))
-+		return 1;
++	ut_asserteq(pos - buf, 6);
++	ut_assert(buf[5]);
++	ut_assert(!ut_u16_strcmp(buf, c4, SIZE_MAX));
 +
 +	return 0;
 +}
@@ -393,21 +370,18 @@ index 0000000000..8ef6742a52
 +	s = c2;
 +	for (i = 0; i < 9; ++i) {
 +		code = utf16_get((const u16 **)&s);
-+		if (code != c2[i])
-+			return -1;
++		printf("i = %d, code = %d, c2[i] = %d\n", i, code, c2[i]);
++		ut_asserteq(c2[i], code);
 +		if (!code)
 +			break;
 +	}
-+	if (s != c2 + 8)
-+		return -1;
++	ut_asserteq_ptr(s, c2 + 8);
 +
 +	/* Check character greater 0xffff */
 +	s = c4;
 +	code = utf16_get((const u16 **)&s);
-+	if (code != 0x0001048d)
-+		return -1;
-+	if (s != c4 + 2)
-+		return -1;
++	ut_asserteq(code, 0x0001048d);
++	ut_asserteq_ptr(s, c4 + 2);
 +
 +	return 0;
 +}

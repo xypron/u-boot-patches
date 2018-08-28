@@ -1,4 +1,4 @@
-From e24e9d6b2f15b94786903d62b4af3f6243aa12b1 Mon Sep 17 00:00:00 2001
+From 879734326ff226af0fb2063389b27b51eefa3932 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -164,7 +164,7 @@ index 447b8811cc..e8cd4f2415 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..9801cd5fc3 100644
+index 8ff8d59957..b5b3f500e8 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -8,9 +8,248 @@
@@ -312,7 +312,7 @@ index 8ff8d59957..9801cd5fc3 100644
 +		return 0;
 +	code = **src;
 +	++*src;
-+	if (code >= 0xDC00 || code <= 0xDFFF)
++	if (code >= 0xDC00 && code <= 0xDFFF)
 +		return -1;
 +	if (code >= 0xD800 && code <= 0xDBFF) {
 +		if (!**src)
