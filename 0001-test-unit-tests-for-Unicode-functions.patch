@@ -1,4 +1,4 @@
-From 1ac6a49bc8e9b552d5d1a777c5932d06932e2886 Mon Sep 17 00:00:00 2001
+From 35ef977382073939157ef2e620ea69035a915b6e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  13 +-
- test/unicode_ut.c     | 470 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 495 insertions(+), 5 deletions(-)
+ test/unicode_ut.c     | 469 ++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 494 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -30,7 +30,7 @@ index 8f237128b2..46f826a0fe 100644
  F:	tools/file2include.c
  
 diff --git a/include/test/suites.h b/include/test/suites.h
-index b5019a7cd2..8e4eac60eb 100644
+index 071ab4063e..abb3a4b816 100644
 --- a/include/test/suites.h
 +++ b/include/test/suites.h
 @@ -23,10 +23,11 @@ struct unit_test;
@@ -132,10 +132,10 @@ index 934a5a931b..f5a5b034b7 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..29316606c4
+index 0000000000..2f172ecea7
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,470 @@
+@@ -0,0 +1,469 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -147,6 +147,8 @@ index 0000000000..29316606c4
 +#include <charset.h>
 +#include <command.h>
 +#include <errno.h>
++#include <test/test.h>
++#include <test/ut.h>
 +
 +/* Constants c1-c4 and d1-d4 encode the same letters */
 +
@@ -172,7 +174,9 @@ index 0000000000..29316606c4
 +static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
 +			  0xf0, 0x90, 0x92, 0x87, 0x00};
 +
-+static int ut_utf8_get(void)
++static struct unit_test_state uts;
++
++static int ut_utf8_get(struct unit_test_state *uts)
 +{
 +	const char *s;
 +	s32 code;
@@ -183,34 +187,29 @@ index 0000000000..29316606c4
 +	for (i = 0; i < 8; ++i) {
 +		code = utf8_get((const char **)&s);
 +		/* c2 is the utf-8 encoding of d2 */
-+		if (code != c2[i])
-+			return -1;
++		ut_asserteq(code, c2[i]);
 +		if (!code)
 +			break;
 +	}
-+	if (s != d2 + 9)
-+		return -1;
++	ut_asserteq_ptr(s, d2 + 9)
 +
 +	/* Check characters less than 0x10000 */
 +	s = d3;
 +	for (i = 0; i < 4; ++i) {
 +		code = utf8_get((const char **)&s);
 +		/* c3 is the utf-8 encoding of d3 */
-+		if (code != c3[i])
-+			return -1;
++		ut_asserteq(code, c3[i]);
 +		if (!code)
 +			break;
 +	}
-+	if (s != d3 + 9)
-+		return -1;
++	ut_asserteq_ptr(s, d3 + 9)
 +
 +	/* Check character greater 0xffff */
 +	s = d4;
 +	code = utf8_get((const char **)&s);
-+	if (code != 0x0001048d)
-+		return -1;
-+	if (s != d4 + 4)
-+		return -1;
++	ut_asserteq(code, 0x0001048d);
++	ut_asserteq_ptr(s, d4 + 4);
++	ut_asserteq_ptr(s, d4 + 5);
 +
 +	return 0;
 +}
@@ -589,7 +588,7 @@ index 0000000000..29316606c4
 +{
 +	int ret = 0;
 +
-+	ret |= ut_utf8_get();
++	ret |= ut_utf8_get(&uts);
 +	ret |= ut_utf8_put();
 +	ret |= ut_utf8_utf16_strlen();
 +	ret |= ut_utf8_utf16_strnlen();
