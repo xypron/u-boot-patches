@@ -1,4 +1,4 @@
-From 9feb00e6ebc9f250e9a39c3b512ba01e4cc542f7 Mon Sep 17 00:00:00 2001
+From 5dde0bd0ebb16de82fb8bc2c43f37892530166a2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 5 Jul 2018 19:25:20 +0200
 Subject: [PATCH 1/1] efi_loader: rename utf16_strlen, utf16_strnlen
@@ -21,7 +21,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  7 files changed, 27 insertions(+), 23 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 11832cbd12..447b8811cc 100644
+index 11832cbd12..2c6deb8034 100644
 --- a/include/charset.h
 +++ b/include/charset.h
 @@ -13,29 +13,29 @@
@@ -34,7 +34,7 @@ index 11832cbd12..447b8811cc 100644
 - * Returns the number of 16 bit characters in an utf16 string, not
 - * including the terminating NULL character.
 + * This function matches wsclen() if the -fshort-wchar compiler flag is set.
-+ * In the EFI context we explicitely need a function handling u16 strings.
++ * In the EFI context we explicitly need a function handling u16 strings.
   *
 - * @in     the string to measure
 - * @return the string length
@@ -54,7 +54,7 @@ index 11832cbd12..447b8811cc 100644
 - * 'count' number of characters.  In doing this, utf16_strnlen()
 - * looks at only the first 'count' characters.
 + * This function matches wscnlen_s() if the -fshort-wchar compiler flag is set.
-+ * In the EFI context we explicitely need a function handling u16 strings.
++ * In the EFI context we explicitly need a function handling u16 strings.
   *
 - * @in     the string to measure
 - * @count  the maximum number of characters to count
