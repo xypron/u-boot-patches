@@ -1,4 +1,4 @@
-From ac8dd7940963f49175cc397455e434b2abe84ac7 Mon Sep 17 00:00:00 2001
+From 060ffc8ebfc1a067f399a6c32cec59f08439d661 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Jul 2018 19:52:25 +0200
 Subject: [PATCH 1/1] test: test printing Unicode
@@ -11,22 +11,22 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 48 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index 4672a44af2..7a3e5deecc 100644
+index a7e540fc50..cc023c5129 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -38,6 +38,53 @@ static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
- 
- static struct unit_test_state uts;
+@@ -40,6 +40,54 @@ static const char d3[] = {0xe6, 0xbd, 0x9c, 0xe6, 0xb0, 0xb4, 0xe8, 0x89,
+ static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
+ 			  0xf0, 0x90, 0x92, 0x87, 0x00};
  
 +/* Illegal utf-16 strings */
 +static const u16 i1[] = {0x69, 0x31, 0xdc87, 0x6c, 0x00};
 +static const u16 i2[] = {0x69, 0x32, 0xd801, 0xd801, 0x6c, 0x00};
 +static const u16 i3[] = {0x69, 0x33, 0xd801, 0x00};
 +
++/* U-Boot uses UTF-16 strings in the EFI context only. */
++#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 +static int ut_string16(struct unit_test_state *uts)
 +{
-+#if defined(CONFIG_EFI_LOADER) && \
-+	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
 +	char buf[20];
 +
 +	/* Test length and precision */
@@ -61,21 +61,14 @@ index 4672a44af2..7a3e5deecc 100644
 +	sprintf(buf, "%ls", i3);
 +	ut_asserteq_str("i3?", buf);
 +
-+#endif
 +	return 0;
 +}
++UNICODE_TEST(ut_string16);
++#endif
 +
  static int ut_utf8_get(struct unit_test_state *uts)
  {
  	const char *s;
-@@ -369,6 +416,7 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- {
- 	int ret = 0;
- 
-+	ret |= ut_string16(&uts);
- 	ret |= ut_utf8_get(&uts);
- 	ret |= ut_utf8_put(&uts);
- 	ret |= ut_utf8_utf16_strlen(&uts);
 -- 
 2.18.0
 
