@@ -1,4 +1,4 @@
-From 85a9f4c3e883bdb8fb1bcb5a4083882aeac4ef73 Mon Sep 17 00:00:00 2001
+From a07915073dd15bdb10125ea83ee1ce8e6d988a5b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  13 +-
- test/unicode_ut.c     | 410 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 435 insertions(+), 5 deletions(-)
+ test/unicode_ut.c     | 442 ++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 467 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -132,10 +132,10 @@ index 934a5a931b..f5a5b034b7 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..c465a7d893
+index 0000000000..b9285409fd
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,410 @@
+@@ -0,0 +1,442 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -319,22 +319,38 @@ index 0000000000..c465a7d893
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d1);
 +	ut_asserteq(6, pos - buf);
-+	ut_assert(!ut_u16_strcmp(buf, c1, 16));
++	ut_assert(!ut_u16_strcmp(buf, c1, SIZE_MAX));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d2);
 +	ut_asserteq(8, pos - buf);
-+	ut_assert(!ut_u16_strcmp(buf, c2, 16));
++	ut_assert(!ut_u16_strcmp(buf, c2, SIZE_MAX));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d3);
 +	ut_asserteq(3, pos - buf);
-+	ut_assert(!ut_u16_strcmp(buf, c3, 16));
++	ut_assert(!ut_u16_strcmp(buf, c3, SIZE_MAX));
 +
 +	pos = buf;
 +	utf8_utf16_strcpy(&pos, d4);
 +	ut_asserteq(6, pos - buf);
-+	ut_assert(!ut_u16_strcmp(buf, c4, 16));
++	ut_assert(!ut_u16_strcmp(buf, c4, SIZE_MAX));
++
++	/* Illegal utf-8 strings */
++	pos = buf;
++	utf8_utf16_strcpy(&pos, j1);
++	ut_asserteq(4, pos - buf);
++	ut_assert(!ut_u16_strcmp(buf, L"j1?l", SIZE_MAX));
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, j2);
++	ut_asserteq(4, pos - buf);
++	ut_assert(!ut_u16_strcmp(buf, L"j2?l", SIZE_MAX));
++
++	pos = buf;
++	utf8_utf16_strcpy(&pos, j3);
++	ut_asserteq(3, pos - buf);
++	ut_assert(!ut_u16_strcmp(buf, L"j3?", SIZE_MAX));
 +
 +	return 0;
 +}
@@ -350,14 +366,14 @@ index 0000000000..c465a7d893
 +	utf8_utf16_strncpy(&pos, d1, 4);
 +	ut_asserteq(4, pos - buf);
 +	ut_assert(!buf[4]);
-+	ut_assert(!ut_u16_strcmp(buf, c1, 4))
++	ut_assert(!ut_u16_strcmp(buf, c1, 4));
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
 +	utf8_utf16_strncpy(&pos, d2, 10);
 +	ut_asserteq(8, pos - buf);
 +	ut_assert(buf[4]);
-+	ut_assert(!ut_u16_strcmp(buf, c2, SIZE_MAX))
++	ut_assert(!ut_u16_strcmp(buf, c2, SIZE_MAX));
 +
 +	pos = buf;
 +	memset(buf, 0, sizeof(buf));
@@ -490,6 +506,22 @@ index 0000000000..c465a7d893
 +	utf16_utf8_strcpy(&pos, c4);
 +	ut_asserteq(12, pos - buf);
 +	ut_asserteq_str(d4, buf);
++
++	/* Illegal utf-16 strings */
++	pos = buf;
++	utf16_utf8_strcpy(&pos, i1);
++	ut_asserteq(4, pos - buf);
++	ut_asserteq_str("i1?l", buf);
++
++	pos = buf;
++	utf16_utf8_strcpy(&pos, i2);
++	ut_asserteq(4, pos - buf);
++	ut_asserteq_str("i2?l", buf);
++
++	pos = buf;
++	utf16_utf8_strcpy(&pos, i3);
++	ut_asserteq(3, pos - buf);
++	ut_asserteq_str("i3?", buf);
 +
 +	return 0;
 +}
