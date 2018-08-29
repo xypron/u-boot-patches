@@ -1,4 +1,4 @@
-From a07915073dd15bdb10125ea83ee1ce8e6d988a5b Mon Sep 17 00:00:00 2001
+From 356f0249ecd73b8d9bae007a7f3b4314ac868c40 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  13 +-
- test/unicode_ut.c     | 442 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 467 insertions(+), 5 deletions(-)
+ test/unicode_ut.c     | 460 ++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 485 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -91,7 +91,7 @@ index 1092011fdb..a5f52fd5ad 100644
 +obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
  obj-$(CONFIG_$(SPL_)LOG) += log/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
-index 934a5a931b..f5a5b034b7 100644
+index 934a5a931b..b7e01a4847 100644
 --- a/test/cmd_ut.c
 +++ b/test/cmd_ut.c
 @@ -49,6 +49,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
@@ -122,7 +122,7 @@ index 934a5a931b..f5a5b034b7 100644
 -	"ut compression - Test compressors and bootm decompression\n"
 +#if defined(CONFIG_UT_UNICODE) && \
 +	!defined(CONFIG_SPL_BUILD) && !defined(API_BUILD)
-+	"ut unicode - test Unicode functions\n"
++	"ut unicode [test-name] - test Unicode functions\n"
  #endif
  	;
 -#endif
@@ -132,10 +132,10 @@ index 934a5a931b..f5a5b034b7 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..b9285409fd
+index 0000000000..a15b774d1f
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,442 @@
+@@ -0,0 +1,460 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -453,6 +453,24 @@ index 0000000000..b9285409fd
 +	return 0;
 +}
 +UNICODE_TEST(ut_utf16_put);
++
++int ut_utf16_strnlen(struct unit_test_state *uts)
++{
++	ut_asserteq(3, utf16_strnlen(c1, 3));
++	ut_asserteq(6, utf16_strnlen(c1, 13));
++	ut_asserteq(6, utf16_strnlen(c2, 6));
++	ut_asserteq(2, utf16_strnlen(c3, 2));
++	ut_asserteq(2, utf16_strnlen(c4, 2));
++	ut_asserteq(3, utf16_strnlen(c4, 3));
++
++	/* illegal utf-16 word sequences */
++	ut_asserteq(4, utf16_strnlen(i1, 16));
++	ut_asserteq(4, utf16_strnlen(i2, 16));
++	ut_asserteq(3, utf16_strnlen(i3, 16));
++
++	return 0;
++}
++UNICODE_TEST(ut_utf16_strnlen);
 +
 +int ut_utf16_utf8_strlen(struct unit_test_state *uts)
 +{
