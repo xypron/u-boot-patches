@@ -1,4 +1,4 @@
-From 97342228b8dc83cafb4fcf33d4ca7ebb257f91f7 Mon Sep 17 00:00:00 2001
+From 860c26a161e5e292e85a2f89a233e98201e7d910 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -15,9 +15,9 @@ utf16_utf8_strncpy() - copy a utf-16 string to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 130 ++++++++++++++++++++++++++
- lib/charset.c     | 232 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 359 insertions(+), 3 deletions(-)
+ include/charset.h | 130 +++++++++++++++++++++++++
+ lib/charset.c     | 236 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 363 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
 index 447b8811cc..e8cd4f2415 100644
@@ -165,10 +165,10 @@ index 447b8811cc..e8cd4f2415 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..b2de2b831e 100644
+index 8ff8d59957..e82622a7f8 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,235 @@
+@@ -8,9 +8,239 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -186,6 +186,9 @@ index 8ff8d59957..b2de2b831e 100644
 +		return 0;
 +	c = **src;
 +	if (c >= 0x80) {
++		++*src;
++		if (!**src)
++			return -1;
 +		/*
 +		 * We do not expect a continuation byte (0x80 - 0xbf).
 +		 * 0x80 is coded as 0xc2 0x80, so we cannot have less then 0xc2
@@ -200,8 +203,10 @@ index 8ff8d59957..b2de2b831e 100644
 +				/* 0xf0 - 0xf4 */
 +				c &= 0x07;
 +				code = c << 18;
-+				++*src;
 +				c = **src;
++				++*src;
++				if (!**src)
++					return -1;
 +				if (c < 0x80 || c > 0xbf)
 +					return -1;
 +				c &= 0x3f;
@@ -213,15 +218,16 @@ index 8ff8d59957..b2de2b831e 100644
 +			if ((code >= 0xD800 && code <= 0xDFFF) ||
 +			    code >= 0x110000)
 +				return -1;
-+			++*src;
 +			c = **src;
++			++*src;
++			if (!**src)
++				return -1;
 +			if (c < 0x80 || c > 0xbf)
 +				return -1;
 +		}
 +		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
 +		c &= 0x3f;
 +		code += c << 6;
-+		++*src;
 +		c = **src;
 +		if (c < 0x80 || c > 0xbf)
 +			return -1;
@@ -290,9 +296,8 @@ index 8ff8d59957..b2de2b831e 100644
 +	for (; count && *src; --count) {
 +		s32 code = utf8_get(&src);
 +
-+		if (code < 0) {
++		if (code < 0)
 +			code = '?';
-+		}
 +		utf16_put(code, dst);
 +	}
 +	**dst = 0;
@@ -372,18 +377,17 @@ index 8ff8d59957..b2de2b831e 100644
 +
 +		if (!code)
 +			break;
-+		if (code < 0) {
++		if (code < 0)
 +			/* Reserve space for a replacement character */
 +			len += 1;
-+		} else if (code < 0x80) {
++		else if (code < 0x80)
 +			len += 1;
-+		} else if (code < 0x800) {
++		else if (code < 0x800)
 +			len += 2;
-+		} else if (code < 0x10000) {
++		else if (code < 0x10000)
 +			len += 3;
-+		} else {
++		else
 +			len += 4;
-+		}
 +	}
 +	return len;
 +}
