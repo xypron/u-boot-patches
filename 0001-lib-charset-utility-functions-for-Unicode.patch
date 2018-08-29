@@ -1,4 +1,4 @@
-From 879734326ff226af0fb2063389b27b51eefa3932 Mon Sep 17 00:00:00 2001
+From 6b6bfcc2c3d9ea7807d2ce2bce00ad43342f00b8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 9 Jul 2018 17:51:07 +0200
 Subject: [PATCH 1/1] lib: charset: utility functions for Unicode
@@ -14,9 +14,9 @@ utf16_utf8_strncpy() - copy a utf-16 string to utf-8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h | 130 ++++++++++++++++++++++++
- lib/charset.c     | 245 +++++++++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 372 insertions(+), 3 deletions(-)
+ include/charset.h | 130 +++++++++++++++++++++++++
+ lib/charset.c     | 243 +++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 370 insertions(+), 3 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
 index 447b8811cc..e8cd4f2415 100644
@@ -164,10 +164,10 @@ index 447b8811cc..e8cd4f2415 100644
   * u16_strlen - count non-zero words
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 8ff8d59957..b5b3f500e8 100644
+index 8ff8d59957..56da1ecdca 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -8,9 +8,248 @@
+@@ -8,9 +8,246 @@
  #include <charset.h>
  #include <malloc.h>
  
@@ -321,9 +321,9 @@ index 8ff8d59957..b5b3f500e8 100644
 +		code <<= 10;
 +		code += 0x10000;
 +		code2 = **src;
++		++*src;
 +		if (code2 <= 0xDC00 || code2 >= 0xDFFF)
 +			return -1;
-+		++*src;
 +		code2 &= 0x3ff;
 +		code += code2;
 +	}
@@ -382,8 +382,6 @@ index 8ff8d59957..b5b3f500e8 100644
 +		if (code < 0) {
 +			/* Reserve space for a replacement character */
 +			len += 1;
-+			if (*src)
-+				++src;
 +		} else if (code < 0x80) {
 +			len += 1;
 +		} else if (code < 0x800) {

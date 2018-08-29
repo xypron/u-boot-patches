@@ -1,4 +1,4 @@
-From c956ae8ecf67701bd483428435ee174aff980577 Mon Sep 17 00:00:00 2001
+From 85a9f4c3e883bdb8fb1bcb5a4083882aeac4ef73 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Jul 2018 18:47:25 +0200
 Subject: [PATCH 1/1] test: unit tests for Unicode functions
@@ -13,8 +13,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  test/Kconfig          |   8 +
  test/Makefile         |   1 +
  test/cmd_ut.c         |  13 +-
- test/unicode_ut.c     | 388 ++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 413 insertions(+), 5 deletions(-)
+ test/unicode_ut.c     | 410 ++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 435 insertions(+), 5 deletions(-)
  create mode 100644 test/unicode_ut.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -132,10 +132,10 @@ index 934a5a931b..f5a5b034b7 100644
  	ut, CONFIG_SYS_MAXARGS, 1, do_ut,
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
 new file mode 100644
-index 0000000000..a7e540fc50
+index 0000000000..c465a7d893
 --- /dev/null
 +++ b/test/unicode_ut.c
-@@ -0,0 +1,388 @@
+@@ -0,0 +1,410 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Unit tests for Unicode functions
@@ -166,6 +166,11 @@ index 0000000000..a7e540fc50
 +static const u16 c4[] = {0xd801, 0xdc8d, 0xd801, 0xdc96, 0xd801, 0xdc87,
 +			 0x0000};
 +
++/* Illegal utf-16 strings */
++static const u16 i1[] = {0x69, 0x31, 0xdc87, 0x6c, 0x00};
++static const u16 i2[] = {0x69, 0x32, 0xd801, 0xd801, 0x6c, 0x00};
++static const u16 i3[] = {0x69, 0x33, 0xd801, 0x00};
++
 +/* Six characters translating to one utf-16 word each. */
 +static const char d1[] = {0x55, 0x2d, 0x42, 0x6f, 0x6f, 0x74, 0x00};
 +/* Eight characters translating to one utf-16 word each */
@@ -177,6 +182,11 @@ index 0000000000..a7e540fc50
 +/* Three letters translating to two utf-16 word each */
 +static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
 +			  0xf0, 0x90, 0x92, 0x87, 0x00};
++
++/* Illegal utf-8 strings */
++static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
++static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
++static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
 +
 +static int ut_utf8_get(struct unit_test_state *uts)
 +{
@@ -260,6 +270,12 @@ index 0000000000..a7e540fc50
 +	ut_asserteq(8, utf8_utf16_strlen(d2));
 +	ut_asserteq(3, utf8_utf16_strlen(d3));
 +	ut_asserteq(6, utf8_utf16_strlen(d4));
++
++	/* illegal utf-8 sequences */
++	ut_asserteq(4, utf8_utf16_strlen(j1));
++	ut_asserteq(4, utf8_utf16_strlen(j2));
++	ut_asserteq(3, utf8_utf16_strlen(j3));
++
 +	return 0;
 +}
 +UNICODE_TEST(ut_utf8_utf16_strlen);
@@ -428,6 +444,12 @@ index 0000000000..a7e540fc50
 +	ut_asserteq(9, utf16_utf8_strlen(c2));
 +	ut_asserteq(9, utf16_utf8_strlen(c3));
 +	ut_asserteq(12, utf16_utf8_strlen(c4));
++
++	/* illegal utf-16 word sequences */
++	ut_asserteq(4, utf16_utf8_strlen(i1));
++	ut_asserteq(4, utf16_utf8_strlen(i2));
++	ut_asserteq(3, utf16_utf8_strlen(i3));
++
 +	return 0;
 +}
 +UNICODE_TEST(ut_utf16_utf8_strlen);
