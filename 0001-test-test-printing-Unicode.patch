@@ -1,4 +1,4 @@
-From 060ffc8ebfc1a067f399a6c32cec59f08439d661 Mon Sep 17 00:00:00 2001
+From 089566bd071323b57e3ae138cf184d9995e08e5a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Jul 2018 19:52:25 +0200
 Subject: [PATCH 1/1] test: test printing Unicode
@@ -7,22 +7,17 @@ Test printing of Unicode strings
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/unicode_ut.c | 48 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+ test/unicode_ut.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index a7e540fc50..cc023c5129 100644
+index c465a7d893..6c9fdb148c 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -40,6 +40,54 @@ static const char d3[] = {0xe6, 0xbd, 0x9c, 0xe6, 0xb0, 0xb4, 0xe8, 0x89,
- static const char d4[] = {0xf0, 0x90, 0x92, 0x8d, 0xf0, 0x90, 0x92, 0x96,
- 			  0xf0, 0x90, 0x92, 0x87, 0x00};
+@@ -50,6 +50,49 @@ static const char j1[] = {0x6a, 0x31, 0xa1, 0x6c, 0x00};
+ static const char j2[] = {0x6a, 0x32, 0xc3, 0xc3, 0x6c, 0x00};
+ static const char j3[] = {0x6a, 0x33, 0xf0, 0x90, 0xf0, 0x00};
  
-+/* Illegal utf-16 strings */
-+static const u16 i1[] = {0x69, 0x31, 0xdc87, 0x6c, 0x00};
-+static const u16 i2[] = {0x69, 0x32, 0xd801, 0xd801, 0x6c, 0x00};
-+static const u16 i3[] = {0x69, 0x33, 0xd801, 0x00};
-+
 +/* U-Boot uses UTF-16 strings in the EFI context only. */
 +#if CONFIG_IS_ENABLED(EFI_LOADER) && !defined(API_BUILD)
 +static int ut_string16(struct unit_test_state *uts)
