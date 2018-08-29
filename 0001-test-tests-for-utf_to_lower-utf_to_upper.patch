@@ -1,4 +1,4 @@
-From 636d5319d9cf96fdd6582fb974ad844f60a4c894 Mon Sep 17 00:00:00 2001
+From 07b4cba301b07a28aa73d913cea4c50e141b35a3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 16 Jul 2018 07:36:14 +0200
 Subject: [PATCH 1/1] test: tests for utf_to_lower() utf_to_upper().
@@ -11,12 +11,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 26 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index 7a3e5deecc..89920f1d28 100644
+index cc023c5129..84a647099e 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -412,6 +412,30 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
- 	return 0;
+@@ -427,6 +427,32 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
  }
+ UNICODE_TEST(ut_utf16_utf8_strncpy);
  
 +int ut_utf_to_lower(struct unit_test_state *uts)
 +{
@@ -29,6 +29,7 @@ index 7a3e5deecc..89920f1d28 100644
 +	ut_asserteq(0x0438, utf_to_lower(0x0418));
 +	return 0;
 +}
++UNICODE_TEST(ut_utf_to_lower);
 +
 +int ut_utf_to_upper(struct unit_test_state *uts)
 +{
@@ -41,19 +42,11 @@ index 7a3e5deecc..89920f1d28 100644
 +	ut_asserteq(0x0418, utf_to_upper(0x0438));
 +	return 0;
 +}
++UNICODE_TEST(ut_utf_to_upper);
 +
  int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  {
- 	int ret = 0;
-@@ -429,6 +453,8 @@ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- 	ret |= ut_utf16_utf8_strnlen(&uts);
- 	ret |= ut_utf16_utf8_strcpy(&uts);
- 	ret |= ut_utf16_utf8_strncpy(&uts);
-+	ret |= ut_utf_to_lower(&uts);
-+	ret |= ut_utf_to_upper(&uts);
- 
- 	printf("Test %s\n", ret ? "failed" : "passed");
- 
+ 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
 -- 
 2.18.0
 
