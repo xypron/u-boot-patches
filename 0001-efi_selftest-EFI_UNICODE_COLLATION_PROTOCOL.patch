@@ -1,4 +1,4 @@
-From 35573b67b9a864b8e422e2101458ca33bce1d9db Mon Sep 17 00:00:00 2001
+From c5ab3f2446813473f70c60dd8d7863e9b292a589 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 10 Aug 2018 07:18:13 +0200
 Subject: [PATCH 1/1] efi_selftest: EFI_UNICODE_COLLATION_PROTOCOL
@@ -8,15 +8,15 @@ Provide a unit test for the EFI_UNICODE_COLLATION_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                     |   1 +
- .../efi_selftest_unicode_collation.c          | 257 ++++++++++++++++++
- 2 files changed, 258 insertions(+)
+ .../efi_selftest_unicode_collation.c          | 260 ++++++++++++++++++
+ 2 files changed, 261 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_unicode_collation.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 590f90b16d..7ff879742f 100644
+index 86aa72b0e0..80bc5d8a64 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
-@@ -30,6 +30,7 @@ efi_selftest_snp.o \
+@@ -31,6 +31,7 @@ efi_selftest_snp.o \
  efi_selftest_textinput.o \
  efi_selftest_textoutput.o \
  efi_selftest_tpl.o \
@@ -26,10 +26,10 @@ index 590f90b16d..7ff879742f 100644
  efi_selftest_watchdog.o
 diff --git a/lib/efi_selftest/efi_selftest_unicode_collation.c b/lib/efi_selftest/efi_selftest_unicode_collation.c
 new file mode 100644
-index 0000000000..ed35b76e86
+index 0000000000..9765bd3e44
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_unicode_collation.c
-@@ -0,0 +1,257 @@
+@@ -0,0 +1,260 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_unicode_collation
@@ -83,21 +83,24 @@ index 0000000000..ed35b76e86
 +	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
 +						    c1, c2);
 +	if (ret) {
-+		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c2, ret);
++		efi_st_error(
++			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c2, ret);
 +		return EFI_ST_FAILURE;
 +	}
 +
 +	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
 +						    c1, c3);
 +	if (ret >= 0) {
-+		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c3, ret);
++		efi_st_error(
++			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c3, ret);
 +		return EFI_ST_FAILURE;
 +	}
 +
 +	ret = unicode_collation_protocol->stri_coll(unicode_collation_protocol,
 +						    c3, c1);
 +	if (ret <= 0) {
-+		efi_st_error("stri_coll(\"%ps\", \"%ps\") = %zu\n", c3, c1, ret);
++		efi_st_error(
++			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c3, c1, ret);
 +		return EFI_ST_FAILURE;
 +	}
 +
