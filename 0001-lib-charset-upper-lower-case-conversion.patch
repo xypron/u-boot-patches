@@ -43,7 +43,7 @@ diff --git a/lib/charset.c b/lib/charset.c
 index 39c8329830..b5f337c989 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
-@@ -6,8 +6,19 @@
+@@ -6,8 +6,18 @@
   */
  
  #include <charset.h>
@@ -58,7 +58,6 @@ index 39c8329830..b5f337c989 100644
 +#else
 +	CP437_CAPITALIZATION_TABLE;
 +#endif
-+
 +
  s32 utf8_get(const char **src)
  {
