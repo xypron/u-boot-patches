@@ -1,4 +1,4 @@
-From 613cc7653bfc0605254993f2837bacd9db7f94ce Mon Sep 17 00:00:00 2001
+From b754d1030143acdd17fbf98b6f7ffa75f461198e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Jul 2018 19:24:17 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_UNICODE_COLLATION_PROTOCOL
@@ -8,23 +8,23 @@ The patch implements the EFI_UNICODE_COLLATION_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS                            |   2 +
- include/cp1250.h                       |  40 +++++
- include/cp437.h                        |  40 +++++
- include/efi_api.h                      |  21 +++
+ include/cp1250.h                       |  40 +++
+ include/cp437.h                        |  40 +++
+ include/efi_api.h                      |  21 ++
  include/efi_loader.h                   |   5 +
  lib/efi_loader/Makefile                |  18 +-
  lib/efi_loader/efi_boottime.c          |   6 +
- lib/efi_loader/efi_unicode_collation.c | 218 +++++++++++++++++++++++++
- 8 files changed, 346 insertions(+), 4 deletions(-)
+ lib/efi_loader/efi_unicode_collation.c | 329 +++++++++++++++++++++++++
+ 8 files changed, 457 insertions(+), 4 deletions(-)
  create mode 100644 include/cp1250.h
  create mode 100644 include/cp437.h
  create mode 100644 lib/efi_loader/efi_unicode_collation.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 0a543309f2..33d5d545bd 100644
+index 8c9cd83347..67b015205c 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -369,6 +369,8 @@ F:	doc/README.uefi
+@@ -382,6 +382,8 @@ F:	doc/README.uefi
  F:	doc/README.iscsi
  F:	Documentation/efi.rst
  F:	include/capitalization.h
@@ -215,10 +215,10 @@ index 1ffbf52a89..0769df20f7 100644
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
  obj-$(CONFIG_PARTITIONS) += efi_disk.o
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 618e8a8d8c..8a0701e828 100644
+index cd5fdb7aa8..f9f59b93f9 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1525,6 +1525,12 @@ efi_status_t efi_setup_loaded_image(
+@@ -1527,6 +1527,12 @@ efi_status_t efi_setup_loaded_image(
  	if (ret != EFI_SUCCESS)
  		goto failure;
  
@@ -233,10 +233,10 @@ index 618e8a8d8c..8a0701e828 100644
  	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 new file mode 100644
-index 0000000000..9a16b6a8a0
+index 0000000000..62a36d32e4
 --- /dev/null
 +++ b/lib/efi_loader/efi_unicode_collation.c
-@@ -0,0 +1,218 @@
+@@ -0,0 +1,329 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * EFI Unicode collation protocol
@@ -265,9 +265,30 @@ index 0000000000..9a16b6a8a0
 +static const u16 codepage[] = CP437;
 +#endif
 +
++/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
 +const efi_guid_t efi_guid_unicode_collation_protocol =
 +	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
 +
++/**
++ * efi_stri_coll() - compare utf-16 strings case-insenitively
++ *
++ * @this:	unicode collation protocol instance
++ * @s1:		first string
++ * @s2:		second string
++ *
++ * This function implements the StriColl() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * TODO:
++ * The implementation does not follow the Unicode collation algorithm.
++ * For ASCII characters it results in the same sort order as EDK2.
++ * We could use table UNICODE_CAPITALIZATION_TABLE for better results.
++ *
++ * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2 
++ */
 +static efi_intn_t EFIAPI efi_stri_coll(
 +		struct efi_unicode_collation_protocol *this, u16 *s1, u16 *s2)
 +{
@@ -276,8 +297,8 @@ index 0000000000..9a16b6a8a0
 +
 +	EFI_ENTRY("%p, %ls, %ls", this, s1, s2);
 +	for (; *s1 | *s2; ++s1, ++s2) {
-+		c1 = utf_to_lower(*s1);
-+		c2 = utf_to_lower(*s2);
++		c1 = utf_to_upper(*s1);
++		c2 = utf_to_upper(*s2);
 +		if (c1 < c2) {
 +			ret = -1;
 +			goto out;
@@ -291,6 +312,26 @@ index 0000000000..9a16b6a8a0
 +	return ret;
 +}
 +
++/**
++ * metai_match() - compare utf-16 string with a pattern string case-insenitively
++ *
++ * @s:		string to compare
++ * @p:		pattern string
++ *
++ * The pattern string may use these:
++ * 	- * matches >= 0 characters
++ *	- ? matches 1 character
++ *	- [<char1><char2>...<charN>] match any character in the set
++ *	- [<char1>-<char2>] matches any character in the range
++ *
++ * This function is called my efi_metai_match().
++ *
++ * For '*' pattern searches this function calls itself recursively.
++ * Performance-wise this is suboptimal, especially for multiple '*' wildcards.
++ * But it results in simple code.
++ *
++ * Return:	true if the string is matched.
++ */
 +static bool metai_match(const u16 *s, const u16 *p)
 +{
 +	u16 first;
@@ -350,6 +391,25 @@ index 0000000000..9a16b6a8a0
 +	return false;
 +}
 +
++/**
++ * efi_metai_match() - compare utf-16 string with a pattern string
++ *		       case-insenitively
++ *
++ * @this:	unicode collation protocol instance
++ * @s:		string to compare
++ * @p:		pattern string
++ *
++ * The pattern string may use these:
++ * 	- * matches >= 0 characters
++ *	- ? matches 1 character
++ *	- [<char1><char2>...<charN>] match any character in the set
++ *	- [<char1>-<char2>] matches any character in the range
++ *
++ * This function implements the MetaMatch() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ *
++ * Return:	true if the string is matched.
++ */
 +static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
 +				   const u16 *string, const u16 *pattern)
 +{
@@ -361,6 +421,19 @@ index 0000000000..9a16b6a8a0
 +	return ret;
 +}
 +
++/**
++ * efi_str_lwr() - convert to lower case
++ *
++ * @this:	unicode collation protocol instance
++ * @string:	string to convert
++ * @p:		pattern string
++ *
++ * The conversion is done in place. As long as upper and lower letters use the
++ * same number of words this does not pose a problem.
++ *
++ * This function implements the StrLwr() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ */
 +static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
 +			       u16 *string)
 +{
@@ -370,6 +443,19 @@ index 0000000000..9a16b6a8a0
 +	EFI_EXIT(EFI_SUCCESS);
 +}
 +
++/**
++ * efi_str_upr() - convert to upper case
++ *
++ * @this:	unicode collation protocol instance
++ * @string:	string to convert
++ * @p:		pattern string
++ *
++ * The conversion is done in place. As long as upper and lower letters use the
++ * same number of words this does not pose a problem.
++ *
++ * This function implements the StrUpr() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ */
 +static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
 +			       u16 *string)
 +{
@@ -379,6 +465,17 @@ index 0000000000..9a16b6a8a0
 +	EFI_EXIT(EFI_SUCCESS);
 +}
 +
++/**
++ * efi_fat_to_str() - convert an 8.3 file name from an OEM codepage to Unicode
++ *
++ * @this:	unicode collation protocol instance
++ * @fat_size:	size of the string to convert
++ * @fat:	string to convert
++ * @string:	converted string
++ *
++ * This function implements the FatToStr() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ */
 +static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
 +				  efi_uintn_t fat_size, char *fat, u16 *string)
 +{
@@ -398,6 +495,20 @@ index 0000000000..9a16b6a8a0
 +	EFI_EXIT(EFI_SUCCESS);
 +}
 +
++/**
++ * efi_fat_to_str() - convert a utf-16 string to legal characters for a FAT
++ *                    file name in an OEM code page
++ *
++ * @this:	unicode collation protocol instance
++ * @string:	Unicode string to convert
++ * @fat_size:	size of the target buffer
++ * @fat:	converted string
++ *
++ * This function implements the StrToFat() service of the
++ * EFI_UNICODE_COLLATION_PROTOCOL.
++ *
++ * Return:	true if an illegal character was substituted by '_'.
++ */
 +static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
 +				  const u16 *string, efi_uintn_t fat_size,
 +				  char *fat)
