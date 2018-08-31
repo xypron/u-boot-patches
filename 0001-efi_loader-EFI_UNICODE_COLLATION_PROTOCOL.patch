@@ -287,7 +287,7 @@ index 0000000000..62a36d32e4
 + * For ASCII characters it results in the same sort order as EDK2.
 + * We could use table UNICODE_CAPITALIZATION_TABLE for better results.
 + *
-+ * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2 
++ * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2
 + */
 +static efi_intn_t EFIAPI efi_stri_coll(
 +		struct efi_unicode_collation_protocol *this, u16 *s1, u16 *s2)
@@ -319,7 +319,7 @@ index 0000000000..62a36d32e4
 + * @p:		pattern string
 + *
 + * The pattern string may use these:
-+ * 	- * matches >= 0 characters
++ *	- * matches >= 0 characters
 + *	- ? matches 1 character
 + *	- [<char1><char2>...<charN>] match any character in the set
 + *	- [<char1>-<char2>] matches any character in the range
@@ -400,7 +400,7 @@ index 0000000000..62a36d32e4
 + * @p:		pattern string
 + *
 + * The pattern string may use these:
-+ * 	- * matches >= 0 characters
++ *	- * matches >= 0 characters
 + *	- ? matches 1 character
 + *	- [<char1><char2>...<charN>] match any character in the set
 + *	- [<char1>-<char2>] matches any character in the range
