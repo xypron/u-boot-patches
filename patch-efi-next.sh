@@ -20,7 +20,6 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
 git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
-git am ../patch/0001-test-fix-typo-in-cmd_ut_category-description.patch
 git am ../patch/0001-efi_loader-use-correct-documentation-style.patch
 
 # USB keyboard
