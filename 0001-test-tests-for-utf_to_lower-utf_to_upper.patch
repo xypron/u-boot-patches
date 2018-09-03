@@ -1,4 +1,4 @@
-From 141d822bcdfe00a63bb74a1ccc1297ce1ba08494 Mon Sep 17 00:00:00 2001
+From dab1c8c87ade8b7a5cfd93981132dc97d5a5ab7e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 16 Jul 2018 07:36:14 +0200
 Subject: [PATCH 1/1] test: tests for utf_to_lower() utf_to_upper().
@@ -7,14 +7,14 @@ Provide unit tests for utf_to_lower() utf_to_upper().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/unicode_ut.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ test/unicode_ut.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/test/unicode_ut.c b/test/unicode_ut.c
-index d0dbd7985a..3e4231b241 100644
+index d0dbd7985a..b94b4a651f 100644
 --- a/test/unicode_ut.c
 +++ b/test/unicode_ut.c
-@@ -500,6 +500,36 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
+@@ -500,6 +500,40 @@ int ut_utf16_utf8_strncpy(struct unit_test_state *uts)
  }
  UNICODE_TEST(ut_utf16_utf8_strncpy);
  
@@ -25,6 +25,8 @@ index d0dbd7985a..3e4231b241 100644
 +	ut_asserteq('z', utf_to_lower('Z'));
 +	ut_asserteq('[', utf_to_lower('['));
 +	ut_asserteq('m', utf_to_lower('m'));
++	/* Latin letter O with diaresis (umlaut) */
++	ut_asserteq(0x00f6, utf_to_lower(0x00d6));
 +#ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
 +	/* Cyrillic letter I*/
 +	ut_asserteq(0x0438, utf_to_lower(0x0418));
@@ -40,6 +42,8 @@ index d0dbd7985a..3e4231b241 100644
 +	ut_asserteq('Z', utf_to_upper('z'));
 +	ut_asserteq('{', utf_to_upper('{'));
 +	ut_asserteq('M', utf_to_upper('M'));
++	/* Latin letter O with diaresis (umlaut) */
++	ut_asserteq(0x00d6, utf_to_upper(0x00f6));
 +#ifdef CONFIG_EFI_UNICODE_CAPITALIZATION
 +	/* Cyrillic letter I */
 +	ut_asserteq(0x0418, utf_to_upper(0x0438));
