@@ -39,18 +39,6 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # Unicode collation protocol
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
-git am ../patch/0001-vsprintf.c-use-if-CONFIG_IS_ENABLED-EFI_LOADER.patch
-git am ../patch/0001-test-print_ut.c-use-if-CONFIG_IS_ENABLED-EFI_LOADER.patch
-git am ../patch/0001-lib-build-charset.o-only-if-needed.patch
-git am ../patch/0001-efi_loader-rename-utf16_strlen-utf16_strnlen.patch
-git am ../patch/0001-lib-charset-utility-functions-for-Unicode.patch
-git am ../patch/0001-test-unit-tests-for-Unicode-functions.patch
-git am ../patch/0001-lib-vsprintf-correct-printing-of-Unicode-strings.patch
-git am ../patch/0001-test-test-printing-Unicode.patch
-git am ../patch/0001-efi_loader-remove-limit-on-variable-length.patch
-git am ../patch/0001-efi_loader-don-t-use-unlimited-stack-as-buffer.patch
-git am ../patch/0001-efi_loader-buffer-size-for-load-options.patch
-git am ../patch/0001-lib-charset-remove-obsolete-functions.patch
 git am ../patch/0001-efi_loader-capitalization-table.patch
 git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
 git am ../patch/0001-test-tests-for-utf_to_lower-utf_to_upper.patch
