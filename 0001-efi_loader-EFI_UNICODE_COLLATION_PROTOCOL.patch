@@ -1,4 +1,4 @@
-From b754d1030143acdd17fbf98b6f7ffa75f461198e Mon Sep 17 00:00:00 2001
+From d2ea0070f15f514c2620e6af3d639f908719f0b6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 3 Jul 2018 19:24:17 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_UNICODE_COLLATION_PROTOCOL
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/cp437.h                        |  40 +++
  include/efi_api.h                      |  21 ++
  include/efi_loader.h                   |   5 +
- lib/efi_loader/Makefile                |  18 +-
+ lib/efi_loader/Makefile                |  15 +-
  lib/efi_loader/efi_boottime.c          |   6 +
  lib/efi_loader/efi_unicode_collation.c | 329 +++++++++++++++++++++++++
- 8 files changed, 457 insertions(+), 4 deletions(-)
+ 8 files changed, 455 insertions(+), 3 deletions(-)
  create mode 100644 include/cp1250.h
  create mode 100644 include/cp437.h
  create mode 100644 lib/efi_loader/efi_unicode_collation.c
@@ -163,7 +163,7 @@ index ebf2a3bc18..1efc448184 100644
 +
  #endif
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index f162adfff7..c5ae7c3c36 100644
+index b46babf931..736e82c506 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -98,6 +98,9 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
@@ -186,36 +186,33 @@ index f162adfff7..c5ae7c3c36 100644
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 1ffbf52a89..0769df20f7 100644
+index 1ffbf52a89..7eebbc5b4e 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -17,10 +17,20 @@ always += helloworld.efi
+@@ -17,9 +17,18 @@ always += helloworld.efi
  endif
  
  obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 -obj-y += efi_image_loader.o efi_boottime.o efi_runtime.o efi_console.o
 -obj-y += efi_memory.o efi_device_path_to_text.o efi_device_path.o
 -obj-y += efi_device_path_utilities.o efi_file.o efi_variable.o efi_bootmgr.o
--obj-y += efi_watchdog.o
-+obj-y += \
-+efi_bootmgr.o \
-+efi_boottime.o \
-+efi_console.o \
-+efi_device_path.o \
-+efi_device_path_to_text.o \
-+efi_device_path_utilities.o \
-+efi_file.o \
-+efi_image_loader.o \
-+efi_memory.o \
-+efi_runtime.o \
-+efi_unicode_collation.o \
-+efi_variable.o \
-+efi_watchdog.o
++obj-y += efi_bootmgr.o
++obj-y += efi_boottime.o
++obj-y += efi_console.o
++obj-y += efi_device_path.o
++obj-y += efi_device_path_to_text.o
++obj-y += efi_device_path_utilities.o
++obj-y += efi_file.o
++obj-y += efi_image_loader.o
++obj-y += efi_memory.o
++obj-y += efi_runtime.o
++obj-y += efi_unicode_collation.o
++obj-y += efi_variable.o
+ obj-y += efi_watchdog.o
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
- obj-$(CONFIG_PARTITIONS) += efi_disk.o
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index cd5fdb7aa8..f9f59b93f9 100644
+index fb99fdbedc..dfddcb5aa5 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -1527,6 +1527,12 @@ efi_status_t efi_setup_loaded_image(
@@ -233,7 +230,7 @@ index cd5fdb7aa8..f9f59b93f9 100644
  	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 new file mode 100644
-index 0000000000..62a36d32e4
+index 0000000000..7f3ea3c77e
 --- /dev/null
 +++ b/lib/efi_loader/efi_unicode_collation.c
 @@ -0,0 +1,329 @@
@@ -564,7 +561,7 @@ index 0000000000..62a36d32e4
 +	.str_upr = efi_str_upr,
 +	.fat_to_str = efi_fat_to_str,
 +	.str_to_fat = efi_str_to_fat,
-+	.supported_languages = "en-US",
++	.supported_languages = "en",
 +};
 -- 
 2.18.0
