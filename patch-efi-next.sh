@@ -20,7 +20,6 @@ git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
 git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
-git am ../patch/0001-efi_loader-use-correct-documentation-style.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 
 # USB keyboard
@@ -38,9 +37,6 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
-git am ../patch/0001-efi_loader-fix-typos-in-efi_boottime.c.patch
-git am ../patch/0001-efi_loader-fix-typos-in-efi_runtime.c.patch
-git am ../patch/0001-efi_loader-description-efi_update_capsule.patch
 
 # Unicode collation protocol
 git am ../patch/0001-efi_loader-capitalization-table.patch
