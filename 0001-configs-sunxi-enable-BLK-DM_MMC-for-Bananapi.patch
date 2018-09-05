@@ -15,8 +15,8 @@ diff --git a/configs/Bananapi_defconfig b/configs/Bananapi_defconfig
 index 52650448091..300110a5cab 100644
 --- a/configs/Bananapi_defconfig
 +++ b/configs/Bananapi_defconfig
-@@ -17,6 +17,8 @@ CONFIG_SPL_I2C_SUPPORT=y
- # CONFIG_SPL_EFI_PARTITION is not set
+@@ -16,6 +16,8 @@ CONFIG_SPL_I2C_SUPPORT=y
+ CONFIG_DEFAULT_DEVICE_TREE="sun7i-a20-bananapi"
  CONFIG_NETCONSOLE=y
  CONFIG_SCSI_AHCI=y
 +CONFIG_BLK=y
