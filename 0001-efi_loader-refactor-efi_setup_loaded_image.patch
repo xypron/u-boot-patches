@@ -239,7 +239,7 @@ index a478bbafe2..4fc6511b01 100644
  		if (ret != EFI_SUCCESS)
  			goto failure;
  	} else {
- 		/* In this case, file_path is the "device" path, ie.
+ 		/* In this case, file_path is the "device" path, i.e.
  		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
  		 */
 -		ret = efi_setup_loaded_image(info, obj, file_path, NULL);
