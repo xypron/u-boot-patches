@@ -38,14 +38,6 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 
-# Unicode collation protocol
-git am ../patch/0001-efi_loader-capitalization-table.patch
-git am ../patch/0001-lib-charset-upper-lower-case-conversion.patch
-git am ../patch/0001-test-tests-for-utf_to_lower-utf_to_upper.patch
-git am ../patch/0001-efi_loader-EFI_UNICODE_COLLATION_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-EFI_UNICODE_COLLATION_PROTOCOL.patch
-exit
-
 # Deletion of handles
 git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
