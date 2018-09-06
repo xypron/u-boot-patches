@@ -15,7 +15,6 @@ git am ../patch/0001-spl-u-boot-spl-nodtb.bin-remove-.got-and-.got.plt-se.patch
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
-git am ../patch/0001-lib-slre-remove-superfluous-assignment.patch
 git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-riscv-allow-native-compilation.patch
