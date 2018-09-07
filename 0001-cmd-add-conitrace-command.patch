@@ -1,11 +1,10 @@
-From f5d8d2371f1f94bdb57d9461f603b8911ba9a33e Mon Sep 17 00:00:00 2001
+From 80050d46cc09776411a20f7807be4353bda50a28 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 7 Sep 2018 07:54:15 +0200
 Subject: [PATCH 1/1] cmd: add conitrace command
 
 The 'conitrace' command prints the codes received from the console input as
-hexadecimal numbers. After waiting more than 1 ms for further input a line
-feed is issued.
+hexadecimal numbers.
 
 This developer utility is useful for testing the handling of special keys
 by keyboard drivers.
@@ -14,12 +13,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |  6 ++++++
  cmd/Makefile    |  1 +
- cmd/conitrace.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 56 insertions(+)
+ cmd/conitrace.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 58 insertions(+)
  create mode 100644 cmd/conitrace.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index b5dddacf0d..6d5228b6c1 100644
+index 13d4c991bf..cf97a0f2be 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -1338,6 +1338,12 @@ config CMD_CACHE
@@ -36,7 +35,7 @@ index b5dddacf0d..6d5228b6c1 100644
  	bool "Enable the 'display' command, for character displays"
  	help
 diff --git a/cmd/Makefile b/cmd/Makefile
-index c066f36ab6..bbbe85831f 100644
+index 3487c80455..88045dea97 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
 @@ -34,6 +34,7 @@ obj-$(CONFIG_CMD_CACHE) += cache.o
@@ -49,15 +48,14 @@ index c066f36ab6..bbbe85831f 100644
  obj-$(CONFIG_DATAFLASH_MMC_SELECT) += dataflash_mmc_mux.o
 diff --git a/cmd/conitrace.c b/cmd/conitrace.c
 new file mode 100644
-index 0000000000..3f810c247b
+index 0000000000..85c5422b7e
 --- /dev/null
 +++ b/cmd/conitrace.c
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,51 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'conitrace' command prints the codes received from the console input as
-+ * hexadecimal numbers. After waiting more than 1 ms for further input a line
-+ * feed is issued.
++ * hexadecimal numbers.
 + *
 + * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + */
@@ -67,6 +65,8 @@ index 0000000000..3f810c247b
 +static int do_conitrace(cmd_tbl_t *cmdtp, int flag, int argc,
 +			char * const argv[])
 +{
++	bool first = true;
++
 +	printf("Waiting for your input\n");
 +	printf("To terminate type 'x'\n");
 +
@@ -77,29 +77,30 @@ index 0000000000..3f810c247b
 +	for (;;) {
 +		int c = getc();
 +
-+		if (c == 'x' || c == 'X')
++		if (first && (c == 'x' || c == 'X'))
 +			break;
 +
 +		printf("%02x ", c);
++		first = false;
 +
-+		/* 1 ms delay */
++		/* 1 ms delay - serves to detect separate keystrokes */
 +		udelay(1000);
-+		if (!tstc())
++		if (!tstc()) {
 +			printf("\n");
++			first = true;
++		}
 +	}
 +
 +	return CMD_RET_SUCCESS;
 +}
 +
 +#ifdef CONFIG_SYS_LONGHELP
-+static char conitrace_help_text[] =
-+	"conitrace outputs the codes received from the console input as\n"
-+	"hexadecimal numbers.\n";
++static char conitrace_help_text[] = "";
 +#endif
 +
 +U_BOOT_CMD_COMPLETE(
 +	conitrace, 2, 0, do_conitrace,
-+	"Trace console input",
++	"trace console input",
 +	conitrace_help_text, NULL
 +);
 -- 
