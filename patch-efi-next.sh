@@ -23,7 +23,7 @@ git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-test-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.patch
 git am ../patch/0001-test-py-typo-occured.patch
-gti am ../patch/0001-cmd-add-conitrace-command.patch
+git am ../patch/0001-cmd-add-conitrace-command.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -41,6 +41,10 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 
+# Simple Text Input Ex Protocol
+git am ../patch/0001-efi_loader-struct-efi_simple_text_input_protocol.patch
+
+exit
 # Deletion of handles
 git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
