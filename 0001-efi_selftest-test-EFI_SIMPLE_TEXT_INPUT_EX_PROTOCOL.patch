@@ -1,4 +1,4 @@
-From 11b13a80963df498c51fb04b703ff3639f2b9b0b Mon Sep 17 00:00:00 2001
+From 254cc80eddf62e0cd3ab59d2e9fa700b93277059 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 23:39:43 +0200
 Subject: [PATCH 1/1] efi_selftest: test EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -8,8 +8,8 @@ Provide a unit test for the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                   |   1 +
- lib/efi_selftest/efi_selftest_textinputex.c | 236 ++++++++++++++++++++
- 2 files changed, 237 insertions(+)
+ lib/efi_selftest/efi_selftest_textinputex.c | 240 ++++++++++++++++++++
+ 2 files changed, 241 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_textinputex.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -26,10 +26,10 @@ index 80bc5d8a64..2f55d9d66f 100644
  efi_selftest_unicode_collation.o \
 diff --git a/lib/efi_selftest/efi_selftest_textinputex.c b/lib/efi_selftest/efi_selftest_textinputex.c
 new file mode 100644
-index 0000000000..b66d52ab50
+index 0000000000..46e5f9f767
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_textinputex.c
-@@ -0,0 +1,236 @@
+@@ -0,0 +1,240 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_textinput
@@ -171,12 +171,13 @@ index 0000000000..b66d52ab50
 +	efi_status_t ret;
 +
 +	boottime = systable->boottime;
-+	
++
 +	ret = boottime->locate_protocol(&text_input_ex_protocol_guid, NULL,
 +					(void **)&con_in_ex);
 +	if (ret != EFI_SUCCESS) {
 +		con_in_ex = NULL;
-+		efi_st_error("Extended text input protocol is not available.\n");
++		efi_st_error(
++			"Extended text input protocol is not available.\n");
 +		return EFI_ST_FAILURE;
 +	}
 +
@@ -235,7 +236,8 @@ index 0000000000..b66d52ab50
 +			      (unsigned int)input_key.key.unicode_char,
 +			      translate_char(input_key.key.unicode_char),
 +			      (unsigned int)input_key.key.scan_code);
-+		if (input_key.key_state.key_shift_state & EFI_SHIFT_STATE_VALID) {
++		if (input_key.key_state.key_shift_state &
++		    EFI_SHIFT_STATE_VALID) {
 +			if (input_key.key_state.key_shift_state &
 +			    (EFI_LEFT_SHIFT_PRESSED | EFI_RIGHT_SHIFT_PRESSED))
 +				efi_st_printf("SHIFT+");
@@ -243,13 +245,15 @@ index 0000000000..b66d52ab50
 +			    (EFI_LEFT_ALT_PRESSED | EFI_RIGHT_ALT_PRESSED))
 +				efi_st_printf("ALT+");
 +			if (input_key.key_state.key_shift_state &
-+			    (EFI_LEFT_CONTROL_PRESSED | EFI_RIGHT_CONTROL_PRESSED))
++			    (EFI_LEFT_CONTROL_PRESSED |
++			     EFI_RIGHT_CONTROL_PRESSED))
 +				efi_st_printf("CTRL+");
 +			if (input_key.key_state.key_shift_state &
 +			    (EFI_LEFT_LOGO_PRESSED | EFI_RIGHT_LOGO_PRESSED))
 +				efi_st_printf("META+");
 +		}
-+		efi_st_printf("%ps)\n", translate_code(input_key.key.scan_code));
++		efi_st_printf("%ps)\n",
++			      translate_code(input_key.key.scan_code));
 +
 +		switch (input_key.key.unicode_char) {
 +		case 'x':
