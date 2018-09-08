@@ -1,0 +1,259 @@
+From 9930f4a1c064a2822d4950a4b39d6e4f613b0e6e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 8 Sep 2018 18:17:47 +0200
+Subject: [PATCH 1/1] efi_loader: rework event handling for console
+
+Preread the next key in the console timer event.
+
+The EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL requires to trigger registered key
+notification functions based on the prefetched key.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 187 +++++++++++++++++++++++++----------
+ 1 file changed, 135 insertions(+), 52 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index c4ee45b044..010508f999 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -396,34 +396,12 @@ struct efi_simple_text_output_protocol efi_con_out = {
+ 	.mode = (void*)&efi_con_mode,
+ };
+ 
+-static void efi_set_keymap(void)
+-{
+-	char *penv;
++static bool key_available;
++static struct efi_input_key next_key;
+ 
+-	/* Init keyboard device (default US layout) */
+-	keymap = KBD_US;
+-	penv = env_get("keymap");
+-	if (penv != NULL) {
+-		if (strncmp(penv, "de", 3) == 0)
+-			keymap = KBD_GER;
+-	}
+-}
+-
+-static efi_status_t EFIAPI efi_cin_reset(
+-			struct efi_simple_text_input_protocol *this,
+-			bool extended_verification)
+-{
+-	EFI_ENTRY("%p, %d", this, extended_verification);
+-
+-	/* Empty input buffer */
+-	while (tstc())
+-		getc();
+-
+-	return EFI_EXIT(EFI_SUCCESS);
+-}
+-
+-/*
+- * Analyze modifiers (shift, alt, ctrl) for function keys.
++/**
++ * skip_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
++ *
+  * This gets called when we have already parsed CSI.
+  *
+  * @modifiers:  bitmask (shift, alt, ctrl)
+@@ -464,9 +442,13 @@ out:
+ 	return ret;
+ }
+ 
+-static efi_status_t EFIAPI efi_cin_read_key_stroke(
+-			struct efi_simple_text_input_protocol *this,
+-			struct efi_input_key *key)
++/**
++ * efi_cin_read_key() - read a key from the console input
++ *
++ * @key:	- key received
++ * Return:	- status code
++ */
++static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+ {
+ 	struct efi_input_key pressed_key = {
+ 		.scan_code = 0,
+@@ -474,11 +456,6 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 	};
+ 	int ch;
+ 
+-	EFI_ENTRY("%p, %p", this, key);
+-
+-	/* We don't do interrupts, so check for timers cooperatively */
+-	efi_timer_check();
+-
+ 	if (!tstc())
+ 		/* No key pressed */
+ 		goto error;
+@@ -622,12 +599,111 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 		pressed_key.unicode_char = ch;
+ 	*key = pressed_key;
+ 
+-	return EFI_EXIT(EFI_SUCCESS);
++	return EFI_SUCCESS;
+ error:
+-	return EFI_EXIT(EFI_NOT_READY);
++	return EFI_NOT_READY;
+ }
+ 
+-struct efi_simple_text_input_protocol efi_con_in = {
++/**
++ * efi_cin_check() - check if keyboard input is available
++ */
++static void efi_cin_check(void)
++{
++	efi_status_t ret;
++
++	if (key_available) {
++		efi_signal_event(efi_con_in.wait_for_key, true);
++		return;
++	}
++
++	if (tstc()) {
++		ret = efi_cin_read_key(&next_key);
++		if (ret == EFI_SUCCESS) {
++			key_available = true;
++
++			/* Queue the wait for key event */
++			efi_signal_event(efi_con_in.wait_for_key, true);
++		}
++	}
++}
++
++/**
++ * efi_set_keymap() - determine the keyboard layout
++ */
++static void efi_set_keymap(void)
++{
++	char *penv;
++
++	/* Init keyboard device (default US layout) */
++	keymap = KBD_US;
++	penv = env_get("keymap");
++	if (penv != NULL) {
++		if (strncmp(penv, "de", 3) == 0)
++			keymap = KBD_GER;
++	}
++}
++
++/**
++ * efi_cin_reset() - drain the input buffer
++ *
++ * @this:			instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
++ * @extended_verification:	allow for exhaustive verification
++ * Return:			status code
++ *
++ * This function implements the Reset service of the
++ * EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ */
++static efi_status_t EFIAPI efi_cin_reset(
++			struct efi_simple_text_input_protocol *this,
++			bool extended_verification)
++{
++	EFI_ENTRY("%p, %d", this, extended_verification);
++
++	/* Empty input buffer */
++	while (tstc())
++		getc();
++	key_available = false;
++
++	return EFI_EXIT(EFI_SUCCESS);
++}
++
++/**
++ * efi_cin_reset() - drain the input buffer
++ *
++ * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
++ * @key:	key read from console
++ * Return:	status code
++ *
++ * This function implements the ReadKeyStroke service of the
++ * EFI_SIMPLE_TEXT_INPUT_PROTOCOL.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ */
++static efi_status_t EFIAPI efi_cin_read_key_stroke(
++			struct efi_simple_text_input_protocol *this,
++			struct efi_input_key *key)
++{
++	EFI_ENTRY("%p, %p", this, key);
++
++	/* We don't do interrupts, so check for timers cooperatively */
++	efi_timer_check();
++
++	/* Enable console input after ExitBootServices */
++	efi_cin_check();
++
++	if (!key_available)
++		return EFI_EXIT(EFI_NOT_READY);
++	*key = next_key;
++	key_available = false;
++	efi_con_in.wait_for_key->is_signaled = false;
++	return EFI_EXIT(EFI_SUCCESS);
++}
++
++static struct efi_simple_text_input_protocol efi_con_in = {
+ 	.reset = efi_cin_reset,
+ 	.read_key_stroke = efi_cin_read_key_stroke,
+ 	.wait_for_key = NULL,
+@@ -635,31 +711,38 @@ struct efi_simple_text_input_protocol efi_con_in = {
+ 
+ static struct efi_event *console_timer_event;
+ 
+-static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+-{
+-}
+-
+ /*
+- * Notification function of the console timer event.
++ * efi_console_timer_notify() - notify the console timer event
+  *
+- * event:	console timer event
+- * context:	not used
++ * @event:	console timer event
++ * @context:	not used
+  */
+ static void EFIAPI efi_console_timer_notify(struct efi_event *event,
+ 					    void *context)
+ {
+ 	EFI_ENTRY("%p, %p", event, context);
++	efi_cin_check();
++	EFI_EXIT(EFI_SUCCESS);
++}
+ 
+-	/* Check if input is available */
+-	if (tstc()) {
+-		/* Queue the wait for key event */
+-		efi_con_in.wait_for_key->is_signaled = true;
+-		efi_signal_event(efi_con_in.wait_for_key, true);
+-	}
++/**
++ * efi_key_notify() - notify the wait for key event
++ *
++ * @event:	wait for key event
++ * @context:	not used
++ */
++static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
++{
++	EFI_ENTRY("%p, %p", event, context);
++	efi_cin_check();
+ 	EFI_EXIT(EFI_SUCCESS);
+ }
+ 
+-/* This gets called from do_bootefi_exec(). */
++/**
++ * efi_console_register() - install the console protocols
++ *
++ * This function is called from do_bootefi_exec().
++ */
+ int efi_console_register(void)
+ {
+ 	efi_status_t r;
+-- 
+2.18.0
+

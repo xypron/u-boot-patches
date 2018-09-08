@@ -48,6 +48,7 @@ git am ../patch/0001-efi_loader-struct-efi_simple_text_input_protocol.patch
 git am ../patch/0001-efi_loader-global-symbol-for-code-page-437.patch
 git am ../patch/0001-efi_loader-support-Unicode-text-input.patch
 git am ../patch/0001-test-py-Unicode-w-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.patch
+git am ../patch/0001-efi_loader-rework-event-handling-for-console.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 
 exit
