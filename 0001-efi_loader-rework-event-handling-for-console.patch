@@ -1,7 +1,7 @@
-From 4507eee0c18c3ae9b59e134660a3b2422616ab91 Mon Sep 17 00:00:00 2001
+From 67e2f45d6e86ca10d9fe9d4d24169f8f522a1f65 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 18:17:47 +0200
-Subject: [PATCH 7/7] efi_loader: rework event handling for console
+Subject: [PATCH 1/1] efi_loader: rework event handling for console
 
 Preread the next key in the console timer event.
 
@@ -10,11 +10,11 @@ notification functions based on the prefetched key.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 187 +++++++++++++++++++++++++----------
- 1 file changed, 135 insertions(+), 52 deletions(-)
+ lib/efi_loader/efi_console.c | 185 +++++++++++++++++++++++++----------
+ 1 file changed, 134 insertions(+), 51 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index c4ee45b044..010508f999 100644
+index de418d7e73..bf27a88be2 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -396,34 +396,12 @@ struct efi_simple_text_output_protocol efi_con_out = {
@@ -86,7 +86,7 @@ index c4ee45b044..010508f999 100644
  	if (!tstc())
  		/* No key pressed */
  		goto error;
-@@ -622,12 +599,111 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+@@ -622,9 +599,108 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		pressed_key.unicode_char = ch;
  	*key = pressed_key;
  
@@ -95,9 +95,8 @@ index c4ee45b044..010508f999 100644
  error:
 -	return EFI_EXIT(EFI_NOT_READY);
 +	return EFI_NOT_READY;
- }
- 
--struct efi_simple_text_input_protocol efi_con_in = {
++}
++
 +/**
 + * efi_cin_check() - check if keyboard input is available
 + */
@@ -195,12 +194,9 @@ index c4ee45b044..010508f999 100644
 +	key_available = false;
 +	efi_con_in.wait_for_key->is_signaled = false;
 +	return EFI_EXIT(EFI_SUCCESS);
-+}
-+
-+static struct efi_simple_text_input_protocol efi_con_in = {
- 	.reset = efi_cin_reset,
- 	.read_key_stroke = efi_cin_read_key_stroke,
- 	.wait_for_key = NULL,
+ }
+ 
+ struct efi_simple_text_input_protocol efi_con_in = {
 @@ -635,31 +711,38 @@ struct efi_simple_text_input_protocol efi_con_in = {
  
  static struct efi_event *console_timer_event;
