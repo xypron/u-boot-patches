@@ -45,6 +45,7 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-efi_loader-SPDX-License-Identifier-for-efi_api.h.patch
 git am ../patch/0001-efi_loader-SPDX-License-Identifier-for-efi.h.patch
 git am ../patch/0001-efi_loader-struct-efi_simple_text_input_protocol.patch
+git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 
 exit
 # Deletion of handles
