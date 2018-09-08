@@ -1,4 +1,4 @@
-From c8b3b3fbd2cd78cf768650021aac4e27a739feab Mon Sep 17 00:00:00 2001
+From a62b2072fd437a06f8c75ca79f2ae4f69481c3f2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 14:39:40 +0200
 Subject: [PATCH 1/1] efi_loader: support Unicode text input
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 76 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 277eb91e52..e8a02778d0 100644
+index 426567c946..4d9c856448 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -15,12 +15,18 @@
@@ -54,7 +54,7 @@ index 277eb91e52..e8a02778d0 100644
 +}
 +
  static efi_status_t EFIAPI efi_cin_reset(
- 			struct efi_simple_input_interface *this,
+ 			struct efi_simple_text_input_protocol *this,
  			bool extended_verification)
 @@ -453,17 +472,16 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		.scan_code = 0,
@@ -140,7 +140,7 @@ index 277eb91e52..e8a02778d0 100644
 +	return EFI_EXIT(EFI_NOT_READY);
  }
  
- struct efi_simple_input_interface efi_con_in = {
+ struct efi_simple_text_input_protocol efi_con_in = {
 @@ -597,6 +666,9 @@ int efi_console_register(void)
  	struct efi_object *efi_console_output_obj;
  	struct efi_object *efi_console_input_obj;

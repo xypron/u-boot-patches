@@ -1,4 +1,4 @@
-From 0c5b0ba60c61da3201cfd7fde92717473f7ac1a3 Mon Sep 17 00:00:00 2001
+From 20455e987bdc4363dfc9db5c117813c2cdb3f0fd Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 10:08:21 +0200
 Subject: [PATCH 1/1] efi_loader: struct efi_simple_text_input_protocol
@@ -36,7 +36,7 @@ index 399dfd65fe..1b54d1880f 100644
  	struct efi_input_key key;
  	bool have_key;
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 1efc448184..26e88f494c 100644
+index 0893a34087..f1c4e59f3a 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -308,7 +308,7 @@ struct efi_system_table {
@@ -48,7 +48,7 @@ index 1efc448184..26e88f494c 100644
  	efi_handle_t con_out_handle;
  	struct efi_simple_text_output_protocol *con_out;
  	efi_handle_t stderr_handle;
-@@ -598,11 +598,11 @@ struct efi_input_key {
+@@ -596,11 +596,11 @@ struct efi_input_key {
  	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
  
