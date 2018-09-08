@@ -1,7 +1,7 @@
-From c37f329a516eccbbbc6f322f093b69e51473ffb7 Mon Sep 17 00:00:00 2001
+From 8d4791e00cf0e54c4814f6ba7357c0aa4a4a9609 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 14:39:40 +0200
-Subject: [PATCH 1/1] efi_loader: support Unicode text input
+Subject: [PATCH 5/7] efi_loader: support Unicode text input
 
 Up to now the EFI_TEXT_INPUT_PROTOCOL only supported ASCII characters.
 
@@ -47,7 +47,7 @@ index 426567c946..c4ee45b044 100644
 +	/* Init keyboard device (default US layout) */
 +	keymap = KBD_US;
 +	penv = env_get("keymap");
-+	if (penv != NULL) {
++	if (penv) {
 +		if (strncmp(penv, "de", 3) == 0)
 +			keymap = KBD_GER;
 +	}
@@ -127,7 +127,7 @@ index 426567c946..c4ee45b044 100644
 +		 * for German language special characters can be enabled via
 +		 * environment variable 'keymap' in the i8042 driver.
 +		 */
-+		 ch = codepage_437[ch - 0x80];
++		ch = codepage_437[ch - 0x80];
 +	} else if (ch >= 0x80) {
 +		goto error;
  	}

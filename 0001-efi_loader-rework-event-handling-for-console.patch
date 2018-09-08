@@ -1,7 +1,7 @@
-From 9930f4a1c064a2822d4950a4b39d6e4f613b0e6e Mon Sep 17 00:00:00 2001
+From 4507eee0c18c3ae9b59e134660a3b2422616ab91 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 18:17:47 +0200
-Subject: [PATCH 1/1] efi_loader: rework event handling for console
+Subject: [PATCH 7/7] efi_loader: rework event handling for console
 
 Preread the next key in the console timer event.
 
@@ -30,7 +30,7 @@ index c4ee45b044..010508f999 100644
 -	/* Init keyboard device (default US layout) */
 -	keymap = KBD_US;
 -	penv = env_get("keymap");
--	if (penv != NULL) {
+-	if (penv) {
 -		if (strncmp(penv, "de", 3) == 0)
 -			keymap = KBD_GER;
 -	}
@@ -131,7 +131,7 @@ index c4ee45b044..010508f999 100644
 +	/* Init keyboard device (default US layout) */
 +	keymap = KBD_US;
 +	penv = env_get("keymap");
-+	if (penv != NULL) {
++	if (penv) {
 +		if (strncmp(penv, "de", 3) == 0)
 +			keymap = KBD_GER;
 +	}
