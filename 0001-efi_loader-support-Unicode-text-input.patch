@@ -1,4 +1,4 @@
-From 22b37df46a10a57c8c730b0e8ab450db4239e2c3 Mon Sep 17 00:00:00 2001
+From c8b3b3fbd2cd78cf768650021aac4e27a739feab Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 14:39:40 +0200
 Subject: [PATCH 1/1] efi_loader: support Unicode text input
@@ -10,11 +10,11 @@ codepage 437 special characters from the local keyboard.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 82 +++++++++++++++++++++++++++++++++---
- 1 file changed, 77 insertions(+), 5 deletions(-)
+ lib/efi_loader/efi_console.c | 80 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 76 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 31aa43ff13..c69b7f733a 100644
+index 277eb91e52..e8a02778d0 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -15,12 +15,18 @@
@@ -36,7 +36,7 @@ index 31aa43ff13..c69b7f733a 100644
  static struct cout_mode efi_cout_modes[] = {
  	/* EFI Mode 0 is 80x25 and always present */
  	{
-@@ -392,6 +398,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
+@@ -390,6 +396,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
  	.mode = (void*)&efi_con_mode,
  };
  
@@ -53,10 +53,10 @@ index 31aa43ff13..c69b7f733a 100644
 +	}
 +}
 +
- /**
-  * efi_cin_empty_buffer() - empty input buffer
-  */
-@@ -522,17 +541,16 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ static efi_status_t EFIAPI efi_cin_reset(
+ 			struct efi_simple_input_interface *this,
+ 			bool extended_verification)
+@@ -453,17 +472,16 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		.scan_code = 0,
  		.unicode_char = 0,
  	};
@@ -77,7 +77,7 @@ index 31aa43ff13..c69b7f733a 100644
  
  	ch = getc();
  	if (ch == cESC) {
-@@ -619,12 +637,63 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+@@ -550,12 +568,63 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  	} else if (ch == 0x7f) {
  		/* Backspace */
  		ch = 0x08;
@@ -140,8 +140,8 @@ index 31aa43ff13..c69b7f733a 100644
 +	return EFI_EXIT(EFI_NOT_READY);
  }
  
- struct efi_simple_text_input_ex_protocol efi_con_in_ex = {
-@@ -675,6 +744,9 @@ int efi_console_register(void)
+ struct efi_simple_input_interface efi_con_in = {
+@@ -597,6 +666,9 @@ int efi_console_register(void)
  	struct efi_object *efi_console_output_obj;
  	struct efi_object *efi_console_input_obj;
  
