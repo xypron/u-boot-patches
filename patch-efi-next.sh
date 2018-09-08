@@ -42,6 +42,8 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 
 # Simple Text Input Ex Protocol
+git am ../patch/0001-efi_loader-global-symbol-for-code-page-437.patch
+git am ../patch/0001-efi_loader-support-Unicode-text-input.patch
 git am ../patch/0001-efi_loader-SPDX-License-Identifier-for-efi_api.h.patch
 git am ../patch/0001-efi_loader-SPDX-License-Identifier-for-efi.h.patch
 git am ../patch/0001-efi_loader-struct-efi_simple_text_input_protocol.patch

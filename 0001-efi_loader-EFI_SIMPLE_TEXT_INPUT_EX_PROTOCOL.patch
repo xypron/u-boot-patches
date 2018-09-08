@@ -1,4 +1,4 @@
-From 71beb4214cd98805bd233ba9718916db68a815ce Mon Sep 17 00:00:00 2001
+From ca287b06351143cde24d6ad6242ac9bfc93369fa Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 11:25:41 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -7,9 +7,9 @@ This patch implements the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h            | 55 ++++++++++++++++++++++++++++++++++++
- lib/efi_loader/efi_console.c |  6 ++--
- 2 files changed, 59 insertions(+), 2 deletions(-)
+ include/efi_api.h            | 55 +++++++++++++++++++++
+ lib/efi_loader/efi_console.c | 95 +++++++++++++++++++++++++++++++++---
+ 2 files changed, 144 insertions(+), 6 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index f1c4e59f3a..e844b9ced4 100644
@@ -83,7 +83,7 @@ index f1c4e59f3a..e844b9ced4 100644
  	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 426567c946..351d95d5d2 100644
+index 426567c946..31aa43ff13 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -42,10 +42,12 @@ static struct cout_mode efi_cout_modes[] = {
@@ -93,7 +93,7 @@ index 426567c946..351d95d5d2 100644
 -const efi_guid_t efi_guid_text_output_protocol =
 -			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
 +const efi_guid_t efi_guid_text_input_ex_protocol =
-+			EFI_SIMPLE_TEXT_INPUT_EXPROTOCOL_GUID;
++			EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
  const efi_guid_t efi_guid_text_input_protocol =
  			EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID;
 +const efi_guid_t efi_guid_text_output_protocol =
@@ -101,6 +101,129 @@ index 426567c946..351d95d5d2 100644
  
  #define cESC '\x1b'
  #define ESC "\x1b"
+@@ -390,16 +392,83 @@ struct efi_simple_text_output_protocol efi_con_out = {
+ 	.mode = (void*)&efi_con_mode,
+ };
+ 
++/**
++ * efi_cin_empty_buffer() - empty input buffer
++ */
++static void efi_cin_empty_buffer(void)
++{
++	while (tstc())
++		getc();
++}
++
++/**
++ * efi_cin_reset_ex() - reset console input
++ *
++ * @this:			- the extended simple text input protocol
++ * @extended_verification:	- extended verification
++ *
++ * This function implements the reset service of the
++ * EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * Return: old value of the task priority level
++ */
++static efi_status_t EFIAPI efi_cin_reset_ex(
++		struct efi_simple_text_input_ex_protocol *this,
++		bool extended_verification)
++{
++	EFI_ENTRY("%p, %u", this, extended_verification);
++
++	efi_cin_empty_buffer();
++	return EFI_EXIT(EFI_SUCCESS);
++}
++
++static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
++		struct efi_simple_text_input_ex_protocol *this,
++		struct efi_key_data *key_data)
++{
++	EFI_ENTRY("%p, %p", this, key_data);
++	return EFI_EXIT(EFI_UNSUPPORTED);
++}
++
++static efi_status_t EFIAPI efi_cin_set_state(
++		struct efi_simple_text_input_ex_protocol *this,
++		u8 key_toggle_state)
++{
++	EFI_ENTRY("%p, %u", this, key_toggle_state);
++	return EFI_EXIT(EFI_UNSUPPORTED);
++}
++
++static efi_status_t EFIAPI efi_cin_register_key_notify(
++		struct efi_simple_text_input_ex_protocol *this,
++		struct efi_key_data *key_data,
++		efi_status_t (EFIAPI *key_notify_function)(
++			struct efi_key_data *key_data),
++		void **notify_handle)
++{
++	EFI_ENTRY("%p, %p, %p, %p",
++		  this, key_data, key_notify_function, notify_handle);
++	return EFI_EXIT(EFI_UNSUPPORTED);
++}
++
++static efi_status_t EFIAPI efi_cin_unregister_key_notify(
++		struct efi_simple_text_input_ex_protocol *this,
++		void *notification_handle)
++{
++	EFI_ENTRY("%p, %p", this, notification_handle);
++	return EFI_EXIT(EFI_UNSUPPORTED);
++}
++
++
+ static efi_status_t EFIAPI efi_cin_reset(
+ 			struct efi_simple_text_input_protocol *this,
+ 			bool extended_verification)
+ {
+ 	EFI_ENTRY("%p, %d", this, extended_verification);
+ 
+-	/* Empty input buffer */
+-	while (tstc())
+-		getc();
+-
++	efi_cin_empty_buffer();
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
+@@ -558,6 +627,15 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
++struct efi_simple_text_input_ex_protocol efi_con_in_ex = {
++	.reset = efi_cin_reset_ex,
++	.read_key_stroke_ex = efi_cin_read_key_stroke_ex,
++	.wait_for_key_ex = NULL,
++	.set_state = efi_cin_set_state,
++	.register_key_notify = efi_cin_register_key_notify,
++	.unregister_key_notify = efi_cin_unregister_key_notify,
++};
++
+ struct efi_simple_text_input_protocol efi_con_in = {
+ 	.reset = efi_cin_reset,
+ 	.read_key_stroke = efi_cin_read_key_stroke,
+@@ -621,6 +699,10 @@ int efi_console_register(void)
+ 	if (r != EFI_SUCCESS)
+ 		goto out_of_memory;
+ 	systab.con_in_handle = efi_console_input_obj->handle;
++	r = efi_add_protocol(efi_console_input_obj->handle,
++			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
++	if (r != EFI_SUCCESS)
++		goto out_of_memory;
+ 
+ 	/* Create console events */
+ 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
+@@ -629,6 +711,7 @@ int efi_console_register(void)
+ 		printf("ERROR: Failed to register WaitForKey event\n");
+ 		return r;
+ 	}
++	efi_con_in_ex.wait_for_key_ex = efi_con_in.wait_for_key;
+ 	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_CALLBACK,
+ 			     efi_console_timer_notify, NULL, NULL,
+ 			     &console_timer_event);
 -- 
 2.18.0
 

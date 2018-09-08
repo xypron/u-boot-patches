@@ -1,0 +1,156 @@
+From 22b37df46a10a57c8c730b0e8ab450db4239e2c3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 8 Sep 2018 14:39:40 +0200
+Subject: [PATCH 1/1] efi_loader: support Unicode text input
+
+Up to now the EFI_TEXT_INPUT_PROTOCOL only supported ASCII characters.
+
+With the patch it can consume UTF-8 from the serial console or
+codepage 437 special characters from the local keyboard.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 82 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 77 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 31aa43ff13..c69b7f733a 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -15,12 +15,18 @@
+ #define EFI_COUT_MODE_2 2
+ #define EFI_MAX_COUT_MODE 3
+ 
++/* Keyboard layouts */
++#define KBD_US		0	/* default US layout */
++#define KBD_GER		1	/* German layout */
++
+ struct cout_mode {
+ 	unsigned long columns;
+ 	unsigned long rows;
+ 	int present;
+ };
+ 
++static int keymap = KBD_US;
++
+ static struct cout_mode efi_cout_modes[] = {
+ 	/* EFI Mode 0 is 80x25 and always present */
+ 	{
+@@ -392,6 +398,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
+ 	.mode = (void*)&efi_con_mode,
+ };
+ 
++static void efi_set_keymap(void)
++{
++	char *penv;
++
++	/* Init keyboard device (default US layout) */
++	keymap = KBD_US;
++	penv = env_get("keymap");
++	if (penv != NULL) {
++		if (strncmp(penv, "de", 3) == 0)
++			keymap = KBD_GER;
++	}
++}
++
+ /**
+  * efi_cin_empty_buffer() - empty input buffer
+  */
+@@ -522,17 +541,16 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 		.scan_code = 0,
+ 		.unicode_char = 0,
+ 	};
+-	char ch;
++	int ch;
+ 
+ 	EFI_ENTRY("%p, %p", this, key);
+ 
+ 	/* We don't do interrupts, so check for timers cooperatively */
+ 	efi_timer_check();
+ 
+-	if (!tstc()) {
++	if (!tstc())
+ 		/* No key pressed */
+-		return EFI_EXIT(EFI_NOT_READY);
+-	}
++		goto error;
+ 
+ 	ch = getc();
+ 	if (ch == cESC) {
+@@ -619,12 +637,63 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 	} else if (ch == 0x7f) {
+ 		/* Backspace */
+ 		ch = 0x08;
++	} else if (keymap == KBD_US && ch >= 0xc2 && ch <= 0xf4) {
++		/*
++		 * Unicode
++		 *
++		 * We assume here that the serial console is using UTF-8.
++		 * This of cause depends on the terminal settings.
++		 */
++		int code = 0;
++
++		if (ch >= 0xe0) {
++			if (ch >= 0xf0) {
++				/* 0xf0 - 0xf4 */
++				ch &= 0x07;
++				code = ch << 18;
++				ch = getc();
++				if (ch < 0x80 || ch > 0xbf)
++					goto error;
++				ch &= 0x3f;
++			} else {
++				/* 0xe0 - 0xef */
++				ch &= 0x0f;
++			}
++			code += ch << 12;
++			if ((code >= 0xD800 && code <= 0xDFFF) ||
++			    code >= 0x110000)
++				goto error;
++			ch = getc();
++			if (ch < 0x80 || ch > 0xbf)
++				goto error;
++		}
++		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
++		ch &= 0x3f;
++		code += ch << 6;
++		ch = getc();
++		if (ch < 0x80 || ch > 0xbf)
++			goto error;
++		ch &= 0x3f;
++		ch += code;
++	} else if (keymap != KBD_US && ch >= 0x80 && ch <= 0xff) {
++		/*
++		 * Code page 437 special characters
++		 *
++		 * The keyboard drivers emit code page 437 characters. Support
++		 * for German language special characters can be enabled via
++		 * environment variable 'keymap' in the i8042 driver.
++		 */
++		 ch = codepage_437[ch - 0x80];
++	} else {
++		goto error;
+ 	}
+ 	if (!pressed_key.scan_code)
+ 		pressed_key.unicode_char = ch;
+ 	*key = pressed_key;
+ 
+ 	return EFI_EXIT(EFI_SUCCESS);
++error:
++	return EFI_EXIT(EFI_NOT_READY);
+ }
+ 
+ struct efi_simple_text_input_ex_protocol efi_con_in_ex = {
+@@ -675,6 +744,9 @@ int efi_console_register(void)
+ 	struct efi_object *efi_console_output_obj;
+ 	struct efi_object *efi_console_input_obj;
+ 
++	/* Set keymap */
++	efi_set_keymap();
++
+ 	/* Set up mode information */
+ 	query_console_size();
+ 
+-- 
+2.18.0
+
