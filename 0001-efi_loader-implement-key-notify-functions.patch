@@ -1,4 +1,4 @@
-From b5e665d9e35a58ac623a68334d67356da6c765fe Mon Sep 17 00:00:00 2001
+From 22ae48c3a105016ea2463b92774d326ed334b166 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Sep 2018 13:15:44 +0200
 Subject: [PATCH 1/1] efi_loader: implement key notify functions
@@ -8,11 +8,11 @@ EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 69 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 66 insertions(+), 3 deletions(-)
+ lib/efi_loader/efi_console.c | 101 +++++++++++++++++++++++++++++++++--
+ 1 file changed, 98 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 2f38575fe0..c0e8bda9b2 100644
+index 6fc02b210f..9c144808be 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -398,8 +398,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
@@ -39,12 +39,59 @@ index 2f38575fe0..c0e8bda9b2 100644
  
  /**
   * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
-@@ -792,10 +807,36 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
- 		efi_status_t (EFIAPI *key_notify_function)(
+@@ -641,6 +656,34 @@ error:
+ 	return EFI_NOT_READY;
+ }
+ 
++/**
++ * efi_cin_notify() - notify registered functions
++ */
++static void efi_cin_notify(void)
++{
++	struct efi_cin_notify_function *item;
++
++	list_for_each_entry(item, &cin_notify_functions, link) {
++		bool match = true;
++
++		/* We do not support toggle states */
++		if (item->key.key.unicode_char || item->key.key.scan_code) {
++			if (item->key.key.unicode_char !=
++			    next_key.key.unicode_char ||
++			    item->key.key.scan_code != next_key.key.scan_code)
++			match = false;
++		}
++		if (item->key.key_state.key_shift_state &&
++		    item->key.key_state.key_shift_state !=
++		    next_key.key_state.key_shift_state)
++			match = false;
++
++		if (match)
++			/* We don't bother about the return code */
++			EFI_CALL(item->function(&next_key));
++	}
++}
++
+ /**
+  * efi_cin_check() - check if keyboard input is available
+  */
+@@ -658,8 +701,12 @@ static void efi_cin_check(void)
+ 		if (ret == EFI_SUCCESS) {
+ 			key_available = true;
+ 
++			/* Notify registered functions */
++			efi_cin_notify();
++
+ 			/* Queue the wait for key event */
+-			efi_signal_event(efi_con_in.wait_for_key, true);
++			if (key_available)
++				efi_signal_event(efi_con_in.wait_for_key, true);
+ 		}
+ 	}
+ }
+@@ -817,9 +864,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
  			struct efi_key_data *key_data),
  		void **notify_handle)
--{
-+{
+ {
 +	efi_status_t ret = EFI_SUCCESS;
 +	struct efi_cin_notify_function *notify_function;
 +
@@ -78,12 +125,12 @@ index 2f38575fe0..c0e8bda9b2 100644
  }
  
  /**
-@@ -815,8 +856,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
+@@ -839,8 +912,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
  		struct efi_simple_text_input_ex_protocol *this,
  		void *notification_handle)
  {
 +	efi_status_t ret = EFI_INVALID_PARAMETER;
-+	struct efi_cin_notify_function *f, *notify_function =
++	struct efi_cin_notify_function *item, *notify_function =
 +			notification_handle;
 +
  	EFI_ENTRY("%p, %p", this, notification_handle);
@@ -93,8 +140,8 @@ index 2f38575fe0..c0e8bda9b2 100644
 +	if (!this || !notification_handle)
 +		goto out;
 +
-+	list_for_each_entry(f, &cin_notify_functions, link) {
-+		if (f == notify_function) {
++	list_for_each_entry(item, &cin_notify_functions, link) {
++		if (item == notify_function) {
 +			ret = EFI_SUCCESS;
 +			break;
 +		}
