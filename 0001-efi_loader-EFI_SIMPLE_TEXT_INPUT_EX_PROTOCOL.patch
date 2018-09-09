@@ -1,15 +1,18 @@
-From c939a04c3179885bb0192d84b923b58ae2a92e03 Mon Sep 17 00:00:00 2001
+From 888e99da99719b12bbea35bad914f8636debe3c8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 11:25:41 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
 
 This patch implements the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 
+The implementation of notification functions is postponed to a later
+patch.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h            |  56 +++++++++
- lib/efi_loader/efi_console.c | 226 ++++++++++++++++++++++++++++++++---
- 2 files changed, 263 insertions(+), 19 deletions(-)
+ lib/efi_loader/efi_console.c | 230 +++++++++++++++++++++++++++++++----
+ 2 files changed, 265 insertions(+), 21 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index ae840d1bb4..5004f520ff 100644
@@ -84,7 +87,7 @@ index ae840d1bb4..5004f520ff 100644
  	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 1dbf73afc2..7a6fc1c23f 100644
+index 1dbf73afc2..2f38575fe0 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -48,10 +48,12 @@ static struct cout_mode efi_cout_modes[] = {
@@ -102,7 +105,7 @@ index 1dbf73afc2..7a6fc1c23f 100644
  
  #define cESC '\x1b'
  #define ESC "\x1b"
-@@ -397,7 +399,7 @@ struct efi_simple_text_output_protocol efi_con_out = {
+@@ -397,19 +399,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
  };
  
  static bool key_available;
@@ -110,15 +113,21 @@ index 1dbf73afc2..7a6fc1c23f 100644
 +static struct efi_key_data next_key;
  
  /**
-  * skip_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
-@@ -407,7 +409,7 @@ static struct efi_input_key next_key;
+- * skip_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
++ * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
+  *
+  * This gets called when we have already parsed CSI.
+  *
   * @modifiers:  bitmask (shift, alt, ctrl)
   * @return:	the unmodified code
   */
 -static char skip_modifiers(int *modifiers)
-+static char skip_modifiers(struct efi_key_state *key_state)
++static int analyze_modifiers(struct efi_key_state *key_state)
  {
- 	char c, mod = 0, ret = 0;
+-	char c, mod = 0, ret = 0;
++	int c, mod = 0, ret = 0;
+ 
+ 	c = getc();
  
 @@ -435,8 +437,17 @@ static char skip_modifiers(int *modifiers)
  out:
@@ -163,7 +172,7 @@ index 1dbf73afc2..7a6fc1c23f 100644
  				break;
  			case '1':
 -				ch = skip_modifiers(NULL);
-+				ch = skip_modifiers(&key->key_state);
++				ch = analyze_modifiers(&key->key_state);
  				switch (ch) {
  				case '1'...'5': /* F1 - F5 */
  					pressed_key.scan_code = ch - '1' + 11;
@@ -172,7 +181,7 @@ index 1dbf73afc2..7a6fc1c23f 100644
  				break;
  			case '2':
 -				ch = skip_modifiers(NULL);
-+				ch = skip_modifiers(&key->key_state);
++				ch = analyze_modifiers(&key->key_state);
  				switch (ch) {
  				case '0'...'1': /* F9 - F10 */
  					pressed_key.scan_code = ch - '0' + 19;
@@ -181,17 +190,17 @@ index 1dbf73afc2..7a6fc1c23f 100644
  			case '3': /* DEL */
  				pressed_key.scan_code = 8;
 -				skip_modifiers(NULL);
-+				skip_modifiers(&key->key_state);
++				analyze_modifiers(&key->key_state);
  				break;
  			case '5': /* PG UP */
  				pressed_key.scan_code = 9;
 -				skip_modifiers(NULL);
-+				skip_modifiers(&key->key_state);
++				analyze_modifiers(&key->key_state);
  				break;
  			case '6': /* PG DOWN */
  				pressed_key.scan_code = 10;
 -				skip_modifiers(NULL);
-+				skip_modifiers(&key->key_state);
++				analyze_modifiers(&key->key_state);
  				break;
  			}
  			break;
