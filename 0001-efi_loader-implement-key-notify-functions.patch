@@ -44,7 +44,7 @@ index 2f38575fe0..c0e8bda9b2 100644
  			struct efi_key_data *key_data),
  		void **notify_handle)
 -{
-+{		
++{
 +	efi_status_t ret = EFI_SUCCESS;
 +	struct efi_cin_notify_function *notify_function;
 +
@@ -59,7 +59,7 @@ index 2f38575fe0..c0e8bda9b2 100644
 +	}
 +
 +	EFI_PRINT("u+%04x, sc %04x, sh %04x, tg %02x\n",
-+	       key_data->key.unicode_char,
++		  key_data->key.unicode_char,
 +	       key_data->key.scan_code,
 +	       key_data->key_state.key_shift_state,
 +	       key_data->key_state.key_toggle_state);
@@ -92,7 +92,7 @@ index 2f38575fe0..c0e8bda9b2 100644
 +	/* Check parameters */
 +	if (!this || !notification_handle)
 +		goto out;
-+	
++
 +	list_for_each_entry(f, &cin_notify_functions, link) {
 +		if (f == notify_function) {
 +			ret = EFI_SUCCESS;
@@ -103,7 +103,7 @@ index 2f38575fe0..c0e8bda9b2 100644
 +		goto out;
 +
 +	/* Remove the notify function */
-+	list_del(&notify_function->link);	
++	list_del(&notify_function->link);
 +	free(notify_function);
 +out:
 +	return EFI_EXIT(ret);
