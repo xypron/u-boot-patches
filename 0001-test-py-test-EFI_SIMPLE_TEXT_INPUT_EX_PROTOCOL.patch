@@ -1,4 +1,4 @@
-From bf99963fa624ca45bd65b0e79f67e60161dae644 Mon Sep 17 00:00:00 2001
+From f157d3283ea4f8532c6acf92afd424acd6d65dbc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Sep 2018 01:29:49 +0200
 Subject: [PATCH 1/1] test/py: test EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -7,14 +7,14 @@ Add a unit test for the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/py/tests/test_efi_selftest.py | 73 ++++++++++++++++++++++++++++++
- 1 file changed, 73 insertions(+)
+ test/py/tests/test_efi_selftest.py | 79 ++++++++++++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
 
 diff --git a/test/py/tests/test_efi_selftest.py b/test/py/tests/test_efi_selftest.py
-index 5d0dba6f4e..7f57544826 100644
+index 5d0dba6f4e..9cdf289501 100644
 --- a/test/py/tests/test_efi_selftest.py
 +++ b/test/py/tests/test_efi_selftest.py
-@@ -113,3 +113,76 @@ def test_efi_selftest_text_input(u_boot_console):
+@@ -113,3 +113,82 @@ def test_efi_selftest_text_input(u_boot_console):
  	if m != 0:
  		raise Exception('Failures occurred during the EFI selftest')
  	u_boot_console.restart_uboot();
@@ -38,42 +38,47 @@ index 5d0dba6f4e..7f57544826 100644
 +	# EOT
 +	u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
 +				   send_nl=False, wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['Unicode char 4'])
++	m = u_boot_console.p.expect(
++		['Unicode char 4 \(unknown\), scan code 0 \(CTRL\+Null\)'])
 +	if m != 0:
 +		raise Exception('EOT failed in \'text input\' test')
 +	u_boot_console.drain_console()
 +	# BS
 +	u_boot_console.run_command(cmd=chr(8), wait_for_echo=False,
 +				   send_nl=False, wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['(BS)'])
++	m = u_boot_console.p.expect(
++		['Unicode char 8 \(BS\), scan code 0 \(\+Null\)'])
 +	if m != 0:
 +		raise Exception('BS failed in \'text input\' test')
 +	u_boot_console.drain_console()
 +	# TAB
 +	u_boot_console.run_command(cmd=chr(9), wait_for_echo=False,
 +				   send_nl=False, wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['(TAB)'])
++	m = u_boot_console.p.expect(
++		['Unicode char 9 \(TAB\), scan code 0 \(\+Null\)'])
 +	if m != 0:
-+		raise Exception('BS failed in \'text input\' test')
++		raise Exception('TAB failed in \'text input\' test')
 +	u_boot_console.drain_console()
 +	# a
 +	u_boot_console.run_command(cmd='a', wait_for_echo=False, send_nl=False,
 +				   wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['(\'a\')'])
++	m = u_boot_console.p.expect(
++		['Unicode char 97 \(\'a\'\), scan code 0 \(Null\)'])
 +	if m != 0:
 +		raise Exception('\'a\' failed in \'text input\' test')
 +	u_boot_console.drain_console()
 +	# UP escape sequence
 +	u_boot_console.run_command(cmd=chr(27) + '[A', wait_for_echo=False,
 +				   send_nl=False, wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['(Up)'])
++	m = u_boot_console.p.expect(
++		['Unicode char 0 \(Null\), scan code 1 \(\+Up\)'])
 +	if m != 0:
 +		raise Exception('UP failed in \'text input\' test')
 +	u_boot_console.drain_console()
 +	# Euro sign
 +	u_boot_console.run_command(cmd='\xe2\x82\xac', wait_for_echo=False,
 +				   send_nl=False, wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['Unicode char 8364'])
++	m = u_boot_console.p.expect(['Unicode char 8364 \(\''])
 +	if m != 0:
 +		raise Exception('Euro sign failed in \'text input\' test')
 +	u_boot_console.drain_console()
@@ -81,7 +86,8 @@ index 5d0dba6f4e..7f57544826 100644
 +	u_boot_console.run_command(cmd='\x1b\x5b\x31\x35\x3b\x34\x7e',
 +				   wait_for_echo=False, send_nl=False,
 +				   wait_for_prompt=False)
-+	m = u_boot_console.p.expect(['SHIFT+'])
++	m = u_boot_console.p.expect(
++		['Unicode char 0 \(Null\), scan code 15 \(SHIFT\+ALT\+FN 5\)'])
 +	if m != 0:
 +		raise Exception('SHIFT+ALT+FN 5 failed in \'text input\' test')
 +	u_boot_console.drain_console()
