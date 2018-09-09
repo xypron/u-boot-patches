@@ -58,7 +58,7 @@ git am ../patch/0001-efi_selftest-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 git am ../patch/0001-test-py-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-key-notify-functions.patch
 git am ../patch/0001-efi_selftest-test-key-notification-functions.patch
-git am ../patch/add 0001-efi_loader-unset-CONFIG_EFI_UNICODE_CAPITALIZATION.patch
+git am ../patch/0001-efi_loader-unset-CONFIG_EFI_UNICODE_CAPITALIZATION.patch
 
 exit
 # Deletion of handles
