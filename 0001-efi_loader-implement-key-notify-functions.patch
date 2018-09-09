@@ -1,4 +1,4 @@
-From 22ae48c3a105016ea2463b92774d326ed334b166 Mon Sep 17 00:00:00 2001
+From c5ab4d425b99112b4cd70644e694a00628fe1d82 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Sep 2018 13:15:44 +0200
 Subject: [PATCH 1/1] efi_loader: implement key notify functions
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 98 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 6fc02b210f..9c144808be 100644
+index 6fc02b210f..0fb4d9722d 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -398,8 +398,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
@@ -58,7 +58,7 @@ index 6fc02b210f..9c144808be 100644
 +			if (item->key.key.unicode_char !=
 +			    next_key.key.unicode_char ||
 +			    item->key.key.scan_code != next_key.key.scan_code)
-+			match = false;
++				match = false;
 +		}
 +		if (item->key.key_state.key_shift_state &&
 +		    item->key.key_state.key_shift_state !=

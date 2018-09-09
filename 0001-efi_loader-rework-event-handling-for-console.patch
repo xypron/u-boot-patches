@@ -1,4 +1,4 @@
-From a2f4fb2437567f0aa91d26991ea9798fcbbc9131 Mon Sep 17 00:00:00 2001
+From 7a120b26be4d00527ed42d8cb9f0d102843a43ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 18:17:47 +0200
 Subject: [PATCH 1/1] efi_loader: rework event handling for console
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 153 insertions(+), 51 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index de418d7e73..2a242e0227 100644
+index 8c45290b2e..ee84640b7c 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -396,34 +396,12 @@ struct efi_simple_text_output_protocol efi_con_out = {
@@ -39,16 +39,16 @@ index de418d7e73..2a242e0227 100644
 -			bool extended_verification)
 -{
 -	EFI_ENTRY("%p, %d", this, extended_verification);
--
++static bool key_available;
++static struct efi_input_key next_key;
+ 
 -	/* Empty input buffer */
 -	while (tstc())
 -		getc();
 -
 -	return EFI_EXIT(EFI_SUCCESS);
 -}
-+static bool key_available;
-+static struct efi_input_key next_key;
- 
+-
 -/*
 - * Analyze modifiers (shift, alt, ctrl) for function keys.
 +/**
@@ -149,9 +149,9 @@ index de418d7e73..2a242e0227 100644
 + * See the Unified Extensible Firmware Interface (UEFI) specification for
 + * details.
 + */
-+static efi_status_t EFIAPI efi_cin_reset(
-+			struct efi_simple_text_input_protocol *this,
-+			bool extended_verification)
++static efi_status_t EFIAPI efi_cin_reset
++			(struct efi_simple_text_input_protocol *this,
++			 bool extended_verification)
 +{
 +	efi_status_t ret = EFI_SUCCESS;
 +
@@ -184,9 +184,9 @@ index de418d7e73..2a242e0227 100644
 + * See the Unified Extensible Firmware Interface (UEFI) specification for
 + * details.
 + */
-+static efi_status_t EFIAPI efi_cin_read_key_stroke(
-+			struct efi_simple_text_input_protocol *this,
-+			struct efi_input_key *key)
++static efi_status_t EFIAPI efi_cin_read_key_stroke
++			(struct efi_simple_text_input_protocol *this,
++			 struct efi_input_key *key)
 +{
 +	efi_status_t ret = EFI_SUCCESS;
 +
