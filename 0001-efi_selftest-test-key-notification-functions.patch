@@ -1,0 +1,161 @@
+From 79410df560ce93314dc9e548baf203d24c2fd6da Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 9 Sep 2018 16:33:31 +0200
+Subject: [PATCH 1/1] efi_selftest: test key notification functions
+
+Use a key notification function to leave the
+EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL test.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_textinputex.c | 72 +++++++++++++++++++--
+ test/py/tests/test_efi_selftest.py          |  4 +-
+ 2 files changed, 67 insertions(+), 9 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_textinputex.c b/lib/efi_selftest/efi_selftest_textinputex.c
+index e03808c040..10b9dcbd42 100644
+--- a/lib/efi_selftest/efi_selftest_textinputex.c
++++ b/lib/efi_selftest/efi_selftest_textinputex.c
+@@ -21,6 +21,25 @@ static struct efi_simple_text_input_ex_protocol *con_in_ex;
+ 
+ static struct efi_boot_services *boottime;
+ 
++static void *efi_key_notify_handle;
++static bool efi_running;
++
++/**
++ * efi_key_notify_function() - key notification function
++ *
++ * This function is called when the registered key is hit.
++ *
++ * @key_data:		next key
++ * Return:		status code
++ */
++static efi_status_t EFIAPI efi_key_notify_function
++				(struct efi_key_data *key_data)
++{
++	efi_running = false;
++
++	return EFI_SUCCESS;
++}
++
+ /*
+  * Setup unit test.
+  *
+@@ -32,6 +51,17 @@ static int setup(const efi_handle_t handle,
+ 		 const struct efi_system_table *systable)
+ {
+ 	efi_status_t ret;
++	struct efi_key_data key_data = {
++		.key = {
++			.scan_code = 0,
++			.unicode_char = 0x18
++		},
++		.key_state = {
++			.key_shift_state = EFI_SHIFT_STATE_VALID |
++					   EFI_LEFT_CONTROL_PRESSED,
++			.key_toggle_state = EFI_TOGGLE_STATE_INVALID,
++		},
++	};
+ 
+ 	boottime = systable->boottime;
+ 
+@@ -44,9 +74,40 @@ static int setup(const efi_handle_t handle,
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
++	ret = con_in_ex->register_key_notify(con_in_ex, &key_data,
++					     efi_key_notify_function,
++					     &efi_key_notify_handle);
++	if (ret != EFI_SUCCESS) {
++		efi_key_notify_handle = NULL;
++		efi_st_error(
++			"Notify function could not be registered.\n");
++		return EFI_ST_FAILURE;
++	}
++	efi_running = true;
++
+ 	return EFI_ST_SUCCESS;
+ }
+ 
++/*
++ * Tear down unit test.
++ *
++ * Unregister notify function.
++ *
++ * @return:	EFI_ST_SUCCESS for success
++ */
++static int teardown(void)
++{
++	efi_status_t ret;
++
++	ret = con_in_ex->unregister_key_notify(con_in_ex, efi_key_notify_handle);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error(
++			"Notify function could not be registered.\n");
++		return EFI_ST_FAILURE;
++	}
++
++	return EFI_ST_SUCCESS;
++}
+ /*
+  * Execute unit test.
+  *
+@@ -76,9 +137,9 @@ static int execute(void)
+ 	}
+ 
+ 	efi_st_printf("Waiting for your input\n");
+-	efi_st_printf("To terminate type 'x'\n");
++	efi_st_printf("To terminate type 'CTRL+x'\n");
+ 
+-	for (;;) {
++	while (efi_running) {
+ 		/* Wait for next key */
+ 		ret = boottime->wait_for_event(1, &con_in_ex->wait_for_key_ex,
+ 					       &index);
+@@ -122,12 +183,8 @@ static int execute(void)
+ 		efi_st_printf("%ps)\n",
+ 			      efi_st_translate_code(input_key.key.scan_code));
+ 
+-		switch (input_key.key.unicode_char) {
+-		case 'x':
+-		case 'X':
+-			return EFI_ST_SUCCESS;
+-		}
+ 	}
++	return EFI_ST_SUCCESS;
+ }
+ 
+ EFI_UNIT_TEST(textinputex) = {
+@@ -135,5 +192,6 @@ EFI_UNIT_TEST(textinputex) = {
+ 	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
+ 	.setup = setup,
+ 	.execute = execute,
++	.teardown = teardown,
+ 	.on_request = true,
+ };
+diff --git a/test/py/tests/test_efi_selftest.py b/test/py/tests/test_efi_selftest.py
+index 9cdf289501..fe90b3839f 100644
+--- a/test/py/tests/test_efi_selftest.py
++++ b/test/py/tests/test_efi_selftest.py
+@@ -125,7 +125,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
+ 	u_boot_console.run_command(cmd='setenv efi_selftest extended text input')
+ 	output = u_boot_console.run_command(cmd='bootefi selftest',
+ 					    wait_for_prompt=False)
+-	m = u_boot_console.p.expect(['To terminate type \'x\''])
++	m = u_boot_console.p.expect(['To terminate type \'CTRL\+x\''])
+ 	if m != 0:
+ 		raise Exception('No prompt for \'text input\' test')
+ 	u_boot_console.drain_console()
+@@ -186,7 +186,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
+ 	if m != 0:
+ 		raise Exception('SHIFT+ALT+FN 5 failed in \'text input\' test')
+ 	u_boot_console.drain_console()
+-	u_boot_console.run_command(cmd='x', wait_for_echo=False, send_nl=False,
++	u_boot_console.run_command(cmd=chr(24), wait_for_echo=False, send_nl=False,
+ 				   wait_for_prompt=False)
+ 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
+ 	if m != 0:
+-- 
+2.18.0
+
