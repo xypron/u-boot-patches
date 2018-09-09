@@ -1,4 +1,4 @@
-From 56582062f2ebf5974a8315ca223486befd845b5a Mon Sep 17 00:00:00 2001
+From 7eadbb3f7392d8e5c794a963509f7ea34d270168 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 23:39:43 +0200
 Subject: [PATCH 1/1] efi_selftest: test EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -8,8 +8,8 @@ Provide a unit test for the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                   |   1 +
- lib/efi_selftest/efi_selftest_textinputex.c | 135 ++++++++++++++++++++
- 2 files changed, 136 insertions(+)
+ lib/efi_selftest/efi_selftest_textinputex.c | 138 ++++++++++++++++++++
+ 2 files changed, 139 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_textinputex.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -26,10 +26,10 @@ index 80bc5d8a64..2f55d9d66f 100644
  efi_selftest_unicode_collation.o \
 diff --git a/lib/efi_selftest/efi_selftest_textinputex.c b/lib/efi_selftest/efi_selftest_textinputex.c
 new file mode 100644
-index 0000000000..f5f709ec78
+index 0000000000..8c7b3bc24d
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_textinputex.c
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,138 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_textinput
@@ -146,7 +146,10 @@ index 0000000000..f5f709ec78
 +			if (input_key.key_state.key_shift_state &
 +			    (EFI_LEFT_LOGO_PRESSED | EFI_RIGHT_LOGO_PRESSED))
 +				efi_st_printf("META+");
++			if (!input_key.key_state.key_shift_state)
++				efi_st_printf("+");
 +		}
++
 +		efi_st_printf("%ps)\n",
 +			      efi_st_translate_code(input_key.key.scan_code));
 +
