@@ -105,7 +105,7 @@ index 6fc02b210f..9c144808be 100644
 +		goto out;
 +	}
 +
-+	EFI_PRINT("u+%04x, sc %04x, sh %04x, tg %02x\n",
++	EFI_PRINT("u+%04x, sc %04x, sh %08x, tg %02x\n",
 +		  key_data->key.unicode_char,
 +	       key_data->key.scan_code,
 +	       key_data->key_state.key_shift_state,
