@@ -1,67 +1,231 @@
-From 8d4791e00cf0e54c4814f6ba7357c0aa4a4a9609 Mon Sep 17 00:00:00 2001
+From a1cbe7f566af3fc8a56285e64ee23a2cd80d16b6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 8 Sep 2018 14:39:40 +0200
-Subject: [PATCH 5/7] efi_loader: support Unicode text input
+Date: Mon, 10 Sep 2018 20:37:21 +0200
+Subject: [PATCH 1/1] efi_loader: support Unicode text input
 
 Up to now the EFI_TEXT_INPUT_PROTOCOL only supported ASCII characters.
+With the patch it can consume UTF-8 from the console.
 
-With the patch it can consume UTF-8 from the serial console or
-codepage 437 special characters from the local keyboard.
+Currently only the serial console and the console can deliver UTF-8.
+Local consoles are restricted to ASCII.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 80 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 76 insertions(+), 4 deletions(-)
+ include/charset.h            |  10 +++
+ lib/charset.c                | 137 +++++++++++++++++++++++------------
+ lib/efi_loader/efi_console.c |  11 ++-
+ test/unicode_ut.c            |   8 +-
+ 4 files changed, 108 insertions(+), 58 deletions(-)
 
-diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 426567c946..c4ee45b044 100644
---- a/lib/efi_loader/efi_console.c
-+++ b/lib/efi_loader/efi_console.c
-@@ -15,12 +15,18 @@
- #define EFI_COUT_MODE_2 2
- #define EFI_MAX_COUT_MODE 3
+diff --git a/include/charset.h b/include/charset.h
+index 686db5a1fe..d1dc326c9b 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -8,11 +8,21 @@
+ #ifndef __CHARSET_H_
+ #define __CHARSET_H_
  
-+/* Keyboard layouts */
-+#define KBD_US		0	/* default US layout */
-+#define KBD_GER		1	/* German layout */
-+
- struct cout_mode {
- 	unsigned long columns;
- 	unsigned long rows;
- 	int present;
- };
++#include <efi.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
  
-+static int keymap = KBD_US;
-+
- static struct cout_mode efi_cout_modes[] = {
- 	/* EFI Mode 0 is 80x25 and always present */
- 	{
-@@ -390,6 +396,19 @@ struct efi_simple_text_output_protocol efi_con_out = {
- 	.mode = (void*)&efi_con_mode,
- };
+ #define MAX_UTF8_PER_UTF16 3
  
-+static void efi_set_keymap(void)
-+{
-+	char *penv;
++/**
++ * console_read_unicode() - read Unicode code point from console
++ *
++ * @code:	code point
++ * Return:	status code:
++ *		EFI_SUCCESS, EFI_NOT_READY, or EFI_INVALID_PARAMETER
++ */
++efi_status_t console_read_unicode(s32 *code);
 +
-+	/* Init keyboard device (default US layout) */
-+	keymap = KBD_US;
-+	penv = env_get("keymap");
-+	if (penv) {
-+		if (strncmp(penv, "de", 3) == 0)
-+			keymap = KBD_GER;
-+	}
+ /**
+  * utf8_get() - get next UTF-8 code point from buffer
+  *
+diff --git a/lib/charset.c b/lib/charset.c
+index 72c808ce64..2e582a51f7 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -5,6 +5,7 @@
+  *  Copyright (c) 2017 Rob Clark
+  */
+ 
++#include <common.h>
+ #include <charset.h>
+ #include <capitalization.h>
+ #include <malloc.h>
+@@ -18,67 +19,107 @@ static struct capitalization_table capitalization_table[] =
+ 	CP437_CAPITALIZATION_TABLE;
+ #endif
+ 
+-s32 utf8_get(const char **src)
++/**
++ * get_code() - read Unicode code point from UTF-8 stream
++ *
++ * @next:	- stream reader
++ * @src:	- string buffer passed to stream reader, optional
++ * Return:	- Unicode code point
++ */
++static int get_code(s32 (*next)(const char **src), const char **src)
+ {
+-	s32 code = 0;
+-	unsigned char c;
++	s32 ch = 0;
+ 
+-	if (!src || !*src)
+-		return -1;
+-	if (!**src)
++	ch = next(src);
++	if (!ch)
+ 		return 0;
+-	c = **src;
+-	if (c >= 0x80) {
+-		++*src;
+-		if (!**src)
+-			return -1;
+-		/*
+-		 * We do not expect a continuation byte (0x80 - 0xbf).
+-		 * 0x80 is coded as 0xc2 0x80, so we cannot have less then 0xc2
+-		 * here.
+-		 * The highest code point is 0x10ffff which is coded as
+-		 * 0xf4 0x8f 0xbf 0xbf. So we cannot have a byte above 0xf4.
+-		 */
+-		if (c < 0xc2 || code > 0xf4)
+-			return -1;
+-		if (c >= 0xe0) {
+-			if (c >= 0xf0) {
++	if (ch >= 0xc2 && ch <= 0xf4) {
++		int code = 0;
++
++		if (ch >= 0xe0) {
++			if (ch >= 0xf0) {
+ 				/* 0xf0 - 0xf4 */
+-				c &= 0x07;
+-				code = c << 18;
+-				c = **src;
+-				++*src;
+-				if (!**src)
+-					return -1;
+-				if (c < 0x80 || c > 0xbf)
+-					return -1;
+-				c &= 0x3f;
++				ch &= 0x07;
++				code = ch << 18;
++				ch = next(src);
++				if (ch < 0x80 || ch > 0xbf)
++					goto error;
++				ch &= 0x3f;
+ 			} else {
+ 				/* 0xe0 - 0xef */
+-				c &= 0x0f;
++				ch &= 0x0f;
+ 			}
+-			code += c << 12;
++			code += ch << 12;
+ 			if ((code >= 0xD800 && code <= 0xDFFF) ||
+ 			    code >= 0x110000)
+-				return -1;
+-			c = **src;
+-			++*src;
+-			if (!**src)
+-				return -1;
+-			if (c < 0x80 || c > 0xbf)
+-				return -1;
++				goto error;
++			ch = next(src);
++			if (ch < 0x80 || ch > 0xbf)
++				goto error;
+ 		}
+ 		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
+-		c &= 0x3f;
+-		code += c << 6;
+-		c = **src;
+-		if (c < 0x80 || c > 0xbf)
+-			return -1;
+-		c &= 0x3f;
++		ch &= 0x3f;
++		code += ch << 6;
++		ch = next(src);
++		if (ch < 0x80 || ch > 0xbf)
++			goto error;
++		ch &= 0x3f;
++		ch += code;
++	} else if (ch >= 0x80) {
++		goto error;
+ 	}
+-	code += c;
++	return ch;
++error:
++	return '?';
 +}
 +
- static efi_status_t EFIAPI efi_cin_reset(
++/**
++ * read_string() - read byte from character string
++ *
++ * @src:	- pointer to string
++ * Return:	- byte read
++ *
++ * The string pointer is incremented if it does not point to '\0'.
++ */
++static s32 read_string(const char **src)
++{
++	s32 c;
++
++	if (!src || !*src || !**src)
++		return 0;
++	c = (unsigned char)**src;
+ 	++*src;
+-	return code;
++	return c;
++}
++
++/**
++ * read_console() - read byte from console
++ *
++ * @src		- not used, needed to match interface
++ * Return:	- byte read
++ */
++static s32 read_console(const char **src)
++{
++	return getc();
++}
++
++efi_status_t console_read_unicode(s32 *code)
++{
++	/* Check parameter */
++	if (!code)
++		return EFI_INVALID_PARAMETER;
++	/* Check if input available */
++	if (!tstc())
++		return EFI_NOT_READY;
++	/* Read Unicode code */
++	*code = get_code(read_console, NULL);
++
++	return EFI_SUCCESS;
++}
++
++s32 utf8_get(const char **src)
++{
++	return get_code(read_string, src);
+ }
+ 
+ int utf8_put(s32 code, char **dst)
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 3ca6fe536c..a96eda1b22 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -449,23 +449,22 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  			struct efi_simple_text_input_protocol *this,
- 			bool extended_verification)
-@@ -453,17 +472,16 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 			struct efi_input_key *key)
+ {
++	efi_status_t ret;
+ 	struct efi_input_key pressed_key = {
  		.scan_code = 0,
  		.unicode_char = 0,
  	};
 -	char ch;
-+	int ch;
++	s32 ch;
  
  	EFI_ENTRY("%p, %p", this, key);
  
@@ -69,88 +233,50 @@ index 426567c946..c4ee45b044 100644
  	efi_timer_check();
  
 -	if (!tstc()) {
-+	if (!tstc())
- 		/* No key pressed */
--		return EFI_EXIT(EFI_NOT_READY);
+-		/* No key pressed */
++	ret = console_read_unicode(&ch);
++	/* We do not support multi-word codes */
++	if (ret != EFI_SUCCESS || ch >= 0x10000)
+ 		return EFI_EXIT(EFI_NOT_READY);
 -	}
-+		goto error;
- 
- 	ch = getc();
+-
+-	ch = getc();
  	if (ch == cESC) {
-@@ -550,12 +568,63 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
- 	} else if (ch == 0x7f) {
- 		/* Backspace */
- 		ch = 0x08;
-+	} else if (keymap == KBD_US && ch >= 0xc2 && ch <= 0xf4) {
-+		/*
-+		 * Unicode
-+		 *
-+		 * We assume here that the serial console is using UTF-8.
-+		 * This of cause depends on the terminal settings.
-+		 */
-+		int code = 0;
-+
-+		if (ch >= 0xe0) {
-+			if (ch >= 0xf0) {
-+				/* 0xf0 - 0xf4 */
-+				ch &= 0x07;
-+				code = ch << 18;
-+				ch = getc();
-+				if (ch < 0x80 || ch > 0xbf)
-+					goto error;
-+				ch &= 0x3f;
-+			} else {
-+				/* 0xe0 - 0xef */
-+				ch &= 0x0f;
-+			}
-+			code += ch << 12;
-+			if ((code >= 0xD800 && code <= 0xDFFF) ||
-+			    code >= 0x110000)
-+				goto error;
-+			ch = getc();
-+			if (ch < 0x80 || ch > 0xbf)
-+				goto error;
-+		}
-+		/* 0xc0 - 0xdf or continuation byte (0x80 - 0xbf) */
-+		ch &= 0x3f;
-+		code += ch << 6;
-+		ch = getc();
-+		if (ch < 0x80 || ch > 0xbf)
-+			goto error;
-+		ch &= 0x3f;
-+		ch += code;
-+	} else if (keymap != KBD_US && ch >= 0x80 && ch <= 0xff) {
-+		/*
-+		 * Code page 437 special characters
-+		 *
-+		 * The keyboard drivers emit code page 437 characters. Support
-+		 * for German language special characters can be enabled via
-+		 * environment variable 'keymap' in the i8042 driver.
-+		 */
-+		ch = codepage_437[ch - 0x80];
-+	} else if (ch >= 0x80) {
-+		goto error;
- 	}
- 	if (!pressed_key.scan_code)
- 		pressed_key.unicode_char = ch;
- 	*key = pressed_key;
+ 		/*
+ 		 * Xterm Control Sequences
+diff --git a/test/unicode_ut.c b/test/unicode_ut.c
+index b94b4a651f..b115d18afd 100644
+--- a/test/unicode_ut.c
++++ b/test/unicode_ut.c
+@@ -178,7 +178,7 @@ static int ut_utf8_utf16_strlen(struct unit_test_state *uts)
  
- 	return EFI_EXIT(EFI_SUCCESS);
-+error:
-+	return EFI_EXIT(EFI_NOT_READY);
- }
+ 	/* illegal utf-8 sequences */
+ 	ut_asserteq(4, utf8_utf16_strlen(j1));
+-	ut_asserteq(5, utf8_utf16_strlen(j2));
++	ut_asserteq(4, utf8_utf16_strlen(j2));
+ 	ut_asserteq(3, utf8_utf16_strlen(j3));
  
- struct efi_simple_text_input_protocol efi_con_in = {
-@@ -597,6 +666,9 @@ int efi_console_register(void)
- 	struct efi_object *efi_console_output_obj;
- 	struct efi_object *efi_console_input_obj;
+ 	return 0;
+@@ -196,7 +196,7 @@ static int ut_utf8_utf16_strnlen(struct unit_test_state *uts)
  
-+	/* Set keymap */
-+	efi_set_keymap();
-+
- 	/* Set up mode information */
- 	query_console_size();
+ 	/* illegal utf-8 sequences */
+ 	ut_asserteq(4, utf8_utf16_strnlen(j1, 16));
+-	ut_asserteq(5, utf8_utf16_strnlen(j2, 16));
++	ut_asserteq(4, utf8_utf16_strnlen(j2, 16));
+ 	ut_asserteq(3, utf8_utf16_strnlen(j3, 16));
  
+ 	return 0;
+@@ -255,8 +255,8 @@ static int ut_utf8_utf16_strcpy(struct unit_test_state *uts)
+ 
+ 	pos = buf;
+ 	utf8_utf16_strcpy(&pos, j2);
+-	ut_asserteq(5, pos - buf);
+-	ut_assert(!ut_u16_strcmp(buf, L"j2??l", SIZE_MAX));
++	ut_asserteq(4, pos - buf);
++	ut_assert(!ut_u16_strcmp(buf, L"j2?l", SIZE_MAX));
+ 
+ 	pos = buf;
+ 	utf8_utf16_strcpy(&pos, j3);
 -- 
 2.18.0
 

@@ -44,7 +44,6 @@ git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Simple Text Input Ex Protocol
-git am ../patch/0001-efi_loader-global-symbol-for-code-page-437.patch
 git am ../patch/0001-efi_loader-support-Unicode-text-input.patch
 git am ../patch/0001-test-py-Unicode-w-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.patch
 git am ../patch/0001-efi_selftest-refactor-text-input-test.patch
