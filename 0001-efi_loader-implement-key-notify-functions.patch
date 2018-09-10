@@ -1,4 +1,4 @@
-From c5ab4d425b99112b4cd70644e694a00628fe1d82 Mon Sep 17 00:00:00 2001
+From e3e95e12f05870fac074c4d74c2455e2ae22a059 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Sep 2018 13:15:44 +0200
 Subject: [PATCH 1/1] efi_loader: implement key notify functions
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 98 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 6fc02b210f..0fb4d9722d 100644
+index 9a2eea8345..aec20b94e1 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
-@@ -398,8 +398,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
+@@ -392,8 +392,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
  	.mode = (void*)&efi_con_mode,
  };
  
@@ -39,8 +39,8 @@ index 6fc02b210f..0fb4d9722d 100644
  
  /**
   * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
-@@ -641,6 +656,34 @@ error:
- 	return EFI_NOT_READY;
+@@ -586,6 +601,34 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
+ 	return EFI_SUCCESS;
  }
  
 +/**
@@ -74,7 +74,7 @@ index 6fc02b210f..0fb4d9722d 100644
  /**
   * efi_cin_check() - check if keyboard input is available
   */
-@@ -658,8 +701,12 @@ static void efi_cin_check(void)
+@@ -603,8 +646,12 @@ static void efi_cin_check(void)
  		if (ret == EFI_SUCCESS) {
  			key_available = true;
  
@@ -88,7 +88,7 @@ index 6fc02b210f..0fb4d9722d 100644
  		}
  	}
  }
-@@ -817,9 +864,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
+@@ -746,9 +793,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
  			struct efi_key_data *key_data),
  		void **notify_handle)
  {
@@ -125,7 +125,7 @@ index 6fc02b210f..0fb4d9722d 100644
  }
  
  /**
-@@ -839,8 +912,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
+@@ -768,8 +841,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
  		struct efi_simple_text_input_ex_protocol *this,
  		void *notification_handle)
  {

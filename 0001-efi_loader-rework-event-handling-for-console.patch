@@ -1,4 +1,4 @@
-From 7a120b26be4d00527ed42d8cb9f0d102843a43ba Mon Sep 17 00:00:00 2001
+From 10676ac98c2e3b9f6e3beffefe7aeae0a03c499e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 18:17:47 +0200
 Subject: [PATCH 1/1] efi_loader: rework event handling for console
@@ -10,42 +10,29 @@ notification functions based on the prefetched key.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 204 ++++++++++++++++++++++++++---------
- 1 file changed, 153 insertions(+), 51 deletions(-)
+ lib/efi_loader/efi_console.c | 175 +++++++++++++++++++++++++++--------
+ 1 file changed, 137 insertions(+), 38 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 8c45290b2e..ee84640b7c 100644
+index a96eda1b22..dfec95903e 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
-@@ -396,34 +396,12 @@ struct efi_simple_text_output_protocol efi_con_out = {
+@@ -390,21 +390,12 @@ struct efi_simple_text_output_protocol efi_con_out = {
  	.mode = (void*)&efi_con_mode,
  };
  
--static void efi_set_keymap(void)
--{
--	char *penv;
--
--	/* Init keyboard device (default US layout) */
--	keymap = KBD_US;
--	penv = env_get("keymap");
--	if (penv) {
--		if (strncmp(penv, "de", 3) == 0)
--			keymap = KBD_GER;
--	}
--}
--
 -static efi_status_t EFIAPI efi_cin_reset(
 -			struct efi_simple_text_input_protocol *this,
 -			bool extended_verification)
 -{
 -	EFI_ENTRY("%p, %d", this, extended_verification);
-+static bool key_available;
-+static struct efi_input_key next_key;
- 
+-
 -	/* Empty input buffer */
 -	while (tstc())
 -		getc();
--
++static bool key_available;
++static struct efi_input_key next_key;
+ 
 -	return EFI_EXIT(EFI_SUCCESS);
 -}
 -
@@ -57,7 +44,7 @@ index 8c45290b2e..ee84640b7c 100644
   * This gets called when we have already parsed CSI.
   *
   * @modifiers:  bitmask (shift, alt, ctrl)
-@@ -464,9 +442,13 @@ out:
+@@ -445,9 +436,13 @@ out:
  	return ret;
  }
  
@@ -72,29 +59,31 @@ index 8c45290b2e..ee84640b7c 100644
 + */
 +static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  {
+ 	efi_status_t ret;
  	struct efi_input_key pressed_key = {
- 		.scan_code = 0,
-@@ -474,11 +456,6 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+@@ -456,15 +451,10 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  	};
- 	int ch;
+ 	s32 ch;
  
 -	EFI_ENTRY("%p, %p", this, key);
 -
 -	/* We don't do interrupts, so check for timers cooperatively */
 -	efi_timer_check();
 -
- 	if (!tstc())
- 		/* No key pressed */
- 		goto error;
-@@ -622,9 +599,127 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+ 	ret = console_read_unicode(&ch);
+ 	/* We do not support multi-word codes */
+ 	if (ret != EFI_SUCCESS || ch >= 0x10000)
+-		return EFI_EXIT(EFI_NOT_READY);
++		return EFI_NOT_READY;
+ 	if (ch == cESC) {
+ 		/*
+ 		 * Xterm Control Sequences
+@@ -554,7 +544,109 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		pressed_key.unicode_char = ch;
  	*key = pressed_key;
  
 -	return EFI_EXIT(EFI_SUCCESS);
 +	return EFI_SUCCESS;
- error:
--	return EFI_EXIT(EFI_NOT_READY);
-+	return EFI_NOT_READY;
 +}
 +
 +/**
@@ -117,22 +106,6 @@ index 8c45290b2e..ee84640b7c 100644
 +			/* Queue the wait for key event */
 +			efi_signal_event(efi_con_in.wait_for_key, true);
 +		}
-+	}
-+}
-+
-+/**
-+ * efi_set_keymap() - determine the keyboard layout
-+ */
-+static void efi_set_keymap(void)
-+{
-+	char *penv;
-+
-+	/* Init keyboard device (default US layout) */
-+	keymap = KBD_US;
-+	penv = env_get("keymap");
-+	if (penv) {
-+		if (strncmp(penv, "de", 3) == 0)
-+			keymap = KBD_GER;
 +	}
 +}
 +
@@ -216,7 +189,7 @@ index 8c45290b2e..ee84640b7c 100644
  }
  
  struct efi_simple_text_input_protocol efi_con_in = {
-@@ -635,31 +730,38 @@ struct efi_simple_text_input_protocol efi_con_in = {
+@@ -565,31 +657,38 @@ struct efi_simple_text_input_protocol efi_con_in = {
  
  static struct efi_event *console_timer_event;
  
