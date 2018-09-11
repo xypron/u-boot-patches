@@ -61,7 +61,7 @@ index a96eda1b22..dfec95903e 100644
  {
  	efi_status_t ret;
  	struct efi_input_key pressed_key = {
-@@ -456,15 +451,10 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
+@@ -456,14 +451,9 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  	};
  	s32 ch;
  
@@ -71,13 +71,12 @@ index a96eda1b22..dfec95903e 100644
 -	efi_timer_check();
 -
  	ret = console_read_unicode(&ch);
- 	/* We do not support multi-word codes */
- 	if (ret != EFI_SUCCESS || ch >= 0x10000)
+ 	if (ret)
 -		return EFI_EXIT(EFI_NOT_READY);
 +		return EFI_NOT_READY;
- 	if (ch == cESC) {
- 		/*
- 		 * Xterm Control Sequences
+ 	/* We do not support multi-word codes */
+ 	if ( ch >= 0x10000)
+ 		ch = '?';
 @@ -554,7 +544,109 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		pressed_key.unicode_char = ch;
  	*key = pressed_key;

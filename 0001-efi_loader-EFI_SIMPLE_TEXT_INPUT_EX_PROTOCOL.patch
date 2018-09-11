@@ -1,4 +1,4 @@
-From 911fcecb9a09e472462b68c72e26b42c974c3fd6 Mon Sep 17 00:00:00 2001
+From 6ee2309ac33f52ed5ed8f092131dc8e626009c89 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 11:25:41 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -87,7 +87,7 @@ index ae840d1bb4..5004f520ff 100644
  	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 4b97f6ebbc..9a2eea8345 100644
+index 4149adb425..f1838d55f2 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -42,10 +42,12 @@ static struct cout_mode efi_cout_modes[] = {
@@ -158,18 +158,18 @@ index 4b97f6ebbc..9a2eea8345 100644
  {
  	efi_status_t ret;
  	struct efi_input_key pressed_key = {
-@@ -455,6 +466,10 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
- 	/* We do not support multi-word codes */
- 	if (ret != EFI_SUCCESS || ch >= 0x10000)
+@@ -454,6 +465,10 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+ 	ret = console_read_unicode(&ch);
+ 	if (ret)
  		return EFI_NOT_READY;
 +
 +	key->key_state.key_shift_state = EFI_SHIFT_STATE_INVALID;
 +	key->key_state.key_toggle_state = EFI_TOGGLE_STATE_INVALID;
 +
- 	if (ch == cESC) {
- 		/*
- 		 * Xterm Control Sequences
-@@ -493,7 +508,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+ 	/* We do not support multi-word codes */
+ 	if ( ch >= 0x10000)
+ 		ch = '?';
+@@ -495,7 +510,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				pressed_key.scan_code = 5;
  				break;
  			case '1':
@@ -178,7 +178,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  				switch (ch) {
  				case '1'...'5': /* F1 - F5 */
  					pressed_key.scan_code = ch - '1' + 11;
-@@ -513,7 +528,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -515,7 +530,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				}
  				break;
  			case '2':
@@ -187,7 +187,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  				switch (ch) {
  				case '0'...'1': /* F9 - F10 */
  					pressed_key.scan_code = ch - '0' + 19;
-@@ -528,15 +543,15 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -530,15 +545,15 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				break;
  			case '3': /* DEL */
  				pressed_key.scan_code = 8;
@@ -206,7 +206,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  				break;
  			}
  			break;
-@@ -545,9 +560,28 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -547,9 +562,28 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  		/* Backspace */
  		ch = 0x08;
  	}
@@ -237,7 +237,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  
  	return EFI_SUCCESS;
  }
-@@ -575,6 +609,170 @@ static void efi_cin_check(void)
+@@ -577,6 +611,170 @@ static void efi_cin_check(void)
  	}
  }
  
@@ -408,7 +408,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  /**
   * efi_cin_reset() - drain the input buffer
   *
-@@ -602,16 +800,13 @@ static efi_status_t EFIAPI efi_cin_reset
+@@ -604,16 +802,13 @@ static efi_status_t EFIAPI efi_cin_reset
  		goto out;
  	}
  
@@ -427,7 +427,7 @@ index 4b97f6ebbc..9a2eea8345 100644
   *
   * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
   * @key:	key read from console
-@@ -647,13 +842,22 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke
+@@ -649,13 +844,22 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke
  		ret = EFI_NOT_READY;
  		goto out;
  	}
@@ -451,7 +451,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  struct efi_simple_text_input_protocol efi_con_in = {
  	.reset = efi_cin_reset,
  	.read_key_stroke = efi_cin_read_key_stroke,
-@@ -724,6 +928,10 @@ int efi_console_register(void)
+@@ -726,6 +930,10 @@ int efi_console_register(void)
  	if (r != EFI_SUCCESS)
  		goto out_of_memory;
  	systab.con_in_handle = efi_console_input_obj->handle;
@@ -462,7 +462,7 @@ index 4b97f6ebbc..9a2eea8345 100644
  
  	/* Create console events */
  	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
-@@ -732,6 +940,7 @@ int efi_console_register(void)
+@@ -734,6 +942,7 @@ int efi_console_register(void)
  		printf("ERROR: Failed to register WaitForKey event\n");
  		return r;
  	}
