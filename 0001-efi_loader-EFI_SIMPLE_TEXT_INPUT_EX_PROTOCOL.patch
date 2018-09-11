@@ -167,7 +167,7 @@ index b8f9a04aab..bdec6a2e0d 100644
 +	key->key_state.key_toggle_state = EFI_TOGGLE_STATE_INVALID;
 +
  	/* We do not support multi-word codes */
- 	if ( ch >= 0x10000)
+ 	if (ch >= 0x10000)
  		ch = '?';
 @@ -490,7 +505,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				pressed_key.scan_code = 5;

@@ -1,7 +1,7 @@
-From 436aca558f03e38a7ec301c37da77adf8fd45561 Mon Sep 17 00:00:00 2001
+From 8e6ea713f7303446044aaaabb4515d4a87bc1562 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 10 Sep 2018 20:37:21 +0200
-Subject: [PATCH v3 01/13] efi_loader: support Unicode text input
+Subject: [PATCH 1/1] efi_loader: support Unicode text input
 
 Up to now the EFI_TEXT_INPUT_PROTOCOL only supported ASCII characters.
 With the patch it can consume UTF-8 from the console.
@@ -10,10 +10,6 @@ Currently only the serial console and the console can deliver UTF-8.
 Local consoles are restricted to ASCII.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
-v2:
-	drop support for German keyboard
-	move reading of Unicode code to charset.c
 ---
  include/charset.h            |   9 +++
  lib/charset.c                | 136 ++++++++++++++++++++++-------------
@@ -214,7 +210,7 @@ index 72c808ce64..1806b41cc3 100644
  
  int utf8_put(s32 code, char **dst)
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 3ca6fe536c..d7ec4b077d 100644
+index 3ca6fe536c..6af083984c 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -449,23 +449,24 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(

@@ -88,7 +88,7 @@ index bdec6a2e0d..df3bb7920e 100644
  	key->key_state.key_shift_state = EFI_SHIFT_STATE_INVALID;
 @@ -472,7 +480,9 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
  	/* We do not support multi-word codes */
- 	if ( ch >= 0x10000)
+ 	if (ch >= 0x10000)
  		ch = '?';
 -	if (ch == cESC) {
 +
