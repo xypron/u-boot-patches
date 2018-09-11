@@ -1,4 +1,4 @@
-From 8e6ea713f7303446044aaaabb4515d4a87bc1562 Mon Sep 17 00:00:00 2001
+From f876d4a1766d3d9c33e5b4214886af75be75f1d0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 10 Sep 2018 20:37:21 +0200
 Subject: [PATCH 1/1] efi_loader: support Unicode text input
@@ -11,30 +11,24 @@ Local consoles are restricted to ASCII.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/charset.h            |   9 +++
- lib/charset.c                | 136 ++++++++++++++++++++++-------------
+ include/charset.h            |   8 ++
+ lib/charset.c                | 137 +++++++++++++++++++++++------------
  lib/efi_loader/efi_console.c |  13 ++--
- test/unicode_ut.c            |   8 +--
+ test/unicode_ut.c            |   8 +-
  4 files changed, 108 insertions(+), 58 deletions(-)
 
 diff --git a/include/charset.h b/include/charset.h
-index 686db5a1fe..a7de5f6948 100644
+index 686db5a1fe..4d45e246e5 100644
 --- a/include/charset.h
 +++ b/include/charset.h
-@@ -8,11 +8,20 @@
- #ifndef __CHARSET_H_
- #define __CHARSET_H_
- 
-+#include <efi.h>
- #include <linux/kernel.h>
- #include <linux/types.h>
+@@ -13,6 +13,14 @@
  
  #define MAX_UTF8_PER_UTF16 3
  
 +/**
 + * console_read_unicode() - read Unicode code point from console
 + *
-+ * @code:	code point
++ * @code:	pointer to store Unicode code point
 + * Return:	0 = success
 + */
 +int console_read_unicode(s32 *code);
@@ -43,7 +37,7 @@ index 686db5a1fe..a7de5f6948 100644
   * utf8_get() - get next UTF-8 code point from buffer
   *
 diff --git a/lib/charset.c b/lib/charset.c
-index 72c808ce64..1806b41cc3 100644
+index 72c808ce64..0cede9b60b 100644
 --- a/lib/charset.c
 +++ b/lib/charset.c
 @@ -5,6 +5,7 @@
@@ -54,7 +48,7 @@ index 72c808ce64..1806b41cc3 100644
  #include <charset.h>
  #include <capitalization.h>
  #include <malloc.h>
-@@ -18,67 +19,106 @@ static struct capitalization_table capitalization_table[] =
+@@ -18,67 +19,107 @@ static struct capitalization_table capitalization_table[] =
  	CP437_CAPITALIZATION_TABLE;
  #endif
  
@@ -175,7 +169,7 @@ index 72c808ce64..1806b41cc3 100644
 +
 +	if (!src || !*src || !**src)
 +		return 0;
-+	c = (unsigned char)**src;
++	c = **src;
  	++*src;
 -	return code;
 +	return c;
@@ -194,9 +188,10 @@ index 72c808ce64..1806b41cc3 100644
 +
 +int console_read_unicode(s32 *code)
 +{
-+	if (!tstc())
++	if (!tstc()) {
 +		/* No input available */
 +		return 1;
++	}
 +
 +	/* Read Unicode code */
 +	*code = get_code(read_console, NULL);
