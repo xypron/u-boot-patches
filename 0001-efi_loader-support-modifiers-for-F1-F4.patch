@@ -1,12 +1,15 @@
-From 7087df122e6c98fc5f1a10d856566116a59a59b1 Mon Sep 17 00:00:00 2001
+From 3c312677aa9c5d705fbe2204449e1a34c27e2da1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 11 Sep 2018 20:42:42 +0200
-Subject: [PATCH 1/1] efi_loader: support modifiers for F1 - F4
+Subject: [PATCH v3 08/13] efi_loader: support modifiers for F1 - F4
 
 Support modifiers for F1 - F4.
 Add support for letters with ALT key.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v3
+	new patch
 ---
  lib/efi_loader/efi_console.c | 63 ++++++++++++++++++++++--------------
  1 file changed, 38 insertions(+), 25 deletions(-)
@@ -15,7 +18,7 @@ diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
 index bdec6a2e0d..df3bb7920e 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
-@@ -395,6 +395,28 @@ struct efi_simple_text_output_protocol efi_con_out = {
+@@ -395,6 +395,29 @@ struct efi_simple_text_output_protocol efi_con_out = {
  static bool key_available;
  static struct efi_key_data next_key;
  
@@ -24,7 +27,8 @@ index bdec6a2e0d..df3bb7920e 100644
 + *
 + * @mod:	Xterm shift mask
 + */
-+void set_shift_mask(int mod, struct efi_key_state *key_state) {
++void set_shift_mask(int mod, struct efi_key_state *key_state)
++{
 +	key_state->key_shift_state = EFI_SHIFT_STATE_VALID;
 +	if (mod) {
 +		--mod;

@@ -75,7 +75,7 @@ index a96eda1b22..dfec95903e 100644
 -		return EFI_EXIT(EFI_NOT_READY);
 +		return EFI_NOT_READY;
  	/* We do not support multi-word codes */
- 	if ( ch >= 0x10000)
+ 	if (ch >= 0x10000)
  		ch = '?';
 @@ -554,7 +544,109 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke(
  		pressed_key.unicode_char = ch;
