@@ -1,4 +1,4 @@
-From 6ee2309ac33f52ed5ed8f092131dc8e626009c89 Mon Sep 17 00:00:00 2001
+From fe652f5309357eb378404aa01dc707c4bfe6fec9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Sep 2018 11:25:41 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
@@ -87,7 +87,7 @@ index ae840d1bb4..5004f520ff 100644
  	EFI_GUID(0x387477c1, 0x69c7, 0x11d2, \
  		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 4149adb425..f1838d55f2 100644
+index b8f9a04aab..bdec6a2e0d 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -42,10 +42,12 @@ static struct cout_mode efi_cout_modes[] = {
@@ -169,7 +169,7 @@ index 4149adb425..f1838d55f2 100644
  	/* We do not support multi-word codes */
  	if ( ch >= 0x10000)
  		ch = '?';
-@@ -495,7 +510,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -490,7 +505,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				pressed_key.scan_code = 5;
  				break;
  			case '1':
@@ -178,7 +178,7 @@ index 4149adb425..f1838d55f2 100644
  				switch (ch) {
  				case '1'...'5': /* F1 - F5 */
  					pressed_key.scan_code = ch - '1' + 11;
-@@ -515,7 +530,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -510,7 +525,7 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				}
  				break;
  			case '2':
@@ -187,7 +187,7 @@ index 4149adb425..f1838d55f2 100644
  				switch (ch) {
  				case '0'...'1': /* F9 - F10 */
  					pressed_key.scan_code = ch - '0' + 19;
-@@ -530,15 +545,15 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -525,15 +540,15 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  				break;
  			case '3': /* DEL */
  				pressed_key.scan_code = 8;
@@ -206,7 +206,7 @@ index 4149adb425..f1838d55f2 100644
  				break;
  			}
  			break;
-@@ -547,9 +562,28 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
+@@ -542,9 +557,28 @@ static efi_status_t efi_cin_read_key(struct efi_input_key *key)
  		/* Backspace */
  		ch = 0x08;
  	}
@@ -226,7 +226,7 @@ index 4149adb425..f1838d55f2 100644
 +					EFI_SHIFT_STATE_VALID;
 +			switch (ch) {
 +			case 0x01 ... 0x07:
-+			case 0x0b:
++			case 0x0b ... 0x0c:
 +			case 0x0e ... 0x1f:
 +				key->key_state.key_shift_state |=
 +						EFI_LEFT_CONTROL_PRESSED;
@@ -237,7 +237,7 @@ index 4149adb425..f1838d55f2 100644
  
  	return EFI_SUCCESS;
  }
-@@ -577,6 +611,170 @@ static void efi_cin_check(void)
+@@ -572,6 +606,170 @@ static void efi_cin_check(void)
  	}
  }
  
@@ -408,7 +408,7 @@ index 4149adb425..f1838d55f2 100644
  /**
   * efi_cin_reset() - drain the input buffer
   *
-@@ -604,16 +802,13 @@ static efi_status_t EFIAPI efi_cin_reset
+@@ -599,16 +797,13 @@ static efi_status_t EFIAPI efi_cin_reset
  		goto out;
  	}
  
@@ -427,7 +427,7 @@ index 4149adb425..f1838d55f2 100644
   *
   * @this:	instance of the EFI_SIMPLE_TEXT_INPUT_PROTOCOL
   * @key:	key read from console
-@@ -649,13 +844,22 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke
+@@ -644,13 +839,22 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke
  		ret = EFI_NOT_READY;
  		goto out;
  	}
@@ -451,7 +451,7 @@ index 4149adb425..f1838d55f2 100644
  struct efi_simple_text_input_protocol efi_con_in = {
  	.reset = efi_cin_reset,
  	.read_key_stroke = efi_cin_read_key_stroke,
-@@ -726,6 +930,10 @@ int efi_console_register(void)
+@@ -721,6 +925,10 @@ int efi_console_register(void)
  	if (r != EFI_SUCCESS)
  		goto out_of_memory;
  	systab.con_in_handle = efi_console_input_obj->handle;
@@ -462,7 +462,7 @@ index 4149adb425..f1838d55f2 100644
  
  	/* Create console events */
  	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
-@@ -734,6 +942,7 @@ int efi_console_register(void)
+@@ -729,6 +937,7 @@ int efi_console_register(void)
  		printf("ERROR: Failed to register WaitForKey event\n");
  		return r;
  	}

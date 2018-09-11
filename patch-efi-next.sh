@@ -52,7 +52,7 @@ git am ../patch/0001-efi_selftest-use-WaitForKey-to-test-text-input.patch
 
 git am ../patch/0001-test-py-rework-test_efi_selftest_text_input.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
-git am ../patch/0001-efi_loader-support-for-logo-key.patch
+git am ../patch/0001-efi_loader-support-modifiers-for-F1-F4.patch
 git am ../patch/0001-efi_selftest-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 git am ../patch/0001-test-py-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-key-notify-functions.patch

@@ -1,4 +1,4 @@
-From e3e95e12f05870fac074c4d74c2455e2ae22a059 Mon Sep 17 00:00:00 2001
+From 60ff3291442896d599a5af65c24fe9f4df56afd4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Sep 2018 13:15:44 +0200
 Subject: [PATCH 1/1] efi_loader: implement key notify functions
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 98 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 9a2eea8345..aec20b94e1 100644
+index 113d7d5fae..abc73f8b33 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -392,8 +392,23 @@ struct efi_simple_text_output_protocol efi_con_out = {
@@ -38,8 +38,8 @@ index 9a2eea8345..aec20b94e1 100644
 +static LIST_HEAD(cin_notify_functions);
  
  /**
-  * analyze_modifiers() - analyze modifiers (shift, alt, ctrl) for function keys
-@@ -586,6 +601,34 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
+  * set_shift_mask() - set shift mask
+@@ -609,6 +624,34 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
  	return EFI_SUCCESS;
  }
  
@@ -74,7 +74,7 @@ index 9a2eea8345..aec20b94e1 100644
  /**
   * efi_cin_check() - check if keyboard input is available
   */
-@@ -603,8 +646,12 @@ static void efi_cin_check(void)
+@@ -626,8 +669,12 @@ static void efi_cin_check(void)
  		if (ret == EFI_SUCCESS) {
  			key_available = true;
  
@@ -88,7 +88,7 @@ index 9a2eea8345..aec20b94e1 100644
  		}
  	}
  }
-@@ -746,9 +793,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
+@@ -769,9 +816,35 @@ static efi_status_t EFIAPI efi_cin_register_key_notify(
  			struct efi_key_data *key_data),
  		void **notify_handle)
  {
@@ -125,7 +125,7 @@ index 9a2eea8345..aec20b94e1 100644
  }
  
  /**
-@@ -768,8 +841,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
+@@ -791,8 +864,30 @@ static efi_status_t EFIAPI efi_cin_unregister_key_notify(
  		struct efi_simple_text_input_ex_protocol *this,
  		void *notification_handle)
  {
