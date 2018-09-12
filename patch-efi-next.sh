@@ -43,6 +43,9 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
+git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
+exit
+
 # Deletion of handles
 git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
