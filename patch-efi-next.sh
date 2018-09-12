@@ -51,6 +51,7 @@ git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
+git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
