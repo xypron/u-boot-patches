@@ -43,23 +43,6 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
-# Simple Text Input Ex Protocol
-git am ../patch/0001-efi_loader-support-Unicode-text-input.patch
-git am ../patch/0001-test-py-Unicode-w-EFI_SIMPLE_TEXT_INPUT_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-refactor-text-input-test.patch
-git am ../patch/0001-efi_loader-rework-event-handling-for-console.patch
-git am ../patch/0001-efi_selftest-use-WaitForKey-to-test-text-input.patch
-
-git am ../patch/0001-test-py-rework-test_efi_selftest_text_input.patch
-git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
-git am ../patch/0001-efi_loader-support-modifiers-for-F1-F4.patch
-git am ../patch/0001-efi_selftest-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
-git am ../patch/0001-test-py-test-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.patch
-git am ../patch/0001-efi_loader-implement-key-notify-functions.patch
-git am ../patch/0001-efi_selftest-test-key-notification-functions.patch
-git am ../patch/0001-efi_loader-unset-CONFIG_EFI_UNICODE_CAPITALIZATION.patch
-
-exit
 # Deletion of handles
 git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch

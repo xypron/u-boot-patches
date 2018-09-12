@@ -1,4 +1,4 @@
-From fd1bb72f32b098abd2b13f9d03bc754071b0cfba Mon Sep 17 00:00:00 2001
+From 9e07db8054ea18d6c3a399d5952a77ec618722bf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Jul 2018 11:34:34 +0200
 Subject: [PATCH 1/1] dm: sysreset: x86: missing build dependency
@@ -21,12 +21,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/sysreset/Kconfig b/drivers/sysreset/Kconfig
-index 9b2fda4d25..a5a58e6d83 100644
+index ed1d437fb0..c17a5c3749 100644
 --- a/drivers/sysreset/Kconfig
 +++ b/drivers/sysreset/Kconfig
-@@ -36,6 +36,12 @@ config SYSRESET_PSCI
- 	  Enable PSCI SYSTEM_RESET function call.  To use this, PSCI firmware
- 	  must be running on your system.
+@@ -43,6 +43,12 @@ config SYSRESET_TI_SCI
+ 	  This enables the system reset driver support over TI System Control
+ 	  Interface available on some new TI's SoCs.
  
 +config SYSRESET_X86
 +	bool "Enable support for x86 processor reboot driver"
@@ -37,7 +37,7 @@ index 9b2fda4d25..a5a58e6d83 100644
  endif
  
  config SYSRESET_SYSCON
-@@ -51,10 +57,4 @@ config SYSRESET_WATCHDOG
+@@ -58,10 +64,4 @@ config SYSRESET_WATCHDOG
  	help
  	  Reboot support for generic watchdog reset.
  
