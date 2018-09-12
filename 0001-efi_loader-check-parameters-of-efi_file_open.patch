@@ -1,4 +1,4 @@
-From 9e0bc9cb4a3d4fe52c2af40c8db8c4947162d824 Mon Sep 17 00:00:00 2001
+From 326c70f17626621be316b0870660962eeded299e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 12 Sep 2018 18:29:56 +0200
 Subject: [PATCH 1/1] efi_loader: check parameters of efi_file_open()
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 26 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 89d65694da..f51e6d8d62 100644
+index 89d65694da..92ca444617 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -202,15 +202,37 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
@@ -46,7 +46,7 @@ index 89d65694da..f51e6d8d62 100644
  
 -	return EFI_EXIT(EFI_SUCCESS);
 +	/* Open file */
-+	*new_handle = file_open(fh->fs, fh, file_name, open_mode);
++	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
 +	if (*new_handle)
 +		ret = EFI_SUCCESS;
 +	else
