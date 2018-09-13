@@ -43,6 +43,7 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 git am ../patch/0001-fs-fat-unaligned-buffers-are-not-an-error.patch
+git am ../patch/0001-efi_loader-loosen-check-of-parameters-of-efi_file_op.patch
 exit
 
 # Deletion of handles
