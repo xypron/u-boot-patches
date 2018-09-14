@@ -1,0 +1,79 @@
+From 55d780b1015b70e9dc551decb51867ab7b021459 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 Sep 2018 06:35:57 +0200
+Subject: [PATCH 1/1] efi_loader: environment variables for terminal size
+
+Correct scrolling in EFI applications like the EFI Shell requires correct
+setting of the terminal size. Detecting the terminal size over the serial
+interface is often not supported. The patch introduces the environment
+variables LINES and COLUMNS to set the terminal size manually.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/README.uefi              | 14 ++++++++++++++
+ lib/efi_loader/efi_console.c | 15 ++++++++++++++-
+ 2 files changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/doc/README.uefi b/doc/README.uefi
+index 6b9759cfed..df0cf5b7ce 100644
+--- a/doc/README.uefi
++++ b/doc/README.uefi
+@@ -299,6 +299,20 @@ This driver is only available if U-Boot is configured with
+     CONFIG_BLK=y
+     CONFIG_PARTITIONS=y
+ 
++## Setting the terminal size
++
++For correct scrolling the terminal size has to be known.
++
++The default terminal size is 80x25.
++
++If the environment variable 'stdout' has the value 'vidconsole', the terminal
++size is determined by querying the video console driver. Else it is tried to
++determine the terminal size by sending ESC '[18t' to the console which may
++reply with an escape sequence indicating the terminal size.
++
++It is possible to override the terminal size by setting the environment
++variables 'LINES' and 'COLUMNS'.
++
+ ## TODOs as of U-Boot 2018.07
+ 
+ * unimplemented or incompletely implemented boot services
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 73f7ecf919..40e33f9fd3 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -224,6 +224,7 @@ static void query_console_size(void)
+ {
+ 	const char *stdout_name = env_get("stdout");
+ 	int rows = 25, cols = 80;
++	char *value;
+ 
+ 	if (stdout_name && !strcmp(stdout_name, "vidconsole") &&
+ 	    IS_ENABLED(CONFIG_DM_VIDEO)) {
+@@ -235,9 +236,21 @@ static void query_console_size(void)
+ 		rows = priv->rows;
+ 		cols = priv->cols;
+ 	} else if (query_console_serial(&rows, &cols)) {
+-		return;
++		rows = 25;
++		cols = 80;
+ 	}
+ 
++	value = env_get("LINES");
++	if (value)
++		rows = simple_strtoul(value, NULL, 10);
++	value = env_get("COLUMNS");
++	if (value)
++		cols = simple_strtoul(value, NULL, 10);
++	if (rows <= 0)
++		rows = 25;
++	if (cols <= 0)
++		cols = 80;
++
+ 	/* Test if we can have Mode 1 */
+ 	if (cols >= 80 && rows >= 50) {
+ 		efi_cout_modes[1].present = 1;
+-- 
+2.18.0
+
