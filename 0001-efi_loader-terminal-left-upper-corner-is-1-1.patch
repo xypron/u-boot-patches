@@ -1,0 +1,59 @@
+From 49106828ab4aedad54a9b0923a42879385191941 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 Sep 2018 18:13:46 +0200
+Subject: [PATCH 1/1] efi_loader: terminal left upper corner is [1, 1]
+
+For the VT102 and the Linux console the left upper corner is [1, 1].
+EFI uses [0, 0] as left upper corner.
+
+Check parameters of the SetCursorPosition() service.
+
+Use CSI H like EDK2 for positioning.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 40e33f9fd3..e1f6b2b887 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -372,13 +372,31 @@ static efi_status_t EFIAPI efi_cout_set_cursor_position(
+ 			struct efi_simple_text_output_protocol *this,
+ 			unsigned long column, unsigned long row)
+ {
++	efi_status_t ret = EFI_SUCCESS;
++	struct simple_text_output_mode *con = &efi_con_mode;
++	struct cout_mode *mode = &efi_cout_modes[con->mode];
++
+ 	EFI_ENTRY("%p, %ld, %ld", this, column, row);
+ 
+-	printf(ESC"[%d;%df", (int)row, (int)column);
++	/* Check parameters */
++	if (!this) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++	if (row >= mode->rows || column >= mode->columns) {
++		ret = EFI_UNSUPPORTED;
++		goto out;
++	}
++
++	/*
++	 * Set cursor position by sending CSI H.
++	 * EFI origin is [0, 0], terminal origin is [1, 1].
++	 */
++	printf(ESC "[%d;%dH", (int)row + 1, (int)column + 1);
+ 	efi_con_mode.cursor_column = column;
+ 	efi_con_mode.cursor_row = row;
+-
+-	return EFI_EXIT(EFI_SUCCESS);
++out:
++	return EFI_EXIT(ret);
+ }
+ 
+ static efi_status_t EFIAPI efi_cout_enable_cursor(
+-- 
+2.18.0
+
