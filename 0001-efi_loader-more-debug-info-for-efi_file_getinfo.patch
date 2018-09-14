@@ -1,0 +1,29 @@
+From 831e9fde3fdfed5ef5bb5ac9d69b2915f938527d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 Sep 2018 22:39:17 +0200
+Subject: [PATCH 1/1] efi_loader: more debug info for efi_file_getinfo()
+
+efi_file_getinfo() is called with a GUID. In EFI_ENTRY use %pUl as
+format type. This way the GUID is printed in debug mode.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 84be0d5818..ef34cc6cd7 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -500,7 +500,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	EFI_ENTRY("%p, %p, %p, %p", file, info_type, buffer_size, buffer);
++	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
+ 
+ 	if (!guidcmp(info_type, &efi_file_info_guid)) {
+ 		struct efi_file_info *info = buffer;
+-- 
+2.18.0
+
