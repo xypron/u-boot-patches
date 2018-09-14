@@ -44,6 +44,8 @@ git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 git am ../patch/0001-efi_loader-environment-variables-for-terminal-size.patch
 git am ../patch/0001-efi_loader-terminal-left-upper-corner-is-1-1.patch
+git am ../patch/0001-efi_loader-more-debug-info-for-efi_file_getinfo.patch
+git am ../patch/0001-efi_loader-check-parameter-new_handle-of-efi_file_op.patch
 exit
 
 # Deletion of handles
@@ -51,7 +53,6 @@ git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
-git am ../patch/0001-efi_loader-more-debug-info-for-efi_file_getinfo.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
