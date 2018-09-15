@@ -1,4 +1,4 @@
-From 80a55e490422af8db1f40a941ca1a12ffc35e117 Mon Sep 17 00:00:00 2001
+From b00786e22abd809a7503bbd80e0c1157a2702977 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 14 Sep 2018 22:57:36 +0200
 Subject: [PATCH 1/1] efi_loader: check parameter new_handle of efi_file_open()
@@ -8,14 +8,13 @@ We should check parameter new_handle.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c        | 2 ++
  lib/efi_loader/efi_file.c | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index fc211e74bc..eb14018560 100644
---- a/fs/fat/fat_write.c
-+++ b/fs/fat/fat_write.c
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index e090cf017c..0753a36a20 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
 @@ -218,7 +218,7 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
  		  open_mode, attributes);
  
