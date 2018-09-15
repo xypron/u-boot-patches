@@ -42,8 +42,6 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # Workarounds for running EFI shell
 git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
-git am ../patch/0001-efi_loader-environment-variables-for-terminal-size.patch
-git am ../patch/0001-efi_selftest-missing-braces-in-efi_selftest_textinpu.patch
 git am ../patch/0001-efi_loader-query-serial-console-size-reliably.patch
 exit
 
