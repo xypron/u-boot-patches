@@ -1,4 +1,4 @@
-From 539fd85c4236495b1a68fc0fbf3040b82982d3e4 Mon Sep 17 00:00:00 2001
+From d07275588d9dc53fc5b3bfa5749a5d853049aeb3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Aug 2018 07:52:46 +0200
 Subject: [PATCH 1/1] efi_loader: memory leak in efi_set_bootdev()
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 7 insertions(+)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index c5a2bd970d..1dffb8ab11 100644
+index 791db359f5..a890f414e8 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -582,6 +582,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
+@@ -630,6 +630,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
  	char filename[32] = { 0 }; /* dp->str is u16[32] long */
  	char *s;
  
