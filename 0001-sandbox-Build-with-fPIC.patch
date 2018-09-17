@@ -1,0 +1,35 @@
+From 292ef914efe21c8db3ff5c67282bc5b0bcddec92 Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Mon, 3 Sep 2018 12:08:10 +0300
+Subject: [PATCH 1/1] sandbox: Build with -fPIC
+
+Sandbox is not a real bootloader and it does require
+a position independent code to be supported.
+
+Thus, build it with -fPIC explicitly.
+
+Fixes: 16940f720f9b ("Makefile: Don't generate position independent code")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reported-by: Simon Glass <sjg@chromium.org>
+Tested-by: Bin Meng <bmeng.cn@gmail.com>
+Acked-by: Simon Glass <sjg@chromium.org>
+Tested-by: Simon Glass <sjg@chromium.org>
+---
+ arch/sandbox/config.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/sandbox/config.mk b/arch/sandbox/config.mk
+index 2babcde881..95f9e3ff63 100644
+--- a/arch/sandbox/config.mk
++++ b/arch/sandbox/config.mk
+@@ -3,6 +3,7 @@
+ 
+ PLATFORM_CPPFLAGS += -D__SANDBOX__ -U_FORTIFY_SOURCE
+ PLATFORM_CPPFLAGS += -DCONFIG_ARCH_MAP_SYSMEM
++PLATFORM_CPPFLAGS += -fPIC
+ PLATFORM_LIBS += -lrt
+ 
+ # Define this to avoid linking with SDL, which requires SDL libraries
+-- 
+2.18.0
+
