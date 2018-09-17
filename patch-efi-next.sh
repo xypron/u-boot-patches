@@ -44,8 +44,8 @@ git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
-exit
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
+exit
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
 
 # KGDB

@@ -1,4 +1,4 @@
-From 202e2ffad63e0f8dd9be7d4ea074345009d1766a Mon Sep 17 00:00:00 2001
+From 22ff83f8cab065e55d2ca1a254c4eb150e94a397 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Aug 2018 19:01:53 +0200
 Subject: [PATCH 1/1] efi_loader: refactor efi_setup_loaded_image()
@@ -8,16 +8,34 @@ inside efi_setup_loaded_image(). Do not use local variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c                 | 44 ++++++++++++++++----------------
- include/efi_loader.h          |  8 +++---
- lib/efi_loader/efi_boottime.c | 48 +++++++++++++++++++----------------
- 3 files changed, 52 insertions(+), 48 deletions(-)
+ cmd/bootefi.c                 | 61 +++++++++++++++++++----------------
+ include/efi_loader.h          |  8 ++---
+ lib/efi_loader/efi_boottime.c | 48 ++++++++++++++-------------
+ 3 files changed, 64 insertions(+), 53 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index c8812b0f5e..9e2f0b49eb 100644
+index a890f414e8..db753aaf7c 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -323,11 +323,11 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -342,19 +342,26 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ 	return ret;
+ }
+ 
+-/*
+- * Load an EFI payload into a newly allocated piece of memory, register all
+- * EFI objects it would want to access and jump to it.
++/**
++ * do_bootefi_exec() - execute EFI binary
++ *
++ * @efi:		address of the binary
++ * @device_path:	path of the device from which the binary was loaded
++ * @image_path:		device path of the binary
++ * Return:		status code
++ *
++ * Load the EFI binary into a newly assigned memory unwinding the relocation
++ * information, install the loaded image protocol, and call the binary.
+  */
+ static efi_status_t do_bootefi_exec(void *efi,
  				    struct efi_device_path *device_path,
  				    struct efi_device_path *image_path)
  {
@@ -31,7 +49,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  
  	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
  				     struct efi_system_table *st);
-@@ -357,8 +357,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -384,8 +391,8 @@ static efi_status_t do_bootefi_exec(void *efi,
  		assert(device_path && image_path);
  	}
  
@@ -42,7 +60,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  
  	/*
  	 * gd lives in a fixed register which may get clobbered while we execute
-@@ -367,9 +367,9 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -394,9 +401,9 @@ static efi_status_t do_bootefi_exec(void *efi,
  	efi_save_gd();
  
  	/* Transfer environment variable bootargs as load options */
@@ -54,7 +72,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  	if (!entry) {
  		ret = EFI_LOAD_ERROR;
  		goto exit;
-@@ -377,10 +377,10 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -404,10 +411,10 @@ static efi_status_t do_bootefi_exec(void *efi,
  
  	if (memdp) {
  		struct efi_device_path_memory *mdp = (void *)memdp;
@@ -68,7 +86,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  	}
  
  	/* we don't support much: */
-@@ -390,8 +390,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -417,8 +424,8 @@ static efi_status_t do_bootefi_exec(void *efi,
  	/* Call our payload! */
  	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
  
@@ -79,7 +97,25 @@ index c8812b0f5e..9e2f0b49eb 100644
  		goto exit;
  	}
  
-@@ -428,11 +428,12 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -430,7 +437,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 
+ 		/* Move into EL2 and keep running there */
+ 		armv8_switch_to_el2((ulong)entry,
+-				    (ulong)&loaded_image_info_obj.handle,
++				    (ulong)&image_handle,
+ 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
+ 				    ES_TO_AARCH64);
+ 
+@@ -447,7 +454,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		secure_ram_addr(_do_nonsec_entry)(
+ 					efi_run_in_hyp,
+ 					(uintptr_t)entry,
+-					(uintptr_t)loaded_image_info_obj.handle,
++					(uintptr_t)image_handle,
+ 					(uintptr_t)&systab);
+ 
+ 		/* Should never reach here, efi exits with longjmp */
+@@ -455,11 +462,12 @@ static efi_status_t do_bootefi_exec(void *efi,
  	}
  #endif
  
@@ -94,7 +130,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  	if (mem_handle)
  		efi_delete_handle(mem_handle);
  
-@@ -473,6 +474,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -500,6 +508,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	char *saddr;
  	efi_status_t r;
  	unsigned long fdt_addr;
@@ -103,7 +139,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  
  	/* Allow unaligned memory access */
  	allow_unaligned();
-@@ -517,8 +520,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -544,8 +554,6 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  #endif
  #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
  	if (!strcmp(argv[1], "selftest")) {
@@ -112,7 +148,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  
  		/* Construct a dummy device path. */
  		bootefi_device_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-@@ -526,9 +527,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -553,9 +561,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  						      (uintptr_t)&efi_selftest);
  		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
  
@@ -124,7 +160,7 @@ index c8812b0f5e..9e2f0b49eb 100644
  		/*
  		 * gd lives in a fixed register which may get clobbered while we
  		 * execute the payload. So save it here and restore it on every
-@@ -536,12 +536,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -563,12 +570,12 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  		 */
  		efi_save_gd();
  		/* Transfer environment variable efi_selftest as load options */
@@ -142,10 +178,10 @@ index c8812b0f5e..9e2f0b49eb 100644
  	} else
  #endif
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index c5ae7c3c36..9be29a7a05 100644
+index f0d086daff..e5bc7d043e 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -336,10 +336,10 @@ int efi_memory_init(void);
+@@ -342,10 +342,10 @@ int efi_memory_init(void);
  /* Adds new or overrides configuration table entry to the system table */
  efi_status_t efi_install_configuration_table(const efi_guid_t *guid, void *table);
  /* Sets up a loaded image */
@@ -161,10 +197,10 @@ index c5ae7c3c36..9be29a7a05 100644
  				      void **buffer);
  /* Print information about a loaded image */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index a478bbafe2..4fc6511b01 100644
+index 3bcea647c8..730124a119 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1479,18 +1479,34 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+@@ -1478,18 +1478,34 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
   *
   * Return: status code
   */
@@ -203,7 +239,7 @@ index a478bbafe2..4fc6511b01 100644
  	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
  	info->file_path = file_path;
  	info->system_table = &systab;
-@@ -1612,7 +1628,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1629,7 +1645,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  					  efi_handle_t *image_handle)
  {
  	struct efi_loaded_image *info;
@@ -211,7 +247,7 @@ index a478bbafe2..4fc6511b01 100644
  	efi_status_t ret;
  
  	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
-@@ -1628,18 +1643,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1645,18 +1660,6 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  		goto error;
  	}
  
@@ -230,7 +266,7 @@ index a478bbafe2..4fc6511b01 100644
  	if (!source_buffer) {
  		struct efi_device_path *dp, *fp;
  
-@@ -1651,16 +1654,17 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1668,16 +1671,17 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  		 * file parts:
  		 */
  		efi_dp_split_file_path(file_path, &dp, &fp);
@@ -251,7 +287,7 @@ index a478bbafe2..4fc6511b01 100644
  	}
  	info->reserved = efi_load_pe(source_buffer, info);
  	if (!info->reserved) {
-@@ -1669,11 +1673,11 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1686,11 +1690,11 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  	}
  	info->system_table = &systab;
  	info->parent_handle = parent_image;
