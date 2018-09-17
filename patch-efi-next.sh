@@ -45,8 +45,6 @@ git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 git am ../patch/0001-efi_loader-query-serial-console-size-reliably.patch
 
 # Deletion of handles
-git am ../patch/0001-efi_loader-do-not-use-local-variable-for-handle.patch
-git am ../patch/0001-efi_loader-memory-leak-in-efi_set_bootdev.patch
 exit
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
