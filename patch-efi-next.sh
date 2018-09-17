@@ -23,6 +23,7 @@ git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-cmd-add-conitrace-command.patch
 git am ../patch/0001-sandbox-Build-with-fPIC.patch
+git am ../patch/0001-test-py-catch-errors-occuring-when-reading-the-conso.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
