@@ -1,7 +1,7 @@
-From 05538f55c07d0282f033227edb74089285d4a4e9 Mon Sep 17 00:00:00 2001
+From a2b22dffcbf59d70fc8c7de68009b0d31d6bb741 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 18 Sep 2018 00:19:10 +0200
-Subject: [PATCH 1/1] test/py: catch errors occuring when reading the console
+Subject: [PATCH 1/1] test/py: catch errors occurring when reading the console
 
 Spawn.exept has a try block without 'except'.
 
@@ -9,15 +9,17 @@ If no output is available an OSError may arise. Catch this exception and
 continue testing.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
-I suggest that Alex takes the patch because we need it when working on the
-efi-next branch.
+v2
+	replace TAB by spaces
+	fix typo in subject
 ---
  test/py/u_boot_spawn.py | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/test/py/u_boot_spawn.py b/test/py/u_boot_spawn.py
-index b011a3e3da..3c18360e62 100644
+index b011a3e3da..7ee876b101 100644
 --- a/test/py/u_boot_spawn.py
 +++ b/test/py/u_boot_spawn.py
 @@ -181,6 +181,9 @@ class Spawn(object):
@@ -25,7 +27,7 @@ index b011a3e3da..3c18360e62 100644
                  # Python in Ubuntu 14.04 appears to default to count=2!
                  self.buf = self.re_vt100.sub('', self.buf, count=1000000)
 +        except OSError, EOFError:
-+	    # Reading the the console may result in an error. Catch it.
++            # Reading the the console may result in an error. Catch it.
 +            pass
          finally:
              if self.logfile_read:
