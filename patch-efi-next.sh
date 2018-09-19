@@ -26,6 +26,9 @@ git am ../patch/0001-sandbox-Build-with-fPIC.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 git am ../patch/0001-efi_driver-convert-function-descriptions-to-Sphinx-s.patch
 git am ../patch/0001-dm-video-check-bounds-for-column-and-row.patch
+git am ../patch/0001-dm-video-adjust-struct-vidconsole_priv-description.patch
+git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
+git am ../patch/0001-dm-video-support-more-escape-sequences.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

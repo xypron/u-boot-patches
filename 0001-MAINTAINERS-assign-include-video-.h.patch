@@ -1,0 +1,28 @@
+From f5b98c2970466de4d0f1911e3a0410c67ad7e117 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 19 Sep 2018 20:13:13 +0200
+Subject: [PATCH 1/1] MAINTAINERS: assign include/video*.h
+
+The include/video*.h files are part of the drivers in drivers/video. So it
+makes sense to assign them to the same maintainer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5e740d85b9..ec9635a4c9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -624,6 +624,7 @@ T:	git git://git.denx.de/u-boot-video.git
+ F:	drivers/video/
+ F:	common/lcd*.c
+ F:	include/lcd*.h
++F:	include/video*.h
+ 
+ X86
+ M:	Simon Glass <sjg@chromium.org>
+-- 
+2.18.0
+
