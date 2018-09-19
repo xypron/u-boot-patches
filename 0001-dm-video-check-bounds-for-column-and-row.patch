@@ -1,0 +1,36 @@
+From fd897e65f246c6a0afd1b04fb5270f14549a58fd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 19 Sep 2018 18:15:35 +0200
+Subject: [PATCH 1/1] dm: video: check bounds for column and row
+
+CSI H can be used to position the cursor. The calling application may
+specify a location that is beyond the limits of the screen. This may
+lead to an illegal memory access.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/video/vidconsole-uclass.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/video/vidconsole-uclass.c b/drivers/video/vidconsole-uclass.c
+index f1d3ad3611..0c36a5de0a 100644
+--- a/drivers/video/vidconsole-uclass.c
++++ b/drivers/video/vidconsole-uclass.c
+@@ -213,6 +213,14 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
+ 		s++;    /* ; */
+ 		s = parsenum(s, &col);
+ 
++		/*
++		 * Ensure we stay in the bounds of the screen.
++		 */
++		if (row >= priv->rows)
++			row = priv->rows - 1;
++		if (col >= priv->cols)
++			col = priv->cols - 1;
++
+ 		priv->ycur = row * priv->y_charsize;
+ 		priv->xcur_frac = priv->xstart_frac +
+ 			VID_TO_POS(col * priv->x_charsize);
+-- 
+2.18.0
+

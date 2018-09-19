@@ -25,6 +25,7 @@ git am ../patch/0001-cmd-add-conitrace-command.patch
 git am ../patch/0001-sandbox-Build-with-fPIC.patch
 git am ../patch/0001-test-py-catch-errors-occuring-when-reading-the-conso.patch
 git am ../patch/0001-efi_driver-convert-function-descriptions-to-Sphinx-s.patch
+git am ../patch/0001-dm-video-check-bounds-for-column-and-row.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
