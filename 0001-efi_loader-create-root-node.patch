@@ -125,7 +125,7 @@ index 0000000000..15c5236c21
 +	ret = efi_create_handle(&root);
 +	if (ret != EFI_SUCCESS)
 +		return ret;
-+	
++
 +	/* Install device path protocol */
 +	dp = calloc(1, sizeof(*dp));
 +	if (!dp)
