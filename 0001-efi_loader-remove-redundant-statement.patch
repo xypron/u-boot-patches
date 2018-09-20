@@ -1,0 +1,68 @@
+From 4a550f7e3f4e2b695e0d2faa5380bba58a37afd4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Sep 2018 19:48:06 +0200
+Subject: [PATCH 1/1] efi_loader: remove redundant statement
+
+ascii2unicode() always ends the u16 string with '\0'.
+Remove redundant assignment.
+
+Add description for efi_str_to_u16() and ascii2unicode().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h                     | 10 +++++++++-
+ lib/efi_loader/efi_device_path_to_text.c | 10 +++++++++-
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index e5bc7d043e..736879345b 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -408,7 +408,15 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+ 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
+ 	 ((_dp)->sub_type == DEVICE_PATH_SUB_TYPE_##_subtype))
+ 
+-/* Convert strings from normal C strings to uEFI strings */
++/**
++ * ascii2unicode() - convert ASCII string to UTF-16 string
++ *
++ * A zero terminated ASCII string is converted to a zero terminated UTF-16
++ * string. The output buffer must be preassigned.
++ *
++ * @unicode:	preassigned output buffer for UTF-16 string
++ * @ascii:	ASCII string to be converted
++ */
+ static inline void ascii2unicode(u16 *unicode, const char *ascii)
+ {
+ 	while (*ascii)
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index ca8037def2..0082236359 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -17,6 +17,15 @@
+ const efi_guid_t efi_guid_device_path_to_text_protocol =
+ 		EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
+ 
++/**
++ * efi_str_to_u16() - convert ASCII string to UTF-16
++ *
++ * A u16 buffer is allocated from pool. The ASCII string is copied to the u16
++ * buffer.
++ *
++ * @str:	ASCII string
++ * Return:	UTF-16 string. NULL if out of memory.
++ */
+ static u16 *efi_str_to_u16(char *str)
+ {
+ 	efi_uintn_t len;
+@@ -29,7 +38,6 @@ static u16 *efi_str_to_u16(char *str)
+ 	if (ret != EFI_SUCCESS)
+ 		return NULL;
+ 	ascii2unicode(out, str);
+-	out[len - 1] = 0;
+ 	return out;
+ }
+ 
+-- 
+2.18.0
+
