@@ -53,6 +53,7 @@ git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 exit
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
+git am ../patch/0001-efi_loader-create-root-node.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
