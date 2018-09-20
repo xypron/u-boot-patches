@@ -1,4 +1,4 @@
-From 63a67add2d3ae20aadd1f18677418b7f3be2053e Mon Sep 17 00:00:00 2001
+From 7f5fc458360181b0f281bcfdaf40ea23b5b0cf00 Mon Sep 17 00:00:00 2001
 From: Leif Lindholm <leif.lindholm at linaro.org>
 Date: Tue, 10 Oct 2017 08:22:58 -0400
 Subject: [PATCH 1/1] efi_loader: Initial HII protocols
@@ -18,12 +18,13 @@ Initial skeleton written by Leif, and then implementation by myself.
 Cc: Leif Lindholm <leif.lindholm at linaro.org>
 Signed-off-by: Rob Clark <robdclark at gmail.com>
 Updated-by: Alexander Graf <agraf@suse.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h             | 261 +++++++++++++++++
- include/efi_loader.h          |   6 +
- lib/efi_loader/Makefile       |   1 +
- lib/efi_loader/efi_boottime.c |  18 ++
- lib/efi_loader/efi_hii.c      | 509 ++++++++++++++++++++++++++++++++++
+ include/efi_api.h              | 261 +++++++++++++++++
+ include/efi_loader.h           |   6 +
+ lib/efi_loader/Makefile        |   1 +
+ lib/efi_loader/efi_hii.c       | 509 +++++++++++++++++++++++++++++++++
+ lib/efi_loader/efi_root_node.c |  18 ++
  5 files changed, 795 insertions(+)
  create mode 100644 lib/efi_loader/efi_hii.c
 
@@ -307,10 +308,10 @@ index d423521d0d..5004f520ff 100644
  	EFI_GUID(0x9042a9de, 0x23dc, 0x4a38, \
  		 0x96, 0xfb, 0x7a, 0xde, 0xd0, 0x80, 0x51, 0x6a)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 3bf059b447..f0d086daff 100644
+index 5d522f133e..7738391aa2 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -101,6 +101,9 @@ extern const struct efi_device_path_utilities_protocol
+@@ -106,6 +106,9 @@ extern const struct efi_device_path_utilities_protocol
  /* Implementation of the EFI_UNICODE_COLLATION_PROTOCOL */
  extern const struct efi_unicode_collation_protocol
  					efi_unicode_collation_protocol;
@@ -320,7 +321,7 @@ index 3bf059b447..f0d086daff 100644
  
  uint16_t *efi_dp_str(struct efi_device_path *dp);
  
-@@ -132,6 +135,9 @@ extern const efi_guid_t efi_file_system_info_guid;
+@@ -139,6 +142,9 @@ extern const efi_guid_t efi_file_system_info_guid;
  extern const efi_guid_t efi_guid_device_path_utilities_protocol;
  /* GUID of the Unicode collation protocol */
  extern const efi_guid_t efi_guid_unicode_collation_protocol;
@@ -331,10 +332,10 @@ index 3bf059b447..f0d086daff 100644
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 7eebbc5b4e..70469f07a9 100644
+index 6703435947..b46f071624 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -30,6 +30,7 @@ obj-y += efi_runtime.o
+@@ -31,6 +31,7 @@ obj-y += efi_runtime.o
  obj-y += efi_unicode_collation.o
  obj-y += efi_variable.o
  obj-y += efi_watchdog.o
@@ -342,35 +343,6 @@ index 7eebbc5b4e..70469f07a9 100644
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
  obj-$(CONFIG_PARTITIONS) += efi_disk.o
-diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index dfddcb5aa5..e2cbb55c61 100644
---- a/lib/efi_loader/efi_boottime.c
-+++ b/lib/efi_loader/efi_boottime.c
-@@ -1533,6 +1533,24 @@ efi_status_t efi_setup_loaded_image(
- 	if (ret != EFI_SUCCESS)
- 		goto failure;
- 
-+	ret = efi_add_protocol(obj->handle,
-+			       &efi_guid_hii_string_protocol,
-+			       (void *)&efi_hii_string);
-+	if (ret != EFI_SUCCESS)
-+		goto failure;
-+
-+	ret = efi_add_protocol(obj->handle,
-+			       &efi_guid_hii_database_protocol,
-+			       (void *)&efi_hii_database);
-+	if (ret != EFI_SUCCESS)
-+		goto failure;
-+
-+	ret = efi_add_protocol(obj->handle,
-+			       &efi_guid_hii_config_routing_protocol,
-+			       (void *)&efi_hii_config_routing);
-+	if (ret != EFI_SUCCESS)
-+		goto failure;
-+
- 	return ret;
- failure:
- 	printf("ERROR: Failure to install protocols for loaded image\n");
 diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
 new file mode 100644
 index 0000000000..9ec23f9247
@@ -886,6 +858,35 @@ index 0000000000..9ec23f9247
 +	.get_languages = get_languages,
 +	.get_secondary_languages = get_secondary_languages
 +};
+diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
+index b056ba3ee8..4bdb5d75e2 100644
+--- a/lib/efi_loader/efi_root_node.c
++++ b/lib/efi_loader/efi_root_node.c
+@@ -74,6 +74,24 @@ efi_status_t efi_root_node_register(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto failure;
+ 
++	/* Install HII string protocol */
++	ret = efi_add_protocol(root, &efi_guid_hii_string_protocol,
++			       (void *)&efi_hii_string);
++	if (ret != EFI_SUCCESS)
++		goto failure;
++
++	/* Install HII database protocol */
++	ret = efi_add_protocol(root, &efi_guid_hii_database_protocol,
++			       (void *)&efi_hii_database);
++	if (ret != EFI_SUCCESS)
++		goto failure;
++
++	/* Install HII configuration routing protocol */
++	ret = efi_add_protocol(root, &efi_guid_hii_config_routing_protocol,
++			       (void *)&efi_hii_config_routing);
++	if (ret != EFI_SUCCESS)
++		goto failure;
++
+ failure:
+ 	return ret;
+ }
 -- 
 2.18.0
 
