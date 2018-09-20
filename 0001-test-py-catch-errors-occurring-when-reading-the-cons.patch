@@ -1,33 +1,47 @@
-From a2b22dffcbf59d70fc8c7de68009b0d31d6bb741 Mon Sep 17 00:00:00 2001
+From ef9fd8d7496442980848ce0d1f62e27ede56af62 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 18 Sep 2018 00:19:10 +0200
 Subject: [PATCH 1/1] test/py: catch errors occurring when reading the console
 
 Spawn.exept has a try block without 'except'.
 
-If no output is available an OSError may arise. Catch this exception and
-continue testing.
+When the py test is running it is connected via pipes to the U-Boot
+process. If the U-Boot process ends prematurely, e.g. due to a
+segmentation fault, the pipes are broken. Trying to read from a broken
+pipe results in an OSError. Catch the exception and treat the broken pipe
+like any other end of output. By returning None expect() indicates that
+the output does not match.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
+I suggest that Alex takes the patch because we need it when working on
+the efi-next branch.
+
+v3
+	add more comments
 v2
 	replace TAB by spaces
-	fix typo in subject
+	fix type in subject
 ---
- test/py/u_boot_spawn.py | 3 +++
- 1 file changed, 3 insertions(+)
+ test/py/u_boot_spawn.py | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/test/py/u_boot_spawn.py b/test/py/u_boot_spawn.py
-index b011a3e3da..7ee876b101 100644
+index b011a3e3da..adc1d00287 100644
 --- a/test/py/u_boot_spawn.py
 +++ b/test/py/u_boot_spawn.py
-@@ -181,6 +181,9 @@ class Spawn(object):
+@@ -181,6 +181,14 @@ class Spawn(object):
                  # unlimited substitutions, but in practice the version of
                  # Python in Ubuntu 14.04 appears to default to count=2!
                  self.buf = self.re_vt100.sub('', self.buf, count=1000000)
 +        except OSError, EOFError:
-+            # Reading the the console may result in an error. Catch it.
++            # When the py test is running it is connected via pipes to the
++            # U-Boot process. If the U-Boot process ends prematurely, e.g. due
++            # to a segmentation fault, the pipes are broken. Trying to read
++            # from a broken pipe results in an OSError. Treat the broken pipe
++            # like any other end of output. By returning None expect()
++            # indicates that the output does not match.
 +            pass
          finally:
              if self.logfile_read:
