@@ -1,4 +1,4 @@
-From 1c3baf48edbb531b675797401aaee2de6d7f513a Mon Sep 17 00:00:00 2001
+From 1853b2cb223cf8d8dff673e840e26e2d6548e70c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Sep 2018 12:52:43 +0200
 Subject: [PATCH 1/1] efi_loader: create root node
@@ -13,15 +13,15 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_loader.h             |  7 ++++
  lib/efi_loader/Makefile          |  1 +
  lib/efi_loader/efi_device_path.c |  4 ---
- lib/efi_loader/efi_root_node.c   | 56 ++++++++++++++++++++++++++++++++
- 5 files changed, 69 insertions(+), 4 deletions(-)
+ lib/efi_loader/efi_root_node.c   | 58 ++++++++++++++++++++++++++++++++
+ 5 files changed, 71 insertions(+), 4 deletions(-)
  create mode 100644 lib/efi_loader/efi_root_node.c
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 719efc16f3..f5e87c4b18 100644
+index c8812b0f5e..5fc054c9da 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -57,6 +57,11 @@ efi_status_t efi_init_obj_list(void)
+@@ -49,6 +49,11 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
  
@@ -34,7 +34,7 @@ index 719efc16f3..f5e87c4b18 100644
  	ret = efi_driver_init();
  	if (ret != EFI_SUCCESS)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index e5bc7d043e..8c16d887fd 100644
+index 3bf059b447..217eb850a8 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -20,6 +20,11 @@
@@ -49,7 +49,7 @@ index e5bc7d043e..8c16d887fd 100644
  int __efi_entry_check(void);
  int __efi_exit_check(void);
  const char *__efi_nesting(void);
-@@ -216,6 +221,8 @@ extern struct list_head efi_obj_list;
+@@ -210,6 +215,8 @@ extern struct list_head efi_obj_list;
  /* List of all events */
  extern struct list_head efi_events;
  
@@ -59,7 +59,7 @@ index e5bc7d043e..8c16d887fd 100644
  efi_status_t efi_initialize_system_table(void);
  /* Called by bootefi to make console interface available */
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 70469f07a9..b46f071624 100644
+index 7eebbc5b4e..6703435947 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -26,6 +26,7 @@ obj-y += efi_device_path_utilities.o
@@ -87,10 +87,10 @@ index b770db84fd..46a24f7882 100644
  	.dp = {
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
 new file mode 100644
-index 0000000000..15c5236c21
+index 0000000000..7b17d714cd
 --- /dev/null
 +++ b/lib/efi_loader/efi_root_node.c
-@@ -0,0 +1,56 @@
+@@ -0,0 +1,58 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + *  Root node for system services
@@ -104,6 +104,11 @@ index 0000000000..15c5236c21
 +
 +efi_guid_t efi_u_boot_guid = U_BOOT_GUID;
 +
++struct efi_root_dp {
++	struct efi_device_path_vendor vendor;
++	struct efi_device_path end;
++} __packed;
++
 +/**
 + * efi_root_node_register() - create root node
 + *
@@ -116,10 +121,7 @@ index 0000000000..15c5236c21
 +{
 +	efi_handle_t root;
 +	efi_status_t ret;
-+	struct {
-+		struct efi_device_path_vendor vendor;
-+		struct efi_device_path end;
-+	} *dp;
++	struct efi_root_dp *dp;
 +
 +	/* Create handle */
 +	ret = efi_create_handle(&root);
