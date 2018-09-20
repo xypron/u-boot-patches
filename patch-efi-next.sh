@@ -29,6 +29,7 @@ git am ../patch/0001-dm-video-adjust-struct-vidconsole_priv-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
 git am ../patch/0001-dm-video-support-more-escape-sequences.patch
 git am ../patch/0001-efi_loader-remove-redundant-statement.patch
+git am ../patch/0001-efi_loader-create-root-node.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -54,7 +55,6 @@ git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 exit
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
-git am ../patch/0001-efi_loader-create-root-node.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
