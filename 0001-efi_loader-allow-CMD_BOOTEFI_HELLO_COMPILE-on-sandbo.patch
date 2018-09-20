@@ -1,0 +1,29 @@
+From 678360b702747bf640f684723e7d8182781b8fc6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Sep 2018 05:35:32 +0200
+Subject: [PATCH 1/1] efi_loader: allow CMD_BOOTEFI_HELLO_COMPILE on sandbox
+
+The sandbox now supports running EFI binaries. So CMD_BOOTEFI_HELLO_COMPILE
+should be allowed.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 6d5228b6c1..0e766aa2cc 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -226,7 +226,7 @@ config CMD_BOOTEFI
+ 
+ config CMD_BOOTEFI_HELLO_COMPILE
+ 	bool "Compile a standard EFI hello world binary for testing"
+-	depends on CMD_BOOTEFI && (ARM || X86 || RISCV)
++	depends on CMD_BOOTEFI
+ 	default y
+ 	help
+ 	  This compiles a standard EFI hello world application with U-Boot so
+-- 
+2.18.0
+
