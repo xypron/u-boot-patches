@@ -1,0 +1,95 @@
+From b32175ea57978cadc09ed70f08ef6c91f17b4e50 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 22 Sep 2018 22:00:12 +0200
+Subject: [PATCH 1/1] efi_selftest: test handling of undefined instruction
+
+Generate an EFI executable that raises an undefined instruction
+exception.
+
+We can use this binary to test the handling of exeptions.
+E.g. for ARM 32bit we expect the name of the loaded image to be
+displayed.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile    |  4 +++
+ lib/efi_selftest/exception.c | 52 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 56 insertions(+)
+ create mode 100644 lib/efi_selftest/exception.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 1934bf8bee..3348c31979 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -9,6 +9,10 @@ CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI) -Os
+ CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
++CFLAGS_exception.o := $(CFLAGS_EFI) -Os -ffreestanding
++CFLAGS_REMOVE_exception.o := $(CFLAGS_NON_EFI) -Os
++
++always += exception.efi
+ 
+ obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
+ efi_selftest.o \
+diff --git a/lib/efi_selftest/exception.c b/lib/efi_selftest/exception.c
+new file mode 100644
+index 0000000000..0819704216
+--- /dev/null
++++ b/lib/efi_selftest/exception.c
+@@ -0,0 +1,52 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * EFI hello world
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Test the handling of execptions by trying to execute an undefined
++ * instruction.
++ */
++
++#include <common.h>
++#include <efi_api.h>
++
++/**
++ * undefined_instruction() - try to executed an undefined instruction
++ */
++static void undefined_instruction(void)
++{
++#if defined(CONFIG_ARM)
++	/*
++	 * 0xe7f...f.	is undefined in ARM mode
++	 * 0xde..	is undefined in Thumb mode
++	 */
++	asm volatile (".word 0xe7f7defb\n");
++#endif
++#if defined(CONFIG_X86)
++	asm volatile (".word 0xffffffff\n");
++#endif
++#if defined(CONFIG_RISCV)
++	asm volatile (".word 0xffffffff\n");
++#endif
++}
++
++/*
++ * Entry point of the EFI application.
++ *
++ * @handle	handle of the loaded image
++ * @systable	system table
++ * @return	status code
++ */
++efi_status_t EFIAPI efi_main(efi_handle_t handle,
++			     struct efi_system_table *systable)
++{
++	struct efi_simple_text_output_protocol *con_out = systable->con_out;
++
++	con_out->output_string(con_out,
++			       L"Trying to executed undefined instruction.\n");
++	undefined_instruction();
++
++	/* We should never arrive here */
++	return EFI_UNSUPPORTED;
++}
+-- 
+2.19.0
+
