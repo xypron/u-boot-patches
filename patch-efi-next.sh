@@ -54,7 +54,6 @@ git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
 git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
-exit
 git am ../patch/0001-efi_loader-refactor-loaded-image-handle.patch
 
 # KGDB
