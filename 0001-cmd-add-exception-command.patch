@@ -1,34 +1,34 @@
-From 3f62f090c8f2540570b65bbbc220fddf302e4dd0 Mon Sep 17 00:00:00 2001
+From 4602eac07a2b8d4d5cae2b7b7105e9013a1d0ec1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
 
 The 'exception' command allows to test exception handling.
 
-This version supports ARM and the following exceptions:
-* 'breakpoint' - prefetch abort exception (32bit only)
-* 'unaligned'  - data abort exception
+This version supports ARM, x86 and the following exceptions:
+* 'breakpoint' - prefetch abort exception (ARM 32bit only)
+* 'unaligned'  - data abort exception (ARM only)
 * 'undefined'  - undefined instruction exception
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |   6 ++
  cmd/Makefile    |   1 +
- cmd/exception.c | 155 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 162 insertions(+)
+ cmd/exception.c | 160 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 167 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index e283cb9a8ac..13e13f9b7dc 100644
+index cf97a0f2be..0a4cd28622 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1304,6 +1304,12 @@ config CMD_DISPLAY
+@@ -1352,6 +1352,12 @@ config CMD_DISPLAY
  	  displayed on a simple board-specific display. Implement
  	  display_putc() to use it.
  
 +config CMD_EXCEPTION
 +	bool "Enable the 'exception' command"
-+	depends on ARM
++	depends on ARM || X86
 +	help
 +	  Enable the 'exception' command which allows to raise an exception.
 +
@@ -36,10 +36,10 @@ index e283cb9a8ac..13e13f9b7dc 100644
  	bool "led"
  	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index e0088df33bd..8b82d805115 100644
+index d3815abf26..8a8273e2aa 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_CMD_DIAG) += diag.o
+@@ -47,6 +47,7 @@ endif
  obj-$(CONFIG_CMD_DISPLAY) += display.o
  obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
@@ -49,10 +49,10 @@ index e0088df33bd..8b82d805115 100644
  obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/exception.c b/cmd/exception.c
 new file mode 100644
-index 00000000000..3c77a2bbced
+index 0000000000..2c0acee907
 --- /dev/null
 +++ b/cmd/exception.c
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,160 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
@@ -105,16 +105,21 @@ index 00000000000..3c77a2bbced
 +	asm volatile ("BKPT #123\n");
 +}
 +#endif
++#endif
 +
 +static void undefined_instruction(void)
 +{
++#if defined(CONFIG_ARM)
 +	/*
 +	 * 0xe7f...f.	is undefined in ARM mode
 +	 * 0xde..	is undefined in Thumb mode
 +	 */
 +	asm volatile (".word 0xe7f7defb\n");
-+}
 +#endif
++#if defined(CONFIG_X86)
++	asm volatile (".word 0xffffffff\n");
++#endif
++}
 +
 +struct exception_str exceptions[] = {
 +#if defined(CONFIG_ARM)
@@ -122,8 +127,8 @@ index 00000000000..3c77a2bbced
 +	{ BREAKPOINT, "breakpoint", breakpoint },
 +#endif
 +	{ DATA_ABORT, "unaligned", data_abort },
-+	{ UNDEFINED_INSTRUCTION, "undefined", undefined_instruction },
 +#endif
++	{ UNDEFINED_INSTRUCTION, "undefined", undefined_instruction },
 +	{ 0, NULL, NULL },
 +};
 +
@@ -152,10 +157,10 @@ index 00000000000..3c77a2bbced
 +	case DATA_ABORT:
 +		data_abort();
 +		break;
++#endif
 +	case UNDEFINED_INSTRUCTION:
 +		undefined_instruction();
 +		break;
-+#endif
 +	default:
 +		return CMD_RET_USAGE;
 +	}
@@ -198,10 +203,10 @@ index 00000000000..3c77a2bbced
 +	"  breakpoint - prefetch abort\n"
 +#endif
 +	"  unaligned  - data abort\n"
++#endif
++#endif
 +	"  undefined  - undefined instruction\n"
-+#endif
 +	;
-+#endif
 +
 +U_BOOT_CMD_COMPLETE(
 +	exception, 2, 0, do_exception,
@@ -209,5 +214,5 @@ index 00000000000..3c77a2bbced
 +	exception_help_text, exception_complete
 +);
 -- 
-2.17.1
+2.19.0
 
