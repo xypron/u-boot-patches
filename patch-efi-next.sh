@@ -48,7 +48,8 @@ git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 
 # Workarounds for running EFI shell
-git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
+#git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
+git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
