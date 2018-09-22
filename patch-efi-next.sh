@@ -39,6 +39,7 @@ git am ../patch/0001-efi_loader-create-root-node.patch
 
 # Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
+git am ../patch/0001-efi_selftest-test-handling-of-exceptions.patch
 
 # RTC
 git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch

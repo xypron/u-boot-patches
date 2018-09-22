@@ -1,0 +1,88 @@
+From 036569c1611930f3abe232189aea7af743ef89bf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 22 Sep 2018 21:42:20 +0200
+Subject: [PATCH 1/1] efi_selftest: test handling of exceptions
+
+Test the handling of execptions by trying to execute an undefined
+instruction.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile                 |  1 +
+ lib/efi_selftest/efi_selftest_exception.c | 52 +++++++++++++++++++++++
+ 2 files changed, 53 insertions(+)
+ create mode 100644 lib/efi_selftest/efi_selftest_exception.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 2f55d9d66f..1934bf8bee 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -21,6 +21,7 @@ efi_selftest_devicepath.o \
+ efi_selftest_devicepath_util.o \
+ efi_selftest_events.o \
+ efi_selftest_event_groups.o \
++efi_selftest_exception.o \
+ efi_selftest_exitbootservices.o \
+ efi_selftest_fdt.o \
+ efi_selftest_gop.o \
+diff --git a/lib/efi_selftest/efi_selftest_exception.c b/lib/efi_selftest/efi_selftest_exception.c
+new file mode 100644
+index 0000000000..fbe0f312f4
+--- /dev/null
++++ b/lib/efi_selftest/efi_selftest_exception.c
+@@ -0,0 +1,52 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * efi_selftest_exception
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Test the handling of execptions by trying to execute an undefined
++ * instruction.
++ */
++
++#include <efi_selftest.h>
++
++/**
++ * undefined_instruction() - try to executed an undefined instruction
++ */
++static void undefined_instruction(void)
++{
++#if defined(CONFIG_ARM)
++	/*
++	 * 0xe7f...f.	is undefined in ARM mode
++	 * 0xde..	is undefined in Thumb mode
++	 */
++	asm volatile (".word 0xe7f7defb\n");
++#endif
++#if defined(CONFIG_X86)
++	asm volatile (".word 0xffffffff\n");
++#endif
++#if defined(CONFIG_RISCV)
++	asm volatile (".word 0xffffffff\n");
++#endif
++}
++
++/**
++ * execute() - execute unit test
++ *
++ * Return:	EFI_ST_SUCCESS for success
++ */
++static int execute(void)
++{
++	undefined_instruction();
++
++	efi_st_error("An undefined instruction exeption was not raised\n");
++
++	return EFI_ST_FAILURE;
++}
++
++EFI_UNIT_TEST(exception) = {
++	.name = "exception",
++	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
++	.execute = execute,
++	.on_request = true,
++};
+-- 
+2.19.0
+
