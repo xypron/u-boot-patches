@@ -1,11 +1,11 @@
-From 4602eac07a2b8d4d5cae2b7b7105e9013a1d0ec1 Mon Sep 17 00:00:00 2001
+From 2045251cf7268637a921fd7ef712599d7d6be446 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
 
 The 'exception' command allows to test exception handling.
 
-This version supports ARM, x86 and the following exceptions:
+This implementation supports ARM, x86, RISC-V and the following exceptions:
 * 'breakpoint' - prefetch abort exception (ARM 32bit only)
 * 'unaligned'  - data abort exception (ARM only)
 * 'undefined'  - undefined instruction exception
@@ -14,12 +14,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |   6 ++
  cmd/Makefile    |   1 +
- cmd/exception.c | 160 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 167 insertions(+)
+ cmd/exception.c | 163 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 170 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index cf97a0f2be..0a4cd28622 100644
+index cf97a0f2be..1254dee52b 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -1352,6 +1352,12 @@ config CMD_DISPLAY
@@ -28,7 +28,7 @@ index cf97a0f2be..0a4cd28622 100644
  
 +config CMD_EXCEPTION
 +	bool "Enable the 'exception' command"
-+	depends on ARM || X86
++	depends on ARM || RISCV || X86
 +	help
 +	  Enable the 'exception' command which allows to raise an exception.
 +
@@ -49,10 +49,10 @@ index d3815abf26..8a8273e2aa 100644
  obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/exception.c b/cmd/exception.c
 new file mode 100644
-index 0000000000..2c0acee907
+index 0000000000..a6c3d72b50
 --- /dev/null
 +++ b/cmd/exception.c
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,163 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
@@ -117,6 +117,9 @@ index 0000000000..2c0acee907
 +	asm volatile (".word 0xe7f7defb\n");
 +#endif
 +#if defined(CONFIG_X86)
++	asm volatile (".word 0xffffffff\n");
++#endif
++#if defined(CONFIG_RISCV)
 +	asm volatile (".word 0xffffffff\n");
 +#endif
 +}
