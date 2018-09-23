@@ -38,10 +38,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-efi_selftest-test-handling-of-exceptions.patch
 git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
-# RTC
-git am ../patch/0001-rtc-pl031-convert-the-driver-to-driver-model.patch
-git am ../patch/0001-arm-qemu-arm-enable-PL031-RTC-in-defconfig.patch
-
 # git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
 # git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
 
