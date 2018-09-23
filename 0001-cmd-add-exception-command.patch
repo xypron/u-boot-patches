@@ -14,8 +14,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |   6 ++
  cmd/Makefile    |   1 +
- cmd/exception.c | 163 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 170 insertions(+)
+ cmd/exception.c | 162 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 168 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
@@ -52,7 +52,7 @@ new file mode 100644
 index 0000000000..a6c3d72b50
 --- /dev/null
 +++ b/cmd/exception.c
-@@ -0,0 +1,163 @@
+@@ -0,0 +1,161 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
@@ -115,12 +115,10 @@ index 0000000000..a6c3d72b50
 +	 * 0xde..	is undefined in Thumb mode
 +	 */
 +	asm volatile (".word 0xe7f7defb\n");
-+#endif
-+#if defined(CONFIG_X86)
++#elif defined(CONFIG_RISCV)
 +	asm volatile (".word 0xffffffff\n");
-+#endif
-+#if defined(CONFIG_RISCV)
-+	asm volatile (".word 0xffffffff\n");
++#elif defined(CONFIG_X86)
++	asm volatile (".word 0xffff\n");
 +#endif
 +}
 +

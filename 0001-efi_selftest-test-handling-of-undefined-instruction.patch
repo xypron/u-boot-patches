@@ -1,4 +1,4 @@
-From cda2f4ea0c3358dba6231c93c5b0bcd383069f30 Mon Sep 17 00:00:00 2001
+From 8e891b9fb5d5911ebea0a0d635b295063017bc6c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 22 Sep 2018 22:00:12 +0200
 Subject: [PATCH 1/1] efi_selftest: test handling of undefined instruction
@@ -18,7 +18,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_selftest/exception.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 590f90b16d..7a5a1ae837 100644
+index 1934bf8bee..3348c31979 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -9,6 +9,10 @@ CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
@@ -34,7 +34,7 @@ index 590f90b16d..7a5a1ae837 100644
  efi_selftest.o \
 diff --git a/lib/efi_selftest/exception.c b/lib/efi_selftest/exception.c
 new file mode 100644
-index 0000000000..0c8f1e9a84
+index 0000000000..caa54ac869
 --- /dev/null
 +++ b/lib/efi_selftest/exception.c
 @@ -0,0 +1,50 @@
@@ -65,7 +65,7 @@ index 0000000000..0c8f1e9a84
 +#elif defined(CONFIG_RISCV)
 +	asm volatile (".word 0xffffffff\n");
 +#elif defined(CONFIG_X86)
-+	asm volatile (".word 0xffffffff\n");
++	asm volatile (".word 0xffff\n");
 +#endif
 +}
 +

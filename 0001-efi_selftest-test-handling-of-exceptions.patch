@@ -9,8 +9,8 @@ instruction.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |  1 +
- lib/efi_selftest/efi_selftest_exception.c | 52 +++++++++++++++++++++++
- 2 files changed, 53 insertions(+)
+ lib/efi_selftest/efi_selftest_exception.c | 50 +++++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_exception.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -30,7 +30,7 @@ new file mode 100644
 index 0000000000..fbe0f312f4
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_exception.c
-@@ -0,0 +1,52 @@
+@@ -0,0 +1,50 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_exception
@@ -54,12 +54,10 @@ index 0000000000..fbe0f312f4
 +	 * 0xde..	is undefined in Thumb mode
 +	 */
 +	asm volatile (".word 0xe7f7defb\n");
-+#endif
-+#if defined(CONFIG_X86)
++#elif defined(CONFIG_RISCV)
 +	asm volatile (".word 0xffffffff\n");
-+#endif
-+#if defined(CONFIG_RISCV)
-+	asm volatile (".word 0xffffffff\n");
++#elif defined(CONFIG_X86)
++	asm volatile (".word 0xffff\n");
 +#endif
 +}
 +
