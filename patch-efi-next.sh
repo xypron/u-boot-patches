@@ -30,6 +30,8 @@ git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
 git am ../patch/0001-dm-video-support-more-escape-sequences.patch
 git am ../patch/0001-efi_loader-remove-redundant-statement.patch
 git am ../patch/0001-efi_loader-create-root-node.patch
+git am ../patch/0001-efi_loader-avoid-out-of-bound-access-in-efi_get_vari.patch
+git am ../patch/0001-efi_selftest-test-qemu-arm-64-_defconfig.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
