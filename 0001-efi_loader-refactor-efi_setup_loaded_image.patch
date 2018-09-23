@@ -1,7 +1,7 @@
 From 00d74211c5795ce103c41f4733212f0ff1ea3c1b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Aug 2018 19:01:53 +0200
-Subject: [PATCH v3 1/1] efi_loader: refactor efi_setup_loaded_image()
+Subject: [PATCH v4 1/1] efi_loader: refactor efi_setup_loaded_image()
 
 Create the handle of loaded images and the EFI_LOADED_IMAGE_PROTOCOL
 inside efi_setup_loaded_image(). Do not use local variables.
@@ -15,6 +15,8 @@ object.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v4
+	rebased
 v3
 	squashed two patches
 	https://lists.denx.de/pipermail/u-boot/2018-September/341130.html
@@ -389,7 +391,7 @@ index b4de9961b8..2496608981 100644
  error:
  	return EFI_EXIT(ret);
  }
-@@ -1676,18 +1680,16 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1676,16 +1680,14 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  					   unsigned long *exit_data_size,
  					   s16 **exit_data)
  {
@@ -402,8 +404,6 @@ index b4de9961b8..2496608981 100644
  
  	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
 -	entry = info->reserved;
- 
- 	efi_is_direct_boot = false;
  
  	/* call the image! */
 -	if (setjmp(&info->exit_jmp)) {
