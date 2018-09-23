@@ -47,7 +47,6 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
-git am ../patch/0001-efi_loader-refactor-efi_setup_loaded_image.patch
 
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
