@@ -23,15 +23,9 @@ git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-cmd-add-conitrace-command.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
-git am ../patch/0001-efi_driver-convert-function-descriptions-to-Sphinx-s.patch
-git am ../patch/0001-dm-video-check-bounds-for-column-and-row.patch
 git am ../patch/0001-dm-video-adjust-struct-vidconsole_priv-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
 git am ../patch/0001-dm-video-support-more-escape-sequences.patch
-git am ../patch/0001-efi_loader-remove-redundant-statement.patch
-git am ../patch/0001-efi_loader-create-root-node.patch
-git am ../patch/0001-efi_loader-avoid-out-of-bound-access-in-efi_get_vari.patch
-git am ../patch/0001-efi_selftest-test-qemu-arm-64-_defconfig.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
