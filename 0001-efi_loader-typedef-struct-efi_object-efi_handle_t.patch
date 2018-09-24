@@ -1,0 +1,170 @@
+From ad552d5a3adc1ede8a5d358dff73406b1bd36999 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 24 Sep 2018 18:57:46 +0200
+Subject: [PATCH 1/1] efi_loader: typedef struct efi_object *efi_handle_t
+
+All our handles point to a struct efi_object. So let's define the
+efi_handle_t accordingly. This helps us to discover coding errors much
+more easily. This becomes evident by the corrections to the usage of
+handles in this patch.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                              |  4 ++--
+ include/efi.h                              |  2 +-
+ include/efi_api.h                          |  8 ++++----
+ lib/efi/efi.c                              |  2 +-
+ lib/efi_loader/efi_boottime.c              | 18 +++++++++---------
+ lib/efi_selftest/efi_selftest_devicepath.c |  2 +-
+ 6 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 9c51a2cbd1..05eb168e4a 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -447,7 +447,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	}
+ #endif
+ 
+-	ret = efi_do_enter(image_handle, &systab, entry);
++	ret = efi_do_enter(&image_handle->parent, &systab, entry);
+ 
+ exit:
+ 	/* image has returned, loaded-image obj goes *poof*: */
+@@ -561,7 +561,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		/* Transfer environment variable efi_selftest as load options */
+ 		set_load_options(loaded_image_info, "efi_selftest");
+ 		/* Execute the test */
+-		r = efi_selftest(image_handle, &systab);
++		r = efi_selftest(&image_handle->parent, &systab);
+ 		efi_restore_gd();
+ 		free(loaded_image_info->load_options);
+ 		efi_delete_handle(&image_handle->parent);
+diff --git a/include/efi.h b/include/efi.h
+index b1deb609b4..b5e2c64f38 100644
+--- a/include/efi.h
++++ b/include/efi.h
+@@ -96,7 +96,7 @@ typedef struct {
+ typedef unsigned long efi_status_t;
+ typedef u64 efi_physical_addr_t;
+ typedef u64 efi_virtual_addr_t;
+-typedef void *efi_handle_t;
++typedef struct efi_object *efi_handle_t;
+ 
+ #define EFI_GUID(a, b, c, d0, d1, d2, d3, d4, d5, d6, d7) \
+ 	{{ (a) & 0xff, ((a) >> 8) & 0xff, ((a) >> 16) & 0xff, \
+diff --git a/include/efi_api.h b/include/efi_api.h
+index c42df6900a..e6566bb358 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -86,10 +86,10 @@ struct efi_boot_services {
+ 	efi_status_t (EFIAPI *check_event)(struct efi_event *event);
+ #define EFI_NATIVE_INTERFACE	0x00000000
+ 	efi_status_t (EFIAPI *install_protocol_interface)(
+-			void **handle, const efi_guid_t *protocol,
++			efi_handle_t *handle, const efi_guid_t *protocol,
+ 			int protocol_interface_type, void *protocol_interface);
+ 	efi_status_t (EFIAPI *reinstall_protocol_interface)(
+-			void *handle, const efi_guid_t *protocol,
++			efi_handle_t handle, const efi_guid_t *protocol,
+ 			void *old_interface, void *new_interface);
+ 	efi_status_t (EFIAPI *uninstall_protocol_interface)(
+ 			efi_handle_t handle, const efi_guid_t *protocol,
+@@ -165,9 +165,9 @@ struct efi_boot_services {
+ 	efi_status_t (EFIAPI *locate_protocol)(const efi_guid_t *protocol,
+ 			void *registration, void **protocol_interface);
+ 	efi_status_t (EFIAPI *install_multiple_protocol_interfaces)(
+-			void **handle, ...);
++			efi_handle_t *handle, ...);
+ 	efi_status_t (EFIAPI *uninstall_multiple_protocol_interfaces)(
+-			void *handle, ...);
++			efi_handle_t handle, ...);
+ 	efi_status_t (EFIAPI *calculate_crc32)(const void *data,
+ 					       efi_uintn_t data_size,
+ 					       u32 *crc32);
+diff --git a/lib/efi/efi.c b/lib/efi/efi.c
+index c6639f96cc..2c6a50824f 100644
+--- a/lib/efi/efi.c
++++ b/lib/efi/efi.c
+@@ -69,7 +69,7 @@ int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
+ 	efi_putc(priv, ' ');
+ 
+ 	ret = boot->open_protocol(priv->parent_image, &loaded_image_guid,
+-				  (void **)&loaded_image, &priv->parent_image,
++				  (void **)&loaded_image, priv->parent_image,
+ 				  NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+ 	if (ret) {
+ 		efi_puts(priv, "Failed to get loaded image protocol\n");
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 3bb7b70e08..20974f98f6 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1019,7 +1019,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
+  * Return: status code
+  */
+ static efi_status_t EFIAPI efi_install_protocol_interface(
+-			void **handle, const efi_guid_t *protocol,
++			efi_handle_t *handle, const efi_guid_t *protocol,
+ 			int protocol_interface_type, void *protocol_interface)
+ {
+ 	efi_status_t r;
+@@ -2279,8 +2279,8 @@ out:
+  *
+  * Return: status code
+  */
+-static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
+-			void **handle, ...)
++static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
++				(efi_handle_t *handle, ...)
+ {
+ 	EFI_ENTRY("%p", handle);
+ 
+@@ -2316,7 +2316,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
+ 	for (; i; --i) {
+ 		protocol = efi_va_arg(argptr, efi_guid_t*);
+ 		protocol_interface = efi_va_arg(argptr, void*);
+-		EFI_CALL(efi_uninstall_protocol_interface(handle, protocol,
++		EFI_CALL(efi_uninstall_protocol_interface(*handle, protocol,
+ 							  protocol_interface));
+ 	}
+ 	efi_va_end(argptr);
+@@ -2339,7 +2339,7 @@ static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces(
+  * Return: status code
+  */
+ static efi_status_t EFIAPI efi_uninstall_multiple_protocol_interfaces(
+-			void *handle, ...)
++			efi_handle_t handle, ...)
+ {
+ 	EFI_ENTRY("%p", handle);
+ 
+@@ -2554,10 +2554,10 @@ out:
+  *
+  * Return: status code
+  */
+-static efi_status_t EFIAPI efi_open_protocol(
+-			void *handle, const efi_guid_t *protocol,
+-			void **protocol_interface, void *agent_handle,
+-			void *controller_handle, uint32_t attributes)
++static efi_status_t EFIAPI efi_open_protocol
++			(efi_handle_t handle, const efi_guid_t *protocol,
++			 void **protocol_interface, efi_handle_t agent_handle,
++			 efi_handle_t controller_handle, uint32_t attributes)
+ {
+ 	struct efi_handler *handler;
+ 	efi_status_t r = EFI_INVALID_PARAMETER;
+diff --git a/lib/efi_selftest/efi_selftest_devicepath.c b/lib/efi_selftest/efi_selftest_devicepath.c
+index adcf531e90..105ce2c92b 100644
+--- a/lib/efi_selftest/efi_selftest_devicepath.c
++++ b/lib/efi_selftest/efi_selftest_devicepath.c
+@@ -257,7 +257,7 @@ static int teardown(void)
+ static int execute(void)
+ {
+ 	struct efi_device_path *remaining_dp;
+-	void *handle;
++	efi_handle_t handle;
+ 	/*
+ 	 * This device path node ends with the letter 't' of 'u-boot'.
+ 	 * The following '.bin' does not belong to the node but is
+-- 
+2.19.0
+
