@@ -4,8 +4,8 @@ Date: Mon, 24 Sep 2018 07:27:57 +0200
 Subject: [PATCH 1/1] efi_loader: UninstallMultipleProtocolInterfaces error
  code
 
-If an error occurs while uninstalling any of the protocol interfaces
-always return EFI_INVALID_PARAMETER.
+If UninstallMultipleProtocolInterfaces fails, we sometimes return the wrong
+status code. The UEFI spec mandates to always return EFI_INVALID_PARAMETER.
 
 Update unit test.
 
@@ -24,7 +24,7 @@ index ac724b17fd..554997f44a 100644
  	efi_va_end(argptr);
  
 -	return EFI_EXIT(r);
-+	/* In case of error always return EFI_INVALID_PARAMETER */
++	/* In case of an error always return EFI_INVALID_PARAMETER */
 +	return EFI_EXIT(EFI_INVALID_PARAMETER);
  }
  
