@@ -1,0 +1,138 @@
+From 91266bd104328c60a2bb14ab2271f3d30e26544a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 24 Sep 2018 07:24:39 +0200
+Subject: [PATCH 1/1] efi_loader: delete handle after removing last protocol
+
+After the last installed protocol interface has been removed handles have
+to be deleted.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          |  2 +-
+ lib/efi_loader/efi_boottime.c | 47 ++++++++++++++++++++++++++++-------
+ 2 files changed, 39 insertions(+), 10 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 74df070316..9138f3aca1 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -300,7 +300,7 @@ void efi_add_handle(struct efi_object *obj);
+ /* Create handle */
+ efi_status_t efi_create_handle(efi_handle_t *handle);
+ /* Delete handle */
+-void efi_delete_handle(struct efi_object *obj);
++efi_status_t efi_delete_handle(struct efi_object *obj);
+ /* Call this to validate a handle and find the EFI object for it */
+ struct efi_object *efi_search_obj(const efi_handle_t handle);
+ /* Find a protocol on a handle */
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 97eb19cd14..ac724b17fd 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -480,11 +480,13 @@ efi_status_t efi_search_protocol(const efi_handle_t handle,
+ 
+ /**
+  * efi_remove_protocol() - delete protocol from a handle
++ *
+  * @handle:             handle from which the protocol shall be deleted
+  * @protocol:           GUID of the protocol to be deleted
+  * @protocol_interface: interface of the protocol implementation
+  *
+- * Return: status code
++ * Return:		status code, EFI_NOT_FOUND signals that the handle has
++ *			been deleted
+  */
+ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ 				 const efi_guid_t *protocol,
+@@ -492,7 +494,11 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ {
+ 	struct efi_handler *handler;
+ 	efi_status_t ret;
++	struct efi_object *efiobj;
+ 
++	efiobj = efi_search_obj(handle);
++	if (!efiobj)
++		return EFI_INVALID_PARAMETER;
+ 	ret = efi_search_protocol(handle, protocol, &handler);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+@@ -502,14 +508,24 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ 		return EFI_INVALID_PARAMETER;
+ 	list_del(&handler->link);
+ 	free(handler);
++
++	/* If there is no protocol installed, delete the handle */
++	if (list_empty(&efiobj->protocols)) {
++		list_del(&efiobj->link);
++		free(efiobj);
++		return EFI_NOT_FOUND;
++	}
+ 	return EFI_SUCCESS;
+ }
+ 
+ /**
+  * efi_remove_all_protocols() - delete all protocols from a handle
++ *
+  * @handle: handle from which the protocols shall be deleted
+  *
+- * Return: status code
++ * When all protocols are deleted the handle is deleted too.
++ *
++ * Return:		status code, EFI_NOT_FOUND
+  */
+ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
+ {
+@@ -517,16 +533,32 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
+ 	struct efi_handler *protocol;
+ 	struct efi_handler *pos;
+ 
++	if (!handle)
++		return EFI_INVALID_PARAMETER;
+ 	efiobj = efi_search_obj(handle);
+ 	if (!efiobj)
+ 		return EFI_INVALID_PARAMETER;
++	/* If there is no protocol installed, delete the handle */
++	if (list_empty(&efiobj->protocols)) {
++		list_del(&efiobj->link);
++		free(efiobj);
++		return EFI_SUCCESS;
++	}
+ 	list_for_each_entry_safe(protocol, pos, &efiobj->protocols, link) {
+ 		efi_status_t ret;
+ 
+ 		ret = efi_remove_protocol(handle, protocol->guid,
+ 					  protocol->protocol_interface);
+-		if (ret != EFI_SUCCESS)
++		switch (ret) {
++		case EFI_SUCCESS:
++			continue;
++		case EFI_NOT_FOUND:
++			/* Handle deleted */
++			break;
++		default:
++			/* An error occurred */
+ 			return ret;
++		}
+ 	}
+ 	return EFI_SUCCESS;
+ }
+@@ -536,13 +568,10 @@ efi_status_t efi_remove_all_protocols(const efi_handle_t handle)
+  *
+  * @obj: handle to delete
+  */
+-void efi_delete_handle(struct efi_object *obj)
++efi_status_t efi_delete_handle(struct efi_object *obj)
+ {
+-	if (!obj)
+-		return;
+-	efi_remove_all_protocols(obj->handle);
+-	list_del(&obj->link);
+-	free(obj);
++	/* The deletion occurs, if all protocols can be removed */
++	return efi_remove_all_protocols(obj->handle);
+ }
+ 
+ /**
+-- 
+2.19.0
+
