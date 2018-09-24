@@ -1,14 +1,17 @@
 From 3822c27b6ae20c1473caea0a5538e778ec88a411 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 23 Sep 2018 21:47:35 +0200
-Subject: [PATCH 1/1] test/py: cleanup test_efi_selftest.py
+Subject: [PATCH v2 1/1] test/py: cleanup test_efi_selftest.py
 
 Remove unused import and variables.
 Remove superfluous semicolons.
 Reformat long lines.
-Use 4 spaces indention.
+Use four spaces indention.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	PEP 8 recommends indention by four spaces
 ---
  test/py/tests/test_efi_selftest.py | 346 +++++++++++++++--------------
  1 file changed, 174 insertions(+), 172 deletions(-)
