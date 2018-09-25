@@ -1,0 +1,315 @@
+From 5f02f33b365f07e63cc1ebe7cbcf0938b96bc4d6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 25 Sep 2018 19:16:55 +0200
+Subject: [PATCH 1/1] efi_loader: rename parent to header
+
+Rename the component parent of some EFI objects to header. This avoids
+misunderstandings.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                 | 12 +++++------
+ include/efi_loader.h          |  9 +++++++--
+ lib/efi_loader/efi_boottime.c |  6 +++---
+ lib/efi_loader/efi_disk.c     | 38 +++++++++++++++++++----------------
+ lib/efi_loader/efi_gop.c      | 21 ++++++++++++-------
+ lib/efi_loader/efi_net.c      | 22 ++++++++++++--------
+ 6 files changed, 65 insertions(+), 43 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index b3d507a0d8..a4c3844c31 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -422,7 +422,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 
+ 		/* Move into EL2 and keep running there */
+ 		armv8_switch_to_el2((ulong)entry,
+-				    (ulong)&image_obj->parent,
++				    (ulong)&image_obj->header,
+ 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
+ 				    ES_TO_AARCH64);
+ 
+@@ -439,7 +439,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		secure_ram_addr(_do_nonsec_entry)(
+ 					efi_run_in_hyp,
+ 					(uintptr_t)entry,
+-					(uintptr_t)&image_obj->parent,
++					(uintptr_t)&image_obj->header,
+ 					(uintptr_t)&systab);
+ 
+ 		/* Should never reach here, efi exits with longjmp */
+@@ -447,12 +447,12 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	}
+ #endif
+ 
+-	ret = efi_do_enter(&image_obj->parent, &systab, entry);
++	ret = efi_do_enter(&image_obj->header, &systab, entry);
+ 
+ exit:
+ 	/* image has returned, loaded-image obj goes *poof*: */
+ 	if (image_obj)
+-		efi_delete_handle(&image_obj->parent);
++		efi_delete_handle(&image_obj->header);
+ 	if (mem_handle)
+ 		efi_delete_handle(mem_handle);
+ 
+@@ -561,10 +561,10 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		/* Transfer environment variable efi_selftest as load options */
+ 		set_load_options(loaded_image_info, "efi_selftest");
+ 		/* Execute the test */
+-		r = efi_selftest(&image_obj->parent, &systab);
++		r = efi_selftest(&image_obj->header, &systab);
+ 		efi_restore_gd();
+ 		free(loaded_image_info->load_options);
+-		efi_delete_handle(&image_obj->parent);
++		efi_delete_handle(&image_obj->header);
+ 		return r != EFI_SUCCESS;
+ 	} else
+ #endif
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 6846bb03f3..04899a137b 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -199,10 +199,15 @@ struct efi_object {
+ 
+ /**
+  * struct efi_loaded_image_obj - handle of a loaded image
++ *
++ * @header:		EFI object header
++ * @reloc_base:		base address for the relocated image
++ * @reloc_size:		size of the relocated image
++ * @exit_jmp:		long jump buffer for returning form started image
++ * @entry:		entry address of the relocated image
+  */
+ struct efi_loaded_image_obj {
+-	/* Generic EFI object parent class data */
+-	struct efi_object parent;
++	struct efi_object header;
+ 	void *reloc_base;
+ 	aligned_u64 reloc_size;
+ 	efi_status_t exit_status;
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index f7d63a3178..5acd04b384 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1488,7 +1488,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+ 	}
+ 
+ 	/* Add internal object to object list */
+-	efi_add_handle(&obj->parent);
++	efi_add_handle(&obj->header);
+ 
+ 	if (info_ptr)
+ 		*info_ptr = info;
+@@ -1505,7 +1505,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+ 		 * When asking for the device path interface, return
+ 		 * bootefi_device_path
+ 		 */
+-		ret = efi_add_protocol(&obj->parent,
++		ret = efi_add_protocol(&obj->header,
+ 				       &efi_guid_device_path, device_path);
+ 		if (ret != EFI_SUCCESS)
+ 			goto failure;
+@@ -1515,7 +1515,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+ 	 * When asking for the loaded_image interface, just
+ 	 * return handle which points to loaded_image_info
+ 	 */
+-	ret = efi_add_protocol(&obj->parent,
++	ret = efi_add_protocol(&obj->header,
+ 			       &efi_guid_loaded_image, info);
+ 	if (ret != EFI_SUCCESS)
+ 		goto failure;
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index e861feee4a..c037526ad2 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -14,26 +14,30 @@
+ 
+ const efi_guid_t efi_block_io_guid = BLOCK_IO_GUID;
+ 
++/**
++ * struct efi_disk_obj - EFI disk object
++ *
++ * @header:	EFI object header
++ * @ops:	EFI disk I/O protocol interface
++ * @ifname:	interface name for block device
++ * @dev_index:	device index of block device
++ * @media:	block I/O media information
++ * @dp:		device path to the block device
++ * @part:	partition
++ * @volume:	simple file system protocol of the partition
++ * @offset:	offset into disk for simple partition
++ * @desc:	internal block device descriptor
++ */
+ struct efi_disk_obj {
+-	/* Generic EFI object parent class data */
+-	struct efi_object parent;
+-	/* EFI Interface callback struct for block I/O */
++	struct efi_object header;
+ 	struct efi_block_io ops;
+-	/* U-Boot ifname for block device */
+ 	const char *ifname;
+-	/* U-Boot dev_index for block device */
+ 	int dev_index;
+-	/* EFI Interface Media descriptor struct, referenced by ops */
+ 	struct efi_block_io_media media;
+-	/* EFI device path to this block device */
+ 	struct efi_device_path *dp;
+-	/* partition # */
+ 	unsigned int part;
+-	/* handle to filesys proto (for partition objects) */
+ 	struct efi_simple_file_system_protocol *volume;
+-	/* Offset into disk for simple partitions */
+ 	lbaint_t offset;
+-	/* Internal block device */
+ 	struct blk_desc *desc;
+ };
+ 
+@@ -246,7 +250,7 @@ static efi_status_t efi_disk_add_dev(
+ 		return EFI_OUT_OF_RESOURCES;
+ 
+ 	/* Hook up to the device list */
+-	efi_add_handle(&diskobj->parent);
++	efi_add_handle(&diskobj->header);
+ 
+ 	/* Fill in object data */
+ 	if (part) {
+@@ -258,18 +262,18 @@ static efi_status_t efi_disk_add_dev(
+ 		diskobj->dp = efi_dp_from_part(desc, part);
+ 	}
+ 	diskobj->part = part;
+-	ret = efi_add_protocol(&diskobj->parent, &efi_block_io_guid,
++	ret = efi_add_protocol(&diskobj->header, &efi_block_io_guid,
+ 			       &diskobj->ops);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+-	ret = efi_add_protocol(&diskobj->parent, &efi_guid_device_path,
++	ret = efi_add_protocol(&diskobj->header, &efi_guid_device_path,
+ 			       diskobj->dp);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+ 	if (part >= 1) {
+ 		diskobj->volume = efi_simple_file_system(desc, part,
+ 							 diskobj->dp);
+-		ret = efi_add_protocol(&diskobj->parent,
++		ret = efi_add_protocol(&diskobj->header,
+ 				       &efi_simple_file_system_protocol_guid,
+ 				       diskobj->volume);
+ 		if (ret != EFI_SUCCESS)
+@@ -381,7 +385,7 @@ efi_status_t efi_disk_register(void)
+ 
+ 		/* Partitions show up as block devices in EFI */
+ 		disks += efi_disk_create_partitions(
+-					&disk->parent, desc, if_typename,
++					&disk->header, desc, if_typename,
+ 					desc->devnum, dev->name);
+ 	}
+ #else
+@@ -427,7 +431,7 @@ efi_status_t efi_disk_register(void)
+ 
+ 			/* Partitions show up as block devices in EFI */
+ 			disks += efi_disk_create_partitions
+-						(&disk->parent, desc,
++						(&disk->header, desc,
+ 						 if_typename, i, devname);
+ 		}
+ 	}
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index a13c626f6f..fbd5d97de9 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -16,15 +16,22 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ static const efi_guid_t efi_gop_guid = EFI_GOP_GUID;
+ 
++/**
++ * struct efi_gop_obj - graphical output protocol object
++ *
++ * @header:	EFI object header
++ * @ops:	graphical output protocol interface
++ * @info:	graphical output mode information
++ * @mode:	graphical output mode
++ * @bpix:	bits per pixel
++ * @fb:		frame buffer
++ */
+ struct efi_gop_obj {
+-	/* Generic EFI object parent class data */
+-	struct efi_object parent;
+-	/* EFI Interface callback struct for gop */
++	struct efi_object header;
+ 	struct efi_gop ops;
+-	/* The only mode we support */
+ 	struct efi_gop_mode_info info;
+ 	struct efi_gop_mode mode;
+-	/* Fields we only have acces to during init */
++	/* Fields we only have access to during init */
+ 	u32 bpix;
+ 	void *fb;
+ };
+@@ -439,10 +446,10 @@ efi_status_t efi_gop_register(void)
+ 	}
+ 
+ 	/* Hook up to the device list */
+-	efi_add_handle(&gopobj->parent);
++	efi_add_handle(&gopobj->header);
+ 
+ 	/* Fill in object data */
+-	ret = efi_add_protocol(&gopobj->parent, &efi_gop_guid,
++	ret = efi_add_protocol(&gopobj->header, &efi_gop_guid,
+ 			       &gopobj->ops);
+ 	if (ret != EFI_SUCCESS) {
+ 		printf("ERROR: Failure adding gop protocol\n");
+diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
+index d4b39b9e76..279b4197e1 100644
+--- a/lib/efi_loader/efi_net.c
++++ b/lib/efi_loader/efi_net.c
+@@ -25,13 +25,19 @@ static struct efi_event *network_timer_event;
+  */
+ static struct efi_event *wait_for_packet;
+ 
++/**
++ * struct efi_net_obj - EFI object representing a network interface
++ *
++ * @header:	EFI object header
++ * @net:	simple network protocol interface
++ * @net_mode:	status of the network interface
++ * @pxe:	PXE base code protocol interface
++ * @pxe_mode:	status of the PXE base code protocol
++ */
+ struct efi_net_obj {
+-	/* Generic EFI object parent class data */
+-	struct efi_object parent;
+-	/* EFI Interface callback struct for network */
++	struct efi_object header;
+ 	struct efi_simple_network net;
+ 	struct efi_simple_network_mode net_mode;
+-	/* PXE struct to transmit dhcp data */
+ 	struct efi_pxe pxe;
+ 	struct efi_pxe_mode pxe_mode;
+ };
+@@ -326,18 +332,18 @@ efi_status_t efi_net_register(void)
+ 	}
+ 
+ 	/* Hook net up to the device list */
+-	efi_add_handle(&netobj->parent);
++	efi_add_handle(&netobj->header);
+ 
+ 	/* Fill in object data */
+-	r = efi_add_protocol(&netobj->parent, &efi_net_guid,
++	r = efi_add_protocol(&netobj->header, &efi_net_guid,
+ 			     &netobj->net);
+ 	if (r != EFI_SUCCESS)
+ 		goto failure_to_add_protocol;
+-	r = efi_add_protocol(&netobj->parent, &efi_guid_device_path,
++	r = efi_add_protocol(&netobj->header, &efi_guid_device_path,
+ 			     efi_dp_from_eth());
+ 	if (r != EFI_SUCCESS)
+ 		goto failure_to_add_protocol;
+-	r = efi_add_protocol(&netobj->parent, &efi_pxe_guid,
++	r = efi_add_protocol(&netobj->header, &efi_pxe_guid,
+ 			     &netobj->pxe);
+ 	if (r != EFI_SUCCESS)
+ 		goto failure_to_add_protocol;
+-- 
+2.19.0
+
