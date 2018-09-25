@@ -1,4 +1,4 @@
-From 3c3487fbb3f6a45ba496ab6003706ecc90a25bc7 Mon Sep 17 00:00:00 2001
+From 9b9b08e985d87cda557ea707812f86654832670f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Sep 2018 19:46:35 +0200
 Subject: [PATCH 1/1] efi_loader: eliminate handle member
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  lib/efi_loader/efi_boottime.c    | 59 ++++++++++++++++----------------
  lib/efi_loader/efi_console.c     | 20 +++++------
  lib/efi_loader/efi_device_path.c |  2 +-
- lib/efi_loader/efi_disk.c        | 12 +++----
+ lib/efi_loader/efi_disk.c        | 14 ++++----
  lib/efi_loader/efi_gop.c         |  2 +-
  lib/efi_loader/efi_net.c         |  6 ++--
- 7 files changed, 67 insertions(+), 60 deletions(-)
+ 7 files changed, 68 insertions(+), 61 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 74df070316..6846bb03f3 100644
@@ -332,7 +332,7 @@ index 46a24f7882..2b5d067104 100644
  		if (ret != EFI_SUCCESS)
  			continue;
 diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
-index 13fcc1b471..94ddc531ae 100644
+index 13fcc1b471..e861feee4a 100644
 --- a/lib/efi_loader/efi_disk.c
 +++ b/lib/efi_loader/efi_disk.c
 @@ -258,18 +258,18 @@ static efi_status_t efi_disk_add_dev(
@@ -366,14 +366,16 @@ index 13fcc1b471..94ddc531ae 100644
  					desc->devnum, dev->name);
  	}
  #else
-@@ -427,8 +427,8 @@ efi_status_t efi_disk_register(void)
+@@ -426,9 +426,9 @@ efi_status_t efi_disk_register(void)
+ 			disks++;
  
  			/* Partitions show up as block devices in EFI */
- 			disks += efi_disk_create_partitions(
+-			disks += efi_disk_create_partitions(
 -						disk->parent.handle, desc,
 -						if_typename, i, devname);
-+						disk->parent, desc, if_typename,
-+						i, devname);
++			disks += efi_disk_create_partitions
++						(&disk->parent, desc,
++						 if_typename, i, devname);
  		}
  	}
  #endif
