@@ -1,4 +1,4 @@
-From ad552d5a3adc1ede8a5d358dff73406b1bd36999 Mon Sep 17 00:00:00 2001
+From 777975d6a8172011ee45555deee67d29e192a417 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Sep 2018 18:57:46 +0200
 Subject: [PATCH 1/1] efi_loader: typedef struct efi_object *efi_handle_t
@@ -8,38 +8,125 @@ efi_handle_t accordingly. This helps us to discover coding errors much
 more easily. This becomes evident by the corrections to the usage of
 handles in this patch.
 
+Rename variable image_handle to image_obj where applicable.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c                              |  4 ++--
+ cmd/bootefi.c                              | 28 +++++++++++-----------
  include/efi.h                              |  2 +-
- include/efi_api.h                          |  8 ++++----
+ include/efi_api.h                          |  8 +++----
  lib/efi/efi.c                              |  2 +-
- lib/efi_loader/efi_boottime.c              | 18 +++++++++---------
+ lib/efi_loader/efi_boottime.c              | 18 +++++++-------
  lib/efi_selftest/efi_selftest_devicepath.c |  2 +-
- 6 files changed, 18 insertions(+), 18 deletions(-)
+ 6 files changed, 30 insertions(+), 30 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 9c51a2cbd1..05eb168e4a 100644
+index 9c51a2cbd1..b3d507a0d8 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -447,7 +447,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -343,7 +343,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	efi_handle_t mem_handle = NULL;
+ 	struct efi_device_path *memdp = NULL;
+ 	efi_status_t ret;
+-	struct efi_loaded_image_obj *image_handle = NULL;
++	struct efi_loaded_image_obj *image_obj = NULL;
+ 	struct efi_loaded_image *loaded_image_info = NULL;
+ 
+ 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+@@ -374,7 +374,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		assert(device_path && image_path);
+ 	}
+ 
+-	ret = efi_setup_loaded_image(device_path, image_path, &image_handle,
++	ret = efi_setup_loaded_image(device_path, image_path, &image_obj,
+ 				     &loaded_image_info);
+ 	if (ret != EFI_SUCCESS)
+ 		goto exit;
+@@ -388,7 +388,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	/* Transfer environment variable bootargs as load options */
+ 	set_load_options(loaded_image_info, "bootargs");
+ 	/* Load the EFI payload */
+-	entry = efi_load_pe(image_handle, efi, loaded_image_info);
++	entry = efi_load_pe(image_obj, efi, loaded_image_info);
+ 	if (!entry) {
+ 		ret = EFI_LOAD_ERROR;
+ 		goto exit;
+@@ -409,8 +409,8 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	/* Call our payload! */
+ 	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
+ 
+-	if (setjmp(&image_handle->exit_jmp)) {
+-		ret = image_handle->exit_status;
++	if (setjmp(&image_obj->exit_jmp)) {
++		ret = image_obj->exit_status;
+ 		goto exit;
+ 	}
+ 
+@@ -422,7 +422,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 
+ 		/* Move into EL2 and keep running there */
+ 		armv8_switch_to_el2((ulong)entry,
+-				    (ulong)image_handle,
++				    (ulong)&image_obj->parent,
+ 				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
+ 				    ES_TO_AARCH64);
+ 
+@@ -439,7 +439,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		secure_ram_addr(_do_nonsec_entry)(
+ 					efi_run_in_hyp,
+ 					(uintptr_t)entry,
+-					(uintptr_t)image_handle,
++					(uintptr_t)&image_obj->parent,
+ 					(uintptr_t)&systab);
+ 
+ 		/* Should never reach here, efi exits with longjmp */
+@@ -447,12 +447,12 @@ static efi_status_t do_bootefi_exec(void *efi,
  	}
  #endif
  
 -	ret = efi_do_enter(image_handle, &systab, entry);
-+	ret = efi_do_enter(&image_handle->parent, &systab, entry);
++	ret = efi_do_enter(&image_obj->parent, &systab, entry);
  
  exit:
  	/* image has returned, loaded-image obj goes *poof*: */
-@@ -561,7 +561,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+-	if (image_handle)
+-		efi_delete_handle(&image_handle->parent);
++	if (image_obj)
++		efi_delete_handle(&image_obj->parent);
+ 	if (mem_handle)
+ 		efi_delete_handle(mem_handle);
+ 
+@@ -537,7 +537,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ #endif
+ #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+ 	if (!strcmp(argv[1], "selftest")) {
+-		struct efi_loaded_image_obj *image_handle;
++		struct efi_loaded_image_obj *image_obj;
+ 		struct efi_loaded_image *loaded_image_info;
+ 
+ 		/* Construct a dummy device path. */
+@@ -547,7 +547,7 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		bootefi_image_path = efi_dp_from_file(NULL, 0, "\\selftest");
+ 
+ 		r = efi_setup_loaded_image(bootefi_device_path,
+-					   bootefi_image_path, &image_handle,
++					   bootefi_image_path, &image_obj,
+ 					   &loaded_image_info);
+ 		if (r != EFI_SUCCESS)
+ 			return CMD_RET_FAILURE;
+@@ -561,10 +561,10 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  		/* Transfer environment variable efi_selftest as load options */
  		set_load_options(loaded_image_info, "efi_selftest");
  		/* Execute the test */
 -		r = efi_selftest(image_handle, &systab);
-+		r = efi_selftest(&image_handle->parent, &systab);
++		r = efi_selftest(&image_obj->parent, &systab);
  		efi_restore_gd();
  		free(loaded_image_info->load_options);
- 		efi_delete_handle(&image_handle->parent);
+-		efi_delete_handle(&image_handle->parent);
++		efi_delete_handle(&image_obj->parent);
+ 		return r != EFI_SUCCESS;
+ 	} else
+ #endif
 diff --git a/include/efi.h b/include/efi.h
 index b1deb609b4..b5e2c64f38 100644
 --- a/include/efi.h
@@ -96,7 +183,7 @@ index c6639f96cc..2c6a50824f 100644
  	if (ret) {
  		efi_puts(priv, "Failed to get loaded image protocol\n");
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 3bb7b70e08..20974f98f6 100644
+index 8e3c7456e1..bc6ad84495 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -1019,7 +1019,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
