@@ -11,6 +11,11 @@ Fixes: 8b79c294ec57 ("sandbox: Enhance map_to_sysmem() to handle foreign
 pointers")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+Alex, this should fix the issues with the efi-next pull request. Would
+you add it to your queue?
+
+https://travis-ci.org/xypron2/u-boot/builds/433278595
+---
  arch/sandbox/cpu/cpu.c | 8 ++------
  1 file changed, 2 insertions(+), 6 deletions(-)
 
