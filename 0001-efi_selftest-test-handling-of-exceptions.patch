@@ -4,7 +4,8 @@ Date: Sat, 22 Sep 2018 21:42:20 +0200
 Subject: [PATCH 1/1] efi_selftest: test handling of exceptions
 
 Test the handling of execptions by trying to execute an undefined
-instruction.
+instruction. For 32bit ARM we expect \selftest to be listed as loaded
+image.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
