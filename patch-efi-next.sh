@@ -35,8 +35,8 @@ git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
 # git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
 # git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
-# Unaligned access
 git am ../patch/0001-cmd-add-exception-command.patch
+git am ../patch/0001-efi_selftest-simplify-lib-efi_selftest-Makefile.patch
 git am ../patch/0001-efi_selftest-test-handling-of-exceptions.patch
 git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
