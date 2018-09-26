@@ -1,7 +1,7 @@
-From bab1b388eeb6c0129468e096d8d6fc53441106f8 Mon Sep 17 00:00:00 2001
+From 6a930029009a246f4800c613e900c38c6a4bf861 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 26 Sep 2018 04:50:23 +0200
-Subject: [PATCH] efi_selftest: simplify lib/efi_selftest/Makefile
+Subject: [PATCH 1/1] efi_selftest: simplify lib/efi_selftest/Makefile
 
 We should not make anything in lib/efi_selftest if
 CONFIG_CMD_BOOTEFI_SELFTEST is not defined.
@@ -28,19 +28,19 @@ index f169644850..849098995c 100644
  obj-$(CONFIG_BZIP2) += bzip2/
  obj-$(CONFIG_TIZEN) += tizen/
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 3348c31979..2bae1a9da3 100644
+index 2f55d9d66f..0acd790550 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
-@@ -14,7 +14,7 @@ CFLAGS_REMOVE_exception.o := $(CFLAGS_NON_EFI) -Os
- 
- always += exception.efi
+@@ -10,7 +10,7 @@ CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI) -Os
+ CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI) -Os
  
 -obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
 +obj-y += \
  efi_selftest.o \
  efi_selftest_bitblt.o \
  efi_selftest_config_table.o \
-@@ -42,20 +42,16 @@ efi_selftest_util.o \
+@@ -37,20 +37,16 @@ efi_selftest_util.o \
  efi_selftest_variables.o \
  efi_selftest_watchdog.o
  
@@ -62,7 +62,7 @@ index 3348c31979..2bae1a9da3 100644
  obj-y += \
  efi_selftest_startimage_exit.o \
  efi_selftest_startimage_return.o
-@@ -79,5 +75,3 @@ $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
+@@ -74,5 +70,3 @@ $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
  
  endif

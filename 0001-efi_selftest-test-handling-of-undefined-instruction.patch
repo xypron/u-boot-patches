@@ -30,7 +30,7 @@ index 1934bf8bee..3348c31979 100644
 +
 +always += exception.efi
  
- obj-$(CONFIG_CMD_BOOTEFI_SELFTEST) += \
+ obj-y += \
  efi_selftest.o \
 diff --git a/lib/efi_selftest/exception.c b/lib/efi_selftest/exception.c
 new file mode 100644
