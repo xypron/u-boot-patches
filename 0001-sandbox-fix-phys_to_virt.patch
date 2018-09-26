@@ -1,0 +1,36 @@
+From 86dce2dea1612b61a7c267d92571c64b0ed3e7c1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 26 Sep 2018 06:24:44 +0200
+Subject: [PATCH 1/1] sandbox: fix phys_to_virt()
+
+Allow for pointers not created by map_to_sysmem().
+
+This fixes the fit image and vboot test.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/cpu.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/sandbox/cpu/cpu.c b/arch/sandbox/cpu/cpu.c
+index 6098945049..4e28d06e43 100644
+--- a/arch/sandbox/cpu/cpu.c
++++ b/arch/sandbox/cpu/cpu.c
+@@ -111,12 +111,8 @@ void *phys_to_virt(phys_addr_t paddr)
+ 		}
+ 	}
+ 
+-	printf("%s: Cannot map sandbox address %lx (SDRAM from 0 to %lx)\n",
+-	       __func__, (ulong)paddr, (ulong)gd->ram_size);
+-	os_abort();
+-
+-	/* Not reached */
+-	return NULL;
++	/* Allow for pointers not created by map_to_sysmem() */
++	return (void *)(gd->arch.ram_buf + paddr);
+ }
+ 
+ struct sandbox_mapmem_entry *find_tag(const void *ptr)
+-- 
+2.19.0
+

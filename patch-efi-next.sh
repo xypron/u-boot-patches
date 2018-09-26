@@ -28,6 +28,7 @@ git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
 git am ../patch/0001-dm-video-support-more-escape-sequences.patch
 git am ../patch/0001-test-py-cleanup-test_efi_selftest.py.patch
 git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
+git am ../patch/0001-sandbox-fix-phys_to_virt.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
