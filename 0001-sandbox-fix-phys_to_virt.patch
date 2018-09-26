@@ -7,6 +7,8 @@ Allow for pointers not created by map_to_sysmem().
 
 This fixes the fit image and vboot test.
 
+Fixes: 8b79c294ec57 ("sandbox: Enhance map_to_sysmem() to handle foreign
+pointers")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/sandbox/cpu/cpu.c | 8 ++------
