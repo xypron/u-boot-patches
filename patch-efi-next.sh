@@ -48,6 +48,8 @@ git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
+git am ../patch/0001-test-py-switch-off-broken-sandbox-tests.patch
+
 # Deletion of handles
 git am ../patch/0001-efi_loader-UninstallMultipleProtocolInterfaces-error.patch
 git am ../patch/0001-efi_loader-typedef-struct-efi_object-efi_handle_t.patch
