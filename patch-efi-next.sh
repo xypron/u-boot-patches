@@ -53,6 +53,7 @@ git am ../patch/0001-efi_loader-UninstallMultipleProtocolInterfaces-error.patch
 git am ../patch/0001-efi_loader-typedef-struct-efi_object-efi_handle_t.patch
 git am ../patch/0001-efi_loader-eliminate-handle-member.patch
 git am ../patch/0001-efi_loader-rename-parent-to-header.patch
+git am ../patch/0001-efi_loader-delete-handles.patch
 # git am ../patch/0001-efi_loader-delete-handle-after-removing-last-protoco.patch
 
 # KGDB
