@@ -1,4 +1,4 @@
-From 6f2c01f42f8714aba36a1ed913b134f9f0b703b1 Mon Sep 17 00:00:00 2001
+From 13de2cd294b11c9fd7c2c09ca0fbe7a75e13360d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 30 Sep 2018 10:38:17 +0200
 Subject: [PATCH 1/1] efi_loader: implement UnloadImage
@@ -13,10 +13,10 @@ Pass exit_data when Exit() is called.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h                 |   8 +-
- include/efi_loader.h              |  21 +++++
- lib/efi_loader/efi_boottime.c     | 134 +++++++++++++++++++++++++-----
+ include/efi_loader.h              |  23 +++++
+ lib/efi_loader/efi_boottime.c     | 137 +++++++++++++++++++++++++-----
  lib/efi_loader/efi_image_loader.c |   8 +-
- 4 files changed, 141 insertions(+), 30 deletions(-)
+ 4 files changed, 146 insertions(+), 30 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index e6566bb358..7110de7ed7 100644
@@ -47,7 +47,7 @@ index e6566bb358..7110de7ed7 100644
  
  #define DEVICE_PATH_GUID \
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 04899a137b..0cfa4f8283 100644
+index 04899a137b..316d2ed176 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -173,12 +173,25 @@ struct efi_handler {
@@ -84,10 +84,11 @@ index 04899a137b..0cfa4f8283 100644
  };
  
  /**
-@@ -203,17 +217,24 @@ struct efi_object {
+@@ -203,17 +217,26 @@ struct efi_object {
   * @header:		EFI object header
   * @reloc_base:		base address for the relocated image
   * @reloc_size:		size of the relocated image
++ * @parent:		parent loaded image
 + * @exit_status:	status code passed to Exit()
 + * @exit_data_size:	pointer to receive exit data size in Exit()
 + * @exit_data:		pointer to receive exit data in Exit()
@@ -99,6 +100,7 @@ index 04899a137b..0cfa4f8283 100644
  	struct efi_object header;
  	void *reloc_base;
  	aligned_u64 reloc_size;
++	efi_handle_t parent;
  	efi_status_t exit_status;
 +	efi_uintn_t *exit_data_size;
 +	u16 **exit_data;
@@ -110,7 +112,7 @@ index 04899a137b..0cfa4f8283 100644
  
  /**
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index b716498fba..01bc1f7969 100644
+index b716498fba..03c7245920 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -6,14 +6,15 @@
@@ -174,10 +176,12 @@ index b716498fba..01bc1f7969 100644
  	/* call the image! */
  	if (setjmp(&image_obj->exit_jmp)) {
  		/*
-@@ -1733,16 +1743,24 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1733,16 +1743,27 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  		      __efi_nesting_dec(),
  		      (unsigned long)((uintptr_t)image_obj->exit_status &
  				      ~EFI_ERROR_MASK));
++		current_image = image_obj->parent;
++
 +		/* Unload application image */
 +		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
 +			free(image_obj->reloc_base);
@@ -186,6 +190,7 @@ index b716498fba..01bc1f7969 100644
  		return EFI_EXIT(image_obj->exit_status);
  	}
  
++	image_obj->parent = current_image;
 +	current_image = image_handle;
 +	image_obj->header.type = EFI_OBJECT_TYPE_STARTED_IMAGE;
 +	image_obj->exit_data_size = exit_data_size;
@@ -203,7 +208,7 @@ index b716498fba..01bc1f7969 100644
  	 */
  	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
  }
-@@ -1763,19 +1781,44 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1763,19 +1784,44 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
   */
  static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  				    efi_status_t exit_status,
@@ -257,7 +262,7 @@ index b716498fba..01bc1f7969 100644
  	/* Make sure entry/exit counts for EFI world cross-overs match */
  	EFI_EXIT(exit_status);
  
-@@ -1786,9 +1829,18 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -1786,9 +1832,18 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  	efi_restore_gd();
  
  	image_obj->exit_status = exit_status;
@@ -276,7 +281,7 @@ index b716498fba..01bc1f7969 100644
  }
  
  /**
-@@ -1804,14 +1856,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -1804,14 +1859,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
   */
  static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
  {
