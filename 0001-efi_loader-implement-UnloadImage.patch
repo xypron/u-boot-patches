@@ -1,4 +1,4 @@
-From 233892cda6350dffadec199c4d4eec73c907df34 Mon Sep 17 00:00:00 2001
+From 6f2c01f42f8714aba36a1ed913b134f9f0b703b1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 30 Sep 2018 10:38:17 +0200
 Subject: [PATCH 1/1] efi_loader: implement UnloadImage
@@ -12,26 +12,28 @@ Pass exit_data when Exit() is called.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h                 |   6 +-
- include/efi_loader.h              |  23 +++++-
- lib/efi_loader/efi_boottime.c     | 126 +++++++++++++++++++++++++-----
+ include/efi_api.h                 |   8 +-
+ include/efi_loader.h              |  21 +++++
+ lib/efi_loader/efi_boottime.c     | 134 +++++++++++++++++++++++++-----
  lib/efi_loader/efi_image_loader.c |   8 +-
- 4 files changed, 136 insertions(+), 27 deletions(-)
+ 4 files changed, 141 insertions(+), 30 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index e6566bb3584..17c766f4abc 100644
+index e6566bb358..7110de7ed7 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -117,10 +117,10 @@ struct efi_boot_services {
+@@ -116,11 +116,11 @@ struct efi_boot_services {
+ 			struct efi_device_path *file_path, void *source_buffer,
  			efi_uintn_t source_size, efi_handle_t *image);
  	efi_status_t (EFIAPI *start_image)(efi_handle_t handle,
- 					   unsigned long *exitdata_size,
+-					   unsigned long *exitdata_size,
 -					   s16 **exitdata);
++					   efi_uintn_t *exitdata_size,
 +					   u16 **exitdata);
  	efi_status_t (EFIAPI *exit)(efi_handle_t handle,
  				    efi_status_t exit_status,
 -				    unsigned long exitdata_size, s16 *exitdata);
-+				    unsigned long exitdata_size, u16 *exitdata);
++				    efi_uintn_t exitdata_size, u16 *exitdata);
  	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
  	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
  
@@ -45,7 +47,7 @@ index e6566bb3584..17c766f4abc 100644
  
  #define DEVICE_PATH_GUID \
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 04899a137b3..55bb0abb61d 100644
+index 04899a137b..0cfa4f8283 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -173,12 +173,25 @@ struct efi_handler {
@@ -108,7 +110,7 @@ index 04899a137b3..55bb0abb61d 100644
  
  /**
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index b716498fbaa..62a586a8454 100644
+index b716498fba..01bc1f7969 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -6,14 +6,15 @@
@@ -147,11 +149,13 @@ index b716498fbaa..62a586a8454 100644
  
  	/* Add internal object to object list */
  	efi_add_handle(&obj->header);
-@@ -1699,14 +1704,19 @@ error:
+@@ -1698,15 +1703,20 @@ error:
+  * Return: status code
   */
  static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
- 					   unsigned long *exit_data_size,
+-					   unsigned long *exit_data_size,
 -					   s16 **exit_data)
++					   efi_uintn_t *exit_data_size,
 +					   u16 **exit_data)
  {
 -	struct efi_loaded_image_obj *image_obj =
@@ -170,7 +174,7 @@ index b716498fbaa..62a586a8454 100644
  	/* call the image! */
  	if (setjmp(&image_obj->exit_jmp)) {
  		/*
-@@ -1733,16 +1743,22 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1733,16 +1743,24 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  		      __efi_nesting_dec(),
  		      (unsigned long)((uintptr_t)image_obj->exit_status &
  				      ~EFI_ERROR_MASK));
@@ -184,6 +188,8 @@ index b716498fbaa..62a586a8454 100644
  
 +	current_image = image_handle;
 +	image_obj->header.type = EFI_OBJECT_TYPE_STARTED_IMAGE;
++	image_obj->exit_data_size = exit_data_size;
++	image_obj->exit_data = exit_data;
  	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
  
  	/*
@@ -197,11 +203,13 @@ index b716498fbaa..62a586a8454 100644
  	 */
  	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
  }
-@@ -1764,17 +1780,42 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1763,19 +1781,44 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+  */
  static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  				    efi_status_t exit_status,
- 				    unsigned long exit_data_size,
+-				    unsigned long exit_data_size,
 -				    int16_t *exit_data)
++				    efi_uintn_t exit_data_size,
 +				    u16 *exit_data)
  {
 -	/*
@@ -214,9 +222,10 @@ index b716498fbaa..62a586a8454 100644
 +	struct efi_object *efiobj;
 +	struct efi_loaded_image_obj *image_obj;
  
- 	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
+-	EFI_ENTRY("%p, %ld, %ld, %p", image_handle, exit_status,
++	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
  		  exit_data_size, exit_data);
-+
+ 
 +	/* Check parameters */
 +	if (image_handle != current_image) {
 +		ret = EFI_INVALID_PARAMETER;
@@ -244,10 +253,11 @@ index b716498fbaa..62a586a8454 100644
 +		ret = EFI_INVALID_PARAMETER;
 +		goto out;
 +	}
- 
++
  	/* Make sure entry/exit counts for EFI world cross-overs match */
  	EFI_EXIT(exit_status);
-@@ -1786,9 +1827,18 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+ 
+@@ -1786,9 +1829,18 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  	efi_restore_gd();
  
  	image_obj->exit_status = exit_status;
@@ -266,7 +276,7 @@ index b716498fbaa..62a586a8454 100644
  }
  
  /**
-@@ -1804,14 +1854,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -1804,14 +1856,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
   */
  static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
  {
@@ -322,7 +332,7 @@ index b716498fbaa..62a586a8454 100644
  
  /**
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 39902152f3c..1d71ec4f919 100644
+index 39902152f3..b6ed936a86 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -198,7 +198,7 @@ static void efi_set_code_and_data_type(
