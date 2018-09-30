@@ -44,6 +44,7 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
+git am ../patch/0001-efi_loader-Fix-warning-in-efi_load_image.patch
 git am ../patch/0001-efi_loader-UninstallMultipleProtocolInterfaces-error.patch
 git am ../patch/0001-efi_loader-typedef-struct-efi_object-efi_handle_t.patch
 git am ../patch/0001-efi_loader-eliminate-handle-member.patch

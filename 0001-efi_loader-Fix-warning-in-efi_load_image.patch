@@ -1,0 +1,52 @@
+From e7600ddad7d4aee7e7536f75e3684867852f3778 Mon Sep 17 00:00:00 2001
+From: Tom Rini <trini@konsulko.com>
+Date: Sun, 30 Sep 2018 10:38:15 -0400
+Subject: [PATCH 1/1] efi_loader: Fix warning in efi_load_image()
+
+As observed with clang:
+lib/efi_loader/efi_boottime.c:1624:7: warning: variable 'info'
+      is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
+                if (ret != EFI_SUCCESS)
+                    ^~~~~~~~~~~~~~~~~~
+lib/efi_loader/efi_boottime.c:1653:7: note: uninitialized use
+      occurs here
+        free(info);
+             ^~~~
+lib/efi_loader/efi_boottime.c:1624:3: note: remove the 'if' if
+      its condition is always false
+                if (ret != EFI_SUCCESS)
+                ^~~~~~~~~~~~~~~~~~~~~~~
+lib/efi_loader/efi_boottime.c:1602:31: note: initialize the
+      variable 'info' to silence this warning
+        struct efi_loaded_image *info;
+                                     ^
+                                      = NULL
+
+Rather than change how we unwind the function it makes the most sense to
+initialize info to NULL so that we can continue to pass it to free().
+
+Fixes: c982874e930d ("efi_loader: refactor efi_setup_loaded_image()")
+Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc: Alexander Graf <agraf@suse.de>
+Signed-off-by: Tom Rini <trini@konsulko.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 97eb19cd14..ddf857ff26 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1599,7 +1599,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 					  efi_uintn_t source_size,
+ 					  efi_handle_t *image_handle)
+ {
+-	struct efi_loaded_image *info;
++	struct efi_loaded_image *info = NULL;
+ 	struct efi_loaded_image_obj **image_obj =
+ 		(struct efi_loaded_image_obj **)image_handle;
+ 	efi_status_t ret;
+-- 
+2.11.0
+
