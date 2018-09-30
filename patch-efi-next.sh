@@ -22,9 +22,6 @@ git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
-git am ../patch/0001-dm-video-adjust-struct-vidconsole_priv-description.patch
-git am ../patch/0001-MAINTAINERS-assign-include-video-.h.patch
-git am ../patch/0001-dm-video-support-more-escape-sequences.patch
 git am ../patch/0001-test-py-cleanup-test_efi_selftest.py.patch
 git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
 git am ../patch/0001-efi_selftest-fix-typos.patch
