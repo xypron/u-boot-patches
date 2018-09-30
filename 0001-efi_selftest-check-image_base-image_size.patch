@@ -1,0 +1,96 @@
+From ef982bf0c7f7865a97f7ef08fac7bb7d199756a1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 30 Sep 2018 09:20:06 +0200
+Subject: [PATCH 1/1] efi_selftest: check image_base, image_size
+
+In efi_selftest_start_image_exit.c test the image_base and image_size are
+correctly set in the loaded image protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_miniapp_exit.c | 58 ++++++++++++++++++--
+ 1 file changed, 53 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_miniapp_exit.c b/lib/efi_selftest/efi_selftest_miniapp_exit.c
+index 2ffdd65b759..baead834294 100644
+--- a/lib/efi_selftest/efi_selftest_miniapp_exit.c
++++ b/lib/efi_selftest/efi_selftest_miniapp_exit.c
+@@ -11,22 +11,70 @@
+ #include <common.h>
+ #include <efi_api.h>
+ 
+-/*
++static efi_guid_t loaded_image_protocol_guid = LOADED_IMAGE_GUID;
++
++/**
++ * check_loaded_image_protocol() - check image_base/image_size
++ *
++ * Try to open the loaded image protocol. Check that this function is located
++ * between image_base and image_base + image_size.
++ *
++ * @image_handle:	handle of the loaded image
++ * @systable:		system table
++ * @return:		status code
++ */
++static efi_status_t EFIAPI check_loaded_image_protocol
++		(efi_handle_t image_handle, struct efi_system_table *systable)
++{
++	struct efi_simple_text_output_protocol *cout = systable->con_out;
++	struct efi_boot_services *boottime = systable->boottime;
++	struct efi_loaded_image *loaded_image_protocol;
++	efi_status_t ret;
++
++	/*
++	 * Open the loaded image protocol.
++	 */
++	ret = boottime->open_protocol
++				(image_handle, &loaded_image_protocol_guid,
++				 (void **)&loaded_image_protocol, NULL,
++				  NULL, EFI_OPEN_PROTOCOL_GET_PROTOCOL);
++	if (ret != EFI_SUCCESS) {
++		cout->output_string(cout,
++				    L"Could not open loaded image protocol");
++		return ret;
++	}
++	if ((void *)check_loaded_image_protocol <
++	    loaded_image_protocol->image_base ||
++	    (void *)check_loaded_image_protocol >=
++	    loaded_image_protocol->image_base +
++	    loaded_image_protocol->image_size) {
++		cout->output_string(cout,
++				    L"Incorrect image_base or image_size\n");
++		return EFI_NOT_FOUND;
++	}
++	return EFI_SUCCESS;
++}
++
++/**
+  * Entry point of the EFI application.
+  *
+- * @handle	handle of the loaded image
+- * @systable	system table
+- * @return	status code
++ * @handle:	handle of the loaded image
++ * @systable:	system table
++ * @return:	status code
+  */
+ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+ 			     struct efi_system_table *systable)
+ {
+ 	struct efi_simple_text_output_protocol *con_out = systable->con_out;
++	efi_status_t ret = EFI_UNSUPPORTED;
+ 
+ 	con_out->output_string(con_out, L"EFI application calling Exit\n");
+ 
++	if (check_loaded_image_protocol(handle, systable) != EFI_SUCCESS)
++		ret = EFI_NOT_FOUND;
++
+ 	/* The return value is checked by the calling test */
+-	systable->boottime->exit(handle, EFI_UNSUPPORTED, 0, NULL);
++	systable->boottime->exit(handle, ret, 0, NULL);
+ 
+ 	/*
+ 	 * This statement should not be reached.
+-- 
+2.19.0
+

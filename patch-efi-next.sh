@@ -54,6 +54,7 @@ git am ../patch/0001-efi_loader-rename-parent-to-header.patch
 git am ../patch/0001-efi_selftest-creating-new-handle-in-controller-test.patch
 git am ../patch/0001-efi_loader-delete-handles.patch
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
+git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
 # git am ../patch/0001-efi_loader-delete-handle-after-removing-last-protoco.patch
 
 # KGDB
