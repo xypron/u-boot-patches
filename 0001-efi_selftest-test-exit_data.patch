@@ -22,7 +22,7 @@ index 56beac305e..26a1e9ef7b 100644
  #define EFI_ST_SUCCESS 0
  #define EFI_ST_FAILURE 1
 -
-+#define EFI_ST_SUCCESS_STR L"SUCCESS";
++#define EFI_ST_SUCCESS_STR L"SUCCESS"
  /*
   * Prints a message.
   */
