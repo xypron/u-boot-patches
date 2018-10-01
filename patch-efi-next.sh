@@ -51,6 +51,9 @@ git am ../patch/0001-efi_loader-UninstallMultipleProtocolInterfaces-error.patch
 git am ../patch/0001-efi_loader-typedef-struct-efi_object-efi_handle_t.patch
 git am ../patch/0001-efi_loader-eliminate-handle-member.patch
 git am ../patch/0001-efi_loader-rename-parent-to-header.patch
+
+git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
+
 git am ../patch/0001-efi_selftest-creating-new-handle-in-controller-test.patch
 git am ../patch/0001-efi_loader-delete-handles.patch
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
@@ -60,7 +63,6 @@ git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_selftest-test-exit_data.patch
 
 # Fix simple network protocol
-git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
