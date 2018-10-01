@@ -27,7 +27,6 @@ git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
 git am ../patch/0001-efi_selftest-fix-typos.patch
 git am ../patch/0001-arm-do-not-include-efi_loader.h-twice.patch
 git am ../patch/0001-efi_loader-remove-lcd.h-from-efi_net.c.patch
-git am ../patch/add 0001-eth-dm-fec-avoid-CACHE-alignment-warning.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

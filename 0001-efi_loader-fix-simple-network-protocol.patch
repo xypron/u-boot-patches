@@ -1,4 +1,4 @@
-From 51f46d221b0d1cbec0e0533c8775570065b9c684 Mon Sep 17 00:00:00 2001
+From 606c054647c86a43d2c9adeb994331108d152c7d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
 Subject: [PATCH 1/1] efi_loader: fix simple network protocol
@@ -16,19 +16,19 @@ Add a few comments.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_net.c            | 289 +++++++++++++++++++++++-----
+ lib/efi_loader/efi_net.c            | 288 +++++++++++++++++++++++-----
  lib/efi_selftest/efi_selftest_snp.c |  14 +-
- 2 files changed, 249 insertions(+), 54 deletions(-)
+ 2 files changed, 248 insertions(+), 54 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
-index c4f35cd50d..849c2b595b 100644
+index c4f35cd50d..f910aa8b11 100644
 --- a/lib/efi_loader/efi_net.c
 +++ b/lib/efi_loader/efi_net.c
 @@ -14,6 +14,8 @@ static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
  static struct efi_pxe_packet *dhcp_ack;
  static bool new_rx_packet;
  static void *new_tx_packet;
-+static void *efi_transmit_buffer;
++static void *transmit_buffer;
 +
  /*
   * The notification function of this event is called in every timer cycle
@@ -290,8 +290,8 @@ index c4f35cd50d..849c2b595b 100644
 -#else
 -	net_send_packet(buffer, buffer_size);
 -#endif
-+	memcpy(efi_transmit_buffer, buffer, buffer_size);
-+	net_send_packet(efi_transmit_buffer, buffer_size);
++	memcpy(transmit_buffer, buffer, buffer_size);
++	net_send_packet(transmit_buffer, buffer_size);
  
  	new_tx_packet = buffer;
  
@@ -454,7 +454,7 @@ index c4f35cd50d..849c2b595b 100644
  	efi_status_t r;
  
  	if (!eth_get_dev()) {
-@@ -325,10 +509,16 @@ efi_status_t efi_net_register(void)
+@@ -325,10 +509,15 @@ efi_status_t efi_net_register(void)
  
  	/* We only expose the "active" eth device, so one is enough */
  	netobj = calloc(1, sizeof(*netobj));
@@ -465,17 +465,16 @@ index c4f35cd50d..849c2b595b 100644
 +	if (!netobj)
 +		goto out_of_resources;
 +
-+	efi_transmit_buffer = calloc(1, PKTALIGN + ARCH_DMA_MINALIGN);
-+	if (!efi_transmit_buffer)
++	/* Allocate an aligned transmit buffer */
++	transmit_buffer = calloc(1, PKTSIZE_ALIGN + ARCH_DMA_MINALIGN);
++	if (!transmit_buffer)
 +		goto out_of_resources;
-+	printf("before ALIGN %p\n", efi_transmit_buffer);
-+	efi_transmit_buffer = (void *)ALIGN((uintptr_t)efi_transmit_buffer,
++	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer,
 +					    ARCH_DMA_MINALIGN);
-+	printf("after ALIGN %p\n", efi_transmit_buffer);
  
  	/* Hook net up to the device list */
  	efi_add_handle(&netobj->header);
-@@ -391,13 +581,13 @@ efi_status_t efi_net_register(void)
+@@ -391,13 +580,13 @@ efi_status_t efi_net_register(void)
  	 * iPXE is running at TPL_CALLBACK most of the time. Use a higher TPL.
  	 */
  	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
@@ -491,13 +490,13 @@ index c4f35cd50d..849c2b595b 100644
  	r = efi_set_timer(network_timer_event, EFI_TIMER_PERIODIC, 0);
  	if (r != EFI_SUCCESS) {
  		printf("ERROR: Failed to set network timer\n");
-@@ -408,4 +598,9 @@ efi_status_t efi_net_register(void)
+@@ -408,4 +597,9 @@ efi_status_t efi_net_register(void)
  failure_to_add_protocol:
  	printf("ERROR: Failure to add protocol\n");
  	return r;
 +out_of_resources:
 +	free(netobj);
-+	free(efi_transmit_buffer);
++	/* free(transmit_buffer) not needed yet */
 +	printf("ERROR: Out of memory\n");
 +	return EFI_OUT_OF_RESOURCES;
  }
