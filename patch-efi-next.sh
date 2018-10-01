@@ -59,6 +59,8 @@ git am ../patch/0001-efi_loader-fix-typo-in-efi_boottime.c.patch
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_selftest-test-exit_data.patch
 
+# Fix simple network protocol
+git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
