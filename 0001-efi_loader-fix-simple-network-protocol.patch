@@ -1,12 +1,14 @@
-From 0d85e98ca3e9a8fa51e60ba8a5fbb088c40203d1 Mon Sep 17 00:00:00 2001
+From 51f46d221b0d1cbec0e0533c8775570065b9c684 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
 Subject: [PATCH 1/1] efi_loader: fix simple network protocol
 
 We should not call eth_rx() before the network interface is initialized.
-
 The services of the simple network protocol should check the state of
 the network adapter.
+
+Provide a correctly aligned transmit buffer not depending on
+CONFIG_EFI_LOADER_BOUNCE_BUFFER.
 
 Correct the unit test.
 
@@ -14,15 +16,24 @@ Add a few comments.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_net.c            | 251 ++++++++++++++++++++++++++++++------
+ lib/efi_loader/efi_net.c            | 289 +++++++++++++++++++++++-----
  lib/efi_selftest/efi_selftest_snp.c |  14 +-
- 2 files changed, 222 insertions(+), 43 deletions(-)
+ 2 files changed, 249 insertions(+), 54 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
-index 5a3d7be86c..8f487e4787 100644
+index c4f35cd50d..849c2b595b 100644
 --- a/lib/efi_loader/efi_net.c
 +++ b/lib/efi_loader/efi_net.c
-@@ -39,16 +39,42 @@ struct efi_net_obj {
+@@ -14,6 +14,8 @@ static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
+ static struct efi_pxe_packet *dhcp_ack;
+ static bool new_rx_packet;
+ static void *new_tx_packet;
++static void *efi_transmit_buffer;
++
+ /*
+  * The notification function of this event is called in every timer cycle
+  * to check if a new network packet has been received.
+@@ -43,16 +45,42 @@ struct efi_net_obj {
  
  static efi_status_t EFIAPI efi_net_start(struct efi_simple_network *this)
  {
@@ -67,7 +78,7 @@ index 5a3d7be86c..8f487e4787 100644
  }
  
  /*
-@@ -71,9 +97,10 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
+@@ -75,9 +103,10 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
  
  	EFI_ENTRY("%p, %lx, %lx", this, extra_rx, extra_tx);
  
@@ -79,7 +90,7 @@ index 5a3d7be86c..8f487e4787 100644
  	}
  
  	/* Setup packet buffers */
-@@ -86,26 +113,52 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
+@@ -90,26 +119,52 @@ static efi_status_t EFIAPI efi_net_initialize(struct efi_simple_network *this,
  	ret = eth_init();
  	if (ret < 0) {
  		eth_halt();
@@ -136,7 +147,7 @@ index 5a3d7be86c..8f487e4787 100644
  }
  
  static efi_status_t EFIAPI efi_net_receive_filters(
-@@ -147,6 +200,19 @@ static efi_status_t EFIAPI efi_net_mcastiptomac(struct efi_simple_network *this,
+@@ -151,6 +206,19 @@ static efi_status_t EFIAPI efi_net_mcastiptomac(struct efi_simple_network *this,
  	return EFI_EXIT(EFI_INVALID_PARAMETER);
  }
  
@@ -156,7 +167,7 @@ index 5a3d7be86c..8f487e4787 100644
  static efi_status_t EFIAPI efi_net_nvdata(struct efi_simple_network *this,
  					  int read_write, ulong offset,
  					  ulong buffer_size, char *buffer)
-@@ -157,13 +223,42 @@ static efi_status_t EFIAPI efi_net_nvdata(struct efi_simple_network *this,
+@@ -161,13 +229,42 @@ static efi_status_t EFIAPI efi_net_nvdata(struct efi_simple_network *this,
  	return EFI_EXIT(EFI_UNSUPPORTED);
  }
  
@@ -199,7 +210,7 @@ index 5a3d7be86c..8f487e4787 100644
  	if (int_status) {
  		/* We send packets synchronously, so nothing is outstanding */
  		*int_status = EFI_SIMPLE_NETWORK_TRANSMIT_INTERRUPT;
-@@ -174,24 +269,62 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
+@@ -178,65 +275,102 @@ static efi_status_t EFIAPI efi_net_get_status(struct efi_simple_network *this,
  		*txbuf = new_tx_packet;
  
  	new_tx_packet = NULL;
@@ -243,6 +254,12 @@ index 5a3d7be86c..8f487e4787 100644
 +		goto out;
 +	}
 +
++	/* We do not support jumbo packets */
++	if (buffer_size > PKTSIZE_ALIGN) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++
  	if (header_size) {
 -		/* We would need to create the header if header_size != 0 */
 -		return EFI_EXIT(EFI_INVALID_PARAMETER);
@@ -252,8 +269,9 @@ index 5a3d7be86c..8f487e4787 100644
 +		 */
 +		ret = EFI_INVALID_PARAMETER;
 +		goto out;
-+	}
-+
+ 	}
+ 
+-#ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
 +	switch (this->mode->state) {
 +	case EFI_NETWORK_STOPPED:
 +		ret = EFI_NOT_STARTED;
@@ -263,24 +281,31 @@ index 5a3d7be86c..8f487e4787 100644
 +		goto out;
 +	default:
 +		break;
- 	}
- 
- #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
-@@ -204,35 +337,31 @@ static efi_status_t EFIAPI efi_net_transmit(struct efi_simple_network *this,
++	}
++
++
+ 	/* Ethernet packets always fit, just bounce */
+-	memcpy(efi_bounce_buffer, buffer, buffer_size);
+-	net_send_packet(efi_bounce_buffer, buffer_size);
+-#else
+-	net_send_packet(buffer, buffer_size);
+-#endif
++	memcpy(efi_transmit_buffer, buffer, buffer_size);
++	net_send_packet(efi_transmit_buffer, buffer_size);
  
  	new_tx_packet = buffer;
  
 -	return EFI_EXIT(EFI_SUCCESS);
-+out:
-+	return EFI_EXIT(ret);
- }
- 
+-}
+-
 -static void efi_net_push(void *pkt, int len)
 -{
 -	new_rx_packet = true;
 -	wait_for_packet->is_signaled = true;
--}
--
++out:
++	return EFI_EXIT(ret);
+ }
+ 
 -/*
 - * Receive a packet from a network interface.
 +/**
@@ -315,7 +340,7 @@ index 5a3d7be86c..8f487e4787 100644
  	struct ethernet_hdr *eth_hdr;
  	size_t hdr_size = sizeof(struct ethernet_hdr);
  	u16 protlen;
-@@ -240,8 +369,26 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
+@@ -244,8 +378,26 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
  	EFI_ENTRY("%p, %p, %p, %p, %p, %p, %p", this, header_size,
  		  buffer_size, buffer, src_addr, dest_addr, protocol);
  
@@ -342,7 +367,7 @@ index 5a3d7be86c..8f487e4787 100644
  	if (!new_rx_packet)
  		return EFI_EXIT(EFI_NOT_READY);
  	/* Check that we at least received an Ethernet header */
-@@ -265,7 +412,7 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
+@@ -269,7 +421,7 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
  	if (protocol)
  		*protocol = protlen;
  	if (*buffer_size < net_rx_packet_len) {
@@ -351,7 +376,7 @@ index 5a3d7be86c..8f487e4787 100644
  		*buffer_size = net_rx_packet_len;
  		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
  	}
-@@ -273,10 +420,15 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
+@@ -277,10 +429,15 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
  	memcpy(buffer, net_rx_packet, net_rx_packet_len);
  	*buffer_size = net_rx_packet_len;
  	new_rx_packet = false;
@@ -369,7 +394,7 @@ index 5a3d7be86c..8f487e4787 100644
  void efi_net_set_dhcp_ack(void *pkt, int len)
  {
  	int maxsize = sizeof(*dhcp_ack);
-@@ -287,8 +439,22 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
+@@ -291,8 +448,22 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
  	memcpy(dhcp_ack, pkt, min(len, maxsize));
  }
  
@@ -394,7 +419,7 @@ index 5a3d7be86c..8f487e4787 100644
   *
   * This notification function is called in every timer cycle.
   *
-@@ -298,8 +464,17 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
+@@ -302,8 +473,17 @@ void efi_net_set_dhcp_ack(void *pkt, int len)
  static void EFIAPI efi_network_timer_notify(struct efi_event *event,
  					    void *context)
  {
@@ -412,7 +437,7 @@ index 5a3d7be86c..8f487e4787 100644
  	if (!new_rx_packet) {
  		push_packet = efi_net_push;
  		eth_rx();
-@@ -308,7 +483,11 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
+@@ -312,10 +492,14 @@ static void EFIAPI efi_network_timer_notify(struct efi_event *event,
  	EFI_EXIT(EFI_SUCCESS);
  }
  
@@ -424,8 +449,33 @@ index 5a3d7be86c..8f487e4787 100644
 + */
  efi_status_t efi_net_register(void)
  {
- 	struct efi_net_obj *netobj;
-@@ -387,13 +566,13 @@ efi_status_t efi_net_register(void)
+-	struct efi_net_obj *netobj;
++	struct efi_net_obj *netobj = NULL;
+ 	efi_status_t r;
+ 
+ 	if (!eth_get_dev()) {
+@@ -325,10 +509,16 @@ efi_status_t efi_net_register(void)
+ 
+ 	/* We only expose the "active" eth device, so one is enough */
+ 	netobj = calloc(1, sizeof(*netobj));
+-	if (!netobj) {
+-		printf("ERROR: Out of memory\n");
+-		return EFI_OUT_OF_RESOURCES;
+-	}
++	if (!netobj)
++		goto out_of_resources;
++
++	efi_transmit_buffer = calloc(1, PKTALIGN + ARCH_DMA_MINALIGN);
++	if (!efi_transmit_buffer)
++		goto out_of_resources;
++	printf("before ALIGN %p\n", efi_transmit_buffer);
++	efi_transmit_buffer = (void *)ALIGN((uintptr_t)efi_transmit_buffer,
++					    ARCH_DMA_MINALIGN);
++	printf("after ALIGN %p\n", efi_transmit_buffer);
+ 
+ 	/* Hook net up to the device list */
+ 	efi_add_handle(&netobj->header);
+@@ -391,13 +581,13 @@ efi_status_t efi_net_register(void)
  	 * iPXE is running at TPL_CALLBACK most of the time. Use a higher TPL.
  	 */
  	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
@@ -441,6 +491,16 @@ index 5a3d7be86c..8f487e4787 100644
  	r = efi_set_timer(network_timer_event, EFI_TIMER_PERIODIC, 0);
  	if (r != EFI_SUCCESS) {
  		printf("ERROR: Failed to set network timer\n");
+@@ -408,4 +598,9 @@ efi_status_t efi_net_register(void)
+ failure_to_add_protocol:
+ 	printf("ERROR: Failure to add protocol\n");
+ 	return r;
++out_of_resources:
++	free(netobj);
++	free(efi_transmit_buffer);
++	printf("ERROR: Out of memory\n");
++	return EFI_OUT_OF_RESOURCES;
+ }
 diff --git a/lib/efi_selftest/efi_selftest_snp.c b/lib/efi_selftest/efi_selftest_snp.c
 index 09bd53da82..9cae727d66 100644
 --- a/lib/efi_selftest/efi_selftest_snp.c
@@ -473,5 +533,5 @@ index 09bd53da82..9cae727d66 100644
  	}
  	return EFI_ST_SUCCESS;
 -- 
-2.11.0
+2.19.0
 
