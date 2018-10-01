@@ -1,0 +1,27 @@
+From 489bbf6d625f012348ef643b8c23c41592a08265 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 1 Oct 2018 05:20:31 +0200
+Subject: [PATCH 1/1] efi_loader: remove lcd.h from efi_net.c
+
+Remove superfluous include.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_net.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
+index 034d0d2ed0..4e8b2d597d 100644
+--- a/lib/efi_loader/efi_net.c
++++ b/lib/efi_loader/efi_net.c
+@@ -7,7 +7,6 @@
+ 
+ #include <common.h>
+ #include <efi_loader.h>
+-#include <lcd.h>
+ #include <malloc.h>
+ 
+ static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
+-- 
+2.19.0
+
