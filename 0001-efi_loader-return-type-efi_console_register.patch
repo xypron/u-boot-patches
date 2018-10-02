@@ -1,0 +1,48 @@
+From 7c033ab488579e5d3d455047d3d7767937720c16 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 2 Oct 2018 06:05:59 +0200
+Subject: [PATCH 1/1] efi_loader: return type efi_console_register()
+
+Use a return type that can encompass the return value.
+
+This fixes CoverityScan CID 184090.
+
+Reported-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h         | 2 +-
+ lib/efi_loader/efi_console.c | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 34e44c6677..1417c3588f 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -236,7 +236,7 @@ efi_status_t efi_root_node_register(void);
+ /* Called by bootefi to initialize runtime */
+ efi_status_t efi_initialize_system_table(void);
+ /* Called by bootefi to make console interface available */
+-int efi_console_register(void);
++efi_status_t efi_console_register(void);
+ /* Called by bootefi to make all disk storage accessible as EFI objects */
+ efi_status_t efi_disk_register(void);
+ /* Create handles and protocols for the partitions of a block device */
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 7ecdbb1666..0225222a61 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -1045,8 +1045,10 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+  * efi_console_register() - install the console protocols
+  *
+  * This function is called from do_bootefi_exec().
++ *
++ * Return:	status code
+  */
+-int efi_console_register(void)
++efi_status_t efi_console_register(void)
+ {
+ 	efi_status_t r;
+ 	struct efi_object *efi_console_output_obj;
+-- 
+2.19.0
+
