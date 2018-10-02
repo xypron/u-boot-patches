@@ -28,6 +28,7 @@ git am ../patch/0001-efi_selftest-fix-typos.patch
 git am ../patch/0001-arm-do-not-include-efi_loader.h-twice.patch
 git am ../patch/0001-efi_loader-remove-lcd.h-from-efi_net.c.patch
 git am ../patch/0001-fs-fat-eliminate-parameter-size-in-set_cluster.patch
+git am ../patch/0001-efi_loader-memory-leak-in-efi_set_variable.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
