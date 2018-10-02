@@ -27,7 +27,7 @@ index cf97a0f2be..1254dee52b 100644
  	  display_putc() to use it.
  
 +config CMD_EXCEPTION
-+	bool "Enable the 'exception' command"
++	bool "exception - raise exception"
 +	depends on ARM || RISCV || X86
 +	help
 +	  Enable the 'exception' command which allows to raise an exception.
