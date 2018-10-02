@@ -274,7 +274,7 @@ index 7ecdbb1666..eb086bc219 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -1049,34 +1049,34 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
- int efi_console_register(void)
+ efi_status_t efi_console_register(void)
  {
  	efi_status_t r;
 -	struct efi_object *efi_console_output_obj;
