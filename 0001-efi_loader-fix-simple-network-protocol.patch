@@ -1,7 +1,7 @@
 From cc06fe497f62da7e61c0437c1e9c11affef93d04 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
-Subject: [PATCH] efi_loader: fix simple network protocol
+Subject: [PATCH 1/1] efi_loader: fix simple network protocol
 
 We should not call eth_rx() before the network interface is initialized.
 The services of the simple network protocol should check the state of
@@ -15,6 +15,12 @@ Correct the unit test.
 Add and correct comments.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+With this patch the i.mx6 Wandboard Quad does not crash anymore on bootefi
+selftest.
+
+Travis CI did not show any errors.
+https://travis-ci.org/xypron2/u-boot/builds/435804562
 ---
  lib/efi_loader/efi_net.c            | 404 +++++++++++++++++++++++-----
  lib/efi_selftest/efi_selftest_snp.c |  16 +-
