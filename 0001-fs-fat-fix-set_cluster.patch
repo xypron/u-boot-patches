@@ -1,0 +1,81 @@
+From 4c135fa79f72f8b051a7cb5006ef4c3e76cf29c5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 2 Oct 2018 09:03:29 +0200
+Subject: [PATCH 1/1] fs: fat: fix set_cluster()
+
+Avoid a CoverityScan warning SIGN_EXTENSION CID 184096 by changing the
+type of parameter size of set_cluster().
+
+Avoid leaking stack content when writing an incomplete last sector.
+
+Reported-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index fc211e74bc..5e3aec2d90 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -387,16 +387,22 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
+ 	return next_entry;
+ }
+ 
+-/*
+- * Write at most 'size' bytes from 'buffer' into the specified cluster.
+- * Return 0 on success, -1 otherwise.
++/**
++ * set_cluster() - write data to cluster
++ *
++ * Write 'size' bytes from 'buffer' into the specified cluster.
++ *
++ * @mydata:	data to be written
++ * @clustnum:	cluster to be written to
++ * @buffer:	data to be written
++ * @size:	bytes to be written (but not more than the size of a cluster)
++ * Return:	0 on success, -1 otherwise
+  */
+ static int
+-set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
+-	     unsigned long size)
++set_cluster(fsdata *mydata, u32 clustnum, u8 *buffer, u32 size)
+ {
+-	__u32 idx = 0;
+-	__u32 startsect;
++	u32 idx = 0;
++	u32 startsect;
+ 	int ret;
+ 
+ 	if (clustnum > 0)
+@@ -438,7 +444,8 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
+ 
+ 	if (size) {
+ 		ALLOC_CACHE_ALIGN_BUFFER(__u8, tmpbuf, mydata->sect_size);
+-
++		/* Do not leak content of stack */
++		memset(tmpbuf, 0, mydata->sect_size);
+ 		memcpy(tmpbuf, buffer, size);
+ 		ret = disk_write(startsect, 1, tmpbuf);
+ 		if (ret != 1) {
+@@ -872,7 +879,7 @@ set_clusters:
+ 
+ 		/* set remaining bytes */
+ 		actsize = filesize;
+-		if (set_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
++		if (set_cluster(mydata, curclust, buffer, (u32)actsize) != 0) {
+ 			debug("error: writing cluster\n");
+ 			return -1;
+ 		}
+@@ -889,7 +896,7 @@ set_clusters:
+ 
+ 		return 0;
+ getit:
+-		if (set_cluster(mydata, curclust, buffer, (int)actsize) != 0) {
++		if (set_cluster(mydata, curclust, buffer, (u32)actsize) != 0) {
+ 			debug("error: writing cluster\n");
+ 			return -1;
+ 		}
+-- 
+2.19.0
+

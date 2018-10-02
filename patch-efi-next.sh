@@ -27,7 +27,7 @@ git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
 git am ../patch/0001-efi_selftest-fix-typos.patch
 git am ../patch/0001-arm-do-not-include-efi_loader.h-twice.patch
 git am ../patch/0001-efi_loader-remove-lcd.h-from-efi_net.c.patch
-git am ../patch/0001-fs-fat-eliminate-parameter-size-in-set_cluster.patch
+git am ../patch/0001-fs-fat-fix-set_cluster.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_variable.patch
 git am ../patch/0001-efi_loader-superfluous-statement-in-is_dir.patch
 git am ../patch/0001-efi_loader-return-type-efi_console_register.patch
