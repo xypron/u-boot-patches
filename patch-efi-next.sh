@@ -34,6 +34,7 @@ git am ../patch/0001-efi_loader-error-handling-in-read_console.patch
 git am ../patch/0001-fs-fat-memory-leak-in-fat_unlink.patch
 git am ../patch/0001-efi_loader-efi_allocate_pool-EFI_ALLOCATE_ANY_PAGES.patch
 git am ../patch/0001-efi_loader-EFI_ENTRY-print-device-path.patch
+git am ../patch/0001-efi_loader-execute-efi_save_gd-first.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
