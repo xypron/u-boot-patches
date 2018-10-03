@@ -32,6 +32,7 @@ git am ../patch/0001-efi_loader-superfluous-statement-in-is_dir.patch
 git am ../patch/0001-efi_loader-return-type-efi_console_register.patch
 git am ../patch/0001-efi_loader-error-handling-in-read_console.patch
 git am ../patch/0001-fs-fat-memory-leak-in-fat_unlink.patch
+git am ../patch/0001-efi_loader-efi_allocate_pool-EFI_ALLOCATE_ANY_PAGES.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
