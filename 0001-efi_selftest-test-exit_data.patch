@@ -1,4 +1,4 @@
-From 85f4c7b845775a27e596863ce8764d59d6a6c947 Mon Sep 17 00:00:00 2001
+From 632be3e3398010f2d1499d6e7f7c8c08720982b5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 30 Sep 2018 13:26:36 +0200
 Subject: [PATCH 1/1] efi_selftest: test exit_data
@@ -8,9 +8,9 @@ Amend the unit test 'start image exit' to transfer a string as exit data.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_selftest.h                          |  2 +-
- lib/efi_selftest/efi_selftest_miniapp_exit.c    | 30 ++++++++++++++++++++-----
- lib/efi_selftest/efi_selftest_startimage_exit.c | 15 ++++++++++++-
- 3 files changed, 40 insertions(+), 7 deletions(-)
+ lib/efi_selftest/efi_selftest_miniapp_exit.c    | 17 ++++++++++++-----
+ lib/efi_selftest/efi_selftest_startimage_exit.c | 15 ++++++++++++++-
+ 3 files changed, 27 insertions(+), 7 deletions(-)
 
 diff --git a/include/efi_selftest.h b/include/efi_selftest.h
 index 56beac305e..b328d4e5c9 100644
@@ -26,7 +26,7 @@ index 56beac305e..b328d4e5c9 100644
   * Prints a message.
   */
 diff --git a/lib/efi_selftest/efi_selftest_miniapp_exit.c b/lib/efi_selftest/efi_selftest_miniapp_exit.c
-index d63b9e3add..dac6702620 100644
+index d63b9e3add..0c97510e1d 100644
 --- a/lib/efi_selftest/efi_selftest_miniapp_exit.c
 +++ b/lib/efi_selftest/efi_selftest_miniapp_exit.c
 @@ -9,7 +9,7 @@
@@ -38,15 +38,13 @@ index d63b9e3add..dac6702620 100644
  
  static efi_guid_t loaded_image_protocol_guid = LOADED_IMAGE_GUID;
  
-@@ -66,15 +66,35 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -66,15 +66,22 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  			     struct efi_system_table *systable)
  {
  	struct efi_simple_text_output_protocol *con_out = systable->con_out;
 -	efi_status_t ret = EFI_UNSUPPORTED;
 +	efi_status_t ret;
 +	u16 text[] = EFI_ST_SUCCESS_STR;
-+	u16 exit_data_size = 0;
-+	u16 *exit_data = NULL;
  
  	con_out->output_string(con_out, L"EFI application calling Exit\n");
  
@@ -57,24 +55,13 @@ index d63b9e3add..dac6702620 100644
  		ret = EFI_NOT_FOUND;
 +		goto out;
 +	}
-+	ret = systable->boottime->allocate_pool(EFI_ALLOCATE_ANY_PAGES,
-+						sizeof(text),
-+						(void *)&exit_data);
-+	if (ret != EFI_SUCCESS) {
-+		con_out->output_string(con_out,
-+				       L"AllocatePool failed\n");
-+		ret = EFI_OUT_OF_RESOURCES;
-+		goto out;
-+	}
-+	systable->boottime->copy_mem(exit_data, text, sizeof(text));
-+	exit_data_size = sizeof(text);
  
 -	/* The return value is checked by the calling test */
 -	systable->boottime->exit(handle, ret, 0, NULL);
 +	/* This return value is expected by the calling test */
 +	ret = EFI_UNSUPPORTED;
 +out:
-+	systable->boottime->exit(handle, ret, exit_data_size, exit_data);
++	systable->boottime->exit(handle, ret, sizeof(text), text);
  
  	/*
  	 * This statement should not be reached.
@@ -116,5 +103,5 @@ index 0d9e16437a..aa85f6be3d 100644
  	return EFI_ST_SUCCESS;
  }
 -- 
-2.11.0
+2.19.0
 

@@ -1,4 +1,4 @@
-From 0f4d89910393391f535e3ad86da535b3e3a56c6b Mon Sep 17 00:00:00 2001
+From a357c8249c98a37cabb0b94a311b73362d0d6cb4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 30 Sep 2018 10:38:17 +0200
 Subject: [PATCH 1/1] efi_loader: implement UnloadImage
@@ -12,11 +12,11 @@ Pass exit_data when Exit() is called.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h                 |   8 +--
- include/efi_loader.h              |  23 +++++++
- lib/efi_loader/efi_boottime.c     | 139 +++++++++++++++++++++++++++++++-------
- lib/efi_loader/efi_image_loader.c |   8 ++-
- 4 files changed, 147 insertions(+), 31 deletions(-)
+ include/efi_api.h                 |   8 +-
+ include/efi_loader.h              |  23 +++++
+ lib/efi_loader/efi_boottime.c     | 151 ++++++++++++++++++++++++------
+ lib/efi_loader/efi_image_loader.c |   8 +-
+ 4 files changed, 156 insertions(+), 34 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index e6566bb358..7110de7ed7 100644
@@ -47,13 +47,14 @@ index e6566bb358..7110de7ed7 100644
  
  #define DEVICE_PATH_GUID \
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index e0a8c0521b..16f254cf20 100644
+index e0a8c0521b..6014fbac9f 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -174,11 +174,24 @@ struct efi_handler {
+@@ -173,12 +173,25 @@ struct efi_handler {
+ 	struct list_head open_infos;
  };
  
- /**
++/**
 + * enum efi_object_type - type of EFI object
 + *
 + * In UnloadImage we must be able to identify if the handle relates to a
@@ -65,7 +66,7 @@ index e0a8c0521b..16f254cf20 100644
 +	EFI_OBJECT_TYPE_STARTED_IMAGE,
 +};
 +
-+/**
+ /**
   * struct efi_object - dereferenced EFI handle
   *
   * @link:	pointers to put the handle into a linked list
@@ -89,8 +90,8 @@ index e0a8c0521b..16f254cf20 100644
   * @reloc_size:		size of the relocated image
 + * @parent:		parent loaded image
 + * @exit_status:	status code passed to Exit()
-+ * @exit_data_size:	pointer to receive exit data size in Exit()
-+ * @exit_data:		pointer to receive exit data in Exit()
++ * @exit_data_size:	exit data size received in Exit()
++ * @exit_data:		exit data received in Exit()
   * @exit_jmp:		long jump buffer for returning form started image
   * @entry:		entry address of the relocated image
 + * @image_type:		application, bootime driver, or runtime driver
@@ -101,8 +102,8 @@ index e0a8c0521b..16f254cf20 100644
  	aligned_u64 reloc_size;
 +	efi_handle_t parent;
  	efi_status_t exit_status;
-+	efi_uintn_t *exit_data_size;
-+	u16 **exit_data;
++	efi_uintn_t exit_data_size;
++	u16 *exit_data;
  	struct jmp_buf_data exit_jmp;
  	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
  				     struct efi_system_table *st);
@@ -111,7 +112,7 @@ index e0a8c0521b..16f254cf20 100644
  
  /**
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index cda11b0947..4543635913 100644
+index cda11b0947..c418b6ef03 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -6,14 +6,15 @@
@@ -150,6 +151,17 @@ index cda11b0947..4543635913 100644
  
  	/* Add internal object to object list */
  	efi_add_handle(&obj->header);
+@@ -1687,8 +1692,8 @@ error:
+ /**
+  * efi_start_image() - call the entry point of an image
+  * @image_handle:   handle of the image
+- * @exit_data_size: size of the buffer
+- * @exit_data:      buffer to receive the exit data of the called image
++ * @exit_data_size: on return exit data size provided to Exit()
++ * @exit_data:      on return exit data provided to Exit()
+  *
+  * This function implements the StartImage service.
+  *
 @@ -1698,15 +1703,20 @@ error:
   * Return: status code
   */
@@ -175,25 +187,30 @@ index cda11b0947..4543635913 100644
  	/* call the image! */
  	if (setjmp(&image_obj->exit_jmp)) {
  		/*
-@@ -1733,16 +1743,27 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1733,16 +1743,31 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  		      __efi_nesting_dec(),
  		      (unsigned long)((uintptr_t)image_obj->exit_status &
  				      ~EFI_ERROR_MASK));
+-		return EFI_EXIT(image_obj->exit_status);
 +		current_image = image_obj->parent;
 +
++		ret = image_obj->exit_status;
++		if (exit_data) {
++			*exit_data = image_obj->exit_data;
++			if (exit_data_size)
++				*exit_data_size = image_obj->exit_data_size;
++		}
 +		/* Unload application image */
 +		if (image_obj->image_type == IMAGE_SUBSYSTEM_EFI_APPLICATION) {
 +			free(image_obj->reloc_base);
 +			efi_delete_handle(&image_obj->header);
 +		}
- 		return EFI_EXIT(image_obj->exit_status);
++		return EFI_EXIT(ret);
  	}
  
 +	image_obj->parent = current_image;
 +	current_image = image_handle;
 +	image_obj->header.type = EFI_OBJECT_TYPE_STARTED_IMAGE;
-+	image_obj->exit_data_size = exit_data_size;
-+	image_obj->exit_data = exit_data;
  	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
  
  	/*
@@ -207,7 +224,7 @@ index cda11b0947..4543635913 100644
  	 */
  	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
  }
-@@ -1763,19 +1784,51 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -1763,19 +1788,53 @@ static efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
   */
  static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  				    efi_status_t exit_status,
@@ -244,7 +261,6 @@ index cda11b0947..4543635913 100644
 +	image_obj = (struct efi_loaded_image_obj *)efiobj;
 +	switch (image_obj->header.type) {
 +	case EFI_OBJECT_TYPE_STARTED_IMAGE:
-+		/* TODO: Check that child images have exited */
 +		break;
 +	case EFI_OBJECT_TYPE_LOADED_IMAGE:
 +		/*  Unload image that was not yet started */
@@ -259,16 +275,19 @@ index cda11b0947..4543635913 100644
 +	}
 +
 +	image_obj->exit_status = exit_status;
-+	if (image_obj->exit_data) {
-+		*image_obj->exit_data = exit_data;
-+		if (image_obj->exit_data_size)
-+			*image_obj->exit_data_size = exit_data_size;
++	if (exit_data) {
++		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, exit_data_size,
++					(void**)image_obj->exit_data);
++		if (ret != EFI_SUCCESS)
++			goto out;
++		image_obj->exit_data_size = exit_data_size;
++		memcpy(image_obj->exit_data, exit_data, exit_data_size);
 +	}
 +
  	/* Make sure entry/exit counts for EFI world cross-overs match */
  	EFI_EXIT(exit_status);
  
-@@ -1785,10 +1838,12 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -1785,10 +1844,12 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  	 */
  	efi_restore_gd();
  
@@ -282,7 +301,7 @@ index cda11b0947..4543635913 100644
  }
  
  /**
-@@ -1804,14 +1859,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -1804,14 +1865,50 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
   */
  static efi_status_t EFIAPI efi_unload_image(efi_handle_t image_handle)
  {
@@ -378,5 +397,5 @@ index 39902152f3..b6ed936a86 100644
  	loaded_image_info->image_size = virt_size;
  
 -- 
-2.11.0
+2.19.0
 
