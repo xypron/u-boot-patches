@@ -1,7 +1,7 @@
 From 02d4ab1cf463e1a4b3e1de532d95688383140b60 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
-Subject: [PATCH v2 1/1] efi_loader: fix simple network protocol
+Subject: [PATCH v2 1/1, for v2018.11-rc2] efi_loader: fix simple network protocol
 
 We should not call eth_rx() before the network interface is initialized.
 The services of the simple network protocol should check the state of
@@ -13,6 +13,9 @@ CONFIG_EFI_LOADER_BOUNCE_BUFFER.
 Correct the unit test.
 
 Add and correct comments.
+
+Without this patch i.mx6 system Wandboard Quad rev B1 fails to execute
+bootefi selftest.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
