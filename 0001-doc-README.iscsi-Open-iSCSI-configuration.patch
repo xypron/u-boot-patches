@@ -1,0 +1,90 @@
+From b463768e19eb4348f9c222e1ac6c01112fec591f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 8 Oct 2018 21:42:55 +0200
+Subject: [PATCH 1/1] doc: README.iscsi: Open-iSCSI configuration
+
+Provide settings for Open-iSCSI
+
+Reformat headers. h3-headers marked with ^^^ are not recognized in some
+markup editors. Use the ### notation instead.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/README.iscsi | 35 ++++++++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
+
+diff --git a/doc/README.iscsi b/doc/README.iscsi
+index faee636264..3a12438f90 100644
+--- a/doc/README.iscsi
++++ b/doc/README.iscsi
+@@ -1,8 +1,6 @@
+-iSCSI booting with U-Boot and iPXE
+-==================================
++# iSCSI booting with U-Boot and iPXE
+ 
+-Motivation
+-----------
++## Motivation
+ 
+ U-Boot has only a reduced set of supported network protocols. The focus for
+ network booting has been on UDP based protocols. A TCP stack and HTTP support
+@@ -41,8 +39,7 @@ fine grained control of the boot process and can provide a command shell.
+ iPXE can be built as an EFI application (named snp.efi) which can be loaded and
+ run by U-Boot.
+ 
+-Boot sequence
+--------------
++## Boot sequence
+ 
+ U-Boot loads the EFI application iPXE snp.efi using the bootefi command. This
+ application has network access via the simple network protocol offered by
+@@ -106,19 +103,16 @@ the EFI stub Linux is called as an EFI application::
+                                                                       |        |
+                                                                       | ~ ~ ~ ~|
+ 
+-Security
+---------
++## Security
+ 
+ The iSCSI protocol is not encrypted. The traffic could be secured using IPsec
+ but neither U-Boot nor iPXE does support this. So we should at least separate
+ the iSCSI traffic from all other network traffic. This can be achieved using a
+ virtual local area network (VLAN).
+ 
+-Configuration
+--------------
++## Configuration
+ 
+-iPXE
+-^^^^
++### iPXE
+ 
+ For running iPXE on arm64 the bin-arm64-efi/snp.efi build target is needed::
+ 
+@@ -157,9 +151,20 @@ following into src/config/local/general.h is sufficient for most use cases::
+     #define DOWNLOAD_PROTO_NFS      /* Network File System Protocol */
+     #define DOWNLOAD_PROTO_FILE     /* Local file system access */
+ 
+-Links
+------
++### Open-iSCSI
++
++When the root file system is on an iSCSI drive you should disable pings and set
++the replacement timer to a high value [3]:
++
++    node.conn[0].timeo.noop_out_interval = 0
++    node.conn[0].timeo.noop_out_timeout = 0
++    node.session.timeo.replacement_timeout = 86400
++
++## Links
+ 
+ * [1](https://ipxe.org) https://ipxe.org - iPXE open source boot firmware
+ * [2](https://www.gnu.org/software/grub/) https://www.gnu.org/software/grub/ -
+-  GNU GRUB (Grand Unified Bootloader)
++     GNU GRUB (Grand Unified Bootloader)
++* [3](https://github.com/open-iscsi/open-iscsi/blob/master/README)
++     https://github.com/open-iscsi/open-iscsi/blob/master/README -
++     Open-iSCSI README
+-- 
+2.19.1
+
