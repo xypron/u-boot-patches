@@ -1,0 +1,84 @@
+From 9dc8f66431ff84160638aeb963d93b54a7d8aae0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 11 Oct 2018 01:28:19 +0200
+Subject: [PATCH 1/1] efi_loader: PSCI reset and shutdown for EL1
+
+When starting an aarch64 system under QEMU it runs in EL1/EL0. So we have
+to use HVC for PSCI calls.
+
+Without the patch resetting Linux started with bootefi under
+qemu-system-aarch64 results in a crash.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/cpu/armv8/fwcall.c | 32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
+index 0ba3dad8cc..9fbfe2a6b0 100644
+--- a/arch/arm/cpu/armv8/fwcall.c
++++ b/arch/arm/cpu/armv8/fwcall.c
+@@ -77,39 +77,49 @@ void __efi_runtime smc_call(struct pt_regs *args)
+ 		  "x16", "x17");
+ }
+ 
+-/*
+- * For now, all systems we support run at least in EL2 and thus
+- * trigger PSCI calls to EL3 using SMC. If anyone ever wants to
+- * use PSCI on U-Boot running below a hypervisor, please detect
+- * this and set the flag accordingly.
++/**
++ * psci_system_reset() - reset system using PSCI
+  */
+-static const __efi_runtime_data bool use_smc_for_psci = true;
+-
+ void __noreturn __efi_runtime psci_system_reset(void)
+ {
+ 	struct pt_regs regs;
+ 
+ 	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_RESET;
+ 
+-	if (use_smc_for_psci)
++	/* Depending on the exception level use SMC or HVC */
++	switch (current_el()) {
++	case 3:
++	case 2:
+ 		smc_call(&regs);
+-	else
++		break;
++	default:
+ 		hvc_call(&regs);
++		break;
++	}
+ 
+ 	while (1)
+ 		;
+ }
+ 
++/**
++ * psci_system_off() - switch system off using PSCI
++ */
+ void __noreturn __efi_runtime psci_system_off(void)
+ {
+ 	struct pt_regs regs;
+ 
+ 	regs.regs[0] = ARM_PSCI_0_2_FN_SYSTEM_OFF;
+ 
+-	if (use_smc_for_psci)
++	/* Depending on the exception level use SMC or HVC */
++	switch (current_el()) {
++	case 3:
++	case 2:
+ 		smc_call(&regs);
+-	else
++		break;
++	default:
+ 		hvc_call(&regs);
++		break;
++	}
+ 
+ 	while (1)
+ 		;
+-- 
+2.19.1
+
