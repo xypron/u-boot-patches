@@ -1,4 +1,4 @@
-From f017c1d0adf7ed2b0e92aece743d66be2fcea2b6 Mon Sep 17 00:00:00 2001
+From 8e418832846f0d0f7bfcd097fa521b4313bb1f90 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Oct 2018 04:33:05 +0200
 Subject: [PATCH 1/1] efi_loader: PSCI reset and shutdown for EL1
@@ -11,23 +11,30 @@ qemu-system-aarch64 results in a crash.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/arm/cpu/armv8/fwcall.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm/cpu/armv8/fwcall.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
-index 0ba3dad8cc..290464b8cb 100644
+index 0ba3dad8cc..f1b6e60bae 100644
 --- a/arch/arm/cpu/armv8/fwcall.c
 +++ b/arch/arm/cpu/armv8/fwcall.c
-@@ -83,7 +83,7 @@ void __efi_runtime smc_call(struct pt_regs *args)
-  * use PSCI on U-Boot running below a hypervisor, please detect
-  * this and set the flag accordingly.
+@@ -78,12 +78,10 @@ void __efi_runtime smc_call(struct pt_regs *args)
+ }
+ 
+ /*
+- * For now, all systems we support run at least in EL2 and thus
+- * trigger PSCI calls to EL3 using SMC. If anyone ever wants to
+- * use PSCI on U-Boot running below a hypervisor, please detect
+- * this and set the flag accordingly.
++ * This flag controls if SMC or HVC is used to call PSCI services. If U-Boot has
++ * been called by a hypervisor (e.g. QEMU), it has to be set to false.
   */
 -static const __efi_runtime_data bool use_smc_for_psci = true;
 +static __efi_runtime_data bool use_smc_for_psci = true;
  
  void __noreturn __efi_runtime psci_system_reset(void)
  {
-@@ -138,6 +138,12 @@ void reset_misc(void)
+@@ -138,6 +136,12 @@ void reset_misc(void)
  }
  
  #ifdef CONFIG_EFI_LOADER
