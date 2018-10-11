@@ -1,4 +1,4 @@
-From 2045251cf7268637a921fd7ef712599d7d6be446 Mon Sep 17 00:00:00 2001
+From 4b78f06cf5bb01764283579cbf886e2b7ca76375 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
@@ -14,17 +14,17 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig     |   6 ++
  cmd/Makefile    |   1 +
- cmd/exception.c | 162 ++++++++++++++++++++++++++++++++++++++++++++++++
+ cmd/exception.c | 161 ++++++++++++++++++++++++++++++++++++++++++++++++
  3 files changed, 168 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index cf97a0f2be..1254dee52b 100644
+index cfad07432e..76215c8e7c 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1352,6 +1352,12 @@ config CMD_DISPLAY
- 	  displayed on a simple board-specific display. Implement
- 	  display_putc() to use it.
+@@ -1380,6 +1380,12 @@ config CMD_EL
+ 	  Enable the 'el' command which displays the exception level of the
+ 	  processor.
  
 +config CMD_EXCEPTION
 +	bool "exception - raise exception"
@@ -36,20 +36,20 @@ index cf97a0f2be..1254dee52b 100644
  	bool "led"
  	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index d3815abf26..8a8273e2aa 100644
+index 63e3afd56b..140dd36fef 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
-@@ -47,6 +47,7 @@ endif
- obj-$(CONFIG_CMD_DISPLAY) += display.o
+@@ -48,6 +48,7 @@ obj-$(CONFIG_CMD_DISPLAY) += display.o
  obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
+ obj-$(CONFIG_CMD_EL) += el.o
 +obj-$(CONFIG_CMD_EXCEPTION) += exception.o
  obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
  obj-$(CONFIG_CMD_EEPROM) += eeprom.o
  obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/exception.c b/cmd/exception.c
 new file mode 100644
-index 0000000000..a6c3d72b50
+index 0000000000..fb6a15573e
 --- /dev/null
 +++ b/cmd/exception.c
 @@ -0,0 +1,161 @@
@@ -215,5 +215,5 @@ index 0000000000..a6c3d72b50
 +	exception_help_text, exception_complete
 +);
 -- 
-2.19.0
+2.19.1
 

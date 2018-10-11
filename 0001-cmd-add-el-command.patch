@@ -1,37 +1,41 @@
-From 302b621d302d6b19333f244b73cfe131d60adcd0 Mon Sep 17 00:00:00 2001
+From 94a5c0949959dda7fb604a5f9c8417769f688219 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Oct 2018 03:18:43 +0200
 Subject: [PATCH 1/1] cmd: add el command
 
-The 'el' command displays the current exception level on ARM64.
+The 'el' command displays the current exception level of the processor
+on the aarch64 architecture.
+
+This information is needed to analyze problems in the EFI subsystem.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/Kconfig  |  6 ++++++
+ cmd/Kconfig  |  7 +++++++
  cmd/Makefile |  1 +
- cmd/el.c     | 26 ++++++++++++++++++++++++++
+ cmd/el.c     | 25 +++++++++++++++++++++++++
  3 files changed, 33 insertions(+)
  create mode 100644 cmd/el.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index cc5d1160c6..6e227fcad2 100644
+index 7ed3c9c3b3..cfad07432e 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1373,6 +1373,12 @@ config CMD_DISPLAY
+@@ -1373,6 +1373,13 @@ config CMD_DISPLAY
  	  displayed on a simple board-specific display. Implement
  	  display_putc() to use it.
  
 +config CMD_EL
-+	bool "el - display the exception level"
++	bool "el - display processor exception level"
 +	depends on ARM64
 +	help
-+	  Enable the 'el' command which displays the exception level.
++	  Enable the 'el' command which displays the exception level of the
++	  processor.
 +
- config CMD_EXCEPTION
- 	bool "exception - raise exception"
- 	depends on ARM || RISCV || X86
+ config CMD_LED
+ 	bool "led"
+ 	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index d3dd901140..140dd36fef 100644
+index d9cdaf6064..63e3afd56b 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
 @@ -47,6 +47,7 @@ endif
@@ -39,15 +43,15 @@ index d3dd901140..140dd36fef 100644
  obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
 +obj-$(CONFIG_CMD_EL) += el.o
- obj-$(CONFIG_CMD_EXCEPTION) += exception.o
  obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
  obj-$(CONFIG_CMD_EEPROM) += eeprom.o
+ obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/el.c b/cmd/el.c
 new file mode 100644
-index 0000000000..de340d10f8
+index 0000000000..57081c36f2
 --- /dev/null
 +++ b/cmd/el.c
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,25 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'el' command prints the current exception level
@@ -59,9 +63,9 @@ index 0000000000..de340d10f8
 +#include <asm/system.h>
 +
 +static int do_el(cmd_tbl_t *cmdtp, int flag, int argc,
-+			char * const argv[])
++		 char * const argv[])
 +{
-+	printf("Current exception level: EL%d\n", current_el());
++	printf("processor exception level: EL%d\n", current_el());
 +	return CMD_RET_SUCCESS;
 +}
 +
@@ -69,11 +73,10 @@ index 0000000000..de340d10f8
 +static char el_help_text[] = "";
 +#endif
 +
-+U_BOOT_CMD_COMPLETE(
-+	el, 2, 0, do_el,
-+	"display exception level",
-+	el_help_text, NULL
-+);
++U_BOOT_CMD_COMPLETE
++	(el, 2, 0, do_el,
++	 "display processor exception level",
++	 el_help_text, NULL);
 -- 
 2.19.1
 
