@@ -33,6 +33,7 @@ git am ../patch/0001-efi_loader-execute-efi_save_gd-first.patch
 git am ../patch/0001-efi_loader-correct-signature-of-GetPosition-SetPosit.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown-for-EL1.patch
+git am ../patch/0001-test-overlay-add-missing-include.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

@@ -1,0 +1,36 @@
+From faa2856f133a0eb2d1ed1b2dea1a9e2433398ec9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 11 Oct 2018 02:11:46 +0200
+Subject: [PATCH 1/1] test: overlay: add missing include
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Compiling the overlay unit test fails with odroid-c2_defconfig showing
+errors like:
+
+    test/overlay/cmd_ut_overlay.c:29:8:
+    error: unknown type name ‘fdt32_t’
+
+Add the missing include.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/overlay/cmd_ut_overlay.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/test/overlay/cmd_ut_overlay.c b/test/overlay/cmd_ut_overlay.c
+index f7ff93799f..3d34c8ab53 100644
+--- a/test/overlay/cmd_ut_overlay.c
++++ b/test/overlay/cmd_ut_overlay.c
+@@ -7,6 +7,7 @@
+ #include <common.h>
+ #include <command.h>
+ #include <errno.h>
++#include <fdt_support.h>
+ #include <malloc.h>
+ 
+ #include <linux/sizes.h>
+-- 
+2.19.1
+
