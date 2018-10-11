@@ -23,8 +23,8 @@ index cfad07432e..76215c8e7c 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -1380,6 +1380,12 @@ config CMD_EL
- 	  Enable the 'el' command which displays the exception level of the
- 	  processor.
+ 	  Enable the 'el' command which displays the exception level or the
+ 	  privilege level of the processor.
  
 +config CMD_EXCEPTION
 +	bool "exception - raise exception"

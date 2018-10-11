@@ -29,7 +29,7 @@ index 7ed3c9c3b3..ceb377f81a 100644
 +	depends on ARM64 || CPU_V7A
 +	help
 +	  Enable the 'el' command which displays the exception level or the
-+	  privilege leveli of the processor.
++	  privilege level of the processor.
 +
  config CMD_LED
  	bool "led"
