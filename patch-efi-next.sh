@@ -35,6 +35,7 @@ git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown-for-EL1.patch
 git am ../patch/0001-test-overlay-add-missing-include.patch
 git am ../patch/0001-cmd-add-el-command.patch
+git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
