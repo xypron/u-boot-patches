@@ -1,0 +1,209 @@
+From a2a7a0be7fe45c519390f51909d91e6897b62bc9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 12 Oct 2018 10:37:04 +0200
+Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
+
+When an operating system started via bootefi tries to reset or power off
+this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
+the actual reset relies on PSCI. Depending on whether the PSCI firmware
+resides the hypervisor or in the supervisor either an HVC or an SVC command
+has to be issued. The current implementation always uses SVC. This results
+in crashes on systems where the PSCI firmware is implemented in the
+hypervisor, e.g. qemu-arm64_defconfig.
+
+The logic to decide which call is needed based on the device tree is already
+implemented in the PSCI firmware driver. So let's use it for the EFI
+runtime.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	use the PSCI firmware driver as suggested by Sumit Garg
+---
+ arch/arm/cpu/armv8/Kconfig      |  1 +
+ arch/arm/cpu/armv8/fwcall.c     | 36 ++++-------------------------
+ arch/arm/cpu/armv8/smccc-call.S |  2 ++
+ drivers/firmware/psci.c         | 41 +++++++++++++++++++++++++++------
+ 4 files changed, 42 insertions(+), 38 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
+index c8bebabdf6..f64cf0cb0f 100644
+--- a/arch/arm/cpu/armv8/Kconfig
++++ b/arch/arm/cpu/armv8/Kconfig
+@@ -96,6 +96,7 @@ endmenu
+ config PSCI_RESET
+ 	bool "Use PSCI for reset and shutdown"
+ 	default y
++	select ARM_SMCCC
+ 	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && \
+ 		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
+ 		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
+diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
+index 0ba3dad8cc..af492f153e 100644
+--- a/arch/arm/cpu/armv8/fwcall.c
++++ b/arch/arm/cpu/armv8/fwcall.c
+@@ -7,7 +7,6 @@
+ 
+ #include <asm-offsets.h>
+ #include <config.h>
+-#include <efi_loader.h>
+ #include <version.h>
+ #include <asm/macro.h>
+ #include <asm/psci.h>
+@@ -19,7 +18,7 @@
+  * x0~x7: input arguments
+  * x0~x3: output arguments
+  */
+-static void __efi_runtime hvc_call(struct pt_regs *args)
++static void hvc_call(struct pt_regs *args)
+ {
+ 	asm volatile(
+ 		"ldr x0, %0\n"
+@@ -53,7 +52,7 @@ static void __efi_runtime hvc_call(struct pt_regs *args)
+  * x0~x3: output arguments
+  */
+ 
+-void __efi_runtime smc_call(struct pt_regs *args)
++void smc_call(struct pt_regs *args)
+ {
+ 	asm volatile(
+ 		"ldr x0, %0\n"
+@@ -83,9 +82,9 @@ void __efi_runtime smc_call(struct pt_regs *args)
+  * use PSCI on U-Boot running below a hypervisor, please detect
+  * this and set the flag accordingly.
+  */
+-static const __efi_runtime_data bool use_smc_for_psci = true;
++static const bool use_smc_for_psci = true;
+ 
+-void __noreturn __efi_runtime psci_system_reset(void)
++void __noreturn psci_system_reset(void)
+ {
+ 	struct pt_regs regs;
+ 
+@@ -100,7 +99,7 @@ void __noreturn __efi_runtime psci_system_reset(void)
+ 		;
+ }
+ 
+-void __noreturn __efi_runtime psci_system_off(void)
++void __noreturn psci_system_off(void)
+ {
+ 	struct pt_regs regs;
+ 
+@@ -130,28 +129,3 @@ int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	return 0;
+ }
+ #endif
+-
+-#ifdef CONFIG_PSCI_RESET
+-void reset_misc(void)
+-{
+-	psci_system_reset();
+-}
+-
+-#ifdef CONFIG_EFI_LOADER
+-void __efi_runtime EFIAPI efi_reset_system(
+-			enum efi_reset_type reset_type,
+-			efi_status_t reset_status,
+-			unsigned long data_size, void *reset_data)
+-{
+-	if (reset_type == EFI_RESET_COLD ||
+-	    reset_type == EFI_RESET_WARM ||
+-	    reset_type == EFI_RESET_PLATFORM_SPECIFIC) {
+-		psci_system_reset();
+-	} else if (reset_type == EFI_RESET_SHUTDOWN) {
+-		psci_system_off();
+-	}
+-
+-	while (1) { }
+-}
+-#endif /* CONFIG_EFI_LOADER */
+-#endif /* CONFIG_PSCI_RESET */
+diff --git a/arch/arm/cpu/armv8/smccc-call.S b/arch/arm/cpu/armv8/smccc-call.S
+index 16c9e298b4..86de4b4089 100644
+--- a/arch/arm/cpu/armv8/smccc-call.S
++++ b/arch/arm/cpu/armv8/smccc-call.S
+@@ -6,6 +6,8 @@
+ #include <linux/arm-smccc.h>
+ #include <generated/asm-offsets.h>
+ 
++	.section	.text.efi_runtime
++
+ 	.macro SMCCC instr
+ 	.cfi_startproc
+ 	\instr	#0
+diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
+index 2cb35f356f..a021b8fd1b 100644
+--- a/drivers/firmware/psci.c
++++ b/drivers/firmware/psci.c
+@@ -9,17 +9,18 @@
+ #include <common.h>
+ #include <dm.h>
+ #include <dm/lists.h>
++#include <efi_loader.h>
+ #include <linux/libfdt.h>
+ #include <linux/arm-smccc.h>
+ #include <linux/errno.h>
+ #include <linux/printk.h>
+ #include <linux/psci.h>
+ 
+-psci_fn *invoke_psci_fn;
++psci_fn __efi_runtime_data *invoke_psci_fn;
+ 
+-static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
+-			unsigned long arg0, unsigned long arg1,
+-			unsigned long arg2)
++static unsigned long __efi_runtime __invoke_psci_fn_hvc
++		(unsigned long function_id, unsigned long arg0,
++		 unsigned long arg1, unsigned long arg2)
+ {
+ 	struct arm_smccc_res res;
+ 
+@@ -27,9 +28,9 @@ static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
+ 	return res.a0;
+ }
+ 
+-static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
+-			unsigned long arg0, unsigned long arg1,
+-			unsigned long arg2)
++static unsigned long __efi_runtime __invoke_psci_fn_smc
++		(unsigned long function_id, unsigned long arg0,
++		 unsigned long arg1, unsigned long arg2)
+ {
+ 	struct arm_smccc_res res;
+ 
+@@ -78,6 +79,32 @@ static int psci_probe(struct udevice *dev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_EFI_LOADER
++efi_status_t efi_reset_system_init(void)
++{
++	struct udevice *dev;
++
++	/* Probe the driver */
++	uclass_get_device_by_name(UCLASS_FIRMWARE, "psci", &dev);
++	return EFI_SUCCESS;
++}
++
++void __efi_runtime EFIAPI efi_reset_system
++		(enum efi_reset_type reset_type, efi_status_t reset_status,
++		 unsigned long data_size, void *reset_data)
++{
++	if (reset_type == EFI_RESET_COLD ||
++	    reset_type == EFI_RESET_WARM ||
++	    reset_type == EFI_RESET_PLATFORM_SPECIFIC) {
++		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
++	} else if (reset_type == EFI_RESET_SHUTDOWN) {
++		invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
++	}
++	while (1)
++		;
++}
++#endif /* CONFIG_EFI_LOADER */
++
+ static const struct udevice_id psci_of_match[] = {
+ 	{ .compatible = "arm,psci" },
+ 	{ .compatible = "arm,psci-0.2" },
+-- 
+2.19.1
+
