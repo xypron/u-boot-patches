@@ -1,4 +1,4 @@
-From 29f6fb02c3c5acfbaf7eadf2cb875ecae398bdde Mon Sep 17 00:00:00 2001
+From fd34178bcc6760facb8a33e98f4df19852bfc091 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
 Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
@@ -28,7 +28,8 @@ v2
  arch/arm/cpu/armv8/fwcall.c     | 52 +++-------------------
  arch/arm/cpu/armv8/smccc-call.S |  2 +
  drivers/firmware/psci.c         | 76 +++++++++++++++++++++++++++++----
- 5 files changed, 78 insertions(+), 55 deletions(-)
+ lib/efi_loader/efi_runtime.c    | 10 +++++
+ 6 files changed, 88 insertions(+), 55 deletions(-)
 
 diff --git a/arch/arm/cpu/armv7/smccc-call.S b/arch/arm/cpu/armv7/smccc-call.S
 index 0d8b59eb6b..eae69e36c3 100644
@@ -279,6 +280,34 @@ index 2cb35f356f..fc0d7ff32c 100644
  	.id = UCLASS_FIRMWARE,
  	.of_match = psci_of_match,
  	.bind = psci_bind,
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index c5fbd91fa3..8d24aeacd4 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -11,6 +11,7 @@
+ #include <elf.h>
+ #include <efi_loader.h>
+ #include <rtc.h>
++#include <linux/psci.h>
+ 
+ /* For manual relocation support */
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -461,6 +462,15 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+ 			ptr += off;
+ 			systab.tables = (struct efi_configuration_table *)ptr;
+ 		}
++#ifdef CONFIG_ARM_PSCI_FW
++		if ((map_start <= (uintptr_t)invoke_psci_fn) &&
++		    (map_end >= (uintptr_t)invoke_psci_fn)) {
++			char *ptr = (char *)invoke_psci_fn;
++
++			ptr += off;
++			invoke_psci_fn = (psci_fn *)ptr;
++		}
++#endif
+ 	}
+ 
+ 	/* Move the actual runtime code over */
 -- 
 2.19.1
 
