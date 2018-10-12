@@ -7,6 +7,11 @@ Currently the relocation of the EFI runtime on x86_64 fails. This renders
 the EFI subsystem unusable. The ELF relocation records for x86_64 contain
 an addend field.
 
+Always write the function name into error messages related to the EFI
+runtime relocation.
+
+Break an excessively long line.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_runtime.c | 16 ++++++++++++----

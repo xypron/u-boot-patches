@@ -1,7 +1,7 @@
-From c6637039327c1b621d82a139af17d23f1f0162d2 Mon Sep 17 00:00:00 2001
+From dc3a4c144533fc020adc967b30244fccc570ff1e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
-Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
+Subject: [PATCH 1/1] efi_loader: PSCI reset and shutdown
 
 When an operating system started via bootefi tries to reset or power off
 this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
@@ -19,9 +19,6 @@ As the same problem is also evident for the ARMv8 poweroff command
 implementation fix it in the same way.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
-v2
-	use the PSCI firmware driver as suggested by Sumit
 ---
  arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
@@ -45,14 +42,14 @@ index 0d8b59eb6b..eae69e36c3 100644
  	/*
  	 * Wrap c macros in asm macros to delay expansion until after the
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
-index c8bebabdf6..f64cf0cb0f 100644
+index c8bebabdf6..d643981b73 100644
 --- a/arch/arm/cpu/armv8/Kconfig
 +++ b/arch/arm/cpu/armv8/Kconfig
 @@ -96,6 +96,7 @@ endmenu
  config PSCI_RESET
  	bool "Use PSCI for reset and shutdown"
  	default y
-+	select ARM_SMCCC
++	select ARM_SMCCC if OF_CONTROL
  	depends on !ARCH_EXYNOS7 && !ARCH_BCM283X && \
  		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
  		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
