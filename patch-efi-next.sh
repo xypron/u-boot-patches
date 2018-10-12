@@ -32,7 +32,7 @@ git am ../patch/0001-efi_loader-efi_allocate_pool-EFI_ALLOCATE_ANY_PAGES.patch
 git am ../patch/0001-efi_loader-execute-efi_save_gd-first.patch
 git am ../patch/0001-efi_loader-correct-signature-of-GetPosition-SetPosit.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
-git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown-for-EL1.patch
+#git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown-for-EL1.patch
 git am ../patch/0001-test-overlay-add-missing-include.patch
 git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
