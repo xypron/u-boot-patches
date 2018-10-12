@@ -1,4 +1,4 @@
-From 274d845813e3168bf34865fe6899cf24c49fd44e Mon Sep 17 00:00:00 2001
+From 29f6fb02c3c5acfbaf7eadf2cb875ecae398bdde Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
 Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
@@ -23,12 +23,26 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 v2
 	use the PSCI firmware driver as suggested by Sumit
 ---
+ arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
  arch/arm/cpu/armv8/fwcall.c     | 52 +++-------------------
  arch/arm/cpu/armv8/smccc-call.S |  2 +
  drivers/firmware/psci.c         | 76 +++++++++++++++++++++++++++++----
- 4 files changed, 76 insertions(+), 55 deletions(-)
+ 5 files changed, 78 insertions(+), 55 deletions(-)
 
+diff --git a/arch/arm/cpu/armv7/smccc-call.S b/arch/arm/cpu/armv7/smccc-call.S
+index 0d8b59eb6b..eae69e36c3 100644
+--- a/arch/arm/cpu/armv7/smccc-call.S
++++ b/arch/arm/cpu/armv7/smccc-call.S
+@@ -7,6 +7,8 @@
+ #include <asm/opcodes-sec.h>
+ #include <asm/opcodes-virt.h>
+ 
++	.section	.text.efi_runtime
++
+ #define UNWIND(x...)
+ 	/*
+ 	 * Wrap c macros in asm macros to delay expansion until after the
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
 index c8bebabdf6..f64cf0cb0f 100644
 --- a/arch/arm/cpu/armv8/Kconfig
