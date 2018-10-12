@@ -1,4 +1,4 @@
-From fd34178bcc6760facb8a33e98f4df19852bfc091 Mon Sep 17 00:00:00 2001
+From c6637039327c1b621d82a139af17d23f1f0162d2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
 Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
@@ -25,11 +25,11 @@ v2
 ---
  arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
- arch/arm/cpu/armv8/fwcall.c     | 52 +++-------------------
+ arch/arm/cpu/armv8/fwcall.c     | 52 ++-----------------
  arch/arm/cpu/armv8/smccc-call.S |  2 +
- drivers/firmware/psci.c         | 76 +++++++++++++++++++++++++++++----
- lib/efi_loader/efi_runtime.c    | 10 +++++
- 6 files changed, 88 insertions(+), 55 deletions(-)
+ drivers/firmware/psci.c         | 91 +++++++++++++++++++++++++++------
+ include/linux/psci.h            |  6 +--
+ 6 files changed, 87 insertions(+), 67 deletions(-)
 
 diff --git a/arch/arm/cpu/armv7/smccc-call.S b/arch/arm/cpu/armv7/smccc-call.S
 index 0d8b59eb6b..eae69e36c3 100644
@@ -166,10 +166,10 @@ index 16c9e298b4..86de4b4089 100644
  	.cfi_startproc
  	\instr	#0
 diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index 2cb35f356f..fc0d7ff32c 100644
+index 2cb35f356f..2237668ea6 100644
 --- a/drivers/firmware/psci.c
 +++ b/drivers/firmware/psci.c
-@@ -9,17 +9,20 @@
+@@ -9,31 +9,37 @@
  #include <common.h>
  #include <dm.h>
  #include <dm/lists.h>
@@ -186,35 +186,60 @@ index 2cb35f356f..fc0d7ff32c 100644
 -static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
 -			unsigned long arg0, unsigned long arg1,
 -			unsigned long arg2)
-+psci_fn __efi_runtime_data *invoke_psci_fn;
-+
-+static unsigned long __efi_runtime __invoke_psci_fn_hvc
-+		(unsigned long function_id, unsigned long arg0,
-+		 unsigned long arg1, unsigned long arg2)
- {
- 	struct arm_smccc_res res;
+-{
+-	struct arm_smccc_res res;
++#define PSCI_METHOD_HVC 1
++#define PSCI_METHOD_SMC 2
  
-@@ -27,9 +30,9 @@ static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
- 	return res.a0;
- }
+-	arm_smccc_hvc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
+-	return res.a0;
+-}
++int __efi_runtime_data psci_method;
  
 -static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
 -			unsigned long arg0, unsigned long arg1,
 -			unsigned long arg2)
-+static unsigned long __efi_runtime __invoke_psci_fn_smc
++unsigned long __efi_runtime invoke_psci_fn
 +		(unsigned long function_id, unsigned long arg0,
 +		 unsigned long arg1, unsigned long arg2)
  {
  	struct arm_smccc_res res;
  
-@@ -78,6 +81,63 @@ static int psci_probe(struct udevice *dev)
+-	arm_smccc_smc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
++	switch (psci_method) {
++	case PSCI_METHOD_SMC:
++		arm_smccc_smc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
++		break;
++	case PSCI_METHOD_HVC:
++		arm_smccc_hvc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
++		break;
++	default:
++		res.a0 = PSCI_RET_DISABLED;
++		break;
++	}
+ 	return res.a0;
+ }
+ 
+@@ -67,9 +73,9 @@ static int psci_probe(struct udevice *dev)
+ 	}
+ 
+ 	if (!strcmp("hvc", method)) {
+-		invoke_psci_fn = __invoke_psci_fn_hvc;
++		psci_method = PSCI_METHOD_HVC;
+ 	} else if (!strcmp("smc", method)) {
+-		invoke_psci_fn = __invoke_psci_fn_smc;
++		psci_method = PSCI_METHOD_SMC;
+ 	} else {
+ 		pr_warn("invalid \"method\" property: %s\n", method);
+ 		return -EINVAL;
+@@ -78,6 +84,59 @@ static int psci_probe(struct udevice *dev)
  	return 0;
  }
  
 +/**
 + * void do_psci_probe() - probe PSCI firmware driver
 + *
-+ * Ensure that invoke_psci_fn is initialized.
++ * Ensure that psci_method is initialized.
 + */
 +static void __maybe_unused do_psci_probe(void)
 +{
@@ -235,9 +260,6 @@ index 2cb35f356f..fc0d7ff32c 100644
 +					   unsigned long data_size,
 +					   void *reset_data)
 +{
-+	if (!invoke_psci_fn)
-+		while (1)
-+			;
 +	if (reset_type == EFI_RESET_COLD ||
 +	    reset_type == EFI_RESET_WARM ||
 +	    reset_type == EFI_RESET_PLATFORM_SPECIFIC) {
@@ -254,24 +276,23 @@ index 2cb35f356f..fc0d7ff32c 100644
 +int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 +{
 +	do_psci_probe();
-+	if (!invoke_psci_fn)
-+		return CMD_RET_FAILURE;
 +
 +	puts("poweroff ...\n");
 +	udelay(50000); /* wait 50 ms */
 +
 +	disable_interrupts();
 +	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
++	enable_interrupts();
 +
-+	/*NOTREACHED*/
-+	return CMD_RET_SUCCESS;
++	log_err("Power off not supported on this platform\n");
++	return CMD_RET_FAILURE;
 +}
 +#endif
 +
  static const struct udevice_id psci_of_match[] = {
  	{ .compatible = "arm,psci" },
  	{ .compatible = "arm,psci-0.2" },
-@@ -86,7 +146,7 @@ static const struct udevice_id psci_of_match[] = {
+@@ -86,7 +145,7 @@ static const struct udevice_id psci_of_match[] = {
  };
  
  U_BOOT_DRIVER(psci) = {
@@ -280,34 +301,23 @@ index 2cb35f356f..fc0d7ff32c 100644
  	.id = UCLASS_FIRMWARE,
  	.of_match = psci_of_match,
  	.bind = psci_bind,
-diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index c5fbd91fa3..8d24aeacd4 100644
---- a/lib/efi_loader/efi_runtime.c
-+++ b/lib/efi_loader/efi_runtime.c
-@@ -11,6 +11,7 @@
- #include <elf.h>
- #include <efi_loader.h>
- #include <rtc.h>
-+#include <linux/psci.h>
+diff --git a/include/linux/psci.h b/include/linux/psci.h
+index 8d13bd2702..9433df836b 100644
+--- a/include/linux/psci.h
++++ b/include/linux/psci.h
+@@ -88,10 +88,8 @@
+ #define PSCI_RET_DISABLED			-8
  
- /* For manual relocation support */
- DECLARE_GLOBAL_DATA_PTR;
-@@ -461,6 +462,15 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
- 			ptr += off;
- 			systab.tables = (struct efi_configuration_table *)ptr;
- 		}
-+#ifdef CONFIG_ARM_PSCI_FW
-+		if ((map_start <= (uintptr_t)invoke_psci_fn) &&
-+		    (map_end >= (uintptr_t)invoke_psci_fn)) {
-+			char *ptr = (char *)invoke_psci_fn;
-+
-+			ptr += off;
-+			invoke_psci_fn = (psci_fn *)ptr;
-+		}
-+#endif
- 	}
- 
- 	/* Move the actual runtime code over */
+ #ifdef CONFIG_ARM_PSCI_FW
+-typedef unsigned long (psci_fn)(unsigned long, unsigned long,
+-				unsigned long, unsigned long);
+-
+-extern psci_fn *invoke_psci_fn;
++unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
++			     unsigned long a2, unsigned long a3);
+ #else
+ unsigned long invoke_psci_fn(unsigned long a0, unsigned long a1,
+ 			     unsigned long a2, unsigned long a3)
 -- 
 2.19.1
 
