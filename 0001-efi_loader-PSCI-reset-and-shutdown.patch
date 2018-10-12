@@ -1,4 +1,4 @@
-From a2a7a0be7fe45c519390f51909d91e6897b62bc9 Mon Sep 17 00:00:00 2001
+From 274d845813e3168bf34865fe6899cf24c49fd44e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
 Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
@@ -15,16 +15,19 @@ The logic to decide which call is needed based on the device tree is already
 implemented in the PSCI firmware driver. So let's use it for the EFI
 runtime.
 
+As the same problem is also evident for the ARMv8 poweroff command
+implementation fix it in the same way.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v2
-	use the PSCI firmware driver as suggested by Sumit Garg
+	use the PSCI firmware driver as suggested by Sumit
 ---
  arch/arm/cpu/armv8/Kconfig      |  1 +
- arch/arm/cpu/armv8/fwcall.c     | 36 ++++-------------------------
- arch/arm/cpu/armv8/smccc-call.S |  2 ++
- drivers/firmware/psci.c         | 41 +++++++++++++++++++++++++++------
- 4 files changed, 42 insertions(+), 38 deletions(-)
+ arch/arm/cpu/armv8/fwcall.c     | 52 +++-------------------
+ arch/arm/cpu/armv8/smccc-call.S |  2 +
+ drivers/firmware/psci.c         | 76 +++++++++++++++++++++++++++++----
+ 4 files changed, 76 insertions(+), 55 deletions(-)
 
 diff --git a/arch/arm/cpu/armv8/Kconfig b/arch/arm/cpu/armv8/Kconfig
 index c8bebabdf6..f64cf0cb0f 100644
@@ -39,7 +42,7 @@ index c8bebabdf6..f64cf0cb0f 100644
  		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
  		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
 diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
-index 0ba3dad8cc..af492f153e 100644
+index 0ba3dad8cc..9957c2974b 100644
 --- a/arch/arm/cpu/armv8/fwcall.c
 +++ b/arch/arm/cpu/armv8/fwcall.c
 @@ -7,7 +7,6 @@
@@ -89,10 +92,26 @@ index 0ba3dad8cc..af492f153e 100644
  {
  	struct pt_regs regs;
  
-@@ -130,28 +129,3 @@ int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- 	return 0;
+@@ -114,44 +113,3 @@ void __noreturn __efi_runtime psci_system_off(void)
+ 	while (1)
+ 		;
  }
- #endif
+-
+-#ifdef CONFIG_CMD_POWEROFF
+-int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+-{
+-	puts("poweroff ...\n");
+-
+-	udelay(50000); /* wait 50 ms */
+-
+-	disable_interrupts();
+-
+-	psci_system_off();
+-
+-	/*NOTREACHED*/
+-	return 0;
+-}
+-#endif
 -
 -#ifdef CONFIG_PSCI_RESET
 -void reset_misc(void)
@@ -132,10 +151,10 @@ index 16c9e298b4..86de4b4089 100644
  	.cfi_startproc
  	\instr	#0
 diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index 2cb35f356f..a021b8fd1b 100644
+index 2cb35f356f..fc0d7ff32c 100644
 --- a/drivers/firmware/psci.c
 +++ b/drivers/firmware/psci.c
-@@ -9,17 +9,18 @@
+@@ -9,17 +9,20 @@
  #include <common.h>
  #include <dm.h>
  #include <dm/lists.h>
@@ -147,18 +166,20 @@ index 2cb35f356f..a021b8fd1b 100644
  #include <linux/psci.h>
  
 -psci_fn *invoke_psci_fn;
-+psci_fn __efi_runtime_data *invoke_psci_fn;
++#define DRIVER_NAME "psci"
  
 -static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
 -			unsigned long arg0, unsigned long arg1,
 -			unsigned long arg2)
++psci_fn __efi_runtime_data *invoke_psci_fn;
++
 +static unsigned long __efi_runtime __invoke_psci_fn_hvc
 +		(unsigned long function_id, unsigned long arg0,
 +		 unsigned long arg1, unsigned long arg2)
  {
  	struct arm_smccc_res res;
  
-@@ -27,9 +28,9 @@ static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
+@@ -27,9 +30,9 @@ static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
  	return res.a0;
  }
  
@@ -171,24 +192,37 @@ index 2cb35f356f..a021b8fd1b 100644
  {
  	struct arm_smccc_res res;
  
-@@ -78,6 +79,32 @@ static int psci_probe(struct udevice *dev)
+@@ -78,6 +81,63 @@ static int psci_probe(struct udevice *dev)
  	return 0;
  }
  
-+#ifdef CONFIG_EFI_LOADER
-+efi_status_t efi_reset_system_init(void)
++/**
++ * void do_psci_probe() - probe PSCI firmware driver
++ *
++ * Ensure that invoke_psci_fn is initialized.
++ */
++static void __maybe_unused do_psci_probe(void)
 +{
 +	struct udevice *dev;
 +
-+	/* Probe the driver */
-+	uclass_get_device_by_name(UCLASS_FIRMWARE, "psci", &dev);
++	uclass_get_device_by_name(UCLASS_FIRMWARE, DRIVER_NAME, &dev);
++}
++
++#ifdef CONFIG_EFI_LOADER
++efi_status_t efi_reset_system_init(void)
++{
++	do_psci_probe();
 +	return EFI_SUCCESS;
 +}
 +
-+void __efi_runtime EFIAPI efi_reset_system
-+		(enum efi_reset_type reset_type, efi_status_t reset_status,
-+		 unsigned long data_size, void *reset_data)
++void __efi_runtime EFIAPI efi_reset_system(enum efi_reset_type reset_type,
++					   efi_status_t reset_status,
++					   unsigned long data_size,
++					   void *reset_data)
 +{
++	if (!invoke_psci_fn)
++		while (1)
++			;
 +	if (reset_type == EFI_RESET_COLD ||
 +	    reset_type == EFI_RESET_WARM ||
 +	    reset_type == EFI_RESET_PLATFORM_SPECIFIC) {
@@ -201,9 +235,36 @@ index 2cb35f356f..a021b8fd1b 100644
 +}
 +#endif /* CONFIG_EFI_LOADER */
 +
++#ifdef CONFIG_CMD_POWEROFF
++int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	do_psci_probe();
++	if (!invoke_psci_fn)
++		return CMD_RET_FAILURE;
++
++	puts("poweroff ...\n");
++	udelay(50000); /* wait 50 ms */
++
++	disable_interrupts();
++	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_OFF, 0, 0, 0);
++
++	/*NOTREACHED*/
++	return CMD_RET_SUCCESS;
++}
++#endif
++
  static const struct udevice_id psci_of_match[] = {
  	{ .compatible = "arm,psci" },
  	{ .compatible = "arm,psci-0.2" },
+@@ -86,7 +146,7 @@ static const struct udevice_id psci_of_match[] = {
+ };
+ 
+ U_BOOT_DRIVER(psci) = {
+-	.name = "psci",
++	.name = DRIVER_NAME,
+ 	.id = UCLASS_FIRMWARE,
+ 	.of_match = psci_of_match,
+ 	.bind = psci_bind,
 -- 
 2.19.1
 
