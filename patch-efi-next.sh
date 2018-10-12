@@ -36,6 +36,7 @@ git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown.patch
 git am ../patch/0001-test-overlay-add-missing-include.patch
 git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
+git am ../patch/0001-common-command-fix-typo.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
