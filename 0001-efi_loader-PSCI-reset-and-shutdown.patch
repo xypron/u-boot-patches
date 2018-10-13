@@ -1,7 +1,7 @@
 From dc3a4c144533fc020adc967b30244fccc570ff1e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
-Subject: [PATCH 1/1] efi_loader: PSCI reset and shutdown
+Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
 
 When an operating system started via bootefi tries to reset or power off
 this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
@@ -19,6 +19,15 @@ As the same problem is also evident for the ARMv8 poweroff command
 implementation fix it in the same way.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Travis reported no errors in
+https://travis-ci.org/xypron2/u-boot/builds/440843498
+except for two boards with an image size problem.
+
+v2:
+	Use PSCI firmware driver to detect call method.
+	Thanks to Sumit for pointing me at dtb parsing as part of
+	"psci_probe()
 ---
  arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
