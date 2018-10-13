@@ -1,0 +1,46 @@
+From fa3b497edccbaee3a4c0c88051b2b19c11a33da7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 13 Oct 2018 02:54:30 +0200
+Subject: [PATCH v2 1/1] x86: put global data pointer into the .data section
+
+On x86_64 the field global_data_ptr is assigned before relocation. As
+sections for uninitialized global data (.bss) overlap with the relocation
+sections (.rela) this destroys the relocation table and leads to spurious
+errors.
+
+Initialization forces the global_data_ptr into a section for initialized
+global data (.data) which cannot overlap any .rela section.
+
+Fixes: a160092a610f ("x86: Support global_data on x86_64")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	Use .data instead of .text section
+---
+ arch/x86/cpu/x86_64/cpu.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/cpu/x86_64/cpu.c b/arch/x86/cpu/x86_64/cpu.c
+index 18b3e94e12..a8097bc55d 100644
+--- a/arch/x86/cpu/x86_64/cpu.c
++++ b/arch/x86/cpu/x86_64/cpu.c
+@@ -7,8 +7,14 @@
+ #include <common.h>
+ #include <debug_uart.h>
+ 
+-/* Global declaration of gd */
+-struct global_data *global_data_ptr;
++/*
++ * Global declaration of gd.
++ *
++ * As we write to it before relocation we have to make sure it is not put into
++ * a .bss section which may overlap a .rela section. Initialization forces it
++ * into a .data section which cannot overlap any .rela section.
++ */
++struct global_data *global_data_ptr = (struct global_data *)~0;
+ 
+ void arch_setup_gd(gd_t *new_gd)
+ {
+-- 
+2.19.1
+
