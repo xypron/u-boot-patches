@@ -38,7 +38,7 @@ git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
 git am ../patch/0001-common-command-fix-typo.patch
 git am ../patch/0001-efi_loader-fix-relocation-on-x86_64.patch
-git am ../patch/add 0001-x86-put-global-data-pointer-into-the-.data-section.patch
+git am ../patch/0001-x86-put-global-data-pointer-into-the-.data-section.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
