@@ -1,0 +1,32 @@
+From 139ef0068f5cf2ac99ccd729c5eb5f6a92cb7ede Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Oct 2018 21:19:50 +0200
+Subject: [PATCH 1/1] sandbox: dt: sandbox.dts set skip-localhost = <1>
+
+The local interface is not usable for many network operations. It has been
+disabled in all sandbox device trees except sandbox.dts. Let's disable it
+here too.
+
+'bootefi selftest' tries to do execute DHCP.  This fails on the lo device.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/dts/sandbox.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/sandbox/dts/sandbox.dts b/arch/sandbox/dts/sandbox.dts
+index fb866e8807..e0990352fb 100644
+--- a/arch/sandbox/dts/sandbox.dts
++++ b/arch/sandbox/dts/sandbox.dts
+@@ -49,7 +49,7 @@
+ 
+ 	ethrawbus {
+ 		compatible = "sandbox,eth-raw-bus";
+-		skip-localhost = <0>;
++		skip-localhost = <1>;
+ 	};
+ 
+ 	eth@10002000 {
+-- 
+2.19.1
+
