@@ -1,0 +1,61 @@
+From 05c7d1f93f7ec790b5a2e329ccd29fd1e806cfa0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Oct 2018 21:36:00 +0200
+Subject: [PATCH 1/1] sandbox: README: setting environment variables
+
+The command to set environment variables is setenv.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ board/sandbox/README.sandbox | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/board/sandbox/README.sandbox b/board/sandbox/README.sandbox
+index a28fc9f36c..ee4421801b 100644
+--- a/board/sandbox/README.sandbox
++++ b/board/sandbox/README.sandbox
+@@ -247,25 +247,25 @@ sudo /path/to/u-boot -D
+ DHCP
+ ....
+ 
+-set autoload no
+-set ethact eth1
++setenv autoload no
++setenv ethact eth1
+ dhcp
+ 
+ PING
+ ....
+ 
+-set autoload no
+-set ethact eth1
++setenv autoload no
++setenv ethact eth1
+ dhcp
+ ping $gatewayip
+ 
+ TFTP
+ ....
+ 
+-set autoload no
+-set ethact eth1
++setenv autoload no
++setenv ethact eth1
+ dhcp
+-set serverip WWW.XXX.YYY.ZZZ
++setenv serverip WWW.XXX.YYY.ZZZ
+ tftpboot u-boot.bin
+ 
+ The bridge also supports (to a lesser extent) the localhost interface, 'lo'.
+@@ -287,7 +287,7 @@ operation being tested on the lo interface.
+ TFTP
+ ....
+ 
+-set ethact eth5
++setenv ethact eth5
+ tftpboot u-boot.bin
+ 
+ 
+-- 
+2.19.1
+

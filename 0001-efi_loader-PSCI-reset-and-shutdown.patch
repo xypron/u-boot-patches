@@ -1,29 +1,35 @@
 From dc3a4c144533fc020adc967b30244fccc570ff1e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
-Subject: [PATCH v2 1/1] efi_loader: PSCI reset and shutdown
+Subject: [PATCH v3 1/1] efi_loader: PSCI reset and shutdown
 
 When an operating system started via bootefi tries to reset or power off
 this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
 the actual reset relies on PSCI. Depending on whether the PSCI firmware
-resides the hypervisor or in the supervisor either an HVC or an SVC command
-has to be issued. The current implementation always uses SVC. This results
-in crashes on systems where the PSCI firmware is implemented in the
-hypervisor, e.g. qemu-arm64_defconfig.
+resides the hypervisor (EL2) or in the secure monitor (EL3) either an HVC
+or an SMC command has to be issued.
+
+The current implementation always uses SMC. This results in crashes on
+systems where the PSCI firmware is implemented in the hypervisor, e.g.
+qemu-arm64_defconfig.
 
 The logic to decide which call is needed based on the device tree is already
-implemented in the PSCI firmware driver. So let's use it for the EFI
-runtime.
+implemented in the PSCI firmware driver. During the EFI runtime the device
+driver model is not available. But we can minimize code duplication by
+merging the EFI runtime reset and poweroff code with the PSCI firmware
+driver.
 
-As the same problem is also evident for the ARMv8 poweroff command
-implementation fix it in the same way.
+As the same HVC/SMC problem is also evident for the ARMv8 poweroff command
+let's move it into the same code module.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-Travis reported no errors in
+Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/440843498
 except for two boards with an image size problem.
 
+v3:
+	update commit message
 v2:
 	Use PSCI firmware driver to detect call method.
 	Thanks to Sumit for pointing me at dtb parsing as part of
