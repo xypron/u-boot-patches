@@ -19,28 +19,16 @@ git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
-git am ../patch/0001-arm-do-not-include-efi_loader.h-twice.patch
-git am ../patch/0001-efi_loader-remove-lcd.h-from-efi_net.c.patch
-git am ../patch/0001-efi_loader-memory-leak-in-efi_set_variable.patch
-git am ../patch/0001-efi_loader-superfluous-statement-in-is_dir.patch
-git am ../patch/0001-efi_loader-return-type-efi_console_register.patch
-git am ../patch/0001-efi_loader-error-handling-in-read_console.patch
-git am ../patch/0001-efi_loader-efi_allocate_pool-EFI_ALLOCATE_ANY_PAGES.patch
-git am ../patch/0001-efi_loader-execute-efi_save_gd-first.patch
-git am ../patch/0001-efi_loader-correct-signature-of-GetPosition-SetPosit.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 git am ../patch/0001-efi_loader-PSCI-reset-and-shutdown.patch
 git am ../patch/0001-test-overlay-add-missing-include.patch
 git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
 git am ../patch/0001-common-command-fix-typo.patch
-git am ../patch/0001-efi_loader-fix-relocation-on-x86_64.patch
 git am ../patch/0001-x86-put-global-data-pointer-into-the-.data-section.patch
 git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
-git am ../patch/0001-sandbox-dt-sandbox.dts-set-skip-localhost-1.patch
 git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
-git am ../patch/0001-efi_loader-implement-EFI_RESET_SHUTDOWN-at-boot-time.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -60,12 +48,7 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
-git am ../patch/0001-efi_loader-Fix-warning-in-efi_load_image.patch
-
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
-
-git am ../patch/0001-efi_selftest-creating-new-handle-in-controller-test.patch
-git am ../patch/0001-efi_loader-delete-handles.patch
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
