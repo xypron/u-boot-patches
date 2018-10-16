@@ -13,11 +13,11 @@ The current implementation always uses SMC. This results in crashes on
 systems where the PSCI firmware is implemented in the hypervisor, e.g.
 qemu-arm64_defconfig.
 
-The logic to decide which call is needed based on the device tree is already
-implemented in the PSCI firmware driver. During the EFI runtime the device
-driver model is not available. But we can minimize code duplication by
-merging the EFI runtime reset and poweroff code with the PSCI firmware
-driver.
+The logic to decide which call is needed based on the device tree is
+already implemented in the PSCI firmware driver. During the EFI runtime
+the device driver model is not available. But we can minimize code
+duplication by merging the EFI runtime reset and poweroff code with
+the PSCI firmware driver.
 
 As the same HVC/SMC problem is also evident for the ARMv8 do_poweroff
 and reset_misc routines let's move them into the same code module.
@@ -25,7 +25,6 @@ and reset_misc routines let's move them into the same code module.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Tested-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/440843498
