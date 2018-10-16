@@ -19,9 +19,6 @@ git am ../patch/0001-efi_loader-efi_dp_get_next_instance-superfluous-stat.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
-git am ../patch/0001-test-py-cleanup-test_efi_selftest.py.patch
-git am ../patch/0001-efi_selftest-use-CR-LF-in-helloworld.patch
-git am ../patch/0001-efi_selftest-fix-typos.patch
 git am ../patch/0001-arm-do-not-include-efi_loader.h-twice.patch
 git am ../patch/0001-efi_loader-remove-lcd.h-from-efi_net.c.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_set_variable.patch
@@ -64,10 +61,6 @@ git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Deletion of handles
 git am ../patch/0001-efi_loader-Fix-warning-in-efi_load_image.patch
-git am ../patch/0001-efi_loader-UninstallMultipleProtocolInterfaces-error.patch
-git am ../patch/0001-efi_loader-typedef-struct-efi_object-efi_handle_t.patch
-git am ../patch/0001-efi_loader-eliminate-handle-member.patch
-git am ../patch/0001-efi_loader-rename-parent-to-header.patch
 
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
 
