@@ -1,7 +1,7 @@
-From dc3a4c144533fc020adc967b30244fccc570ff1e Mon Sep 17 00:00:00 2001
+From 9c3914e5c501c6cb6921e1c290029e1e652d491c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
-Subject: [PATCH v3 1/1] efi_loader: PSCI reset and shutdown
+Subject: [PATCH v4 1/1] efi_loader: PSCI reset and shutdown
 
 When an operating system started via bootefi tries to reset or power off
 this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
@@ -23,11 +23,15 @@ As the same HVC/SMC problem is also evident for the ARMv8 poweroff command
 let's move it into the same code module.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
+Tested-by: Sumit Garg <sumit.garg@linaro.org>
 ---
 Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/440843498
 except for two boards with an image size problem.
 
+v4:
+	do not remove reset_misc()
 v3:
 	update commit message
 v2:
@@ -37,11 +41,11 @@ v2:
 ---
  arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
- arch/arm/cpu/armv8/fwcall.c     | 52 ++-----------------
+ arch/arm/cpu/armv8/fwcall.c     | 45 ++--------------
  arch/arm/cpu/armv8/smccc-call.S |  2 +
  drivers/firmware/psci.c         | 91 +++++++++++++++++++++++++++------
  include/linux/psci.h            |  6 +--
- 6 files changed, 87 insertions(+), 67 deletions(-)
+ 6 files changed, 87 insertions(+), 60 deletions(-)
 
 diff --git a/arch/arm/cpu/armv7/smccc-call.S b/arch/arm/cpu/armv7/smccc-call.S
 index 0d8b59eb6b..eae69e36c3 100644
@@ -69,7 +73,7 @@ index c8bebabdf6..d643981b73 100644
  		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
  		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
 diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
-index 0ba3dad8cc..9957c2974b 100644
+index 0ba3dad8cc..1cf12283bc 100644
 --- a/arch/arm/cpu/armv8/fwcall.c
 +++ b/arch/arm/cpu/armv8/fwcall.c
 @@ -7,7 +7,6 @@
@@ -119,11 +123,10 @@ index 0ba3dad8cc..9957c2974b 100644
  {
  	struct pt_regs regs;
  
-@@ -114,44 +113,3 @@ void __noreturn __efi_runtime psci_system_off(void)
- 	while (1)
+@@ -115,43 +114,9 @@ void __noreturn __efi_runtime psci_system_off(void)
  		;
  }
--
+ 
 -#ifdef CONFIG_CMD_POWEROFF
 -int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 -{
@@ -140,11 +143,11 @@ index 0ba3dad8cc..9957c2974b 100644
 -}
 -#endif
 -
--#ifdef CONFIG_PSCI_RESET
--void reset_misc(void)
--{
--	psci_system_reset();
--}
+ #ifdef CONFIG_PSCI_RESET
+ void reset_misc(void)
+ {
+ 	psci_system_reset();
+ }
 -
 -#ifdef CONFIG_EFI_LOADER
 -void __efi_runtime EFIAPI efi_reset_system(
@@ -163,7 +166,7 @@ index 0ba3dad8cc..9957c2974b 100644
 -	while (1) { }
 -}
 -#endif /* CONFIG_EFI_LOADER */
--#endif /* CONFIG_PSCI_RESET */
+ #endif /* CONFIG_PSCI_RESET */
 diff --git a/arch/arm/cpu/armv8/smccc-call.S b/arch/arm/cpu/armv8/smccc-call.S
 index 16c9e298b4..86de4b4089 100644
 --- a/arch/arm/cpu/armv8/smccc-call.S
