@@ -1,4 +1,4 @@
-From 9c3914e5c501c6cb6921e1c290029e1e652d491c Mon Sep 17 00:00:00 2001
+From bfb0a3e6aed19863521c327cb4433084931208a5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
 Subject: [PATCH v4 1/1] efi_loader: PSCI reset and shutdown
@@ -19,19 +19,20 @@ driver model is not available. But we can minimize code duplication by
 merging the EFI runtime reset and poweroff code with the PSCI firmware
 driver.
 
-As the same HVC/SMC problem is also evident for the ARMv8 poweroff command
-let's move it into the same code module.
+As the same HVC/SMC problem is also evident for the ARMv8 do_poweroff
+and reset_misc routines let's move them into the same code module.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Tested-by: Sumit Garg <sumit.garg@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/440843498
 except for two boards with an image size problem.
 
 v4:
-	do not remove reset_misc()
+	fix reset_misc() too
 v3:
 	update commit message
 v2:
@@ -41,11 +42,11 @@ v2:
 ---
  arch/arm/cpu/armv7/smccc-call.S |  2 +
  arch/arm/cpu/armv8/Kconfig      |  1 +
- arch/arm/cpu/armv8/fwcall.c     | 45 ++--------------
+ arch/arm/cpu/armv8/fwcall.c     | 52 ++---------------
  arch/arm/cpu/armv8/smccc-call.S |  2 +
- drivers/firmware/psci.c         | 91 +++++++++++++++++++++++++++------
- include/linux/psci.h            |  6 +--
- 6 files changed, 87 insertions(+), 60 deletions(-)
+ drivers/firmware/psci.c         | 99 +++++++++++++++++++++++++++------
+ include/linux/psci.h            |  6 +-
+ 6 files changed, 95 insertions(+), 67 deletions(-)
 
 diff --git a/arch/arm/cpu/armv7/smccc-call.S b/arch/arm/cpu/armv7/smccc-call.S
 index 0d8b59eb6b..eae69e36c3 100644
@@ -73,7 +74,7 @@ index c8bebabdf6..d643981b73 100644
  		   !TARGET_LS2080A_SIMU && !TARGET_LS2080AQDS && \
  		   !TARGET_LS2080ARDB && !TARGET_LS2080A_EMU && \
 diff --git a/arch/arm/cpu/armv8/fwcall.c b/arch/arm/cpu/armv8/fwcall.c
-index 0ba3dad8cc..1cf12283bc 100644
+index 0ba3dad8cc..9957c2974b 100644
 --- a/arch/arm/cpu/armv8/fwcall.c
 +++ b/arch/arm/cpu/armv8/fwcall.c
 @@ -7,7 +7,6 @@
@@ -123,10 +124,11 @@ index 0ba3dad8cc..1cf12283bc 100644
  {
  	struct pt_regs regs;
  
-@@ -115,43 +114,9 @@ void __noreturn __efi_runtime psci_system_off(void)
+@@ -114,44 +113,3 @@ void __noreturn __efi_runtime psci_system_off(void)
+ 	while (1)
  		;
  }
- 
+-
 -#ifdef CONFIG_CMD_POWEROFF
 -int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 -{
@@ -143,11 +145,11 @@ index 0ba3dad8cc..1cf12283bc 100644
 -}
 -#endif
 -
- #ifdef CONFIG_PSCI_RESET
- void reset_misc(void)
- {
- 	psci_system_reset();
- }
+-#ifdef CONFIG_PSCI_RESET
+-void reset_misc(void)
+-{
+-	psci_system_reset();
+-}
 -
 -#ifdef CONFIG_EFI_LOADER
 -void __efi_runtime EFIAPI efi_reset_system(
@@ -166,7 +168,7 @@ index 0ba3dad8cc..1cf12283bc 100644
 -	while (1) { }
 -}
 -#endif /* CONFIG_EFI_LOADER */
- #endif /* CONFIG_PSCI_RESET */
+-#endif /* CONFIG_PSCI_RESET */
 diff --git a/arch/arm/cpu/armv8/smccc-call.S b/arch/arm/cpu/armv8/smccc-call.S
 index 16c9e298b4..86de4b4089 100644
 --- a/arch/arm/cpu/armv8/smccc-call.S
@@ -181,7 +183,7 @@ index 16c9e298b4..86de4b4089 100644
  	.cfi_startproc
  	\instr	#0
 diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index 2cb35f356f..2237668ea6 100644
+index 2cb35f356f..54705b1511 100644
 --- a/drivers/firmware/psci.c
 +++ b/drivers/firmware/psci.c
 @@ -9,31 +9,37 @@
@@ -247,7 +249,7 @@ index 2cb35f356f..2237668ea6 100644
  	} else {
  		pr_warn("invalid \"method\" property: %s\n", method);
  		return -EINVAL;
-@@ -78,6 +84,59 @@ static int psci_probe(struct udevice *dev)
+@@ -78,6 +84,67 @@ static int psci_probe(struct udevice *dev)
  	return 0;
  }
  
@@ -287,6 +289,14 @@ index 2cb35f356f..2237668ea6 100644
 +}
 +#endif /* CONFIG_EFI_LOADER */
 +
++#ifdef CONFIG_PSCI_RESET
++void reset_misc(void)
++{
++	do_psci_probe();
++	invoke_psci_fn(PSCI_0_2_FN_SYSTEM_RESET, 0, 0, 0);
++}
++#endif /* CONFIG_PSCI_RESET */
++
 +#ifdef CONFIG_CMD_POWEROFF
 +int do_poweroff(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 +{
@@ -307,7 +317,7 @@ index 2cb35f356f..2237668ea6 100644
  static const struct udevice_id psci_of_match[] = {
  	{ .compatible = "arm,psci" },
  	{ .compatible = "arm,psci-0.2" },
-@@ -86,7 +145,7 @@ static const struct udevice_id psci_of_match[] = {
+@@ -86,7 +153,7 @@ static const struct udevice_id psci_of_match[] = {
  };
  
  U_BOOT_DRIVER(psci) = {
