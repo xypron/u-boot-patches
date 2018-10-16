@@ -39,9 +39,6 @@ git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
 git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
-# git am ../patch/0001-efi_loader-provide-description-of-file_open.patch
-# git am ../patch/0001-efi_loader-check-parameters-of-efi_file_open.patch
-
 # Workarounds for running EFI shell
 #git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
