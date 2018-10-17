@@ -27,8 +27,7 @@ Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
 Tested-by: Sumit Garg <sumit.garg@linaro.org>
 ---
 Travis reporteded no errors in
-https://travis-ci.org/xypron2/u-boot/builds/440843498
-except for two boards with an image size problem.
+https://travis-ci.org/xypron2/u-boot/builds/442613876
 
 v4:
 	fix reset_misc() too
