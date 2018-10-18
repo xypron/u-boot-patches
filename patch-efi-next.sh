@@ -27,7 +27,6 @@ git am ../patch/0001-x86-put-global-data-pointer-into-the-.data-section.patch
 git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
 git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
-git am ../patch/0001-efi_loader-fix-typos.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -44,6 +43,7 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Fix simple network protocol
+git am ../patch/0001-efi_loader-fix-typos.patch
 git am ../patch/0001-efi_selftest-fix-simple-network-protocol-test.patch
 git am ../patch/0001-efi_loader-correctly-aligned-transmit-buffer.patch
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
