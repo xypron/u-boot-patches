@@ -1,7 +1,7 @@
-From 02d4ab1cf463e1a4b3e1de532d95688383140b60 Mon Sep 17 00:00:00 2001
+From 1ea5ffc3144cdca285e1630466e00df251d7990c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
-Subject: [PATCH v2 1/1, for v2018.11-rc2] efi_loader: fix simple network protocol
+Subject: [PATCH 1/1] efi_loader: fix simple network protocol
 
 We should not call eth_rx() before the network interface is initialized.
 The services of the simple network protocol should check the state of
@@ -19,16 +19,12 @@ bootefi selftest.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2:
-	match EFI_ENTRY() and EFI_EXIT() in efi_network_timer_notify()
-	update comments
----
- lib/efi_loader/efi_net.c            | 419 +++++++++++++++++++++++-----
+ lib/efi_loader/efi_net.c            | 415 +++++++++++++++++++++++-----
  lib/efi_selftest/efi_selftest_snp.c |  16 +-
- 2 files changed, 359 insertions(+), 76 deletions(-)
+ 2 files changed, 357 insertions(+), 74 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
-index c4f35cd50d..a37eeaeeea 100644
+index a64c603ed3..c4b1e6e1d9 100644
 --- a/lib/efi_loader/efi_net.c
 +++ b/lib/efi_loader/efi_net.c
 @@ -14,6 +14,8 @@ static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
@@ -530,12 +526,9 @@ index c4f35cd50d..a37eeaeeea 100644
  	}
  	/* Fill export parameters */
  	eth_hdr = (struct ethernet_hdr *)net_rx_packet;
-@@ -269,18 +508,24 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
- 	if (protocol)
- 		*protocol = protlen;
+@@ -271,16 +510,22 @@ static efi_status_t EFIAPI efi_net_receive(struct efi_simple_network *this,
  	if (*buffer_size < net_rx_packet_len) {
--		/* Packet doesn't fit, try again with bigger buf */
-+		/* Packet doesn't fit, try again with bigger buffer */
+ 		/* Packet doesn't fit, try again with bigger buffer */
  		*buffer_size = net_rx_packet_len;
 -		return EFI_EXIT(EFI_BUFFER_TOO_SMALL);
 +		ret = EFI_BUFFER_TOO_SMALL;
@@ -623,7 +616,7 @@ index c4f35cd50d..a37eeaeeea 100644
  	if (!eth_get_dev()) {
 @@ -325,10 +598,15 @@ efi_status_t efi_net_register(void)
  
- 	/* We only expose the "active" eth device, so one is enough */
+ 	/* We only expose the "active" network device, so one is enough */
  	netobj = calloc(1, sizeof(*netobj));
 -	if (!netobj) {
 -		printf("ERROR: Out of memory\n");
@@ -641,7 +634,7 @@ index c4f35cd50d..a37eeaeeea 100644
  
  	/* Hook net up to the device list */
  	efi_add_handle(&netobj->header);
-@@ -391,13 +669,13 @@ efi_status_t efi_net_register(void)
+@@ -391,7 +669,7 @@ efi_status_t efi_net_register(void)
  	 * iPXE is running at TPL_CALLBACK most of the time. Use a higher TPL.
  	 */
  	r = efi_create_event(EVT_TIMER | EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
@@ -650,13 +643,6 @@ index c4f35cd50d..a37eeaeeea 100644
  			     &network_timer_event);
  	if (r != EFI_SUCCESS) {
  		printf("ERROR: Failed to register network event\n");
- 		return r;
- 	}
--	/* Network is time critical, create event in every timer cyle */
-+	/* Network is time critical, create event in every timer cycle */
- 	r = efi_set_timer(network_timer_event, EFI_TIMER_PERIODIC, 0);
- 	if (r != EFI_SUCCESS) {
- 		printf("ERROR: Failed to set network timer\n");
 @@ -408,4 +686,9 @@ efi_status_t efi_net_register(void)
  failure_to_add_protocol:
  	printf("ERROR: Failure to add protocol\n");
@@ -708,5 +694,5 @@ index 09bd53da82..e10a34ba64 100644
  	}
  	return EFI_ST_SUCCESS;
 -- 
-2.19.0
+2.19.1
 
