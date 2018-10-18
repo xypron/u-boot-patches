@@ -1,4 +1,4 @@
-From 1ea5ffc3144cdca285e1630466e00df251d7990c Mon Sep 17 00:00:00 2001
+From d404e071742a241213e4b33aaa86f1bd8c1ae732 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
 Subject: [PATCH 1/1] efi_loader: fix simple network protocol
@@ -10,8 +10,6 @@ the network adapter.
 Provide a correctly aligned transmit buffer not depending on
 CONFIG_EFI_LOADER_BOUNCE_BUFFER.
 
-Correct the unit test.
-
 Add and correct comments.
 
 Without this patch i.mx6 system Wandboard Quad rev B1 fails to execute
@@ -19,9 +17,8 @@ bootefi selftest.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_net.c            | 415 +++++++++++++++++++++++-----
- lib/efi_selftest/efi_selftest_snp.c |  16 +-
- 2 files changed, 357 insertions(+), 74 deletions(-)
+ lib/efi_loader/efi_net.c | 415 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 349 insertions(+), 66 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
 index a64c603ed3..c4b1e6e1d9 100644
@@ -653,46 +650,6 @@ index a64c603ed3..c4b1e6e1d9 100644
 +	printf("ERROR: Out of memory\n");
 +	return EFI_OUT_OF_RESOURCES;
  }
-diff --git a/lib/efi_selftest/efi_selftest_snp.c b/lib/efi_selftest/efi_selftest_snp.c
-index 09bd53da82..e10a34ba64 100644
---- a/lib/efi_selftest/efi_selftest_snp.c
-+++ b/lib/efi_selftest/efi_selftest_snp.c
-@@ -103,7 +103,7 @@ static efi_status_t send_dhcp_discover(void)
- 	struct dhcp p = {};
- 
- 	/*
--	 * Fill ethernet header
-+	 * Fill Ethernet header
- 	 */
- 	boottime->copy_mem(p.eth_hdr.et_dest, (void *)BROADCAST_MAC, ARP_HLEN);
- 	boottime->copy_mem(p.eth_hdr.et_src, &net->mode->current_address,
-@@ -229,19 +229,19 @@ static int setup(const efi_handle_t handle,
- 		return EFI_ST_FAILURE;
- 	}
- 	/*
--	 * Initialize network adapter.
-+	 * Start network adapter.
- 	 */
--	ret = net->initialize(net, 0, 0);
--	if (ret != EFI_SUCCESS) {
--		efi_st_error("Failed to initialize network adapter\n");
-+	ret = net->start(net);
-+	if (ret != EFI_SUCCESS && ret != EFI_ALREADY_STARTED) {
-+		efi_st_error("Failed to start network adapter\n");
- 		return EFI_ST_FAILURE;
- 	}
- 	/*
--	 * Start network adapter.
-+	 * Initialize network adapter.
- 	 */
--	ret = net->start(net);
-+	ret = net->initialize(net, 0, 0);
- 	if (ret != EFI_SUCCESS) {
--		efi_st_error("Failed to start network adapter\n");
-+		efi_st_error("Failed to initialize network adapter\n");
- 		return EFI_ST_FAILURE;
- 	}
- 	return EFI_ST_SUCCESS;
 -- 
 2.19.1
 

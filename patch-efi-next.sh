@@ -43,7 +43,8 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
-# Deletion of handles
+# Fix simple network protocol
+git am ../patch/0001-efi_selftest-fix-simple-network-protocol-test.patch
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
 exit
 
