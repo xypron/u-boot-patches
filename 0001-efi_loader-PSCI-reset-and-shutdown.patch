@@ -1,7 +1,7 @@
 From f3505a1113533a64e4c3654b011fe8a5bb93085c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Oct 2018 10:37:04 +0200
-Subject: [PATCH v4 1/1] efi_loader: PSCI reset and shutdown
+Subject: [PATCH v5 1/1] efi_loader: PSCI reset and shutdown
 
 When an operating system started via bootefi tries to reset or power off
 this is done by calling the EFI runtime ResetSystem(). On most ARMv8 system
@@ -29,6 +29,8 @@ Tested-by: Sumit Garg <sumit.garg@linaro.org>
 Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/442613876
 
+v5:
+	depend on  CONFIG_RESET_PSCI EFI efi runtime support
 v4:
 	fix reset_misc() too
 	avoid switch statement
@@ -265,7 +267,7 @@ index 2cb35f356f..7ec5eb094b 100644
 +	uclass_get_device_by_name(UCLASS_FIRMWARE, DRIVER_NAME, &dev);
 +}
 +
-+#ifdef CONFIG_EFI_LOADER
++#if IS_ENABLED(CONFIG_EFI_LOADER) && IS_ENABLED(CONFIG_PSCI_RESET)
 +efi_status_t efi_reset_system_init(void)
 +{
 +	do_psci_probe();
@@ -287,7 +289,7 @@ index 2cb35f356f..7ec5eb094b 100644
 +	while (1)
 +		;
 +}
-+#endif /* CONFIG_EFI_LOADER */
++#endif /* IS_ENABLED(CONFIG_EFI_LOADER) && IS_ENABLED(CONFIG_PSCI_RESET) */
 +
 +#ifdef CONFIG_PSCI_RESET
 +void reset_misc(void)
