@@ -30,7 +30,7 @@ Travis reporteded no errors in
 https://travis-ci.org/xypron2/u-boot/builds/442613876
 
 v5:
-	depend on  CONFIG_RESET_PSCI EFI efi runtime support
+	depend on CONFIG_PSCI_reset for EFI runtime support
 v4:
 	fix reset_misc() too
 	avoid switch statement
