@@ -27,6 +27,7 @@ git am ../patch/0001-x86-put-global-data-pointer-into-the-.data-section.patch
 git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
 git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
+git am ../patch/0001-efi_selftest-do-not-write-to-linker-generated-array.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
