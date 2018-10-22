@@ -41,6 +41,7 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
 # Fix simple network protocol
+git am ../patch/0001-efi_selftest-rename-setup_ok.patch
 git am ../patch/0001-efi_selftest-fix-simple-network-protocol-test.patch
 git am ../patch/0001-efi_loader-correctly-aligned-transmit-buffer.patch
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
