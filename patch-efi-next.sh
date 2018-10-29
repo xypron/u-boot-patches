@@ -24,6 +24,7 @@ git am ../patch/0001-cmd-bdinfo-correct-output-of-numerical-values.patch
 git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
 git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
+git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

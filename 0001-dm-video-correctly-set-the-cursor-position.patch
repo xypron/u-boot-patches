@@ -1,0 +1,37 @@
+From 75dc57378fa418fb307bc75cc4434eefa0219c79 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 29 Oct 2018 12:10:41 +0100
+Subject: [PATCH 1/1] dm: video: correctly set the cursor position
+
+The terminal escape sequence ESC [ <x> ; <y> H is used to set the cursor
+position. According to the ECMA 48 standard the upper left corner in the
+escape sequences is [1, 1]. The video uclass uses [0, 0] as upper left
+corner.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/video/vidconsole-uclass.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/video/vidconsole-uclass.c b/drivers/video/vidconsole-uclass.c
+index 1874887f2f3..5564cfe9930 100644
+--- a/drivers/video/vidconsole-uclass.c
++++ b/drivers/video/vidconsole-uclass.c
+@@ -271,6 +271,14 @@ static void vidconsole_escape_char(struct udevice *dev, char ch)
+ 		s = parsenum(s, &row);
+ 		s++;    /* ; */
+ 		s = parsenum(s, &col);
++		
++		/*
++		 * Video origin is [0, 0], terminal origin is [1, 1].
++		 */
++		if (row)
++			--row;
++		if (col)
++			--col;
+ 
+ 		set_cursor_position(priv, row, col);
+ 
+-- 
+2.19.1
+
