@@ -5,7 +5,7 @@ Subject: [PATCH 1/1] fs: fat: validate sector and cluster size
 
 In the rest of the FAT driver we want to be able to rely on the fact that
 the cluster size is a power of two. So let's check that both the sector
-size and the number of sectors per cluster is valid.
+size and the number of sectors per cluster are valid.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -45,7 +45,7 @@ index b08949d3705..0f69fa4df78 100644
 +	case 128:
 +		break;
 +	default:
-+		ret = 1;
++		ret = -1;
 +	}
 +	/* Check bytes per cluster <= 32768 */
 +	if (ret || (u32)bs.sector_size[1] * (u32)bs.cluster_size > 128) {
