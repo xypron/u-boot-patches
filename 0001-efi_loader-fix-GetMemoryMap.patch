@@ -1,15 +1,15 @@
-From c048ce717fab2c48ac3a2ba1e0c38d69012c697c Mon Sep 17 00:00:00 2001
+From ed740c7a1da066371bd21dd42a2c575bca4b9b29 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 4 Nov 2018 17:21:54 +0100
-Subject: [PATCH 1/1] efi_loader: fix get_memory_map()
+Subject: [PATCH 1/1] efi_loader: fix GetMemoryMap()
 
 The sandbox uses two different address rooms. One used internally by the
 sandbox and one usable for EFI.
 
 Very unfortunately this has spilled into the EFI coding.
 
-In get_memory_map() we have to map the returned physical start addresses
-to EFI usable addresses.
+In efi_get_memory_map() we have to map the returned physical start
+addresses to EFI usable addresses.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
