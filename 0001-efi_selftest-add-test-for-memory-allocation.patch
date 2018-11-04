@@ -1,4 +1,4 @@
-From c03c605fa57a851c27db2402a5dd3fcf4664affa Mon Sep 17 00:00:00 2001
+From 309a36926e29714929312c428d862028bb36c5f8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 4 Nov 2018 16:54:55 +0100
 Subject: [PATCH 1/1] efi_selftest: add test for memory allocation
@@ -9,15 +9,15 @@ AllocatePages, FreePages, GetMemoryMap
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile              |   1 +
- lib/efi_selftest/efi_selftest_memory.c | 158 +++++++++++++++++++++++++
- 2 files changed, 159 insertions(+)
+ lib/efi_selftest/efi_selftest_memory.c | 163 +++++++++++++++++++++++++
+ 2 files changed, 164 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_memory.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 2f55d9d66ff..1a85d04f8ce 100644
+index 4b1c0bb84b1..743b4820449 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
-@@ -26,6 +26,7 @@ efi_selftest_fdt.o \
+@@ -27,6 +27,7 @@ efi_selftest_fdt.o \
  efi_selftest_gop.o \
  efi_selftest_loaded_image.o \
  efi_selftest_manageprotocols.o \
@@ -27,10 +27,10 @@ index 2f55d9d66ff..1a85d04f8ce 100644
  efi_selftest_textinput.o \
 diff --git a/lib/efi_selftest/efi_selftest_memory.c b/lib/efi_selftest/efi_selftest_memory.c
 new file mode 100644
-index 00000000000..a73df7f4e07
+index 00000000000..f2005e666e5
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_memory.c
-@@ -0,0 +1,158 @@
+@@ -0,0 +1,163 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_memory
@@ -71,23 +71,28 @@ index 00000000000..a73df7f4e07
 + * @type:		expected memory type
 + * Return:		EFI_ST_SUCCESS for success
 + */
-+static int find_in_memory_map(struct efi_mem_desc *memory_map,
++static int find_in_memory_map(efi_uintn_t map_size,
++			      struct efi_mem_desc *memory_map,
 +			      efi_uintn_t desc_size,
 +			      u64 addr, int memory_type)
 +{
 +	efi_uintn_t i;
 +	bool found = false;
 +
-+	for (i = 0; i < desc_size; ++i) {
++	for (i = 0; map_size; ++i, map_size -= desc_size) {
 +		struct efi_mem_desc *entry = &memory_map[i];
 +
 +		if (addr >= entry->physical_start &&
 +		    addr < entry->physical_start +
 +			    (entry->num_pages << EFI_PAGE_SHIFT)) {
++			if (found) {
++				efi_st_error("Duplicate memory map entry\n")
++				return EFI_ST_FAILURE;
++			}
 +			found = true;
 +			if (memory_type != entry->type) {
 +				efi_st_error
-+					("Wrong memory_type %d, expected %d\n",
++					("Wrong memory type %d, expected %d\n",
 +					 entry->type, memory_type);
 +				return EFI_ST_FAILURE;
 +			}
@@ -156,10 +161,10 @@ index 00000000000..a73df7f4e07
 +	}
 +
 +	/* Check memory map entries */
-+	if (find_in_memory_map(memory_map, desc_size, p1,
++	if (find_in_memory_map(map_size, memory_map, desc_size, p1,
 +			       EFI_RUNTIME_SERVICES_CODE) != EFI_ST_SUCCESS)
 +		return EFI_ST_FAILURE;
-+	if (find_in_memory_map(memory_map, desc_size, p2,
++	if (find_in_memory_map(map_size, memory_map, desc_size, p2,
 +			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS)
 +		return EFI_ST_FAILURE;
 +
