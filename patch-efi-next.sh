@@ -46,6 +46,9 @@ git am ../patch/0001-efi_selftest-rename-setup_ok.patch
 git am ../patch/0001-efi_selftest-fix-simple-network-protocol-test.patch
 git am ../patch/0001-efi_loader-correctly-aligned-transmit-buffer.patch
 git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
+
+# Fix memory handling
+git am ../patch/0001-efi_selftest-add-test-for-memory-allocation.patch
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
