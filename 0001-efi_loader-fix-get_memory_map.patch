@@ -1,0 +1,40 @@
+From c048ce717fab2c48ac3a2ba1e0c38d69012c697c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 4 Nov 2018 17:21:54 +0100
+Subject: [PATCH 1/1] efi_loader: fix get_memory_map()
+
+The sandbox uses two different address rooms. One used internally by the
+sandbox and one usable for EFI.
+
+Very unfortunately this has spilled into the EFI coding.
+
+In get_memory_map() we have to map the returned physical start addresses
+to EFI usable addresses.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 5bd4f4d7fc4..bbf174c7ef7 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -531,9 +531,14 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 	memory_map = &memory_map[map_entries - 1];
+ 	list_for_each(lhandle, &efi_mem) {
+ 		struct efi_mem_list *lmem;
++		unsigned long len;
++		efi_physical_addr_t addr;
+ 
+ 		lmem = list_entry(lhandle, struct efi_mem_list, link);
+ 		*memory_map = lmem->desc;
++		len = memory_map->num_pages << EFI_PAGE_SHIFT;
++		addr = (uintptr_t)map_sysmem(memory_map->physical_start, len);
++		memory_map->physical_start = addr;
+ 		memory_map--;
+ 	}
+ 
+-- 
+2.19.1
+
