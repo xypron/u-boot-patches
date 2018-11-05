@@ -1,0 +1,42 @@
+From 1cf5fd938241904091f07dac21ba16d241bdcdab Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 5 Nov 2018 20:16:32 +0100
+Subject: [PATCH 1/1] efi_loader: use u16* for UTF16 strings
+
+We should be consistent in the types that we use to store Unicode strings.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h         | 2 +-
+ lib/efi_loader/efi_file.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 3194db3517a..9dbba2f0a9f 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1226,7 +1226,7 @@ struct efi_file_info {
+ 	struct efi_time last_access_time;
+ 	struct efi_time modification_time;
+ 	u64 attribute;
+-	s16 file_name[0];
++	u16 file_name[0];
+ };
+ 
+ struct efi_file_system_info {
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index beb4fba917d..128cb0a6273 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -563,7 +563,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 		if (fh->isdir)
+ 			info->attribute |= EFI_FILE_DIRECTORY;
+ 
+-		ascii2unicode((u16 *)info->file_name, filename);
++		ascii2unicode(info->file_name, filename);
+ 	} else if (!guidcmp(info_type, &efi_file_system_info_guid)) {
+ 		struct efi_file_system_info *info = buffer;
+ 		disk_partition_t part;
+-- 
+2.19.1
+
