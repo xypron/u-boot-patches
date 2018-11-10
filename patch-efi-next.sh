@@ -64,6 +64,7 @@ git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
 git am ../patch/0001-efi_loader-do-not-use-magic-address-for-fdt.patch
 git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 
+git am ../patch/0001-efi_loader-eliminate-sandbox-addresses.patch
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch

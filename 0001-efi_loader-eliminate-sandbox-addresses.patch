@@ -1,0 +1,81 @@
+From 202a47435f6e647afc60a9e718a7df6d85d2ed0b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Nov 2018 23:08:51 +0100
+Subject: [PATCH 1/1] efi_loader: eliminate sandbox addresses
+
+Do not use the sandbox's virtual address space for the internal structures
+of the memory map. This way we can eliminate a whole lot of unnecessary
+conversions.
+
+The only conversion remaining is the one when adding known memory.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 5c387fa8024..fad4edf9ab6 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -294,9 +294,6 @@ static uint64_t efi_find_free_memory(uint64_t len, uint64_t max_addr)
+ {
+ 	struct list_head *lhandle;
+ 
+-	/* Map to virtual address on sandbox */
+-	max_addr = map_to_sysmem((void *)(uintptr_t)max_addr);
+-
+ 	/*
+ 	 * Prealign input max address, so we simplify our matching
+ 	 * logic below and can just reuse it as return pointer.
+@@ -387,7 +384,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
+ 		/* Reserve that map in our memory maps */
+ 		ret = efi_add_memory_map(addr, pages, memory_type, true);
+ 		if (ret == addr) {
+-			*memory = (uintptr_t)map_sysmem(addr, len);
++			*memory = addr;
+ 		} else {
+ 			/* Map would overlap, bail out */
+ 			r = EFI_OUT_OF_RESOURCES;
+@@ -421,12 +418,11 @@ void *efi_alloc(uint64_t len, int memory_type)
+ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+ {
+ 	uint64_t r = 0;
+-	uint64_t addr = map_to_sysmem((void *)(uintptr_t)memory);
+ 
+-	r = efi_add_memory_map(addr, pages, EFI_CONVENTIONAL_MEMORY, false);
++	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+ 	/* Merging of adjacent free regions is missing */
+ 
+-	if (r == addr)
++	if (r == memory)
+ 		return EFI_SUCCESS;
+ 
+ 	return EFI_NOT_FOUND;
+@@ -540,14 +536,9 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 	memory_map = &memory_map[map_entries - 1];
+ 	list_for_each(lhandle, &efi_mem) {
+ 		struct efi_mem_list *lmem;
+-		unsigned long len;
+-		efi_physical_addr_t addr;
+ 
+ 		lmem = list_entry(lhandle, struct efi_mem_list, link);
+ 		*memory_map = lmem->desc;
+-		len = memory_map->num_pages << EFI_PAGE_SHIFT;
+-		addr = (uintptr_t)map_sysmem(memory_map->physical_start, len);
+-		memory_map->physical_start = addr;
+ 		memory_map--;
+ 	}
+ 
+@@ -565,7 +556,7 @@ __weak void efi_add_known_memory(void)
+ 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+ 		u64 ram_end, ram_start, pages;
+ 
+-		ram_start = gd->bd->bi_dram[i].start;
++		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
+ 		ram_end = ram_start + gd->bd->bi_dram[i].size;
+ 
+ 		/* Remove partial pages */
+-- 
+2.19.1
+
