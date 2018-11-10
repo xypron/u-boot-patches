@@ -1,0 +1,99 @@
+From d2841e9f5ecdbbc613ae0f422e160d4e315ebc3a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Nov 2018 13:28:59 +0100
+Subject: [PATCH 1/1] efi_loader: macro efi_size_in_pages()
+
+When allocating EFI memory pages the size in bytes has to be converted to
+pages.
+
+Provide a macro efi_size_in_pages() for this conversion.
+Use it in the EFI subsystem.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c               | 12 ++++--------
+ include/efi_loader.h        | 11 ++++++++++-
+ lib/efi_loader/efi_memory.c |  6 +++---
+ 3 files changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index c73e6228d3e..9e5094238f4 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -182,14 +182,11 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
+ 	}
+ 
+ 	/*
+-	 * Give us at least 4KB of breathing room in case the device tree needs
+-	 * to be expanded later. Round up to the nearest EFI page boundary.
++	 * Give us at least 12 kiB of breathing room in case the device tree
++	 * needs to be expanded later.
+ 	 */
+ 	fdt = map_sysmem(*fdt_addrp, 0);
+-	fdt_size = fdt_totalsize(fdt);
+-	fdt_size += 4096 * 3;
+-	fdt_size = ALIGN(fdt_size + EFI_PAGE_SIZE - 1, EFI_PAGE_SIZE);
+-	fdt_pages = fdt_size >> EFI_PAGE_SHIFT;
++	fdt_pages = efi_size_in_pages(fdt_totalsize(fdt) + 0x3000);
+ 
+ 	/* Safe fdt location is at 127MB */
+ 	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
+@@ -287,8 +284,7 @@ static void efi_carve_out_dt_rsv(void *fdt)
+ 		if (addr == (uintptr_t)fdt)
+ 			continue;
+ 
+-		pages = ALIGN(size + (addr & EFI_PAGE_MASK), EFI_PAGE_SIZE) >>
+-			EFI_PAGE_SHIFT;
++		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+ 		addr &= ~EFI_PAGE_MASK;
+ 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+ 					false))
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index bdb806cfce4..244e754e8fd 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -350,7 +350,16 @@ struct efi_simple_file_system_protocol *efi_simple_file_system(
+ /* open file from device-path: */
+ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
+ 
+-
++/**
++ * efi_size_in_pages() - convert size in bytes to size in pages
++ *
++ * This macro returns the number of EFI memory pages required to hold 'size'
++ * bytes.
++ *
++ * @size:	size in bytes
++ * Return:	size in pages
++ */
++#define efi_size_in_pages(size) ((size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
+ /* Generic EFI memory allocator, call this to get memory */
+ void *efi_alloc(uint64_t len, int memory_type);
+ /* More specific EFI memory allocator, called by EFI payloads */
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 518d5fdc39a..b658a3c8c4c 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -397,7 +397,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
+ void *efi_alloc(uint64_t len, int memory_type)
+ {
+ 	uint64_t ret = 0;
+-	uint64_t pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
++	uint64_t pages = efi_size_in_pages(len);
+ 	efi_status_t r;
+ 
+ 	r = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES, memory_type, pages,
+@@ -441,8 +441,8 @@ efi_status_t efi_allocate_pool(int pool_type, efi_uintn_t size, void **buffer)
+ {
+ 	efi_status_t r;
+ 	struct efi_pool_allocation *alloc;
+-	u64 num_pages = (size + sizeof(struct efi_pool_allocation) +
+-			 EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
++	u64 num_pages = efi_size_in_pages(size +
++					  sizeof(struct efi_pool_allocation));
+ 
+ 	if (!buffer)
+ 		return EFI_INVALID_PARAMETER;
+-- 
+2.19.1
+
