@@ -1,0 +1,74 @@
+From 1ffd16ea91f1afd58f43234e7afdbf7dda69a4f2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Nov 2018 11:20:02 +0100
+Subject: [PATCH 1/1] efi_selftest: check fdt is marked as runtime data
+
+Check that the memory area containing the device tree is marked as runtime
+data.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_memory.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/lib/efi_selftest/efi_selftest_memory.c b/lib/efi_selftest/efi_selftest_memory.c
+index 0623e8e62da..24b4438ce4f 100644
+--- a/lib/efi_selftest/efi_selftest_memory.c
++++ b/lib/efi_selftest/efi_selftest_memory.c
+@@ -6,13 +6,17 @@
+  *
+  * This unit test checks the following runtime services:
+  * AllocatePages, FreePages, GetMemoryMap
++ *
++ * The memory type used for the device tree is checked.
+  */
+ 
+ #include <efi_selftest.h>
+ 
+ #define EFI_ST_NUM_PAGES 8
+ 
++static const efi_guid_t fdt_guid = EFI_FDT_GUID;
+ static struct efi_boot_services *boottime;
++static u64 fdt_addr;
+ 
+ /**
+  * setup() - setup unit test
+@@ -24,8 +28,20 @@ static struct efi_boot_services *boottime;
+ static int setup(const efi_handle_t handle,
+ 		 const struct efi_system_table *systable)
+ {
++	size_t i;
++
+ 	boottime = systable->boottime;
+ 
++	for (i = 0; i < systable->nr_tables; ++i) {
++		if (!efi_st_memcmp(&systable->tables[i].guid, &fdt_guid,
++				   sizeof(efi_guid_t))) {
++			if (fdt_addr) {
++				efi_st_error("Duplicate device tree\n");
++				return EFI_ST_FAILURE;
++			}
++			fdt_addr = (uintptr_t)systable->tables[i].table;
++		}
++	}
+ 	return EFI_ST_SUCCESS;
+ }
+ 
+@@ -152,6 +168,14 @@ static int execute(void)
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
++	/* Check memory reservation for the device tree */
++	if (fdt_addr &&
++	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
++			       EFI_RUNTIME_SERVICES_DATA) != EFI_ST_SUCCESS) {
++		efi_st_error
++			("Device tree not marked as runtime services data\n");
++		return EFI_ST_FAILURE;
++	}
+ 	return EFI_ST_SUCCESS;
+ }
+ 
+-- 
+2.19.1
+

@@ -54,6 +54,7 @@ git am ../patch/0001-efi_selftest-add-test-for-memory-allocation.patch
 git am ../patch/0001-efi_selftest-building-sandbox-with-EFI_SELFTEST.patch
 
 git am ../patch/0001-efi_loader-memory-reservation-for-fdt.patch
+git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
