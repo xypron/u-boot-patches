@@ -1,4 +1,4 @@
-From e2fda688fc169d75e022cec374ecf4ac61aa8f46 Mon Sep 17 00:00:00 2001
+From 01702c444983a3b5ac33ab01db1d1a7aa619383e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 29 Oct 2018 12:10:41 +0100
 Subject: [PATCH v3 1/1] dm: video: correctly set the cursor position
@@ -16,8 +16,8 @@ v2
 	remove trailing whitespace
 ---
  drivers/video/vidconsole-uclass.c | 8 ++++++++
- test/dm/video.c                   | 2 +-
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ test/dm/video.c                   | 4 ++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/video/vidconsole-uclass.c b/drivers/video/vidconsole-uclass.c
 index 1874887f2f3..db40a1396b2 100644
@@ -39,10 +39,10 @@ index 1874887f2f3..db40a1396b2 100644
  
  		break;
 diff --git a/test/dm/video.c b/test/dm/video.c
-index 7def338058e..dc20dad43b6 100644
+index 7def338058e..5d1faac19c9 100644
 --- a/test/dm/video.c
 +++ b/test/dm/video.c
-@@ -178,7 +178,7 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
+@@ -178,12 +178,12 @@ static int dm_test_video_ansi(struct unit_test_state *uts)
  
  	/* test set-cursor: [%d;%df */
  	vidconsole_put_string(con, "abc"ANSI_ESC"[2;2fab"ANSI_ESC"[4;4fcd");
@@ -51,6 +51,12 @@ index 7def338058e..dc20dad43b6 100644
  
  	/* test colors (30-37 fg color, 40-47 bg color) */
  	vidconsole_put_string(con, ANSI_ESC"[30;41mfoo"); /* black on red */
+ 	vidconsole_put_string(con, ANSI_ESC"[33;44mbar"); /* yellow on blue */
+-	ut_asserteq(265, compress_frame_buffer(dev));
++	ut_asserteq(272, compress_frame_buffer(dev));
+ 
+ 	return 0;
+ }
 -- 
 2.19.1
 
