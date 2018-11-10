@@ -53,12 +53,16 @@ git am ../patch/0001-efi_loader-fix-GetMemoryMap.patch
 git am ../patch/0001-efi_selftest-add-test-for-memory-allocation.patch
 git am ../patch/0001-efi_selftest-building-sandbox-with-EFI_SELFTEST.patch
 
+git am ../patch/0001-fdt_support-fdt-reservations-on-the-sandbox.patch
 git am ../patch/0001-efi_loader-fix-efi_find_free_memory.patch
 git am ../patch/0001-efi_loader-memory-reservation-for-fdt.patch
 git am ../patch/0001-efi_loader-carving-out-memory-reservations.patch
-git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 git am ../patch/0001-efi_loader-correct-efi_add_known_memory.patch
 git am ../patch/0001-efi_loader-macro-efi_size_in_pages.patch
+git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
+git am ../patch/0001-efi_loader-do-not-use-magic-address-for-fdt.patch
+git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch

@@ -1,0 +1,83 @@
+From 46dbc7669349283998241f7c146d2b7562930e2e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Nov 2018 15:29:39 +0100
+Subject: [PATCH 1/1] efi_loader: fix memory mapping for sandbox
+
+The sandbox is using a virtual address space. The addresses used insided the
+flattened device tree use the virtual address space. The EFI subsystem uses the
+addressable adress space and this is where the fdt is stored.
+
+Fix all incorrect addresses for the fdt.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 2c9b2eb8b6f..7752f3dec63 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -185,12 +185,16 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
+ 	 * Give us at least 12 KiB of breathing room in case the device tree
+ 	 * needs to be expanded later.
+ 	 */
+-	fdt = map_sysmem(*fdt_addrp, 0);
++	fdt = (void *)*fdt_addrp;
+ 	fdt_pages = efi_size_in_pages(fdt_totalsize(fdt) + 0x3000);
+ 	fdt_size = fdt_pages << EFI_PAGE_SHIFT;
+ 
+-	/* Safe fdt location is at 127MB */
+-	new_fdt_addr = fdt_ram_start + (127 * 1024 * 1024) + fdt_size;
++	/*
++	 * Safe fdt location is at 127 MiB. On the sandbox convert from the
++	 * virtual address space.
++	 */
++	new_fdt_addr = (uintptr_t)map_sysmem(fdt_ram_start + 0x7f00000 +
++					     fdt_size, 0);
+ 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+ 				 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+ 				 &new_fdt_addr);
+@@ -205,8 +209,7 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
+ 			goto done;
+ 		}
+ 	}
+-
+-	new_fdt = map_sysmem(new_fdt_addr, fdt_size);
++	new_fdt = (void *)(uintptr_t)new_fdt_addr;
+ 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
+ 	fdt_set_totalsize(new_fdt, fdt_size);
+ 
+@@ -278,6 +281,9 @@ static void efi_carve_out_dt_rsv(void *fdt)
+ 		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
+ 			continue;
+ 
++		/* Convert from sandbox address space. */
++		addr = (uintptr_t)map_sysmem(addr, 0);
++
+ 		/*
+ 		 * Do not carve out the device tree. It is already marked as
+ 		 * EFI_RUNTIME_SERVICES_DATA
+@@ -297,9 +303,8 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ {
+ 	bootm_headers_t img = { 0 };
+ 	efi_status_t ret;
+-	void *fdt;
++	void *fdt = (void *)fdt_addr;
+ 
+-	fdt = map_sysmem(fdt_addr, 0);
+ 	if (fdt_check_header(fdt)) {
+ 		printf("ERROR: invalid device tree\n");
+ 		return EFI_INVALID_PARAMETER;
+@@ -310,8 +315,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ 	if (ret)
+ 		return ret;
+ 
+-	unmap_sysmem(fdt);
+-	fdt = map_sysmem(fdt_addr, 0);
+ 	if (image_setup_libfdt(&img, fdt, 0, NULL)) {
+ 		printf("ERROR: failed to process device tree\n");
+ 		return EFI_LOAD_ERROR;
+-- 
+2.19.1
+

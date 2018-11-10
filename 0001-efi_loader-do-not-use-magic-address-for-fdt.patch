@@ -1,0 +1,81 @@
+From f7c89ba68e6ed2aa458403dd056554266581d48a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Nov 2018 16:18:39 +0100
+Subject: [PATCH 1/1] efi_loader: do not use magic address for fdt
+
+We currently place the flattened device tree 127 MiB from the start of the
+first memory bank. This may be in a reserved memory area.
+
+So let's change the sequence: first create memory reservations and then
+copy the device tree.
+
+Do not use any magic address.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 25 +++++++------------------
+ 1 file changed, 7 insertions(+), 18 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 7752f3dec63..25991fd2d2d 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -189,32 +189,20 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
+ 	fdt_pages = efi_size_in_pages(fdt_totalsize(fdt) + 0x3000);
+ 	fdt_size = fdt_pages << EFI_PAGE_SHIFT;
+ 
+-	/*
+-	 * Safe fdt location is at 127 MiB. On the sandbox convert from the
+-	 * virtual address space.
+-	 */
+-	new_fdt_addr = (uintptr_t)map_sysmem(fdt_ram_start + 0x7f00000 +
+-					     fdt_size, 0);
++	new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
+ 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+ 				 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+ 				 &new_fdt_addr);
+ 	if (ret != EFI_SUCCESS) {
+-		/* If we can't put it there, put it somewhere */
+-		new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
+-		ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+-					 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
+-					 &new_fdt_addr);
+-		if (ret != EFI_SUCCESS) {
+-			printf("ERROR: Failed to reserve space for FDT\n");
+-			goto done;
+-		}
++		printf("ERROR: Failed to allocate memory for FDT\n");
++		return ret;
+ 	}
+ 	new_fdt = (void *)(uintptr_t)new_fdt_addr;
+ 	memcpy(new_fdt, fdt, fdt_totalsize(fdt));
+ 	fdt_set_totalsize(new_fdt, fdt_size);
+ 
+ 	*fdt_addrp = new_fdt_addr;
+-done:
++
+ 	return ret;
+ }
+ 
+@@ -310,6 +298,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ 		return EFI_INVALID_PARAMETER;
+ 	}
+ 
++	/* Create memory reservation as indicated by the device tree */
++	efi_carve_out_dt_rsv(fdt);
++
+ 	/* Prepare fdt for payload */
+ 	ret = copy_fdt(&fdt_addr);
+ 	if (ret)
+@@ -320,8 +311,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ 		return EFI_LOAD_ERROR;
+ 	}
+ 
+-	efi_carve_out_dt_rsv(fdt);
+-
+ 	/* Link to it in the efi tables */
+ 	ret = efi_install_configuration_table(&efi_guid_fdt, fdt);
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.19.1
+
