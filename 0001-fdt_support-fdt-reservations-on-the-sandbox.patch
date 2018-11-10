@@ -1,4 +1,4 @@
-From 197e6f0b9e2bc958575c409dca33a44284d554cd Mon Sep 17 00:00:00 2001
+From 571feb27377d79c0a50269cbf8eb2f3db636cf51 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Nov 2018 15:55:17 +0100
 Subject: [PATCH 1/1] fdt_support: fdt reservations on the sandbox
@@ -9,11 +9,11 @@ the fdt also have to be converted to this address space.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- common/fdt_support.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ common/fdt_support.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/common/fdt_support.c b/common/fdt_support.c
-index e6daa67990d..ce4123ebfa2 100644
+index e6daa67990d..ec6af92dbba 100644
 --- a/common/fdt_support.c
 +++ b/common/fdt_support.c
 @@ -7,6 +7,7 @@
@@ -34,12 +34,13 @@ index e6daa67990d..ce4123ebfa2 100644
  	if (err < 0) {
  		printf("fdt_initrd: %s\n", fdt_strerror(err));
  		return err;
-@@ -633,7 +635,7 @@ int fdt_shrink_to_minimum(void *blob, uint extrasize)
+@@ -633,7 +635,8 @@ int fdt_shrink_to_minimum(void *blob, uint extrasize)
  	fdt_set_totalsize(blob, actualsize);
  
  	/* Add the new reservation */
 -	ret = fdt_add_mem_rsv(blob, (uintptr_t)blob, actualsize);
-+	ret = fdt_add_mem_rsv((void *)(uintptr_t)map_to_sysmem(blob), (uintptr_t)blob, actualsize);
++	ret = fdt_add_mem_rsv((void *)(uintptr_t)map_to_sysmem(blob),
++			      (uintptr_t)blob, actualsize);
  	if (ret < 0)
  		return ret;
  
