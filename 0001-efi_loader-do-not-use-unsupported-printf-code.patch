@@ -1,0 +1,49 @@
+From d8dba24e982581ef091fa735664d1028ca48eefd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 12 Nov 2018 03:30:43 +0100
+Subject: [PATCH 1/1] efi_loader: do not use unsupported printf code
+
+Using %zu for efi_intn_t (ssize_t) creates a build warning. Anyway %zu is
+not supported by efi_st_error(). So let's convert to int.
+
+Our implementation of StriColl() only returns -1, 0, or 1.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_unicode_collation.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_unicode_collation.c b/lib/efi_selftest/efi_selftest_unicode_collation.c
+index 9765bd3e44b..75294307d9f 100644
+--- a/lib/efi_selftest/efi_selftest_unicode_collation.c
++++ b/lib/efi_selftest/efi_selftest_unicode_collation.c
+@@ -52,7 +52,7 @@ static int test_stri_coll(void)
+ 						    c1, c2);
+ 	if (ret) {
+ 		efi_st_error(
+-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c2, ret);
++			"stri_coll(\"%ps\", \"%ps\") = %d\n", c1, c2, (int)ret);
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
+@@ -60,7 +60,7 @@ static int test_stri_coll(void)
+ 						    c1, c3);
+ 	if (ret >= 0) {
+ 		efi_st_error(
+-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c1, c3, ret);
++			"stri_coll(\"%ps\", \"%ps\") = %d\n", c1, c3, (int)ret);
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
+@@ -68,7 +68,7 @@ static int test_stri_coll(void)
+ 						    c3, c1);
+ 	if (ret <= 0) {
+ 		efi_st_error(
+-			"stri_coll(\"%ps\", \"%ps\") = %zu\n", c3, c1, ret);
++			"stri_coll(\"%ps\", \"%ps\") = %d\n", c3, c1, (int)ret);
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
+-- 
+2.19.1
+
