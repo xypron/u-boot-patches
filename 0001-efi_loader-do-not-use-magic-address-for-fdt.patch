@@ -1,4 +1,4 @@
-From f7c89ba68e6ed2aa458403dd056554266581d48a Mon Sep 17 00:00:00 2001
+From fbbf80cbce0b40c2bbbb7953f788d6fc0f7913b1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Nov 2018 16:18:39 +0100
 Subject: [PATCH 1/1] efi_loader: do not use magic address for fdt
@@ -13,11 +13,11 @@ Do not use any magic address.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ cmd/bootefi.c | 32 +++++++-------------------------
+ 1 file changed, 7 insertions(+), 25 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 7752f3dec63..25991fd2d2d 100644
+index 7752f3dec63..f98269af78e 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -189,32 +189,20 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
@@ -57,7 +57,21 @@ index 7752f3dec63..25991fd2d2d 100644
  	return ret;
  }
  
-@@ -310,6 +298,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+@@ -284,13 +272,6 @@ static void efi_carve_out_dt_rsv(void *fdt)
+ 		/* Convert from sandbox address space. */
+ 		addr = (uintptr_t)map_sysmem(addr, 0);
+ 
+-		/*
+-		 * Do not carve out the device tree. It is already marked as
+-		 * EFI_RUNTIME_SERVICES_DATA
+-		 */
+-		if (addr == (uintptr_t)fdt)
+-			continue;
+-
+ 		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+ 		addr &= ~EFI_PAGE_MASK;
+ 		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+@@ -310,6 +291,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
  		return EFI_INVALID_PARAMETER;
  	}
  
@@ -67,7 +81,7 @@ index 7752f3dec63..25991fd2d2d 100644
  	/* Prepare fdt for payload */
  	ret = copy_fdt(&fdt_addr);
  	if (ret)
-@@ -320,8 +311,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+@@ -320,8 +304,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
  		return EFI_LOAD_ERROR;
  	}
  
