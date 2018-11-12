@@ -1,4 +1,4 @@
-From ffbe2d3d5289248bd78d901a5a0842d931997538 Mon Sep 17 00:00:00 2001
+From 8daa9f2883ede40f595d4f62b9a1b6fc1ea33fba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Nov 2018 15:29:39 +0100
 Subject: [PATCH 1/1] efi_loader: fix memory mapping for sandbox
@@ -11,11 +11,11 @@ Fix all incorrect addresses for the fdt.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ cmd/bootefi.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 2c9b2eb8b6f..7752f3dec63 100644
+index 2c9b2eb8b6f..50253ea1859 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -185,12 +185,16 @@ static efi_status_t copy_fdt(ulong *fdt_addrp)
@@ -69,9 +69,11 @@ index 2c9b2eb8b6f..7752f3dec63 100644
  	if (fdt_check_header(fdt)) {
  		printf("ERROR: invalid device tree\n");
  		return EFI_INVALID_PARAMETER;
-@@ -310,8 +315,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+@@ -309,9 +314,8 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+ 	ret = copy_fdt(&fdt_addr);
  	if (ret)
  		return ret;
++	fdt = (void *)fdt_addr;
  
 -	unmap_sysmem(fdt);
 -	fdt = map_sysmem(fdt_addr, 0);
