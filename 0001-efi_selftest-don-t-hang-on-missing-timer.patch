@@ -1,7 +1,7 @@
-From e205a3b51100ec125cf83d5c533bdc7ea816cb1b Mon Sep 17 00:00:00 2001
+From af8d3bfe062b6d94de1c86ba4fdecb8ae236e096 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 12 Nov 2018 20:22:43 +0100
-Subject: [PATCH 1/1] efi_selftest: don't hang on missing timer
+Subject: [PATCH v2 1/1] efi_selftest: don't hang on missing timer
 
 qemu-riscv32_defconfig and qemu-riscv64_defconfig do not supply a timer.
 This causes the EFI selftest to hang on tests which require a timer.
@@ -11,10 +11,13 @@ decide which tests have to be disabled.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- configs/qemu-riscv32_defconfig | 1 +
- configs/qemu-riscv64_defconfig | 1 +
- lib/efi_selftest/Makefile      | 9 ++++++---
- 3 files changed, 8 insertions(+), 3 deletions(-)
+v2:
+	add missing obj-y += \
+---
+ configs/qemu-riscv32_defconfig |  1 +
+ configs/qemu-riscv64_defconfig |  1 +
+ lib/efi_selftest/Makefile      | 10 +++++++---
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/configs/qemu-riscv32_defconfig b/configs/qemu-riscv32_defconfig
 index ff1fb1f30ec..70da323bdc1 100644
@@ -37,7 +40,7 @@ index d6c1a5d646a..258f395b9d5 100644
 +# CONFIG_TIMER is not set
  CONFIG_OF_BOARD=y
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 743b4820449..8f2f09522e6 100644
+index 4b1c0bb84b1..aec498fbcf2 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -19,7 +19,6 @@ efi_selftest_console.o \
@@ -48,7 +51,7 @@ index 743b4820449..8f2f09522e6 100644
  efi_selftest_event_groups.o \
  efi_selftest_exception.o \
  efi_selftest_exitbootservices.o \
-@@ -33,11 +32,15 @@ efi_selftest_snp.o \
+@@ -32,11 +31,16 @@ efi_selftest_snp.o \
  efi_selftest_textinput.o \
  efi_selftest_textinputex.o \
  efi_selftest_textoutput.o \
@@ -59,6 +62,7 @@ index 743b4820449..8f2f09522e6 100644
 +efi_selftest_variables.o
 +
 +ifeq ($(CONFIG_TIMER),)
++obj-y += \
 +efi_selftest_events.o \
 +efi_selftest_tpl.o \
  efi_selftest_watchdog.o
