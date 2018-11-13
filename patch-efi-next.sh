@@ -27,7 +27,6 @@ git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
 git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-efi_loader-use-u16-for-UTF16-strings.patch
-git am ../patch/0001-board-toradex-colibri_vf-efi_loader-unset-CONFIG_EFI.patch 
 git am ../patch/0001-efi_loader-do-not-use-unsupported-printf-code.patch
 git am ../patch/0001-efi_selftest-don-t-hang-on-missing-timer.patch
 
