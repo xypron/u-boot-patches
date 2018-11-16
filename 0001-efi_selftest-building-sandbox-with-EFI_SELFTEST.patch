@@ -1,30 +1,15 @@
-From 4cda37cd406c3027be55ca6b51f8637b1a64ed10 Mon Sep 17 00:00:00 2001
+From 9945e6bf82491a2c8f29f2c458d1c86a834328e4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 4 Nov 2018 17:36:17 +0100
 Subject: [PATCH 1/1] efi_selftest: building sandbox with EFI_SELFTEST
 
 Enable building the sandbox with CONFIG_EFI_SELFTEST.
 
-But do not select it by default as the network unit test may fail.
-
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- configs/sandbox_defconfig | 1 -
- lib/efi_selftest/Kconfig  | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ lib/efi_selftest/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
-index 2ce336fc81c..7edc27f2cde 100644
---- a/configs/sandbox_defconfig
-+++ b/configs/sandbox_defconfig
-@@ -24,7 +24,6 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
- CONFIG_CMD_CPU=y
- CONFIG_CMD_LICENSE=y
- CONFIG_CMD_BOOTZ=y
--CONFIG_CMD_BOOTEFI_SELFTEST=y
- # CONFIG_CMD_ELF is not set
- CONFIG_CMD_ASKENV=y
- CONFIG_CMD_GREPENV=y
 diff --git a/lib/efi_selftest/Kconfig b/lib/efi_selftest/Kconfig
 index b52696778dd..59f9f36801c 100644
 --- a/lib/efi_selftest/Kconfig

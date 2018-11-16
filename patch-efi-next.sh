@@ -26,8 +26,6 @@ git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
 git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
-git am ../patch/0001-efi_loader-use-u16-for-UTF16-strings.patch
-git am ../patch/0001-efi_loader-do-not-use-unsupported-printf-code.patch
 git am ../patch/0001-efi_selftest-don-t-hang-on-missing-timer.patch
 git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
 
@@ -58,9 +56,6 @@ git am ../patch/0001-efi_selftest-building-sandbox-with-EFI_SELFTEST.patch
 
 git am ../patch/0001-fdt_support-fdt-reservations-on-the-sandbox.patch
 git am ../patch/0001-efi_loader-fix-efi_find_free_memory.patch
-git am ../patch/0001-efi_loader-memory-reservation-for-fdt.patch
-git am ../patch/0001-efi_loader-carving-out-memory-reservations.patch
-git am ../patch/0001-efi_loader-correct-efi_add_known_memory.patch
 git am ../patch/0001-efi_loader-macro-efi_size_in_pages.patch
 git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
 git am ../patch/0001-efi_loader-do-not-use-magic-address-for-fdt.patch
