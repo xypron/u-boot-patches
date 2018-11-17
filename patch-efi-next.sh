@@ -26,7 +26,6 @@ git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
 git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
-git am ../patch/0001-efi_selftest-don-t-hang-on-missing-timer.patch
 git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
 
 # USB keyboard
