@@ -3,9 +3,12 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Nov 2018 15:29:39 +0100
 Subject: [PATCH 1/1] efi_loader: fix memory mapping for sandbox
 
-The sandbox is using a virtual address space. The addresses used insided
-the flattened device tree use the virtual address space. The EFI subsystem
-uses the addressable address space and this is where the fdt is stored.
+The sandbox is using a virtual address space which is neither the physical
+address space of the Linux system nor the virtual address space in which
+Linux aplications live. The addresses used insided the flattened device
+tree use this sandbox virtual address space. The EFI subsystem uses the
+addressable address space (the virtual address space of Linux) and this is
+where the fdt is stored.
 
 Fix all incorrect addresses for the fdt.
 
