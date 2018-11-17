@@ -72,7 +72,7 @@ index 2c9b2eb8b6f..6957972d12c 100644
  	fdt_set_totalsize(new_fdt, fdt_size);
  
 -	*fdt_addrp = new_fdt_addr;
-+	*fdtp = new_fdt_addr;
++	*fdtp = (void *)new_fdt_addr;
  done:
  	return ret;
  }
