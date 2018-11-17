@@ -58,7 +58,7 @@ git am ../patch/0001-efi_loader-macro-efi_size_in_pages.patch
 git am ../patch/0001-fdt-sandbox-correct-use-of-fdtcontroladdr.patch
 git am ../patch/0001-fdt_support-fdt-reservations-on-the-sandbox.patch
 git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
-git am ../patch/0001-efi_loader-do-not-use-magic-address-for-fdt.patch
+git am ../patch/0001-efi_loader-create-fdt-reservation-before-copy.patch
 git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 
 exit

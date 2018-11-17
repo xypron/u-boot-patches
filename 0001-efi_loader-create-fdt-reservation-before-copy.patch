@@ -1,7 +1,7 @@
-From 215969d03dd73375711415d6161717d456a1ab25 Mon Sep 17 00:00:00 2001
+From 5c5f7596dd088ba88999a2bdaed22a5af013c289 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Nov 2018 16:18:39 +0100
-Subject: [PATCH 1/1] efi_loader: do not use magic address for fdt
+Subject: [PATCH 1/1] efi_loader: create fdt reservation before copy
 
 When copying the device we must ensure that the copy does not fall into a
 memory area reserved by the same.
@@ -11,14 +11,14 @@ copy the device tree.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 32 +++++++-------------------------
- 1 file changed, 7 insertions(+), 25 deletions(-)
+ cmd/bootefi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 50253ea1859..251d8403bcc 100644
+index 8673e742b58..51b542ac54a 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -310,6 +291,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+@@ -312,6 +312,9 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
  		return EFI_INVALID_PARAMETER;
  	}
  
@@ -26,9 +26,9 @@ index 50253ea1859..251d8403bcc 100644
 +	efi_carve_out_dt_rsv(fdt);
 +
  	/* Prepare fdt for payload */
- 	ret = copy_fdt(&fdt_addr);
+ 	ret = copy_fdt(&fdt);
  	if (ret)
-@@ -321,8 +305,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
+@@ -322,8 +325,6 @@ static efi_status_t efi_install_fdt(ulong fdt_addr)
  		return EFI_LOAD_ERROR;
  	}
  
