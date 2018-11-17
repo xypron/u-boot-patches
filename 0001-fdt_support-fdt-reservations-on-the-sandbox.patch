@@ -29,7 +29,7 @@ index e6daa67990d..da53fbe8b5b 100644
  
  	/* Add the new reservation */
 -	ret = fdt_add_mem_rsv(blob, (uintptr_t)blob, actualsize);
-+	ret = fdt_add_mem_rsv(fdt, map_to_sysmem(blob), actualsize);
++	ret = fdt_add_mem_rsv(blob, map_to_sysmem(blob), actualsize);
  	if (ret < 0)
  		return ret;
  
