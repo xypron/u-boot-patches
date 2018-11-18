@@ -1,7 +1,7 @@
 From 5814bdcacde981b2ce0c89e0bb399366416ab1b4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 13 Nov 2018 23:35:48 +0100
-Subject: [PATCH] MAINTAINERS: add EFI PAYLOAD reviewer
+Subject: [PATCH 1/1] MAINTAINERS: add EFI PAYLOAD reviewer
 
 Alex suggested to add me as a reviewer for the EFI subsystem.
 The patch also adds a description for R: entries.
