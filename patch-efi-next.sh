@@ -59,6 +59,11 @@ git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
 git am ../patch/0001-efi_loader-create-fdt-reservation-before-copy.patch
 git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 
+git am ../patch/0001-sandbox-smbios-Update-to-support-sandbox.patch
+git am ../patch/0001-efi-Split-out-test-init-uninit-into-functions.patch
+git am ../patch/0001-efi-Create-a-function-to-set-up-for-running-EFI-code.patch
+git am ../patch/0001-efi-Rename-bootefi_test_finish-to-bootefi_run_finish.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
