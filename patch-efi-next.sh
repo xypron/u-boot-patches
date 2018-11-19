@@ -19,7 +19,7 @@ git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
-git am ../patch/0001-cmd-add-el-command.patch
+# git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
 git am ../patch/0001-sandbox-README-setting-environment-variables.patch
 git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch

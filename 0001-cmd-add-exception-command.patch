@@ -23,8 +23,8 @@ index cfad07432e..76215c8e7c 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -1380,6 +1380,12 @@ config CMD_EL
- 	  Enable the 'el' command which displays the exception level or the
- 	  privilege level of the processor.
+ 	  displayed on a simple board-specific display. Implement
+ 	  display_putc() to use it.
  
 +config CMD_EXCEPTION
 +	bool "exception - raise exception"
@@ -39,10 +39,9 @@ diff --git a/cmd/Makefile b/cmd/Makefile
 index 63e3afd56b..140dd36fef 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_CMD_DISPLAY) += display.o
+@@ -48,5 +48,6 @@ obj-$(CONFIG_CMD_DISPLAY) += display.o
  obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
- obj-$(CONFIG_CMD_EL) += el.o
 +obj-$(CONFIG_CMD_EXCEPTION) += exception.o
  obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
  obj-$(CONFIG_CMD_EEPROM) += eeprom.o
