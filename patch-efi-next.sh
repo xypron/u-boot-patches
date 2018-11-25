@@ -20,9 +20,6 @@ git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 # git am ../patch/0001-cmd-add-el-command.patch
-git am ../patch/0001-sandbox-remove-stray-DEBUG.patch
-git am ../patch/0001-sandbox-README-setting-environment-variables.patch
-git am ../patch/0001-sandbox-README-use-setenv-ethrotate-no.patch
 git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
