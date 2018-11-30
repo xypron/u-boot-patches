@@ -20,7 +20,6 @@ git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 # git am ../patch/0001-cmd-add-el-command.patch
-git am ../patch/0001-dm-video-correctly-set-the-cursor-position.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
 git am ../patch/0001-efi_selftest-incorrect-use-of-bitwise-or.patch
@@ -57,7 +56,6 @@ git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
 git am ../patch/0001-efi_loader-create-fdt-reservation-before-copy.patch
 git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
 
-git am ../patch/0001-sandbox-smbios-Update-to-support-sandbox.patch
 git am ../patch/0001-efi-Split-out-test-init-uninit-into-functions.patch
 git am ../patch/0001-efi-Create-a-function-to-set-up-for-running-EFI-code.patch
 git am ../patch/0001-efi-Rename-bootefi_test_finish-to-bootefi_run_finish.patch
