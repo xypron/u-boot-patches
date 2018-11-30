@@ -3,8 +3,14 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 1 Oct 2018 07:22:52 +0200
 Subject: [PATCH 1/1] efi_loader: correctly aligned transmit buffer
 
-Provide a correctly aligned transmit buffer not depending on
-CONFIG_EFI_LOADER_BOUNCE_BUFFER.
+Calling net_send_packet() requires that the buffer is aligned to a multiple
+of PKTALIGN (= ARCH_DMA_MINALIGN). The UEFI spec does not require
+efi_net_transmit() to be called with a buffer with any special alignment.
+So we have to copy to an aligned buffer. The current coding copies to an
+aligned buffer only if CONFIG_EFI_LOADER_BOUNCE_BUFFER=y. Many boards
+like the Odroid C2 do not use a bounce buffer.
+
+With the patch we copy to a correctly aligned buffer in all cases.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -43,7 +49,7 @@ index a64c603ed3..9987aba1b9 100644
  
  	new_tx_packet = buffer;
  
-@@ -325,10 +325,15 @@ efi_status_t efi_net_register(void)
+@@ -325,10 +325,14 @@ efi_status_t efi_net_register(void)
  
  	/* We only expose the "active" network device, so one is enough */
  	netobj = calloc(1, sizeof(*netobj));
@@ -55,11 +61,10 @@ index a64c603ed3..9987aba1b9 100644
 +		goto out_of_resources;
 +
 +	/* Allocate an aligned transmit buffer */
-+	transmit_buffer = calloc(1, PKTSIZE_ALIGN + ARCH_DMA_MINALIGN);
++	transmit_buffer = calloc(1, PKTSIZE_ALIGN + PKTALIGN);
 +	if (!transmit_buffer)
 +		goto out_of_resources;
-+	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer,
-+					    ARCH_DMA_MINALIGN);
++	transmit_buffer = (void *)ALIGN((uintptr_t)transmit_buffer, PKTALIGN);
  
  	/* Hook net up to the device list */
  	efi_add_handle(&netobj->header);
