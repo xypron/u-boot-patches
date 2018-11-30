@@ -23,6 +23,7 @@ git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
 git am ../patch/0001-efi_selftest-incorrect-use-of-bitwise-or.patch
+git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
