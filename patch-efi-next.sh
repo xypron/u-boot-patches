@@ -1,4 +1,3 @@
-#!/bin/sh
 git am --abort || true
 
 # Xypron specific patches
@@ -21,9 +20,8 @@ git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
-git am ../patch/0001-MAINTAINERS-add-EFI-PAYLOAD-reviewer.patch
-git am ../patch/0001-efi_selftest-incorrect-use-of-bitwise-or.patch
-git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
+# git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
+git am ../patch/0001-drivers-rtc-correctly-convert-seconds-to-time-struct.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -38,28 +36,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 #git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
-
-# Fix simple network protocol
-git am ../patch/0001-efi_selftest-rename-setup_ok.patch
-git am ../patch/0001-efi_selftest-fix-simple-network-protocol-test.patch
-git am ../patch/0001-efi_loader-correctly-aligned-transmit-buffer.patch
-git am ../patch/0001-efi_loader-fix-simple-network-protocol.patch
-
-# Fix memory handling
-git am ../patch/0001-efi_loader-eliminate-sandbox-addresses.patch
-git am ../patch/0001-efi_selftest-add-test-for-memory-allocation.patch
-git am ../patch/0001-efi_selftest-building-sandbox-with-EFI_SELFTEST.patch
-git am ../patch/0001-efi_loader-macro-efi_size_in_pages.patch
-
-git am ../patch/0001-fdt-sandbox-correct-use-of-fdtcontroladdr.patch
-git am ../patch/0001-fdt_support-fdt-reservations-on-the-sandbox.patch
-git am ../patch/0001-efi_loader-fix-memory-mapping-for-sandbox.patch
-git am ../patch/0001-efi_loader-create-fdt-reservation-before-copy.patch
-git am ../patch/0001-efi_selftest-check-fdt-is-marked-as-runtime-data.patch
-
-git am ../patch/0001-efi-Split-out-test-init-uninit-into-functions.patch
-git am ../patch/0001-efi-Create-a-function-to-set-up-for-running-EFI-code.patch
-git am ../patch/0001-efi-Rename-bootefi_test_finish-to-bootefi_run_finish.patch
 
 exit
 

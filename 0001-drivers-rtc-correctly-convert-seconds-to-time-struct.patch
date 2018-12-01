@@ -1,0 +1,38 @@
+From 75ebd6af975860a5412d7fef762c43dfb1d3b2c4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 1 Dec 2018 22:59:21 +0100
+Subject: [PATCH 1/1] drivers: rtc: correctly convert seconds to time structure
+
+Variable 'days' must be defined as signed int. Otherwise the conversion
+fails for some dates, e.g. 2004-08-25. Cf function rtc_time64_to_tm() in
+the Linux kernel source.
+
+Fixes: 992c1db45591 "drivers: rtc: resolve year 2038 problem in rtc_to_tm"
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rtc/rtc-lib.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index b8a7a8b2d3b..6ab5d41ee0d 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -31,10 +31,14 @@ static int rtc_month_days(unsigned int month, unsigned int year)
+ /*
+  * rtc_to_tm - Converts u64 to rtc_time.
+  * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++ *
++ * This function is copied from rtc_time64_to_tm() in the Linux kernel.
++ * But in U-Boot January is month 1 and we do not subtract 1900 from the year.
+  */
+ void rtc_to_tm(u64 time, struct rtc_time *tm)
+ {
+-	unsigned int month, year, secs, days;
++	unsigned int month, year, secs;
++	int days;
+ 
+ 	days = div_u64_rem(time, 86400, &secs);
+ 
+-- 
+2.19.2
+
