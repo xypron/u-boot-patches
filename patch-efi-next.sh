@@ -17,11 +17,9 @@ git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
-git am ../patch/0001-doc-README.iscsi-Open-iSCSI-configuration.patch
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 # git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
-git am ../patch/0001-drivers-rtc-correctly-convert-seconds-to-time-struct.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
