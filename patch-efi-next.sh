@@ -20,6 +20,7 @@ git am ../patch/0001-test-py-catch-errors-occurring-when-reading-the-cons.patch
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 # git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
+git am ../patch/0001-test-overlay-NULL-passed-as-fdt.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
