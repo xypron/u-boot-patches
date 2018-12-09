@@ -1,0 +1,46 @@
+From fdf0ec845431ca116a3dc06171c520843cbbef43 Mon Sep 17 00:00:00 2001
+From: Alexander Graf <agraf@suse.de>
+Date: Sun, 9 Dec 2018 01:16:29 +0100
+Subject: [PATCH 1/1] efi_loader: Odroid-C2 does not boot with U-Boot master
+ anymore
+
+I'll write up a nice patch description after some sleep, but here's at
+least something that makes it work again for me:
+
+Fixes: 7a82c3051c8f ("efi_loader: Align runtime section to 64kb")
+Signed-off-by: Alexander Graf <agraf@suse.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 95844efdb0..7523f350eb 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -11,6 +11,7 @@
+ #include <elf.h>
+ #include <efi_loader.h>
+ #include <rtc.h>
++#include <linux/sizes.h>
+ 
+ /* For manual relocation support */
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -436,8 +437,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+ 			uint32_t descriptor_version,
+ 			struct efi_mem_desc *virtmap)
+ {
++#if defined(__aarch64__)
++	unsigned long runtime_mask = SZ_64K - 1;
++#else
++	unsigned long runtime_mask = EFI_PAGE_MASK;
++#endif
+ 	ulong runtime_start = (ulong)&__efi_runtime_start &
+-			      ~(ulong)EFI_PAGE_MASK;
++			      ~runtime_mask;
+ 	int n = memory_map_size / descriptor_size;
+ 	int i;
+ 
+-- 
+2.19.2
+
