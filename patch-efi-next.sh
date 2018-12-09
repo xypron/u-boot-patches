@@ -35,7 +35,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
 # Workarounds for running EFI shell
-#git am ../patch/0001-efi_loader-add-dummy-efi-tables-for-booting-Shell.ef.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
@@ -51,6 +50,3 @@ git am ../patch/0001-efi_selftest-test-exit_data.patch
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
-
-# Work in progress
-# git am ../patch/0001-efi_loader-allow-multiple-source-files-for-EFI-apps.patch
