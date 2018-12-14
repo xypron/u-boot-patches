@@ -23,6 +23,7 @@ git am ../patch/0001-test-overlay-NULL-passed-as-fdt.patch
 # git am ../patch/0001-efi_loader-revert-Align-runtime-section-to-64kb.patch
 git am ../patch/0001-efi_loader-efi_connect_controller-use-pD.patch
 git am ../patch/0001-efi_loader-Make-RTS-relocation-more-robust.patch
+git am ../patch/0001-tests-enable-DT-overlay-tests-by-default.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
