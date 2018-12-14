@@ -35,6 +35,9 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
 # Workarounds for running EFI shell
+git am ../patch/0001-lib-add-u16_strcpy-strdup-functions.patch
+git am ../patch/0001-test-tests-for-u16_strdup-and-u16_strcpy.patch
+
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-protocols.patch
 
