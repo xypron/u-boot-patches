@@ -23,6 +23,7 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-efi_loader-efi_connect_controller-use-pD.patch
 git am ../patch/0001-efi_loader-Make-RTS-relocation-more-robust.patch
 git am ../patch/0001-tests-enable-DT-overlay-tests-by-default.patch
+git am ../patch/0001-tests-enable-unit-tests-by-default-on-QEMU-ARM-64.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
