@@ -1,0 +1,38 @@
+From f3224a018736fe6d2bae2f52d0487d738efef57b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Dec 2018 22:40:47 +0100
+Subject: [PATCH v2 1/1] efi_loader: efi_guid_t must be 64-bit aligned
+
+The UEFI Specification Version 2.7 Errata A defines:
+
+"EFI_GUID
+128-bit buffer containing a unique identifier value.
+Unless otherwise specified, aligned on a 64-bit boundary."
+
+Before this patch efi_guid_t was 8-bit aligned.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+v2
+	remove superfluous white space
+---
+ include/efi.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/efi.h b/include/efi.h
+index b5e2c64f38..3018c61b37 100644
+--- a/include/efi.h
++++ b/include/efi.h
+@@ -49,7 +49,7 @@ struct efi_device_path;
+ 
+ typedef struct {
+ 	u8 b[16];
+-} efi_guid_t;
++} efi_guid_t __attribute__((aligned(8)));
+ 
+ #define EFI_BITS_PER_LONG	(sizeof(long) * 8)
+ 
+-- 
+2.19.2
+
