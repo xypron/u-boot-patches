@@ -1,0 +1,42 @@
+From 242bddfae39bd1e27bf5446078e2a37854d265ae Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 17 Dec 2018 09:09:34 +0100
+Subject: [PATCH 1/1] tools: imx8image: use correct printf escape sequence
+
+core is of type uint64_t. So for printing we need "%"PRIu64 (not "%lu").
+
+Without the patch a warning is issued when building on a 32bit system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ tools/imx8image.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/tools/imx8image.c b/tools/imx8image.c
+index 6e8ac464e7..f3158bc434 100644
+--- a/tools/imx8image.c
++++ b/tools/imx8image.c
+@@ -555,7 +555,8 @@ static void set_image_array_entry(flash_header_v3_t *container,
+ 		} else if (soc == QM && core == CORE_CA72) {
+ 			meta = IMAGE_A72_DEFAULT_META(custom_partition);
+ 		} else {
+-			fprintf(stderr, "Error: invalid AP core id: %lu\n",
++			fprintf(stderr,
++				"Error: invalid AP core id: %" PRIu64 "\n",
+ 				core);
+ 			exit(EXIT_FAILURE);
+ 		}
+@@ -577,7 +578,9 @@ static void set_image_array_entry(flash_header_v3_t *container,
+ 			core = CORE_CM4_1;
+ 			meta = IMAGE_M4_1_DEFAULT_META(custom_partition);
+ 		} else {
+-			fprintf(stderr, "Error: invalid m4 core id: %lu\n", core);
++			fprintf(stderr,
++				"Error: invalid m4 core id: %" PRIu64 "\n",
++				core);
+ 			exit(EXIT_FAILURE);
+ 		}
+ 		img->hab_flags |= IMG_TYPE_EXEC;
+-- 
+2.19.2
+
