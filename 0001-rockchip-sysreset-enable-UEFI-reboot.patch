@@ -1,0 +1,83 @@
+From 1d377465e3a1fe481cdf26523b02a6f6bcd6f924 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 18 Dec 2018 20:49:43 +0100
+Subject: [PATCH 1/1] rockchip: sysreset: enable UEFI reboot
+
+Provide an UEFI runtime function to reboot boards using the Rockchip
+sysreset driver.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/sysreset/sysreset_rockchip.c | 49 ++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+diff --git a/drivers/sysreset/sysreset_rockchip.c b/drivers/sysreset/sysreset_rockchip.c
+index 93d7cfe463a..0787b3db5c8 100644
+--- a/drivers/sysreset/sysreset_rockchip.c
++++ b/drivers/sysreset/sysreset_rockchip.c
+@@ -5,6 +5,7 @@
+ 
+ #include <common.h>
+ #include <dm.h>
++#include <efi_loader.h>
+ #include <errno.h>
+ #include <sysreset.h>
+ #include <asm/io.h>
+@@ -13,6 +14,54 @@
+ #include <asm/arch/hardware.h>
+ #include <linux/err.h>
+ 
++#if defined(CONFIG_EFI_LOADER) && \
++    !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
++static unsigned long __efi_runtime_data efi_warm_reset_register;
++static unsigned long __efi_runtime_data efi_cold_reset_register;
++
++efi_status_t efi_reset_system_init(void)
++{
++	struct udevice *dev;
++
++	for (uclass_first_device(UCLASS_SYSRESET, &dev); dev;
++	     uclass_next_device(&dev)) {
++		if (dev->driver &&
++		    !strcmp(dev->driver->name, "rockchip_sysreset")) {
++			struct sysreset_reg *offset = dev_get_priv(dev);
++			unsigned long cru_base =
++				(unsigned long)rockchip_get_cru();
++
++			efi_warm_reset_register =
++				cru_base + offset->glb_srst_snd_value;
++			efi_cold_reset_register =
++				cru_base + offset->glb_srst_fst_value;
++			return EFI_SUCCESS;
++		}
++	}
++	printf("EFI: failed to initialize reset system\n");
++	return EFI_NOT_FOUND;
++}
++
++void __efi_runtime EFIAPI efi_reset_system(enum efi_reset_type reset_type,
++					   efi_status_t reset_status,
++					   unsigned long data_size,
++					   void *reset_data)
++{
++	switch (reset_type) {
++	case EFI_RESET_WARM:
++		if (efi_warm_reset_register)
++			__arch_putl(0xeca8, efi_warm_reset_register);
++		break;
++	default:
++		if (efi_cold_reset_register)
++			__arch_putl(0xfdb9, efi_cold_reset_register);
++	}
++
++	/* Wait for reset to complete */
++	while (1) { }
++}
++#endif /* EFI_LOADER */
++
+ int rockchip_sysreset_request(struct udevice *dev, enum sysreset_t type)
+ {
+ 	struct sysreset_reg *offset = dev_get_priv(dev);
+-- 
+2.19.2
+
