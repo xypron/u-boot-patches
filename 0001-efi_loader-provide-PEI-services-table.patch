@@ -198,8 +198,8 @@ index 6703435947..f342541278 100644
  obj-y += efi_device_path_utilities.o
 +obj-y += efi_dxe.o
  obj-y += efi_file.o
+ obj-y += efi_hii.o
  obj-y += efi_image_loader.o
- obj-y += efi_memory.o
 diff --git a/lib/efi_loader/efi_dxe.c b/lib/efi_loader/efi_dxe.c
 new file mode 100644
 index 0000000000..b0d55169f3
