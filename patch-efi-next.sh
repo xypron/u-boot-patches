@@ -37,8 +37,8 @@ git am ../patch/0001-lib-crc32-mark-static-variable-as-__efi_runtime_data.patch
 git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
-git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
+git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 exit
 
