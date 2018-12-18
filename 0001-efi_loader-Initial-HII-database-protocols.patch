@@ -793,7 +793,7 @@ index 00000000000..40034c27473
 +	    (package_type == EFI_HII_PACKAGE_TYPE_GUID && !package_guid))
 +		return EFI_EXIT(EFI_INVALID_PARAMETER);
 +
-+	debug("package type=%x, guid=%pUl, length=%lu\n", (int)package_type,
++	debug("package type=%x, guid=%pUl, length=%zu\n", (int)package_type,
 +	      package_guid, *handle_buffer_length);
 +
 +	package_cnt = 0;
