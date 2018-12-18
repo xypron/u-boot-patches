@@ -1,4 +1,4 @@
-From 1d377465e3a1fe481cdf26523b02a6f6bcd6f924 Mon Sep 17 00:00:00 2001
+From 46c5f6747391cd46be9a4185eb81267160ab6c73 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 18 Dec 2018 20:49:43 +0100
 Subject: [PATCH 1/1] rockchip: sysreset: enable UEFI reboot
@@ -8,11 +8,11 @@ sysreset driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/sysreset/sysreset_rockchip.c | 49 ++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ drivers/sysreset/sysreset_rockchip.c | 57 ++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
 diff --git a/drivers/sysreset/sysreset_rockchip.c b/drivers/sysreset/sysreset_rockchip.c
-index 93d7cfe463a..0787b3db5c8 100644
+index 93d7cfe463a..1579987463a 100644
 --- a/drivers/sysreset/sysreset_rockchip.c
 +++ b/drivers/sysreset/sysreset_rockchip.c
 @@ -5,6 +5,7 @@
@@ -23,14 +23,14 @@ index 93d7cfe463a..0787b3db5c8 100644
  #include <errno.h>
  #include <sysreset.h>
  #include <asm/io.h>
-@@ -13,6 +14,54 @@
+@@ -13,6 +14,62 @@
  #include <asm/arch/hardware.h>
  #include <linux/err.h>
  
 +#if defined(CONFIG_EFI_LOADER) && \
 +    !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_TPL_BUILD)
-+static unsigned long __efi_runtime_data efi_warm_reset_register;
-+static unsigned long __efi_runtime_data efi_cold_reset_register;
++static void __efi_runtime_data *efi_warm_reset_register;
++static void __efi_runtime_data *efi_cold_reset_register;
 +
 +efi_status_t efi_reset_system_init(void)
 +{
@@ -41,13 +41,21 @@ index 93d7cfe463a..0787b3db5c8 100644
 +		if (dev->driver &&
 +		    !strcmp(dev->driver->name, "rockchip_sysreset")) {
 +			struct sysreset_reg *offset = dev_get_priv(dev);
-+			unsigned long cru_base =
-+				(unsigned long)rockchip_get_cru();
++			void *cru_base = rockchip_get_cru();
++			efi_status_t ret;
 +
 +			efi_warm_reset_register =
 +				cru_base + offset->glb_srst_snd_value;
++			ret = efi_add_runtime_mmio(&efi_warm_reset_register,
++						   sizeof(long));
++			if (ret != EFI_SUCCESS)
++				return ret;
 +			efi_cold_reset_register =
 +				cru_base + offset->glb_srst_fst_value;
++			ret = efi_add_runtime_mmio(&efi_cold_reset_register,
++						   sizeof(long));
++			if (ret != EFI_SUCCESS)
++				return ret;
 +			return EFI_SUCCESS;
 +		}
 +	}
