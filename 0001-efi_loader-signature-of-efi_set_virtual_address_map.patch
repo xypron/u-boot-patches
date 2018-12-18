@@ -1,0 +1,50 @@
+From e354547e86b92c2e2156e337a3ae923911e83cc5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 18 Dec 2018 22:19:40 +0100
+Subject: [PATCH 1/1] efi_loader: signature of efi_set_virtual_address_map()
+
+The first parameter of efi_set_virtual_address_map() is a pointer to a
+pointer. This should be reflected both in the signature and in the
+documentation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h         | 2 +-
+ lib/efi_loader/efi_runtime.c | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 1417c3588fb..b0159e92d72 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -457,7 +457,7 @@ void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
+ 
+ /* Call this with mmio_ptr as the _pointer_ to a pointer to an MMIO region
+  * to make it available at runtime */
+-efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len);
++efi_status_t efi_add_runtime_mmio(void **mmio_ptr, u64 len);
+ 
+ /* Boards may provide the functions below to implement RTS functionality */
+ 
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index f059dc97fd4..204c3da442d 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -497,11 +497,12 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+  * This function adds a memory-mapped IO region to the memory map to make it
+  * available at runtime.
+  *
+- * @mmio_ptr:		address of the memory-mapped IO region
++ * @mmio_ptr:		pointer to a pointer to the start of the memory-mapped
++ *			IO region
+  * @len:		size of the memory-mapped IO region
+  * Returns:		status code
+  */
+-efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
++efi_status_t efi_add_runtime_mmio(void **mmio_ptr, u64 len)
+ {
+ 	struct efi_runtime_mmio_list *newmmio;
+ 	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+-- 
+2.19.2
+
