@@ -1,0 +1,28 @@
+From 4a55a3b0b8a9db93ea65b954f9df5848f9acd8d3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Dec 2018 21:24:06 +0100
+Subject: [PATCH 1/1] arm64: mvebu: armada-8k: support booting from NVME
+
+The MACCHIATObin may be equipped with an NVME drive. Enable it as possible
+boot target.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/configs/mvebu_armada-8k.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index a6636e19e8..2ccec2f4c2 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -107,6 +107,7 @@
+ 	func(MMC, mmc, 0) \
+ 	func(USB, usb, 0) \
+ 	func(SCSI, scsi, 0) \
++	func(NVME, nvme, 0) \
+ 	func(PXE, pxe, na) \
+ 	func(DHCP, dhcp, na)
+ 
+-- 
+2.19.2
+

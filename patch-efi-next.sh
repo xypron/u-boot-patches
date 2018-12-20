@@ -31,6 +31,7 @@ git am ../patch/0001-efi_loader-signature-of-efi_set_virtual_address_map.patch
 git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
 git am ../patch/0001-arm64-mvebu-defconfig-enable-CONFIG_CMD_NVME.patch
 git am ../patch/0001-distro_bootcmd-add-NVME-support.patch
+git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
