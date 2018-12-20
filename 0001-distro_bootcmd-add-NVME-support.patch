@@ -1,4 +1,4 @@
-From a061d4daa5358f2ff4bb1cc46f8e7fca56613e86 Mon Sep 17 00:00:00 2001
+From ca6377012e3db6bdcabefd3fc14aff43e9aa11d7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Dec 2018 21:19:35 +0100
 Subject: [PATCH 1/1] distro_bootcmd: add NVME support
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 27 insertions(+)
 
 diff --git a/include/config_distro_bootcmd.h b/include/config_distro_bootcmd.h
-index 555efb7433..9e9d7bc978 100644
+index 555efb7433..fa0e017b56 100644
 --- a/include/config_distro_bootcmd.h
 +++ b/include/config_distro_bootcmd.h
 @@ -178,6 +178,31 @@
@@ -34,8 +34,8 @@ index 555efb7433..9e9d7bc978 100644
 +	"nvme_boot=" \
 +		BOOTENV_RUN_NVME_INIT \
 +		BOOTENV_SHARED_BLKDEV_BODY(nvme)
-+#define BOOTENV_DEV_NVME        BOOTENV_DEV_BLKDEV
-+#define BOOTENV_DEV_NAME_NVME   BOOTENV_DEV_NAME_BLKDEV
++#define BOOTENV_DEV_NVME	BOOTENV_DEV_BLKDEV
++#define BOOTENV_DEV_NAME_NVME	BOOTENV_DEV_NAME_BLKDEV
 +#else
 +#define BOOTENV_RUN_NVME_INIT
 +#define BOOTENV_SET_NVME_NEED_INIT
