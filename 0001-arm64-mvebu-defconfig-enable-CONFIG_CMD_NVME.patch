@@ -1,0 +1,36 @@
+From 3e32e51996a095b4eb6718a3283bdc85c0e980b0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Dec 2018 20:01:57 +0100
+Subject: [PATCH 1/1] arm64: mvebu: defconfig: enable CONFIG_CMD_NVME
+
+An NVME drive may be installed on the MACCHIATObin board using the PCIe
+slot. With the configuration change it becomes usable.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/mvebu_db_armada8k_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
+index cbdc130e98..8bc95c461b 100644
+--- a/configs/mvebu_db_armada8k_defconfig
++++ b/configs/mvebu_db_armada8k_defconfig
+@@ -20,6 +20,7 @@ CONFIG_BOARD_EARLY_INIT_F=y
+ # CONFIG_CMD_FLASH is not set
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
++CONFIG_CMD_NVME=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+@@ -47,6 +48,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_GIGE=y
+ CONFIG_MVPP2=y
++CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_PCIE_DW_MVEBU=y
+-- 
+2.19.2
+
