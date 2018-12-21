@@ -34,6 +34,7 @@ git am ../patch/0001-distro_bootcmd-add-NVME-support.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-arm64-dts-marvell-armada-ap806-reserve-PSCI-area.patch
 git am ../patch/0001-doc-README.commands-subcommands.patch
+git am ../patch/0001-efi_selftest-block-device-avoid-read-after-free.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
