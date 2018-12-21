@@ -138,7 +138,7 @@ index 0000000000..81376da7a7
 +	if (argc != 2)
 +		return CMD_RET_USAGE;
 +
-+	/* drop initial "ut" arg */
++	/* drop sub-command parameter */
 +	argc--;
 +	argv++;
 +
