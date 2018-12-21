@@ -1,4 +1,4 @@
-From 4b78f06cf5bb01764283579cbf886e2b7ca76375 Mon Sep 17 00:00:00 2001
+From 13d8d8c8cc1310253bfe29cc1d11a8e0cdd45c9e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
@@ -12,17 +12,17 @@ This implementation supports ARM, x86, RISC-V and the following exceptions:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/Kconfig     |   6 ++
+ cmd/Kconfig     |   6 +++
  cmd/Makefile    |   1 +
- cmd/exception.c | 161 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 168 insertions(+)
+ cmd/exception.c | 140 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 147 insertions(+)
  create mode 100644 cmd/exception.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index cfad07432e..76215c8e7c 100644
+index ea1a325eb3..308e5458b9 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1380,6 +1380,12 @@ config CMD_EL
+@@ -1397,6 +1397,12 @@ config CMD_DISPLAY
  	  displayed on a simple board-specific display. Implement
  	  display_putc() to use it.
  
@@ -36,10 +36,11 @@ index cfad07432e..76215c8e7c 100644
  	bool "led"
  	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index 63e3afd56b..140dd36fef 100644
+index 15ae4d250f..b65d1c62fb 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
-@@ -48,5 +48,6 @@ obj-$(CONFIG_CMD_DISPLAY) += display.o
+@@ -48,6 +48,7 @@ endif
+ obj-$(CONFIG_CMD_DISPLAY) += display.o
  obj-$(CONFIG_CMD_DTIMG) += dtimg.o
  obj-$(CONFIG_CMD_ECHO) += echo.o
 +obj-$(CONFIG_CMD_EXCEPTION) += exception.o
@@ -48,10 +49,10 @@ index 63e3afd56b..140dd36fef 100644
  obj-$(CONFIG_EFI_STUB) += efi.o
 diff --git a/cmd/exception.c b/cmd/exception.c
 new file mode 100644
-index 0000000000..fb6a15573e
+index 0000000000..81376da7a7
 --- /dev/null
 +++ b/cmd/exception.c
-@@ -0,0 +1,161 @@
+@@ -0,0 +1,140 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
@@ -61,20 +62,9 @@ index 0000000000..fb6a15573e
 +#include <common.h>
 +#include <command.h>
 +
-+enum exception {
-+	UNDEFINED_INSTRUCTION = 1,
-+	DATA_ABORT,
-+	BREAKPOINT,
-+};
-+
-+struct exception_str {
-+	enum exception id;
-+	char *text;
-+	void (*func)(void);
-+};
-+
 +#if defined(CONFIG_ARM)
-+static void data_abort(void)
++static int do_unaligned(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
 +{
 +#if defined(CONFIG_ARM64)
 +	/*
@@ -96,17 +86,21 @@ index 0000000000..fb6a15573e
 +		"ADD r5, #1\n"
 +		"LDRD r6, r7, [r5]\n");
 +#endif
++	return CMD_RET_FAILURE;
 +}
 +
 +#if !defined(CONFIG_ARM64)
-+static void breakpoint(void)
++static int do_breakpoint(cmd_tbl_t *cmdtp, int flag, int argc,
++			 char * const argv[])
 +{
 +	asm volatile ("BKPT #123\n");
++	return CMD_RET_FAILURE;
 +}
 +#endif
 +#endif
 +
-+static void undefined_instruction(void)
++static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
 +{
 +#if defined(CONFIG_ARM)
 +	/*
@@ -119,61 +113,49 @@ index 0000000000..fb6a15573e
 +#elif defined(CONFIG_X86)
 +	asm volatile (".word 0xffff\n");
 +#endif
++	return CMD_RET_FAILURE;
 +}
 +
-+struct exception_str exceptions[] = {
++static cmd_tbl_t cmd_sub[] = {
 +#if defined(CONFIG_ARM)
 +#if !defined(CONFIG_ARM64)
-+	{ BREAKPOINT, "breakpoint", breakpoint },
++	U_BOOT_CMD_MKENT(breakpoint, CONFIG_SYS_MAXARGS, 1, do_breakpoint,
++			 "", ""),
 +#endif
-+	{ DATA_ABORT, "unaligned", data_abort },
++	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,
++			 "", ""),
 +#endif
-+	{ UNDEFINED_INSTRUCTION, "undefined", undefined_instruction },
-+	{ 0, NULL, NULL },
++	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
++			 "", ""),
 +};
++
 +
 +static int do_exception(cmd_tbl_t *cmdtp, int flag, int argc,
 +			char * const argv[])
 +{
-+	struct exception_str *ex;
-+	enum exception id = 0;
++	cmd_tbl_t *cp;
 +
 +	if (argc != 2)
 +		return CMD_RET_USAGE;
 +
-+	for (ex = exceptions; ex->func ; ++ex) {
-+		if (!strcmp(argv[1], ex->text)) {
-+			id = ex->id;
-+			break;
-+		}
-+	}
-+	switch (id) {
-+#if defined(CONFIG_ARM)
-+#if !defined(CONFIG_ARM64)
-+	case BREAKPOINT:
-+		breakpoint();
-+		break;
-+#endif
-+	case DATA_ABORT:
-+		data_abort();
-+		break;
-+#endif
-+	case UNDEFINED_INSTRUCTION:
-+		undefined_instruction();
-+		break;
-+	default:
-+		return CMD_RET_USAGE;
-+	}
++	/* drop initial "ut" arg */
++	argc--;
++	argv++;
 +
-+	return CMD_RET_FAILURE;
++	cp = find_cmd_tbl(argv[0], cmd_sub, ARRAY_SIZE(cmd_sub));
++
++	if (cp)
++		return cp->cmd(cmdtp, flag, argc, argv);
++
++	return CMD_RET_USAGE;
 +}
 +
 +static int exception_complete(int argc, char * const argv[], char last_char,
 +			      int maxv, char *cmdv[])
 +{
 +	int len = 0;
-+	struct exception_str *ex;
 +	int i = 0;
++	cmd_tbl_t *cmdtp;
 +
 +	switch (argc) {
 +	case 1:
@@ -184,17 +166,16 @@ index 0000000000..fb6a15573e
 +	default:
 +		return 0;
 +	}
-+	for (ex = exceptions; ex->func ; ++ex) {
++	for (cmdtp = cmd_sub; cmdtp != cmd_sub + ARRAY_SIZE(cmd_sub); cmdtp++) {
 +		if (i >= maxv - 1)
 +			return i;
-+		if (!strncmp(argv[1], ex->text, len))
-+			cmdv[i++] = ex->text;
++		if (!strncmp(argv[1], cmdtp->name, len))
++			cmdv[i++] = cmdtp->name;
 +	}
 +	cmdv[i] = NULL;
 +	return i;
 +}
 +
-+#ifdef CONFIG_SYS_LONGHELP
 +static char exception_help_text[] =
 +	"<ex>\n"
 +	"  The following exceptions are available:\n"
@@ -203,7 +184,6 @@ index 0000000000..fb6a15573e
 +	"  breakpoint - prefetch abort\n"
 +#endif
 +	"  unaligned  - data abort\n"
-+#endif
 +#endif
 +	"  undefined  - undefined instruction\n"
 +	;
@@ -214,5 +194,5 @@ index 0000000000..fb6a15573e
 +	exception_help_text, exception_complete
 +);
 -- 
-2.19.1
+2.19.2
 
