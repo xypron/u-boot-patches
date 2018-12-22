@@ -1,4 +1,4 @@
-From 83e2991e1eb81bdd8a561879888230e8dd8d2318 Mon Sep 17 00:00:00 2001
+From 98767cea1cc59ba0c28e50086417d53255d51ff6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
@@ -236,7 +236,7 @@ index bcc6d06582..707161440d 100644
  obj-$(CONFIG_HAVE_FSP) += fsp.o
 diff --git a/cmd/x86/exception.c b/cmd/x86/exception.c
 new file mode 100644
-index 0000000000..9673472852
+index 0000000000..ade1e2ea92
 --- /dev/null
 +++ b/cmd/x86/exception.c
 @@ -0,0 +1,29 @@
@@ -268,7 +268,7 @@ index 0000000000..9673472852
 +	"  undefined  - undefined instruction\n"
 +	;
 +
-+#include <exception>
++#include <exception.h>
 diff --git a/include/exception.h b/include/exception.h
 new file mode 100644
 index 0000000000..d65c585341
