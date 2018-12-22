@@ -27,7 +27,6 @@ git am ../patch/0001-tests-enable-unit-tests-by-default-on-QEMU-ARM-64.patch
 git am ../patch/0001-tools-imx8image-use-correct-printf-escape-sequence.patch
 git am ../patch/0001-efi_loader-struct-efi_configuration_table.patch
 git am ../patch/0001-lib-crc32-mark-static-variable-as-__efi_runtime_data.patch
-git am ../patch/0001-efi_loader-efi_add_runtime_mmio.patch
 git am ../patch/0001-arm64-mvebu-defconfig-enable-CONFIG_CMD_NVME.patch
 git am ../patch/0001-distro_bootcmd-add-NVME-support.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
@@ -58,6 +57,7 @@ git am ../patch/0001-efi_selftest-test-exit_data.patch
 
 # Patches needing rework
 # git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
+# git am ../patch/0001-efi_loader-efi_add_runtime_mmio.patch
 
 # Fix simple network protocol
 # KGDB
