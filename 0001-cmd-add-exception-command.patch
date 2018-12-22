@@ -1,4 +1,4 @@
-From 13d8d8c8cc1310253bfe29cc1d11a8e0cdd45c9e Mon Sep 17 00:00:00 2001
+From cf06b30c556bc02af397fe7686bbbd80a9fe9809 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 10 May 2018 13:03:12 +0200
 Subject: [PATCH 1/1] cmd: add exception command
@@ -12,11 +12,24 @@ This implementation supports ARM, x86, RISC-V and the following exceptions:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/Kconfig     |   6 +++
- cmd/Makefile    |   1 +
- cmd/exception.c | 140 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 147 insertions(+)
- create mode 100644 cmd/exception.c
+ cmd/Kconfig           |  6 +++++
+ cmd/Makefile          |  2 ++
+ cmd/arm/Makefile      |  7 +++++
+ cmd/arm/exception.c   | 61 +++++++++++++++++++++++++++++++++++++++++++
+ cmd/arm/exception64.c | 33 +++++++++++++++++++++++
+ cmd/riscv/Makefile    |  3 +++
+ cmd/riscv/exception.c | 29 ++++++++++++++++++++
+ cmd/x86/Makefile      |  1 +
+ cmd/x86/exception.c   | 29 ++++++++++++++++++++
+ include/exception.h   | 58 ++++++++++++++++++++++++++++++++++++++++
+ 10 files changed, 229 insertions(+)
+ create mode 100644 cmd/arm/Makefile
+ create mode 100644 cmd/arm/exception.c
+ create mode 100644 cmd/arm/exception64.c
+ create mode 100644 cmd/riscv/Makefile
+ create mode 100644 cmd/riscv/exception.c
+ create mode 100644 cmd/x86/exception.c
+ create mode 100644 include/exception.h
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
 index ea1a325eb3..308e5458b9 100644
@@ -36,46 +49,50 @@ index ea1a325eb3..308e5458b9 100644
  	bool "led"
  	default y if LED
 diff --git a/cmd/Makefile b/cmd/Makefile
-index 15ae4d250f..b65d1c62fb 100644
+index 15ae4d250f..95f8264643 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
-@@ -48,6 +48,7 @@ endif
- obj-$(CONFIG_CMD_DISPLAY) += display.o
- obj-$(CONFIG_CMD_DTIMG) += dtimg.o
- obj-$(CONFIG_CMD_ECHO) += echo.o
-+obj-$(CONFIG_CMD_EXCEPTION) += exception.o
- obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
- obj-$(CONFIG_CMD_EEPROM) += eeprom.o
- obj-$(CONFIG_EFI_STUB) += efi.o
-diff --git a/cmd/exception.c b/cmd/exception.c
+@@ -170,6 +170,8 @@ obj-$(CONFIG_CMD_BLOB) += blob.o
+ # Android Verified Boot 2.0
+ obj-$(CONFIG_CMD_AVB) += avb.o
+ 
++obj-$(CONFIG_ARM) += arm/
++obj-$(CONFIG_RISCV) += riscv/
+ obj-$(CONFIG_X86) += x86/
+ 
+ obj-$(CONFIG_ARCH_MVEBU) += mvebu/
+diff --git a/cmd/arm/Makefile b/cmd/arm/Makefile
 new file mode 100644
-index 0000000000..81376da7a7
+index 0000000000..94367dcb45
 --- /dev/null
-+++ b/cmd/exception.c
-@@ -0,0 +1,140 @@
++++ b/cmd/arm/Makefile
+@@ -0,0 +1,7 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++ifdef CONFIG_ARM64
++obj-$(CONFIG_CMD_EXCEPTION) += exception64.o
++else
++obj-$(CONFIG_CMD_EXCEPTION) += exception.o
++endif
+diff --git a/cmd/arm/exception.c b/cmd/arm/exception.c
+new file mode 100644
+index 0000000000..33bc75976f
+--- /dev/null
++++ b/cmd/arm/exception.c
+@@ -0,0 +1,61 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * The 'exception' command can be used for testing exception handling.
 + *
 + * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + */
++
 +#include <common.h>
 +#include <command.h>
 +
-+#if defined(CONFIG_ARM)
 +static int do_unaligned(cmd_tbl_t *cmdtp, int flag, int argc,
 +			char * const argv[])
 +{
-+#if defined(CONFIG_ARM64)
-+	/*
-+	 * The LDR instruction requires the data source to be eight byte
-+	 * aligned.
-+	 */
-+	asm volatile (
-+		"MOV x1, sp\n"
-+		"ADD x1, x1, 1\n"
-+		"LDR x3, [x1]\n");
-+#else
 +	/*
 +	 * The LDRD instruction requires the data source to be four byte aligned
 +	 * even if strict alignment fault checking is disabled in the system
@@ -85,50 +102,185 @@ index 0000000000..81376da7a7
 +		"MOV r5, sp\n"
 +		"ADD r5, #1\n"
 +		"LDRD r6, r7, [r5]\n");
-+#endif
 +	return CMD_RET_FAILURE;
 +}
 +
-+#if !defined(CONFIG_ARM64)
 +static int do_breakpoint(cmd_tbl_t *cmdtp, int flag, int argc,
 +			 char * const argv[])
 +{
 +	asm volatile ("BKPT #123\n");
 +	return CMD_RET_FAILURE;
 +}
-+#endif
-+#endif
 +
 +static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
 +			char * const argv[])
 +{
-+#if defined(CONFIG_ARM)
 +	/*
 +	 * 0xe7f...f.	is undefined in ARM mode
 +	 * 0xde..	is undefined in Thumb mode
 +	 */
 +	asm volatile (".word 0xe7f7defb\n");
-+#elif defined(CONFIG_RISCV)
-+	asm volatile (".word 0xffffffff\n");
-+#elif defined(CONFIG_X86)
-+	asm volatile (".word 0xffff\n");
-+#endif
 +	return CMD_RET_FAILURE;
 +}
 +
 +static cmd_tbl_t cmd_sub[] = {
-+#if defined(CONFIG_ARM)
-+#if !defined(CONFIG_ARM64)
 +	U_BOOT_CMD_MKENT(breakpoint, CONFIG_SYS_MAXARGS, 1, do_breakpoint,
 +			 "", ""),
-+#endif
 +	U_BOOT_CMD_MKENT(unaligned, CONFIG_SYS_MAXARGS, 1, do_unaligned,
 +			 "", ""),
-+#endif
 +	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
 +			 "", ""),
 +};
 +
++static char exception_help_text[] =
++	"<ex>\n"
++	"  The following exceptions are available:\n"
++	"  breakpoint - prefetch abort\n"
++	"  unaligned  - data abort\n"
++	"  undefined  - undefined instruction\n"
++	;
++
++#include <exception.h>
+diff --git a/cmd/arm/exception64.c b/cmd/arm/exception64.c
+new file mode 100644
+index 0000000000..a363818532
+--- /dev/null
++++ b/cmd/arm/exception64.c
+@@ -0,0 +1,33 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'exception' command can be used for testing exception handling.
++ *
++ * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++
++static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
++{
++	/*
++	 * 0xe7f...f.	is undefined in ARM mode
++	 * 0xde..	is undefined in Thumb mode
++	 */
++	asm volatile (".word 0xe7f7defb\n");
++	return CMD_RET_FAILURE;
++}
++
++static cmd_tbl_t cmd_sub[] = {
++	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
++			 "", ""),
++};
++
++static char exception_help_text[] =
++	"<ex>\n"
++	"  The following exceptions are available:\n"
++	"  undefined  - undefined instruction\n"
++	;
++
++#include <exception.h>
+diff --git a/cmd/riscv/Makefile b/cmd/riscv/Makefile
+new file mode 100644
+index 0000000000..24df023ece
+--- /dev/null
++++ b/cmd/riscv/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0+
++
++obj-$(CONFIG_CMD_EXCEPTION) += exception.o
+diff --git a/cmd/riscv/exception.c b/cmd/riscv/exception.c
+new file mode 100644
+index 0000000000..547fb7d132
+--- /dev/null
++++ b/cmd/riscv/exception.c
+@@ -0,0 +1,29 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'exception' command can be used for testing exception handling.
++ *
++ * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++
++static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
++{
++	asm volatile (".word 0xffffffff\n");
++	return CMD_RET_FAILURE;
++}
++
++static cmd_tbl_t cmd_sub[] = {
++	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
++			 "", ""),
++};
++
++static char exception_help_text[] =
++	"<ex>\n"
++	"  The following exceptions are available:\n"
++	"  undefined  - undefined instruction\n"
++	;
++
++#include <exception.h>
+diff --git a/cmd/x86/Makefile b/cmd/x86/Makefile
+index bcc6d06582..241648d49e 100644
+--- a/cmd/x86/Makefile
++++ b/cmd/x86/Makefile
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+ obj-y += mtrr.o
++obj-$(CONFIG_CMD_EXCEPTION) += exception64.o
+ obj-$(CONFIG_HAVE_FSP) += fsp.o
+diff --git a/cmd/x86/exception.c b/cmd/x86/exception.c
+new file mode 100644
+index 0000000000..9673472852
+--- /dev/null
++++ b/cmd/x86/exception.c
+@@ -0,0 +1,29 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'exception' command can be used for testing exception handling.
++ *
++ * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++
++static int do_undefined(cmd_tbl_t *cmdtp, int flag, int argc,
++			char * const argv[])
++{
++	asm volatile (".word 0xffff\n");
++	return CMD_RET_FAILURE;
++}
++
++static cmd_tbl_t cmd_sub[] = {
++	U_BOOT_CMD_MKENT(undefined, CONFIG_SYS_MAXARGS, 1, do_undefined,
++			 "", ""),
++};
++
++static char exception_help_text[] =
++	"<ex>\n"
++	"  The following exceptions are available:\n"
++	"  undefined  - undefined instruction\n"
++	;
++
++#include <exception>
+diff --git a/include/exception.h b/include/exception.h
+new file mode 100644
+index 0000000000..d65c585341
+--- /dev/null
++++ b/include/exception.h
+@@ -0,0 +1,58 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'exception' command can be used for testing exception handling.
++ *
++ * Copyright (c) 2018, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
 +
 +static int do_exception(cmd_tbl_t *cmdtp, int flag, int argc,
 +			char * const argv[])
@@ -175,18 +327,6 @@ index 0000000000..81376da7a7
 +	cmdv[i] = NULL;
 +	return i;
 +}
-+
-+static char exception_help_text[] =
-+	"<ex>\n"
-+	"  The following exceptions are available:\n"
-+#if defined(CONFIG_ARM)
-+#if !defined(CONFIG_ARM64)
-+	"  breakpoint - prefetch abort\n"
-+#endif
-+	"  unaligned  - data abort\n"
-+#endif
-+	"  undefined  - undefined instruction\n"
-+	;
 +
 +U_BOOT_CMD_COMPLETE(
 +	exception, 2, 0, do_exception,
