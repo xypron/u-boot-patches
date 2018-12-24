@@ -1,0 +1,154 @@
+From 766d9f64f5858259747a645b1c0edaa7d6deaa6a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 24 Dec 2018 17:50:49 +0100
+Subject: [PATCH 1/1] efi_loader: refactor move to HYP or EL2
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 109 ++++++++++++++++++++++----------------------------
+ 1 file changed, 48 insertions(+), 61 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 1aaf5319e13..7660eb7bc4d 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -122,6 +122,52 @@ void __weak allow_unaligned(void)
+ {
+ }
+ 
++struct jmp_buf_data exit_jmp;
++
++void jump_back(void)
++{
++	dcache_enable();
++
++	longjmp(&exit_jmp, 1);
++}
++
++void leave_hypervisor(void)
++{
++	if (setjmp(&exit_jmp)) {
++		return;
++	}
++
++#ifdef CONFIG_ARM64
++	/* On AArch64 we need to make sure we call our payload in < EL3 */
++	if (current_el() == 3) {
++		smp_kick_all_cpus();
++		dcache_disable();	/* flush cache before switch to EL2 */
++
++		/* Move into EL2 and keep running there */
++		armv8_switch_to_el2(0, 0, 0, 0, (uintptr_t)jump_back,
++				    ES_TO_AARCH64);
++
++		/* Should never reach here, efi exits with longjmp */
++		while (1) { }
++	}
++#endif
++
++#ifdef CONFIG_ARMV7_NONSEC
++	if (armv7_boot_nonsec() && !is_nonsec) {
++		dcache_disable();	/* flush cache before switch to HYP */
++
++		armv7_init_nonsec();
++		is_nonsec = true;
++		secure_ram_addr(_do_nonsec_entry)(jump_back, 0, 0, 0);
++
++		/* Should never reach here, efi exits with longjmp */
++		while (1) { }
++	}
++#endif
++
++	jump_back();
++}
++
+ /*
+  * Set the load options of an image from an environment variable.
+  *
+@@ -233,34 +279,6 @@ static efi_status_t efi_do_enter(
+ 	return ret;
+ }
+ 
+-#ifdef CONFIG_ARM64
+-static efi_status_t efi_run_in_el2(EFIAPI efi_status_t (*entry)(
+-			efi_handle_t image_handle, struct efi_system_table *st),
+-			efi_handle_t image_handle, struct efi_system_table *st)
+-{
+-	/* Enable caches again */
+-	dcache_enable();
+-
+-	return efi_do_enter(image_handle, st, entry);
+-}
+-#endif
+-
+-#ifdef CONFIG_ARMV7_NONSEC
+-static bool is_nonsec;
+-
+-static efi_status_t efi_run_in_hyp(EFIAPI efi_status_t (*entry)(
+-			efi_handle_t image_handle, struct efi_system_table *st),
+-			efi_handle_t image_handle, struct efi_system_table *st)
+-{
+-	/* Enable caches again */
+-	dcache_enable();
+-
+-	is_nonsec = true;
+-
+-	return efi_do_enter(image_handle, st, entry);
+-}
+-#endif
+-
+ /*
+  * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
+  *
+@@ -440,39 +458,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		goto err_prepare;
+ 	}
+ 
+-#ifdef CONFIG_ARM64
+-	/* On AArch64 we need to make sure we call our payload in < EL3 */
+-	if (current_el() == 3) {
+-		smp_kick_all_cpus();
+-		dcache_disable();	/* flush cache before switch to EL2 */
+-
+-		/* Move into EL2 and keep running there */
+-		armv8_switch_to_el2((ulong)entry,
+-				    (ulong)&image_obj->header,
+-				    (ulong)&systab, 0, (ulong)efi_run_in_el2,
+-				    ES_TO_AARCH64);
+-
+-		/* Should never reach here, efi exits with longjmp */
+-		while (1) { }
+-	}
+-#endif
+-
+-#ifdef CONFIG_ARMV7_NONSEC
+-	if (armv7_boot_nonsec() && !is_nonsec) {
+-		dcache_disable();	/* flush cache before switch to HYP */
+-
+-		armv7_init_nonsec();
+-		secure_ram_addr(_do_nonsec_entry)(
+-					efi_run_in_hyp,
+-					(uintptr_t)entry,
+-					(uintptr_t)&image_obj->header,
+-					(uintptr_t)&systab);
+-
+-		/* Should never reach here, efi exits with longjmp */
+-		while (1) { }
+-	}
+-#endif
+-
+ 	ret = efi_do_enter(&image_obj->header, &systab, entry);
+ 
+ err_prepare:
+@@ -558,6 +543,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	/* Allow unaligned memory access */
+ 	allow_unaligned();
+ 
++	leave_hypervisor();
++
+ 	/* Initialize EFI drivers */
+ 	r = efi_init_obj_list();
+ 	if (r != EFI_SUCCESS) {
+-- 
+2.19.2
+
