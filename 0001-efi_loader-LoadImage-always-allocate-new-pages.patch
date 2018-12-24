@@ -1,0 +1,172 @@
+From ad4873508331f092f96bcd8b82dd57228519b523 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 24 Dec 2018 09:19:07 +0100
+Subject: [PATCH 1/1] efi_loader: LoadImage: always allocate new pages
+
+If we want to properly unload images in Exit() the memory should always be
+allocated in the same way. As we allocate memory when reading from file we
+should do the same when the original image is in memory.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          |  2 +-
+ lib/efi_loader/efi_bootmgr.c  |  2 +-
+ lib/efi_loader/efi_boottime.c | 56 ++++++++++++++++++++++++-----------
+ 3 files changed, 40 insertions(+), 20 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index d4412d30bf..3525b65f49 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -391,7 +391,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+ 				    struct efi_loaded_image_obj **handle_ptr,
+ 				    struct efi_loaded_image **info_ptr);
+ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+-				      void **buffer);
++				      void **buffer, efi_uintn_t *size);
+ /* Print information about all loaded images */
+ void efi_print_image_infos(void *pc);
+ 
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index a095df3f54..196116b547 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -150,7 +150,7 @@ static void *try_load_entry(uint16_t n, struct efi_device_path **device_path,
+ 		debug("%s: trying to load \"%ls\" from %pD\n",
+ 		      __func__, lo.label, lo.file_path);
+ 
+-		ret = efi_load_image_from_path(lo.file_path, &image);
++		ret = efi_load_image_from_path(lo.file_path, &image, &size);
+ 
+ 		if (ret != EFI_SUCCESS)
+ 			goto error;
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index de746a2d48..37f0f0e338 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1578,17 +1578,19 @@ failure:
+ 
+ /**
+  * efi_load_image_from_path() - load an image using a file path
+- * @file_path: the path of the image to load
+- * @buffer:    buffer containing the loaded image
++ * @file_path:	the path of the image to load
++ * @buffer:	buffer containing the loaded image
++ * @size:	size of the loaded image
+  *
+  * Return: status code
+  */
+ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+-				      void **buffer)
++				      void **buffer, efi_uintn_t *size)
+ {
+ 	struct efi_file_info *info = NULL;
+ 	struct efi_file_handle *f;
+ 	static efi_status_t ret;
++	u64 addr;
+ 	efi_uintn_t bs;
+ 
+ 	f = efi_file_from_path(file_path);
+@@ -1606,22 +1608,21 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 	if (ret != EFI_SUCCESS)
+ 		goto error;
+ 
+-	ret = efi_allocate_pool(EFI_LOADER_DATA, info->file_size, buffer);
+-	if (ret)
++	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
++				 EFI_RUNTIME_SERVICES_CODE,
++				 efi_size_in_pages(), &addr);
++	if (ret != EFI_SUCCESS) {
++		ret = EFI_OUT_OF_RESOURCES;
+ 		goto error;
++	}
+ 
++	*buffer = (void *)(uintptr_t)addr;
+ 	bs = info->file_size;
+ 	EFI_CALL(ret = f->read(f, &bs, *buffer));
+ 
+ error:
+-	free(info);
+ 	EFI_CALL(f->close(f));
+ 
+-	if (ret != EFI_SUCCESS) {
+-		efi_free_pool(*buffer);
+-		*buffer = NULL;
+-	}
+-
+ 	return ret;
+ }
+ 
+@@ -1648,6 +1649,7 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 					  efi_uintn_t source_size,
+ 					  efi_handle_t *image_handle)
+ {
++	struct efi_device_path *dp, *fp;
+ 	struct efi_loaded_image *info = NULL;
+ 	struct efi_loaded_image_obj **image_obj =
+ 		(struct efi_loaded_image_obj **)image_handle;
+@@ -1667,9 +1669,10 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 	}
+ 
+ 	if (!source_buffer) {
+-		struct efi_device_path *dp, *fp;
+-
+-		ret = efi_load_image_from_path(file_path, &source_buffer);
++		ret = efi_load_image_from_path(file_path, &source_buffer,
++					       &source_size);
++		if (ret == EFI_OUT_OF_RESOURCES)
++			goto error;
+ 		if (ret != EFI_SUCCESS)
+ 			goto failure;
+ 		/*
+@@ -1677,26 +1680,43 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 		 * file parts:
+ 		 */
+ 		efi_dp_split_file_path(file_path, &dp, &fp);
+-		ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
+-		if (ret != EFI_SUCCESS)
+-			goto failure;
+ 	} else {
+ 		/* In this case, file_path is the "device" path, i.e.
+ 		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
+ 		 */
+-		ret = efi_setup_loaded_image(file_path, NULL, image_obj, &info);
++		u64 addr;
++		void *dest_buffer;
++
++		ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
++					 EFI_RUNTIME_SERVICES_CODE,
++					 efi_size_in_pages(source_size), &addr);
+ 		if (ret != EFI_SUCCESS)
+ 			goto error;
++		dest_buffer = (void *)(uintptr_t)addr;
++		memcpy(dest_buffer, source_buffer, source_size);
++		source_buffer = dest_buffer;
++
++		dp = file_path;
++		fp = NULL;
+ 	}
++	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
++	if (ret != EFI_SUCCESS)
++		goto failure;
+ 	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
+ 	if (!(*image_obj)->entry) {
+ 		ret = EFI_UNSUPPORTED;
+ 		goto failure;
+ 	}
++	/* Update the type of the allocated memory */
++	efi_add_memory_map((uintptr_t)source_buffer,
++			   efi_size_in_pages(source_size),
++			   info->image_code_type, false);
+ 	info->system_table = &systab;
+ 	info->parent_handle = parent_image;
+ 	return EFI_EXIT(EFI_SUCCESS);
+ failure:
++	efi_free_pages((uintptr_t)source_buffer,
++		       efi_size_in_pages(source_size));
+ 	efi_delete_handle(*image_handle);
+ 	*image_handle = NULL;
+ 	free(info);
+-- 
+2.19.2
+
