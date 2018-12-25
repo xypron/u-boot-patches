@@ -1,7 +1,7 @@
-From e49a73de46ba5f16a933112d6e06c237824be848 Mon Sep 17 00:00:00 2001
+From 4699022d4f2a5504f1dc2ac257182bd136569cd4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
-Subject: [PATCH 1/1] efi_loader: refactor move to HYP or EL2
+Subject: [PATCH] efi_loader: refactor move to HYP or EL2
 
 Currently we have duplicate code for loading and starting UEFI binaries.
 This patch moves the switch from supervisor to hypervisor or from EL3 to EL2 to
@@ -10,14 +10,14 @@ code.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 102 ++++++++++++++++++++------------------------------
- 1 file changed, 41 insertions(+), 61 deletions(-)
+ cmd/bootefi.c | 103 ++++++++++++++++++++------------------------------
+ 1 file changed, 42 insertions(+), 61 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 1aaf5319e13..d5d9ec0060e 100644
+index 1aaf5319e13..ac4c7ce17c4 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -122,6 +122,45 @@ void __weak allow_unaligned(void)
+@@ -122,6 +122,46 @@ void __weak allow_unaligned(void)
  {
  }
  
@@ -56,6 +56,7 @@ index 1aaf5319e13..d5d9ec0060e 100644
 +		/* Move into EL2 and keep running there */
 +		armv8_switch_to_el2(0, 0, 0, 0, (uintptr_t)jump_back,
 +				    ES_TO_AARCH64);
++	}
 +#endif
 +	return;
 +}
@@ -63,7 +64,7 @@ index 1aaf5319e13..d5d9ec0060e 100644
  /*
   * Set the load options of an image from an environment variable.
   *
-@@ -233,34 +272,6 @@ static efi_status_t efi_do_enter(
+@@ -233,34 +273,6 @@ static efi_status_t efi_do_enter(
  	return ret;
  }
  
@@ -98,7 +99,7 @@ index 1aaf5319e13..d5d9ec0060e 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -440,39 +451,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -440,39 +452,6 @@ static efi_status_t do_bootefi_exec(void *efi,
  		goto err_prepare;
  	}
  
@@ -138,7 +139,7 @@ index 1aaf5319e13..d5d9ec0060e 100644
  	ret = efi_do_enter(&image_obj->header, &systab, entry);
  
  err_prepare:
-@@ -558,6 +536,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -558,6 +537,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	/* Allow unaligned memory access */
  	allow_unaligned();
  
