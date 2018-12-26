@@ -1,18 +1,41 @@
-From 3e32e51996a095b4eb6718a3283bdc85c0e980b0 Mon Sep 17 00:00:00 2001
+From 832fb1a35d8cd1b24b0ae79660fb1106cab5ebd0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Dec 2018 20:01:57 +0100
-Subject: [PATCH 1/1] arm64: mvebu: defconfig: enable CONFIG_CMD_NVME
+Subject: [PATCH v2 1/1] arm64: mvebu: defconfig: enable CONFIG_CMD_NVME
 
 An NVME drive may be installed on the MACCHIATObin board using the PCIe
-slot. With the configuration change it becomes usable.
+slot or on the Clearfog Pro using mini a PCI-e slot. With the configuration
+change it becomes usable.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- configs/mvebu_db_armada8k_defconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ configs/clearfog_gt_8k_defconfig      | 2 ++
+ configs/mvebu_db_armada8k_defconfig   | 2 ++
+ configs/mvebu_mcbin-88f8040_defconfig | 2 ++
+ 3 files changed, 6 insertions(+)
 
+diff --git a/configs/clearfog_gt_8k_defconfig b/configs/clearfog_gt_8k_defconfig
+index 8f766c176be..5f538d6163f 100644
+--- a/configs/clearfog_gt_8k_defconfig
++++ b/configs/clearfog_gt_8k_defconfig
+@@ -41,6 +41,7 @@ CONFIG_DM_I2C=y
+ CONFIG_SYS_I2C_MVTWSI=y
+ CONFIG_MISC=y
+ CONFIG_DM_MMC=y
++CONFIG_CMD_NVME=y
+ CONFIG_MMC_SDHCI=y
+ CONFIG_MMC_SDHCI_XENON=y
+ CONFIG_SPI_FLASH=y
+@@ -50,6 +51,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_PHYLIB=y
+ CONFIG_PHY_GIGE=y
++CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_PCIE_DW_MVEBU=y
 diff --git a/configs/mvebu_db_armada8k_defconfig b/configs/mvebu_db_armada8k_defconfig
-index cbdc130e98..8bc95c461b 100644
+index bb29d2574d2..7b4e7152683 100644
 --- a/configs/mvebu_db_armada8k_defconfig
 +++ b/configs/mvebu_db_armada8k_defconfig
 @@ -20,6 +20,7 @@ CONFIG_BOARD_EARLY_INIT_F=y
@@ -24,6 +47,26 @@ index cbdc130e98..8bc95c461b 100644
  CONFIG_CMD_SF=y
  CONFIG_CMD_SPI=y
 @@ -47,6 +48,7 @@ CONFIG_SPI_FLASH_STMICRO=y
+ CONFIG_PHY_MARVELL=y
+ CONFIG_PHY_GIGE=y
+ CONFIG_MVPP2=y
++CONFIG_NVME=y
+ CONFIG_PCI=y
+ CONFIG_DM_PCI=y
+ CONFIG_PCIE_DW_MVEBU=y
+diff --git a/configs/mvebu_mcbin-88f8040_defconfig b/configs/mvebu_mcbin-88f8040_defconfig
+index 9df4c51c6f1..882169be2ce 100644
+--- a/configs/mvebu_mcbin-88f8040_defconfig
++++ b/configs/mvebu_mcbin-88f8040_defconfig
+@@ -20,6 +20,7 @@ CONFIG_BOARD_EARLY_INIT_F=y
+ CONFIG_CMD_GPIO=y
+ CONFIG_CMD_I2C=y
+ CONFIG_CMD_MMC=y
++CONFIG_CMD_NVME=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_SF=y
+ CONFIG_CMD_SPI=y
+@@ -51,6 +52,7 @@ CONFIG_SPI_FLASH_WINBOND=y
  CONFIG_PHY_MARVELL=y
  CONFIG_PHY_GIGE=y
  CONFIG_MVPP2=y
