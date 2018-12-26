@@ -47,8 +47,8 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 # Clean up load image
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
 git am ../patch/0001-efi_loader-refactor-switch-to-hypervisor-mode.patch
-git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
 git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
+git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
