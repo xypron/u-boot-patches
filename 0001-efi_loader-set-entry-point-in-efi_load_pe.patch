@@ -1,0 +1,197 @@
+From f67a44c47312e8cfb05c9b3319a0305e5b6049d8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 26 Dec 2018 12:49:09 +0100
+Subject: [PATCH 1/1] efi_loader: set entry point in efi_load_pe()
+
+Up to now efi_load_pe() returns the entry point or NULL in case of an
+error. This does not allow to return correct error codes from LoadImage().
+
+Let efi_load_pe() return a status code and fill in the entry point in the
+corresponding field of the image object.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                     | 14 +++++---------
+ include/efi_loader.h              |  4 ++--
+ lib/efi_loader/efi_boottime.c     |  6 ++----
+ lib/efi_loader/efi_image_loader.c | 29 ++++++++++++++++++-----------
+ 4 files changed, 27 insertions(+), 26 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 804f527e73..9f4c871ba3 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -356,9 +356,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 	struct efi_loaded_image_obj *image_obj = NULL;
+ 	struct efi_loaded_image *loaded_image_info = NULL;
+ 
+-	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+-				     struct efi_system_table *st);
+-
+ 	/*
+ 	 * Special case for efi payload not loaded from disk, such as
+ 	 * 'bootefi hello' or for example payload loaded directly into
+@@ -390,11 +387,9 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		goto err_prepare;
+ 
+ 	/* Load the EFI payload */
+-	entry = efi_load_pe(image_obj, efi, loaded_image_info);
+-	if (!entry) {
+-		ret = EFI_LOAD_ERROR;
++	ret = efi_load_pe(image_obj, efi, loaded_image_info);
++	if (ret != EFI_SUCCESS)
+ 		goto err_prepare;
+-	}
+ 
+ 	if (memdp) {
+ 		struct efi_device_path_memory *mdp = (void *)memdp;
+@@ -409,14 +404,15 @@ static efi_status_t do_bootefi_exec(void *efi,
+ 		"{ro,boot}(blob)0000000000000000");
+ 
+ 	/* Call our payload! */
+-	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__, (long)entry);
++	debug("%s:%d Jumping to 0x%lx\n", __func__, __LINE__,
++	      (long)image_obj->entry);
+ 
+ 	if (setjmp(&image_obj->exit_jmp)) {
+ 		ret = image_obj->exit_status;
+ 		goto err_prepare;
+ 	}
+ 
+-	ret = efi_do_enter(&image_obj->header, &systab, entry);
++	ret = efi_do_enter(&image_obj->header, &systab, image_obj->entry);
+ 
+ err_prepare:
+ 	/* image has returned, loaded-image obj goes *poof*: */
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 3525b65f49..481b420494 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -295,8 +295,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
+ /* Called from places to check whether a timer expired */
+ void efi_timer_check(void);
+ /* PE loader implementation */
+-void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+-		  struct efi_loaded_image *loaded_image_info);
++efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
++			 struct efi_loaded_image *loaded_image_info);
+ /* Called once to store the pristine gd pointer */
+ void efi_save_gd(void);
+ /* Special case handler for error/abort that just tries to dtrt to get
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 92ba09a682..dc74979888 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1702,11 +1702,9 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
+ 	if (ret != EFI_SUCCESS)
+ 		goto failure;
+-	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
+-	if (!(*image_obj)->entry) {
+-		ret = EFI_UNSUPPORTED;
++	ret = efi_load_pe(*image_obj, source_buffer, info);
++	if (ret != EFI_SUCCESS)
+ 		goto failure;
+-	}
+ 	/* Update the type of the allocated memory */
+ 	efi_add_memory_map((uintptr_t)source_buffer,
+ 			   efi_size_in_pages(source_size),
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index e1f064f58f..f5ac6e22e6 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -193,13 +193,20 @@ static void efi_set_code_and_data_type(
+ 	}
+ }
+ 
+-/*
++/**
++ * efi_load_pe() - relocate EFI binary
++ *
+  * This function loads all sections from a PE binary into a newly reserved
+  * piece of memory. On successful load it then returns the entry point for
+  * the binary. Otherwise NULL.
++ *
++ * @handle:		loaded image handle
++ * @efi:		pointer to the EFI binary
++ * @loaded_image_info:	loaded image protocol
++ * Return:		status code
+  */
+-void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+-		  struct efi_loaded_image *loaded_image_info)
++efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
++			 struct efi_loaded_image *loaded_image_info)
+ {
+ 	IMAGE_NT_HEADERS32 *nt;
+ 	IMAGE_DOS_HEADER *dos;
+@@ -218,13 +225,13 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 	dos = efi;
+ 	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
+ 		printf("%s: Invalid DOS Signature\n", __func__);
+-		return NULL;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	nt = (void *) ((char *)efi + dos->e_lfanew);
+ 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
+ 		printf("%s: Invalid NT Signature\n", __func__);
+-		return NULL;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	for (i = 0; machines[i]; i++)
+@@ -236,7 +243,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 	if (!supported) {
+ 		printf("%s: Machine type 0x%04x is not supported\n",
+ 		       __func__, nt->FileHeader.Machine);
+-		return NULL;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	/* Calculate upper virtual address boundary */
+@@ -262,7 +269,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 		if (!efi_reloc) {
+ 			printf("%s: Could not allocate %lu bytes\n",
+ 			       __func__, virt_size);
+-			return NULL;
++			return EFI_OUT_OF_RESOURCES;
+ 		}
+ 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
+ 		rel_size = opt->DataDirectory[rel_idx].Size;
+@@ -278,7 +285,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 		if (!efi_reloc) {
+ 			printf("%s: Could not allocate %lu bytes\n",
+ 			       __func__, virt_size);
+-			return NULL;
++			return EFI_OUT_OF_RESOURCES;
+ 		}
+ 		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
+ 		rel_size = opt->DataDirectory[rel_idx].Size;
+@@ -287,7 +294,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 	} else {
+ 		printf("%s: Invalid optional header magic %x\n", __func__,
+ 		       nt->OptionalHeader.Magic);
+-		return NULL;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	/* Load sections into RAM */
+@@ -305,7 +312,7 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 				(unsigned long)image_base) != EFI_SUCCESS) {
+ 		efi_free_pages((uintptr_t) efi_reloc,
+ 			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
+-		return NULL;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	/* Flush cache */
+@@ -319,5 +326,5 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 	handle->reloc_base = efi_reloc;
+ 	handle->reloc_size = virt_size;
+ 
+-	return handle->entry;
++	return EFI_SUCCESS;
+ }
+-- 
+2.19.2
+
