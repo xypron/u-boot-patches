@@ -45,6 +45,7 @@ git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
+git am ../patch/0001-efi_loader-avoid-unnecessary-pointer-to-long-convers.patch
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
 git am ../patch/0001-efi_loader-refactor-switch-to-hypervisor-mode.patch
 git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
