@@ -1,4 +1,4 @@
-From eea1d79135340ddbefc5f8b4a8ebab5216f84ece Mon Sep 17 00:00:00 2001
+From ebd174ce7e51768c672fcc191b2addf079b90c66 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
 Subject: [PATCH 1/1] efi_loader: refactor switch to hypervisor mode
@@ -9,12 +9,12 @@ the beginning of do_bootefi().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/arm/cpu/armv7/Makefile          |  1 +
- arch/arm/cpu/armv7/exception_level.c | 41 +++++++++++++++
+ arch/arm/cpu/armv7/exception_level.c | 41 ++++++++++++++
  arch/arm/cpu/armv8/Makefile          |  1 +
- arch/arm/cpu/armv8/exception_level.c | 40 +++++++++++++++
- cmd/bootefi.c                        | 76 +++++-----------------------
+ arch/arm/cpu/armv8/exception_level.c | 40 ++++++++++++++
+ cmd/bootefi.c                        | 81 +++++-----------------------
  include/bootm.h                      |  5 ++
- 6 files changed, 101 insertions(+), 63 deletions(-)
+ 6 files changed, 101 insertions(+), 68 deletions(-)
  create mode 100644 arch/arm/cpu/armv7/exception_level.c
  create mode 100644 arch/arm/cpu/armv8/exception_level.c
 
@@ -32,7 +32,7 @@ index 4f4647c90ac..8c955d0d528 100644
  ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
 diff --git a/arch/arm/cpu/armv7/exception_level.c b/arch/arm/cpu/armv7/exception_level.c
 new file mode 100644
-index 00000000000..9ea3dd8a696
+index 00000000000..e231fc94633
 --- /dev/null
 +++ b/arch/arm/cpu/armv7/exception_level.c
 @@ -0,0 +1,41 @@
@@ -91,7 +91,7 @@ index 52c8daa0496..8b0b887a696 100644
  obj-y	+= tlb.o
 diff --git a/arch/arm/cpu/armv8/exception_level.c b/arch/arm/cpu/armv8/exception_level.c
 new file mode 100644
-index 00000000000..c564b32f7f2
+index 00000000000..ad8211bb85d
 --- /dev/null
 +++ b/arch/arm/cpu/armv8/exception_level.c
 @@ -0,0 +1,40 @@
@@ -136,7 +136,7 @@ index 00000000000..c564b32f7f2
 +	}
 +}
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 1aaf5319e13..e996e525385 100644
+index 1aaf5319e13..804f527e730 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -5,8 +5,9 @@
@@ -150,7 +150,17 @@ index 1aaf5319e13..e996e525385 100644
  #include <command.h>
  #include <dm.h>
  #include <efi_dxe.h>
-@@ -31,7 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
+@@ -21,17 +22,11 @@
+ #include <asm-generic/unaligned.h>
+ #include <linux/linkage.h>
+ 
+-#ifdef CONFIG_ARMV7_NONSEC
+-#include <asm/armv7.h>
+-#include <asm/secure.h>
+-#endif
+-
+ DECLARE_GLOBAL_DATA_PTR;
+ 
  #define OBJ_LIST_NOT_INITIALIZED 1
  
  static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
@@ -158,7 +168,7 @@ index 1aaf5319e13..e996e525385 100644
  static struct efi_device_path *bootefi_image_path;
  static struct efi_device_path *bootefi_device_path;
  
-@@ -122,6 +122,15 @@ void __weak allow_unaligned(void)
+@@ -122,6 +117,15 @@ void __weak allow_unaligned(void)
  {
  }
  
@@ -174,7 +184,7 @@ index 1aaf5319e13..e996e525385 100644
  /*
   * Set the load options of an image from an environment variable.
   *
-@@ -233,34 +242,6 @@ static efi_status_t efi_do_enter(
+@@ -233,34 +237,6 @@ static efi_status_t efi_do_enter(
  	return ret;
  }
  
@@ -209,7 +219,7 @@ index 1aaf5319e13..e996e525385 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -440,39 +421,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -440,39 +416,6 @@ static efi_status_t do_bootefi_exec(void *efi,
  		goto err_prepare;
  	}
  
@@ -249,7 +259,7 @@ index 1aaf5319e13..e996e525385 100644
  	ret = efi_do_enter(&image_obj->header, &systab, entry);
  
  err_prepare:
-@@ -558,6 +506,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -558,6 +501,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	/* Allow unaligned memory access */
  	allow_unaligned();
  
