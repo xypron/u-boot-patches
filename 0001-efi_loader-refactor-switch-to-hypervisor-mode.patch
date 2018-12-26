@@ -1,4 +1,4 @@
-From 10b775cb7a84fbe9c94955cfbbf71fe1794a9a7a Mon Sep 17 00:00:00 2001
+From eea1d79135340ddbefc5f8b4a8ebab5216f84ece Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
 Subject: [PATCH 1/1] efi_loader: refactor switch to hypervisor mode
@@ -8,28 +8,49 @@ the beginning of do_bootefi().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 109 ++++++++++++++++++++++----------------------------
- 1 file changed, 47 insertions(+), 62 deletions(-)
+ arch/arm/cpu/armv7/Makefile          |  1 +
+ arch/arm/cpu/armv7/exception_level.c | 41 +++++++++++++++
+ arch/arm/cpu/armv8/Makefile          |  1 +
+ arch/arm/cpu/armv8/exception_level.c | 40 +++++++++++++++
+ cmd/bootefi.c                        | 76 +++++-----------------------
+ include/bootm.h                      |  5 ++
+ 6 files changed, 101 insertions(+), 63 deletions(-)
+ create mode 100644 arch/arm/cpu/armv7/exception_level.c
+ create mode 100644 arch/arm/cpu/armv8/exception_level.c
 
-diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 1aaf5319e13..277d4863953 100644
---- a/cmd/bootefi.c
-+++ b/cmd/bootefi.c
-@@ -31,9 +31,9 @@ DECLARE_GLOBAL_DATA_PTR;
- #define OBJ_LIST_NOT_INITIALIZED 1
+diff --git a/arch/arm/cpu/armv7/Makefile b/arch/arm/cpu/armv7/Makefile
+index 4f4647c90ac..8c955d0d528 100644
+--- a/arch/arm/cpu/armv7/Makefile
++++ b/arch/arm/cpu/armv7/Makefile
+@@ -14,6 +14,7 @@ obj-$(CONFIG_SYS_ARM_MPU) += mpu_v7r.o
  
- static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
--
- static struct efi_device_path *bootefi_image_path;
- static struct efi_device_path *bootefi_device_path;
+ ifneq ($(CONFIG_SPL_BUILD),y)
+ obj-$(CONFIG_EFI_LOADER) += sctlr.o
++obj-$(CONFIG_ARMV7_NONSEC) += exception_level.o
+ endif
+ 
+ ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
+diff --git a/arch/arm/cpu/armv7/exception_level.c b/arch/arm/cpu/armv7/exception_level.c
+new file mode 100644
+index 00000000000..9ea3dd8a696
+--- /dev/null
++++ b/arch/arm/cpu/armv7/exception_level.c
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  Switching exception levels
++ *
++ *  Copyright (c) 2018 Heinrich Schuchardt
++ */
++
++#include <common.h>
++#include <bootm.h>
++#include <asm/armv7.h>
++#include <asm/secure.h>
++#include <asm/setjmp.h>
++
 +struct jmp_buf_data hyp_jmp;
- 
- /* Initialize and populate EFI object list */
- efi_status_t efi_init_obj_list(void)
-@@ -122,6 +122,50 @@ void __weak allow_unaligned(void)
- {
- }
- 
++
 +/**
 + * entry_hyp() - entry point when switching to hypervisor mode
 + */
@@ -43,9 +64,8 @@ index 1aaf5319e13..277d4863953 100644
 +/**
 + * leave_supervisor() - switch to hypervisor mode
 + */
-+static void leave_supervisor(void)
++void leave_supervisor(void)
 +{
-+#ifdef CONFIG_ARMV7_NONSEC
 +	static bool is_nonsec;
 +
 +	if (armv7_boot_nonsec() && !is_nonsec) {
@@ -56,9 +76,53 @@ index 1aaf5319e13..277d4863953 100644
 +		is_nonsec = true;
 +		secure_ram_addr(_do_nonsec_entry)(entry_hyp, 0, 0, 0);
 +	}
-+#endif
++}
+diff --git a/arch/arm/cpu/armv8/Makefile b/arch/arm/cpu/armv8/Makefile
+index 52c8daa0496..8b0b887a696 100644
+--- a/arch/arm/cpu/armv8/Makefile
++++ b/arch/arm/cpu/armv8/Makefile
+@@ -14,6 +14,7 @@ ifdef CONFIG_SPL_BUILD
+ obj-$(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) += exceptions.o
+ else
+ obj-y	+= exceptions.o
++obj-y   += exception_level.o
+ endif
+ obj-y	+= cache.o
+ obj-y	+= tlb.o
+diff --git a/arch/arm/cpu/armv8/exception_level.c b/arch/arm/cpu/armv8/exception_level.c
+new file mode 100644
+index 00000000000..c564b32f7f2
+--- /dev/null
++++ b/arch/arm/cpu/armv8/exception_level.c
+@@ -0,0 +1,40 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  Switching exception levels
++ *
++ *  Copyright (c) 2018 Heinrich Schuchardt
++ */
 +
-+#ifdef CONFIG_ARM64
++#include <common.h>
++#include <bootm.h>
++#include <asm/setjmp.h>
++
++static struct jmp_buf_data hyp_jmp;
++
++/**
++ * entry_hyp() - entry point when switching to hypervisor mode
++ */
++static void entry_hyp(void)
++{
++	dcache_enable();
++	debug("Reached HYP mode\n");
++	longjmp(&hyp_jmp, 1);
++}
++
++/**
++ * leave_supervisor() - switch to hypervisor mode
++ */
++void leave_supervisor(void)
++{
 +	/* On AArch64 we need to make sure we call our payload in < EL3 */
 +	if (current_el() == 3) {
 +		if (setjmp(&hyp_jmp))
@@ -70,14 +134,47 @@ index 1aaf5319e13..277d4863953 100644
 +		armv8_switch_to_el2(0, 0, 0, 0, (uintptr_t)entry_hyp,
 +				    ES_TO_AARCH64);
 +	}
-+#endif
-+	return;
++}
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 1aaf5319e13..e996e525385 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -5,8 +5,9 @@
+  *  Copyright (c) 2016 Alexander Graf
+  */
+ 
+-#include <charset.h>
+ #include <common.h>
++#include <bootm.h>
++#include <charset.h>
+ #include <command.h>
+ #include <dm.h>
+ #include <efi_dxe.h>
+@@ -31,7 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define OBJ_LIST_NOT_INITIALIZED 1
+ 
+ static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+-
+ static struct efi_device_path *bootefi_image_path;
+ static struct efi_device_path *bootefi_device_path;
+ 
+@@ -122,6 +122,15 @@ void __weak allow_unaligned(void)
+ {
+ }
+ 
++/**
++ * leave_supervisor() - switch to hypervisor mode
++ *
++ * This routine is overridden by architectures requiring this feature.
++ */
++void __weak leave_supervisor(void)
++{
 +}
 +
  /*
   * Set the load options of an image from an environment variable.
   *
-@@ -233,34 +277,6 @@ static efi_status_t efi_do_enter(
+@@ -233,34 +242,6 @@ static efi_status_t efi_do_enter(
  	return ret;
  }
  
@@ -112,7 +209,7 @@ index 1aaf5319e13..277d4863953 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -440,39 +456,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -440,39 +421,6 @@ static efi_status_t do_bootefi_exec(void *efi,
  		goto err_prepare;
  	}
  
@@ -152,7 +249,7 @@ index 1aaf5319e13..277d4863953 100644
  	ret = efi_do_enter(&image_obj->header, &systab, entry);
  
  err_prepare:
-@@ -558,6 +541,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -558,6 +506,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	/* Allow unaligned memory access */
  	allow_unaligned();
  
@@ -161,6 +258,20 @@ index 1aaf5319e13..277d4863953 100644
  	/* Initialize EFI drivers */
  	r = efi_init_obj_list();
  	if (r != EFI_SUCCESS) {
+diff --git a/include/bootm.h b/include/bootm.h
+index 0501414e0dc..c64874c98b5 100644
+--- a/include/bootm.h
++++ b/include/bootm.h
+@@ -80,4 +80,9 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
+  */
+ void board_quiesce_devices(void);
+ 
++/**
++ * leave_supervisor() - switch to hypervisor mode
++ */
++void leave_supervisor(void);
++
+ #endif
 -- 
 2.19.2
 
