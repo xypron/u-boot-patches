@@ -1,4 +1,4 @@
-From 657b51b524812e6b968f8f77693ee69b7d6ed296 Mon Sep 17 00:00:00 2001
+From 1ac65f0e8c43fdfeba674974194a41a20ce6df14 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
 Subject: [PATCH 1/1] efi_loader: refactor switch to non-secure mode
@@ -17,13 +17,14 @@ v2
 	Use weak function with implementation in arch directories
 ---
  arch/arm/cpu/armv7/Makefile          |  1 +
- arch/arm/cpu/armv7/exception_level.c | 55 +++++++++++++++++++++
+ arch/arm/cpu/armv7/Makefile          |  1 +
+ arch/arm/cpu/armv7/exception_level.c | 56 ++++++++++++++++++++++
  arch/arm/cpu/armv8/Makefile          |  1 +
  arch/arm/cpu/armv8/exception_level.c | 55 +++++++++++++++++++++
  cmd/bootefi.c                        | 72 ++--------------------------
  common/bootm.c                       | 10 ++++
  include/bootm.h                      |  5 ++
- 7 files changed, 131 insertions(+), 68 deletions(-)
+ 7 files changed, 132 insertions(+), 68 deletions(-)
  create mode 100644 arch/arm/cpu/armv7/exception_level.c
  create mode 100644 arch/arm/cpu/armv8/exception_level.c
 
@@ -41,10 +42,10 @@ index 4f4647c90ac..8c955d0d528 100644
  ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
 diff --git a/arch/arm/cpu/armv7/exception_level.c b/arch/arm/cpu/armv7/exception_level.c
 new file mode 100644
-index 00000000000..01af8573d6b
+index 00000000000..e116435623f
 --- /dev/null
 +++ b/arch/arm/cpu/armv7/exception_level.c
-@@ -0,0 +1,55 @@
+@@ -0,0 +1,56 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Switch to non-secure mode
@@ -97,7 +98,8 @@ index 00000000000..01af8573d6b
 +		armv7_init_nonsec();
 +		is_nonsec = true;
 +		secure_ram_addr(_do_nonsec_entry)(entry_non_secure,
-+						  &non_secure_jmp, 0, 0);
++						  (uintptr_t)&non_secure_jmp,
++						  0, 0);
 +	}
 +}
 diff --git a/arch/arm/cpu/armv8/Makefile b/arch/arm/cpu/armv8/Makefile
