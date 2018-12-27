@@ -1,7 +1,7 @@
-From 7fd407e9b096277fd2b53f37f1b74ace8932070a Mon Sep 17 00:00:00 2001
+From 657b51b524812e6b968f8f77693ee69b7d6ed296 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
-Subject: [PATCH v3 1/1] efi_loader: refactor switch to non-secure mode
+Subject: [PATCH 1/1] efi_loader: refactor switch to non-secure mode
 
 Refactor the switch from supervisor to hypervisor to a new function called at
 the beginning of do_bootefi().
@@ -17,13 +17,13 @@ v2
 	Use weak function with implementation in arch directories
 ---
  arch/arm/cpu/armv7/Makefile          |  1 +
- arch/arm/cpu/armv7/exception_level.c | 55 ++++++++++++++++++++++
+ arch/arm/cpu/armv7/exception_level.c | 55 +++++++++++++++++++++
  arch/arm/cpu/armv8/Makefile          |  1 +
- arch/arm/cpu/armv8/exception_level.c | 55 ++++++++++++++++++++++
- cmd/bootefi.c                        | 69 +---------------------------
- common/bootm.c                       |  9 ++++
+ arch/arm/cpu/armv8/exception_level.c | 55 +++++++++++++++++++++
+ cmd/bootefi.c                        | 72 ++--------------------------
+ common/bootm.c                       | 10 ++++
  include/bootm.h                      |  5 ++
- 7 files changed, 128 insertions(+), 67 deletions(-)
+ 7 files changed, 131 insertions(+), 68 deletions(-)
  create mode 100644 arch/arm/cpu/armv7/exception_level.c
  create mode 100644 arch/arm/cpu/armv8/exception_level.c
 
@@ -114,7 +114,7 @@ index 52c8daa0496..8b0b887a696 100644
  obj-y	+= tlb.o
 diff --git a/arch/arm/cpu/armv8/exception_level.c b/arch/arm/cpu/armv8/exception_level.c
 new file mode 100644
-index 00000000000..0587e0b1f51
+index 00000000000..245af3f1d4e
 --- /dev/null
 +++ b/arch/arm/cpu/armv8/exception_level.c
 @@ -0,0 +1,55 @@
@@ -169,15 +169,26 @@ index 00000000000..0587e0b1f51
 +		dcache_disable();	/* flush cache before switch to EL2 */
 +
 +		/* Move into EL2 and keep running there */
-+		armv8_switch_to_el2(&non_secure_jmp, 0, 0, 0,
++		armv8_switch_to_el2((uintptr_t)&non_secure_jmp, 0, 0, 0,
 +				    (uintptr_t)entry_non_secure, ES_TO_AARCH64);
 +	}
 +}
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 23639ced7a0..b983f3c9292 100644
+index 23639ced7a0..4c87dca808f 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -21,17 +21,11 @@
+@@ -5,8 +5,9 @@
+  *  Copyright (c) 2016 Alexander Graf
+  */
+ 
+-#include <charset.h>
+ #include <common.h>
++#include <bootm.h>
++#include <charset.h>
+ #include <command.h>
+ #include <dm.h>
+ #include <efi_dxe.h>
+@@ -21,17 +22,11 @@
  #include <asm-generic/unaligned.h>
  #include <linux/linkage.h>
  
@@ -195,7 +206,7 @@ index 23639ced7a0..b983f3c9292 100644
  static struct efi_device_path *bootefi_image_path;
  static struct efi_device_path *bootefi_device_path;
  
-@@ -233,34 +227,6 @@ static efi_status_t efi_do_enter(
+@@ -233,34 +228,6 @@ static efi_status_t efi_do_enter(
  	return ret;
  }
  
@@ -230,7 +241,7 @@ index 23639ced7a0..b983f3c9292 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -440,39 +406,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -440,39 +407,6 @@ static efi_status_t do_bootefi_exec(void *efi,
  		goto err_prepare;
  	}
  
@@ -270,7 +281,7 @@ index 23639ced7a0..b983f3c9292 100644
  	ret = efi_do_enter(&image_obj->header, &systab, entry);
  
  err_prepare:
-@@ -558,6 +491,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -558,6 +492,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	/* Allow unaligned memory access */
  	allow_unaligned();
  
@@ -280,13 +291,14 @@ index 23639ced7a0..b983f3c9292 100644
  	r = efi_init_obj_list();
  	if (r != EFI_SUCCESS) {
 diff --git a/common/bootm.c b/common/bootm.c
-index 8bf84ebcb7e..b5f3d5bd7d3 100644
+index 8bf84ebcb7e..e34d3ac8f44 100644
 --- a/common/bootm.c
 +++ b/common/bootm.c
-@@ -987,4 +987,13 @@ int bootm_host_load_images(const void *fit, int cfg_noffset)
- 	return err;
- }
+@@ -915,6 +915,16 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
  
+ 	return buf;
+ }
++
 +/**
 + * switch_to_non_secure_mode() - switch to non-secure mode
 + *
@@ -296,7 +308,9 @@ index 8bf84ebcb7e..b5f3d5bd7d3 100644
 +{
 +}
 +
- #endif /* ndef USE_HOSTCC */
+ #else /* USE_HOSTCC */
+ 
+ void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
 diff --git a/include/bootm.h b/include/bootm.h
 index 0501414e0dc..81b7252bd4d 100644
 --- a/include/bootm.h
