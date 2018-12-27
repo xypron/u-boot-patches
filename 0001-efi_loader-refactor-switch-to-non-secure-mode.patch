@@ -1,23 +1,29 @@
-From ebd174ce7e51768c672fcc191b2addf079b90c66 Mon Sep 17 00:00:00 2001
+From 7fd407e9b096277fd2b53f37f1b74ace8932070a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
-Subject: [PATCH v2 1/1] efi_loader: refactor switch to hypervisor mode
+Subject: [PATCH v3 1/1] efi_loader: refactor switch to non-secure mode
 
 Refactor the switch from supervisor to hypervisor to a new function called at
 the beginning of do_bootefi().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3
+	Move weak function to common/bootm.c.
+	Rename functions.
+	Add more comments.
+	Avoid static variable for jump buffer.
 v2
 	Use weak function with implementation in arch directories
 ---
  arch/arm/cpu/armv7/Makefile          |  1 +
- arch/arm/cpu/armv7/exception_level.c | 41 ++++++++++++++
+ arch/arm/cpu/armv7/exception_level.c | 55 ++++++++++++++++++++++
  arch/arm/cpu/armv8/Makefile          |  1 +
- arch/arm/cpu/armv8/exception_level.c | 40 ++++++++++++++
- cmd/bootefi.c                        | 81 +++++-----------------------
+ arch/arm/cpu/armv8/exception_level.c | 55 ++++++++++++++++++++++
+ cmd/bootefi.c                        | 69 +---------------------------
+ common/bootm.c                       |  9 ++++
  include/bootm.h                      |  5 ++
- 6 files changed, 101 insertions(+), 68 deletions(-)
+ 7 files changed, 128 insertions(+), 67 deletions(-)
  create mode 100644 arch/arm/cpu/armv7/exception_level.c
  create mode 100644 arch/arm/cpu/armv8/exception_level.c
 
@@ -35,15 +41,18 @@ index 4f4647c90ac..8c955d0d528 100644
  ifneq ($(CONFIG_SKIP_LOWLEVEL_INIT),y)
 diff --git a/arch/arm/cpu/armv7/exception_level.c b/arch/arm/cpu/armv7/exception_level.c
 new file mode 100644
-index 00000000000..e231fc94633
+index 00000000000..01af8573d6b
 --- /dev/null
 +++ b/arch/arm/cpu/armv7/exception_level.c
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,55 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ *  Switching exception levels
++ * Switch to non-secure mode
 + *
-+ *  Copyright (c) 2018 Heinrich Schuchardt
++ * Copyright (c) 2018 Heinrich Schuchardt
++ *
++ * This module contains the ARMv7 specific code required for leaving the
++ * secure mode before booting an operating system.
 + */
 +
 +#include <common.h>
@@ -52,32 +61,43 @@ index 00000000000..e231fc94633
 +#include <asm/secure.h>
 +#include <asm/setjmp.h>
 +
-+struct jmp_buf_data hyp_jmp;
-+
 +/**
-+ * entry_hyp() - entry point when switching to hypervisor mode
++ * entry_non_secure() - entry point when switching to non-secure mode
++ *
++ * When switching to non-secure mode switch_to_non_secure_mode() calls this
++ * function passing a jump buffer. We use this jump buffer to restoring the
++ * original stack and register state.
++ *
++ * @non_secure_jmp:	jump buffer for restoring stack and registers
 + */
-+static void entry_hyp(void)
++static void entry_non_secure(struct jmp_buf_data *non_secure_jmp)
 +{
 +	dcache_enable();
-+	debug("Reached HYP mode\n");
-+	longjmp(&hyp_jmp, 1);
++	debug("Reached non-secure mode\n");
++
++	/* Restore stack and registers saved in switch_to_non_secure_mode() */
++	longjmp(non_secure_jmp, 1);
 +}
 +
 +/**
-+ * leave_supervisor() - switch to hypervisor mode
++ * switch_to_non_secure_mode() - switch to non-secure mode
++ *
++ * Operating systems are expected to run in non-secure mode. Here we check if
++ * we are running in secure mode and switch to non-secure mode if necessary.
 + */
-+void leave_supervisor(void)
++void switch_to_non_secure_mode(void)
 +{
 +	static bool is_nonsec;
++	struct jmp_buf_data non_secure_jmp;
 +
 +	if (armv7_boot_nonsec() && !is_nonsec) {
-+		if (setjmp(&hyp_jmp))
++		if (setjmp(&non_secure_jmp))
 +			return;
 +		dcache_disable();	/* flush cache before switch to HYP */
 +		armv7_init_nonsec();
 +		is_nonsec = true;
-+		secure_ram_addr(_do_nonsec_entry)(entry_hyp, 0, 0, 0);
++		secure_ram_addr(_do_nonsec_entry)(entry_non_secure,
++						  &non_secure_jmp, 0, 0);
 +	}
 +}
 diff --git a/arch/arm/cpu/armv8/Makefile b/arch/arm/cpu/armv8/Makefile
@@ -94,66 +114,70 @@ index 52c8daa0496..8b0b887a696 100644
  obj-y	+= tlb.o
 diff --git a/arch/arm/cpu/armv8/exception_level.c b/arch/arm/cpu/armv8/exception_level.c
 new file mode 100644
-index 00000000000..ad8211bb85d
+index 00000000000..0587e0b1f51
 --- /dev/null
 +++ b/arch/arm/cpu/armv8/exception_level.c
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,55 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ *  Switching exception levels
++ * Switch to non-secure mode
 + *
-+ *  Copyright (c) 2018 Heinrich Schuchardt
++ * Copyright (c) 2018 Heinrich Schuchardt
++ *
++ * This module contains the ARMv8 specific code required to adjust the exception
++ * level before booting an operating system.
 + */
 +
 +#include <common.h>
 +#include <bootm.h>
 +#include <asm/setjmp.h>
 +
-+static struct jmp_buf_data hyp_jmp;
-+
 +/**
-+ * entry_hyp() - entry point when switching to hypervisor mode
++ * entry_non_secure() - entry point when switching to non-secure mode
++ *
++ * When switching to non-secure mode switch_to_non_secure_mode() calls this
++ * function passing a jump buffer. We use this jump buffer to restoring the
++ * original stack and register state.
++ *
++ * @non_secure_jmp:	jump buffer for restoring stack and registers
 + */
-+static void entry_hyp(void)
++static void entry_non_secure(struct jmp_buf_data *non_secure_jmp)
 +{
 +	dcache_enable();
-+	debug("Reached HYP mode\n");
-+	longjmp(&hyp_jmp, 1);
++	debug("Reached non-secure mode\n");
++
++	/* Restore stack and registers saved in switch_to_non_secure_mode() */
++	longjmp(non_secure_jmp, 1);
 +}
 +
 +/**
-+ * leave_supervisor() - switch to hypervisor mode
++ * switch_to_non_secure_mode() - switch to non-secure mode
++ *
++ * Exception level EL3 is meant to be used by the secure monitor only (ARM
++ * trusted firmware being one embodiment). The operating system shall be
++ * started at exception level EL2. So here we check the exception level
++ * and switch it if necessary.
 + */
-+void leave_supervisor(void)
++void switch_to_non_secure_mode(void)
 +{
++	struct jmp_buf_data non_secure_jmp;
++
 +	/* On AArch64 we need to make sure we call our payload in < EL3 */
 +	if (current_el() == 3) {
-+		if (setjmp(&hyp_jmp))
++		if (setjmp(&non_secure_jmp))
 +			return;
-+		smp_kick_all_cpus();
 +		dcache_disable();	/* flush cache before switch to EL2 */
 +
 +		/* Move into EL2 and keep running there */
-+		armv8_switch_to_el2(0, 0, 0, 0, (uintptr_t)entry_hyp,
-+				    ES_TO_AARCH64);
++		armv8_switch_to_el2(&non_secure_jmp, 0, 0, 0,
++				    (uintptr_t)entry_non_secure, ES_TO_AARCH64);
 +	}
 +}
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 1aaf5319e13..804f527e730 100644
+index 23639ced7a0..b983f3c9292 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -5,8 +5,9 @@
-  *  Copyright (c) 2016 Alexander Graf
-  */
- 
--#include <charset.h>
- #include <common.h>
-+#include <bootm.h>
-+#include <charset.h>
- #include <command.h>
- #include <dm.h>
- #include <efi_dxe.h>
-@@ -21,17 +22,11 @@
+@@ -21,17 +21,11 @@
  #include <asm-generic/unaligned.h>
  #include <linux/linkage.h>
  
@@ -171,23 +195,7 @@ index 1aaf5319e13..804f527e730 100644
  static struct efi_device_path *bootefi_image_path;
  static struct efi_device_path *bootefi_device_path;
  
-@@ -122,6 +117,15 @@ void __weak allow_unaligned(void)
- {
- }
- 
-+/**
-+ * leave_supervisor() - switch to hypervisor mode
-+ *
-+ * This routine is overridden by architectures requiring this feature.
-+ */
-+void __weak leave_supervisor(void)
-+{
-+}
-+
- /*
-  * Set the load options of an image from an environment variable.
-  *
-@@ -233,34 +237,6 @@ static efi_status_t efi_do_enter(
+@@ -233,34 +227,6 @@ static efi_status_t efi_do_enter(
  	return ret;
  }
  
@@ -222,7 +230,7 @@ index 1aaf5319e13..804f527e730 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -440,39 +416,6 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -440,39 +406,6 @@ static efi_status_t do_bootefi_exec(void *efi,
  		goto err_prepare;
  	}
  
@@ -262,17 +270,35 @@ index 1aaf5319e13..804f527e730 100644
  	ret = efi_do_enter(&image_obj->header, &systab, entry);
  
  err_prepare:
-@@ -558,6 +501,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+@@ -558,6 +491,8 @@ static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  	/* Allow unaligned memory access */
  	allow_unaligned();
  
-+	leave_supervisor();
++	switch_to_non_secure_mode();
 +
  	/* Initialize EFI drivers */
  	r = efi_init_obj_list();
  	if (r != EFI_SUCCESS) {
+diff --git a/common/bootm.c b/common/bootm.c
+index 8bf84ebcb7e..b5f3d5bd7d3 100644
+--- a/common/bootm.c
++++ b/common/bootm.c
+@@ -987,4 +987,13 @@ int bootm_host_load_images(const void *fit, int cfg_noffset)
+ 	return err;
+ }
+ 
++/**
++ * switch_to_non_secure_mode() - switch to non-secure mode
++ *
++ * This routine is overridden by architectures requiring this feature.
++ */
++void __weak switch_to_non_secure_mode(void)
++{
++}
++
+ #endif /* ndef USE_HOSTCC */
 diff --git a/include/bootm.h b/include/bootm.h
-index 0501414e0dc..c64874c98b5 100644
+index 0501414e0dc..81b7252bd4d 100644
 --- a/include/bootm.h
 +++ b/include/bootm.h
 @@ -80,4 +80,9 @@ int bootm_decomp_image(int comp, ulong load, ulong image_start, int type,
@@ -280,9 +306,9 @@ index 0501414e0dc..c64874c98b5 100644
  void board_quiesce_devices(void);
  
 +/**
-+ * leave_supervisor() - switch to hypervisor mode
++ * switch_to_non_secure_mode() - switch to non-secure mode
 + */
-+void leave_supervisor(void);
++void switch_to_non_secure_mode(void);
 +
  #endif
 -- 
