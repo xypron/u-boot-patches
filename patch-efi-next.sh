@@ -46,6 +46,9 @@ git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
 git am ../patch/0001-efi_loader-avoid-unnecessary-pointer-to-long-convers.patch
 git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
 git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
+
+git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
