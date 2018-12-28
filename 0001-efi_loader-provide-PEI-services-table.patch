@@ -1,4 +1,4 @@
-From 3f41fa4144f4c00f2e1a4cc7a339e18e396c965b Mon Sep 17 00:00:00 2001
+From ec63fde118b952b0ab4b651a3ea102009f607252 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 22 Sep 2018 10:48:24 +0200
 Subject: [PATCH 1/1] efi_loader: provide PEI services table
@@ -9,28 +9,27 @@ Add a dummy HUB table.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c            |   7 +-
+ cmd/bootefi.c            |   6 +
  include/efi_dxe.h        | 140 ++++++++++++++++++++++
  lib/efi_loader/Makefile  |   1 +
  lib/efi_loader/efi_dxe.c | 250 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 397 insertions(+), 1 deletion(-)
+ 4 files changed, 397 insertions(+)
  create mode 100644 include/efi_dxe.h
  create mode 100644 lib/efi_loader/efi_dxe.c
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 5fc054c9da..8bc6fa49f5 100644
+index cc0f2923dc..e769789434 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -9,7 +9,7 @@
+@@ -9,6 +9,7 @@
  #include <common.h>
  #include <command.h>
  #include <dm.h>
--#include <efi_loader.h>
 +#include <efi_dxe.h>
+ #include <efi_loader.h>
  #include <efi_selftest.h>
  #include <errno.h>
- #include <linux/libfdt.h>
-@@ -96,6 +96,11 @@ efi_status_t efi_init_obj_list(void)
+@@ -103,6 +104,11 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
  
@@ -189,7 +188,7 @@ index 0000000000..6f4b211840
 +
 +efi_status_t register_pi_services(void);
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 6703435947..f342541278 100644
+index e508481fde..3f474343fe 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -23,6 +23,7 @@ obj-y += efi_console.o
@@ -457,5 +456,5 @@ index 0000000000..b0d55169f3
 +	return ret;
 +}
 -- 
-2.19.0
+2.19.2
 
