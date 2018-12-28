@@ -48,6 +48,7 @@ git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
 git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
 git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
+git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
 exit
 
