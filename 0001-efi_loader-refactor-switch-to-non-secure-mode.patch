@@ -3,8 +3,8 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
 Subject: [PATCH 1/1] efi_loader: refactor switch to non-secure mode
 
-Refactor the switch from supervisor to hypervisor to a new function called at
-the beginning of do_bootefi().
+Refactor the switch from supervisor to hypervisor to a new function called
+at the beginning of do_bootefi().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
