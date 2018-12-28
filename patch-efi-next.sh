@@ -49,6 +49,7 @@ git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
 git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
 git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
+git am ../patch/0001-configs-remove-CONFIG_CMD_BOOTEFI_HELLO_COMPILE.patch
 
 exit
 
