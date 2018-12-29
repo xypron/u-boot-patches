@@ -1,4 +1,4 @@
-From 646ea15596f9bb1f7b45e5e8a86cdc878ae748c6 Mon Sep 17 00:00:00 2001
+From 280bbf057d077d5f1f26032dfc1009dcf44a6097 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Dec 2018 22:01:04 +0100
 Subject: [PATCH 1/1] efi_loader: provide test files for bootmgr
@@ -17,7 +17,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/boot0002.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index 308e5458b9a..db05b60b7b9 100644
+index 7195d689dc..100d29f3bc 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -224,22 +224,21 @@ config CMD_BOOTEFI
@@ -28,7 +28,7 @@ index 308e5458b9a..db05b60b7b9 100644
 -	bool "Compile a standard EFI hello world binary for testing"
 +config CMD_BOOTEFI_TEST_FILES
 +	bool "Build EFI binaries for testing"
- 	depends on CMD_BOOTEFI && (ARM || X86 || RISCV)
+ 	depends on CMD_BOOTEFI && !CPU_V7M && !SANDBOX
  	default y
  	help
 -	  This compiles a standard EFI hello world application with U-Boot so
@@ -50,7 +50,7 @@ index 308e5458b9a..db05b60b7b9 100644
  	  This adds a standard EFI hello world application to U-Boot so that
  	  it can be used with the 'bootefi hello' command. This is useful
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index ac37cf6ece3..5d14385f264 100644
+index ac37cf6ece..5d14385f26 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -9,11 +9,18 @@
@@ -75,7 +75,7 @@ index ac37cf6ece3..5d14385f264 100644
  obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 diff --git a/lib/efi_loader/boot0001.c b/lib/efi_loader/boot0001.c
 new file mode 100644
-index 00000000000..fd266170ae0
+index 0000000000..2143c3d072
 --- /dev/null
 +++ b/lib/efi_loader/boot0001.c
 @@ -0,0 +1,31 @@
@@ -102,7 +102,7 @@ index 00000000000..fd266170ae0
 +			     struct efi_system_table *systable)
 +{
 +	struct efi_simple_text_output_protocol *con_out = systable->con_out;
-+	
++
 +	/* UEFI requires CR LF */
 +	con_out->output_string(con_out, L"Executing BOOT0001\r\n");
 +	systable->boottime->exit(handle, EFI_SUCCESS, 0, NULL);
@@ -112,7 +112,7 @@ index 00000000000..fd266170ae0
 +}
 diff --git a/lib/efi_loader/boot0002.c b/lib/efi_loader/boot0002.c
 new file mode 100644
-index 00000000000..f24f34fb230
+index 0000000000..31cc81f264
 --- /dev/null
 +++ b/lib/efi_loader/boot0002.c
 @@ -0,0 +1,31 @@
@@ -139,7 +139,7 @@ index 00000000000..f24f34fb230
 +			     struct efi_system_table *systable)
 +{
 +	struct efi_simple_text_output_protocol *con_out = systable->con_out;
-+	
++
 +	/* UEFI requires CR LF */
 +	con_out->output_string(con_out, L"Executing BOOT0002\r\n");
 +	systable->boottime->exit(handle, EFI_SUCCESS, 0, NULL);
