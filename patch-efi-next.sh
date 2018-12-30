@@ -41,6 +41,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # efishell
 git am ../patch/0001-efi_loader-move-efi_init_obj_list-to-a-new-efi_setup.patch
 git am ../patch/0001-efi_loader-bootmgr-load-options.patch
+git am ../patch/0001-efi_loader-use-const-efi_guid_t-for-variable-service.patch
 
 # sct
 git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
