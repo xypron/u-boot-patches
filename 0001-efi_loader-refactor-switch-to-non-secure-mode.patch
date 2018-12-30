@@ -17,7 +17,6 @@ v2
 	Use weak function with implementation in arch directories
 ---
  arch/arm/cpu/armv7/Makefile          |  1 +
- arch/arm/cpu/armv7/Makefile          |  1 +
  arch/arm/cpu/armv7/exception_level.c | 56 ++++++++++++++++++++++
  arch/arm/cpu/armv8/Makefile          |  1 +
  arch/arm/cpu/armv8/exception_level.c | 55 +++++++++++++++++++++
@@ -189,8 +188,8 @@ index 23639ced7a0..4c87dca808f 100644
 +#include <charset.h>
  #include <command.h>
  #include <dm.h>
- #include <efi_dxe.h>
-@@ -21,17 +22,11 @@
+ #include <efi_loader.h>
+@@ -21,10 +22,5 @@
  #include <asm-generic/unaligned.h>
  #include <linux/linkage.h>
  
@@ -200,13 +199,6 @@ index 23639ced7a0..4c87dca808f 100644
 -#endif
 -
  DECLARE_GLOBAL_DATA_PTR;
- 
- #define OBJ_LIST_NOT_INITIALIZED 1
- 
- static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
--
- static struct efi_device_path *bootefi_image_path;
- static struct efi_device_path *bootefi_device_path;
  
 @@ -233,34 +228,6 @@ static efi_status_t efi_do_enter(
  	return ret;
