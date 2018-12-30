@@ -40,6 +40,9 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
+# efishell
+git am ../patch/0001-efi_loader-move-efi_init_obj_list-to-a-new-efi_setup.patch
+
 # Clean up load image
 git am ../patch/0001-efi_loader-refactor-switch-to-non-secure-mode.patch
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
