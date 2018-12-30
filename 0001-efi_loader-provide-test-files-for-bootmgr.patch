@@ -1,4 +1,4 @@
-From a038fe1a87f69767418a576820dcba1dbd2d5b6f Mon Sep 17 00:00:00 2001
+From d4c8adb3cdec0945bac1ab93a660e2e33b858580 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Dec 2018 22:01:04 +0100
 Subject: [PATCH 1/1] efi_loader: provide test files for bootmgr
@@ -8,12 +8,12 @@ applications.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/Kconfig               | 13 ++++++-------
- lib/efi_loader/Makefile   | 12 +++++++++++-
- lib/efi_loader/boot0001.c | 31 +++++++++++++++++++++++++++++
- lib/efi_loader/boot0002.c | 31 +++++++++++++++++++++++++++++
- lib/efi_loader/bootprep.c | 41 +++++++++++++++++++++++++++++++++++++++
- 5 files changed, 120 insertions(+), 8 deletions(-)
+ cmd/Kconfig               | 13 ++++++-----
+ lib/efi_loader/Makefile   | 12 ++++++++++-
+ lib/efi_loader/boot0001.c | 31 +++++++++++++++++++++++++++
+ lib/efi_loader/boot0002.c | 31 +++++++++++++++++++++++++++
+ lib/efi_loader/bootprep.c | 45 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 124 insertions(+), 8 deletions(-)
  create mode 100644 lib/efi_loader/boot0001.c
  create mode 100644 lib/efi_loader/boot0002.c
  create mode 100644 lib/efi_loader/bootprep.c
@@ -153,10 +153,10 @@ index 0000000000..31cc81f264
 +}
 diff --git a/lib/efi_loader/bootprep.c b/lib/efi_loader/bootprep.c
 new file mode 100644
-index 0000000000..525c1f3327
+index 0000000000..6bacd03940
 --- /dev/null
 +++ b/lib/efi_loader/bootprep.c
-@@ -0,0 +1,41 @@
+@@ -0,0 +1,45 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Test file for boot manager.
@@ -169,8 +169,6 @@ index 0000000000..525c1f3327
 +#include <common.h>
 +#include <efi_api.h>
 +
-+const efi_guid_t guid = EFI_GLOBAL_VARIABLE_GUID;
-+const u16 bootseq[] = {0x0000, 0x0001, 0x0002};
 +
 +/**
 + * efi_main() - entry point of the EFI application.
@@ -182,18 +180,24 @@ index 0000000000..525c1f3327
 +efi_status_t EFIAPI efi_main(efi_handle_t handle,
 +			     struct efi_system_table *systable)
 +{
-+	u16 *varname = L"BOOT0000";
++	efi_guid_t guid = EFI_GLOBAL_VARIABLE_GUID;
++	u16 *bootseq = L"\x00\x02\x01\x03";
++
++	u16 *varname = L"Boot0000";
 +	struct efi_simple_text_output_protocol *con_out = systable->con_out;
-+	struct efi_boot_services *boottime = systable->boottime;
 +	struct efi_runtime_services *runtime = systable->runtime;
 +	int i;
 +
-+	runtime->set_variable(L"BOOTORDER", &guid,
++	con_out->output_string(con_out, L"Executing BOOTPREP\r\n");
++	runtime->set_variable(L"BootOrder", &guid,
 +			      EFI_VARIABLE_BOOTSERVICE_ACCESS |
-+			      EFI_VARIABLE_RUNTIME_ACCESS,
-+			      sizeof(bootseq), bootseq);
++			      EFI_VARIABLE_RUNTIME_ACCESS, 8, bootseq);
 +	for (i = '0'; i < '4'; ++i) {
 +		varname[7] = i;
++		runtime->set_variable(varname, &guid,
++				      EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				      EFI_VARIABLE_RUNTIME_ACCESS,
++				      8, varname + 4);
 +	}
 +
 +	return EFI_SUCCESS;
