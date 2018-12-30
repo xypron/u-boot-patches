@@ -1,4 +1,4 @@
-From 280bbf057d077d5f1f26032dfc1009dcf44a6097 Mon Sep 17 00:00:00 2001
+From a038fe1a87f69767418a576820dcba1dbd2d5b6f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Dec 2018 22:01:04 +0100
 Subject: [PATCH 1/1] efi_loader: provide test files for bootmgr
@@ -9,12 +9,14 @@ applications.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/Kconfig               | 13 ++++++-------
- lib/efi_loader/Makefile   |  9 ++++++++-
- lib/efi_loader/boot0001.c | 31 +++++++++++++++++++++++++++++++
- lib/efi_loader/boot0002.c | 31 +++++++++++++++++++++++++++++++
- 4 files changed, 76 insertions(+), 8 deletions(-)
+ lib/efi_loader/Makefile   | 12 +++++++++++-
+ lib/efi_loader/boot0001.c | 31 +++++++++++++++++++++++++++++
+ lib/efi_loader/boot0002.c | 31 +++++++++++++++++++++++++++++
+ lib/efi_loader/bootprep.c | 41 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 120 insertions(+), 8 deletions(-)
  create mode 100644 lib/efi_loader/boot0001.c
  create mode 100644 lib/efi_loader/boot0002.c
+ create mode 100644 lib/efi_loader/bootprep.c
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
 index 7195d689dc..100d29f3bc 100644
@@ -50,29 +52,31 @@ index 7195d689dc..100d29f3bc 100644
  	  This adds a standard EFI hello world application to U-Boot so that
  	  it can be used with the 'bootefi hello' command. This is useful
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index ac37cf6ece..5d14385f26 100644
+index 3607806d28..c2a0c2124c 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -9,11 +9,18 @@
+@@ -9,10 +9,20 @@
  CFLAGS_efi_boottime.o += \
    -DFW_VERSION="0x$(VERSION)" \
    -DFW_PATCHLEVEL="0x$(PATCHLEVEL)"
 +
 +CFLAGS_boot0001.o := $(CFLAGS_EFI) -ffreestanding
 +CFLAGS_boot0002.o := $(CFLAGS_EFI) -ffreestanding
++CFLAGS_bootprep.o := $(CFLAGS_EFI) -ffreestanding
  CFLAGS_helloworld.o := $(CFLAGS_EFI) -Os -ffreestanding
 +CFLAGS_REMOVE_boot0001.o := $(CFLAGS_NON_EFI)
 +CFLAGS_REMOVE_boot0002.o := $(CFLAGS_NON_EFI)
++CFLAGS_REMOVE_bootprep.o := $(CFLAGS_NON_EFI)
  CFLAGS_REMOVE_helloworld.o := $(CFLAGS_NON_EFI)
  
 -ifneq ($(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
 +ifneq ($(CONFIG_CMD_BOOTEFI_TEST_FILES),)
- always += helloworld.efi
 +always += boot0001.efi
 +always += boot0002.efi
++always += bootprep.efi
+ always += helloworld.efi
  endif
  
- obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
 diff --git a/lib/efi_loader/boot0001.c b/lib/efi_loader/boot0001.c
 new file mode 100644
 index 0000000000..2143c3d072
@@ -146,6 +150,53 @@ index 0000000000..31cc81f264
 +
 +	/* We should never arrive here */
 +	return EFI_UNSUPPORTED;
++}
+diff --git a/lib/efi_loader/bootprep.c b/lib/efi_loader/bootprep.c
+new file mode 100644
+index 0000000000..525c1f3327
+--- /dev/null
++++ b/lib/efi_loader/bootprep.c
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Test file for boot manager.
++ *
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * This UEFI binary just outputs its name.
++ */
++
++#include <common.h>
++#include <efi_api.h>
++
++const efi_guid_t guid = EFI_GLOBAL_VARIABLE_GUID;
++const u16 bootseq[] = {0x0000, 0x0001, 0x0002};
++
++/**
++ * efi_main() - entry point of the EFI application.
++ *
++ * @handle:	handle of the loaded image
++ * @systable:	system table
++ * @return:	status code
++ */
++efi_status_t EFIAPI efi_main(efi_handle_t handle,
++			     struct efi_system_table *systable)
++{
++	u16 *varname = L"BOOT0000";
++	struct efi_simple_text_output_protocol *con_out = systable->con_out;
++	struct efi_boot_services *boottime = systable->boottime;
++	struct efi_runtime_services *runtime = systable->runtime;
++	int i;
++
++	runtime->set_variable(L"BOOTORDER", &guid,
++			      EFI_VARIABLE_BOOTSERVICE_ACCESS |
++			      EFI_VARIABLE_RUNTIME_ACCESS,
++			      sizeof(bootseq), bootseq);
++	for (i = '0'; i < '4'; ++i) {
++		varname[7] = i;
++	}
++
++	return EFI_SUCCESS;
 +}
 -- 
 2.19.2
