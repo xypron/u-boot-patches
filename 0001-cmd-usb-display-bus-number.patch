@@ -1,0 +1,41 @@
+From 0ebf55ea33dbcce7c24526539c70a9797a7cd5a5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 2 Jan 2019 12:16:44 +0100
+Subject: [PATCH 1/1] cmd: usb: display bus number
+
+If multiple USB buses exist, the output of the commands 'usb tree' and 'usb
+info' is confusing because it is not clear where the output for a new bus
+starts.
+
+Print an additional line for each bus indicating the bus number, e.g.
+
+=> usb tree
+USB device tree:
+USB bus 0
+  1  Hub (5 Gb/s, 0mA)
+     U-Boot XHCI Host Controller
+
+USB bus 1
+  1  Hub (5 Gb/s, 0mA)
+     U-Boot XHCI Host Controller
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/usb.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmd/usb.c b/cmd/usb.c
+index 0ccb1b5148..6da945c376 100644
+--- a/cmd/usb.c
++++ b/cmd/usb.c
+@@ -470,6 +470,7 @@ static void usb_for_each_root_dev(usb_dev_func_t func)
+ 		if (!device_active(bus))
+ 			continue;
+ 
++		printf("USB bus %d\n", bus->seq);
+ 		device_find_first_child(bus, &dev);
+ 		if (dev && device_active(dev)) {
+ 			udev = dev_get_parent_priv(dev);
+-- 
+2.19.2
+
