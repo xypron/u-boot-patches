@@ -29,6 +29,7 @@ git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-doc-README.uefi-fix-typos.patch
 git am ../patch/0001-doc-README.commands-fix-typo.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
+git am ../patch/0001-efi_loader-fix-memory-allocation-on-sandbox.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
