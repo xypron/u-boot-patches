@@ -37,6 +37,7 @@ git am ../patch/0001-cmd-nvedit-use-correct-format-code.patch
 git am ../patch/0001-cmd-sf-use-correct-printf-code.patch
 git am ../patch/0001-cmd-tpm-v2-use-correct-format-code.patch
 git am ../patch/0001-cmd-ubi-remove-unreachable-code.patch
+git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
