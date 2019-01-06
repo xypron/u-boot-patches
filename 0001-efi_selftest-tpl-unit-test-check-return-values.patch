@@ -1,0 +1,37 @@
+From 334f61805d4ec2c209a0eef4f0d6744c986acdba Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Jan 2019 16:43:06 +0100
+Subject: [PATCH 1/1] efi_selftest: tpl unit test, check return values
+
+For some API calls checks for the return values are missing.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_tpl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_tpl.c b/lib/efi_selftest/efi_selftest_tpl.c
+index 97d256abe4..70a355eae6 100644
+--- a/lib/efi_selftest/efi_selftest_tpl.c
++++ b/lib/efi_selftest/efi_selftest_tpl.c
+@@ -151,7 +151,7 @@ static int execute(void)
+ 		return EFI_ST_FAILURE;
+ 	}
+ 	ret = boottime->set_timer(event_notify, EFI_TIMER_STOP, 0);
+-	if (index != 0) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("Could not cancel timer\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+@@ -164,7 +164,7 @@ static int execute(void)
+ 	/* Set 10 ms timer */
+ 	notification_count = 0;
+ 	ret = boottime->set_timer(event_notify, EFI_TIMER_PERIODIC, 100000);
+-	if (index != 0) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("Could not set timer\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-- 
+2.20.1
+
