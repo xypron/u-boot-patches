@@ -32,6 +32,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-fix-memory-allocation-on-sandbox.patch
 git am ../patch/0001-sandbox-i2c_emul_find-No-emulators-for-device-rtc-43.patch
 git am ../patch/0001-efi_selftest-SNP-unit-test-on-sandbox.patch
+git am ../patch/0001-cmd-gpio-use-correct-printf-code.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
