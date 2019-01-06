@@ -1,0 +1,28 @@
+From 266b6c1ebc5e6e6b32ef500d8836367961089d04 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Jan 2019 11:58:40 +0100
+Subject: [PATCH 1/1] cmd: sf: use correct printf code
+
+test->time_ms[] is defined as unsigned. So use %u for printf().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/sf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/sf.c b/cmd/sf.c
+index 84bb0575f2..738ef0e46d 100644
+--- a/cmd/sf.c
++++ b/cmd/sf.c
+@@ -413,7 +413,7 @@ static void show_time(struct test_info *test, int stage)
+ 		do_div(speed, test->time_ms[stage] * 1024);
+ 	bps = speed * 8;
+ 
+-	printf("%d %s: %d ticks, %d KiB/s %d.%03d Mbps\n", stage,
++	printf("%d %s: %u ticks, %d KiB/s %d.%03d Mbps\n", stage,
+ 	       stage_name[stage], test->time_ms[stage],
+ 	       (int)speed, bps / 1000, bps % 1000);
+ }
+-- 
+2.20.1
+
