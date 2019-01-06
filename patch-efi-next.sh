@@ -41,6 +41,7 @@ git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
 git am ../patch/0001-cmd-zip-use-correct-format-code.patch
 git am ../patch/0001-efi_selftest-events-unit-test-check-return-values.patch
 git am ../patch/0001-efi_selftest-tpl-unit-test-check-return-values.patch
+git am ../patch/0001-efi_driver-simplify-error-message.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
