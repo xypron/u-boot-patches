@@ -1,0 +1,30 @@
+From 75c8ec5fc53bb9d76ab4168b878e05ab1d98fbab Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Jan 2019 11:48:38 +0100
+Subject: [PATCH 1/1] cmd: nvedit: use correct format code
+
+len is defined as unsigned. So use %u for printf().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/nvedit.c b/cmd/nvedit.c
+index de16c72c23..ebaa16b754 100644
+--- a/cmd/nvedit.c
++++ b/cmd/nvedit.c
+@@ -708,8 +708,8 @@ int env_get_f(const char *name, char *buf, unsigned len)
+ 		if (n)
+ 			*--buf = '\0';
+ 
+-		printf("env_buf [%d bytes] too small for value of \"%s\"\n",
+-			len, name);
++		printf("env_buf [%u bytes] too small for value of \"%s\"\n",
++		       len, name);
+ 
+ 		return n;
+ 	}
+-- 
+2.20.1
+
