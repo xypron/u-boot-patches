@@ -1,0 +1,28 @@
+From d4ee11bd9d792e837c23b9da73fc55f648919fbc Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Jan 2019 12:06:13 +0100
+Subject: [PATCH 1/1] cmd: tpm-v2: use correct format code
+
+updates is defined as unsigned int. So use %u for printf().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/tpm-v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/tpm-v2.c b/cmd/tpm-v2.c
+index bb51834c47..459a955d29 100644
+--- a/cmd/tpm-v2.c
++++ b/cmd/tpm-v2.c
+@@ -151,7 +151,7 @@ static int do_tpm_pcr_read(cmd_tbl_t *cmdtp, int flag, int argc,
+ 
+ 	rc = tpm2_pcr_read(dev, index, priv->pcr_select_min, data, &updates);
+ 	if (!rc) {
+-		printf("PCR #%u content (%d known updates):\n", index, updates);
++		printf("PCR #%u content (%u known updates):\n", index, updates);
+ 		print_byte_string(data, TPM2_DIGEST_LEN);
+ 	}
+ 
+-- 
+2.20.1
+
