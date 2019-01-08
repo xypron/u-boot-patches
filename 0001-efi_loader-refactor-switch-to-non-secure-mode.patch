@@ -1,13 +1,16 @@
 From 1ac65f0e8c43fdfeba674974194a41a20ce6df14 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 17:50:49 +0100
-Subject: [PATCH 1/1] efi_loader: refactor switch to non-secure mode
+Subject: [PATCH v4 1/1] efi_loader: refactor switch to non-secure mode
 
 Refactor the switch from supervisor to hypervisor to a new function called
 at the beginning of do_bootefi().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v4
+	Correct comments.
+	Use tab in Makefile.
 v3
 	Move weak function to common/bootm.c.
 	Rename functions.
@@ -65,7 +68,7 @@ index 00000000000..e116435623f
 + * entry_non_secure() - entry point when switching to non-secure mode
 + *
 + * When switching to non-secure mode switch_to_non_secure_mode() calls this
-+ * function passing a jump buffer. We use this jump buffer to restoring the
++ * function passing a jump buffer. We use this jump buffer to restore the
 + * original stack and register state.
 + *
 + * @non_secure_jmp:	jump buffer for restoring stack and registers
@@ -82,7 +85,7 @@ index 00000000000..e116435623f
 +/**
 + * switch_to_non_secure_mode() - switch to non-secure mode
 + *
-+ * Operating systems are expected to run in non-secure mode. Here we check if
++ * Operating systems may expect to run in non-secure mode. Here we check if
 + * we are running in secure mode and switch to non-secure mode if necessary.
 + */
 +void switch_to_non_secure_mode(void)
@@ -109,7 +112,7 @@ index 52c8daa0496..8b0b887a696 100644
  obj-$(CONFIG_ARMV8_SPL_EXCEPTION_VECTORS) += exceptions.o
  else
  obj-y	+= exceptions.o
-+obj-y   += exception_level.o
++obj-y	+= exception_level.o
  endif
  obj-y	+= cache.o
  obj-y	+= tlb.o
@@ -137,7 +140,7 @@ index 00000000000..245af3f1d4e
 + * entry_non_secure() - entry point when switching to non-secure mode
 + *
 + * When switching to non-secure mode switch_to_non_secure_mode() calls this
-+ * function passing a jump buffer. We use this jump buffer to restoring the
++ * function passing a jump buffer. We use this jump buffer to restore the
 + * original stack and register state.
 + *
 + * @non_secure_jmp:	jump buffer for restoring stack and registers
