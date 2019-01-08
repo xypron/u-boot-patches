@@ -20,18 +20,14 @@ git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 # git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
 # git am ../patch/0001-efi_loader-revert-Align-runtime-section-to-64kb.patch
-git am ../patch/0001-tests-enable-unit-tests-by-default-on-QEMU-ARM-64.patch
 git am ../patch/0001-tools-imx8image-use-correct-printf-escape-sequence.patch
 git am ../patch/0001-arm64-mvebu-defconfig-enable-CONFIG_CMD_NVME.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-arm64-dts-marvell-armada-ap806-reserve-PSCI-area.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
-git am ../patch/0001-doc-README.uefi-fix-typos.patch
 git am ../patch/0001-doc-README.commands-fix-typo.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-efi_loader-fix-memory-allocation-on-sandbox.patch
 git am ../patch/0001-sandbox-i2c_emul_find-No-emulators-for-device-rtc-43.patch
-git am ../patch/0001-efi_selftest-SNP-unit-test-on-sandbox.patch
 git am ../patch/0001-cmd-gpio-use-correct-printf-code.patch
 git am ../patch/0001-cmd-nvedit-use-correct-format-code.patch
 git am ../patch/0001-cmd-sf-use-correct-printf-code.patch
@@ -39,9 +35,6 @@ git am ../patch/0001-cmd-tpm-v2-use-correct-format-code.patch
 git am ../patch/0001-cmd-ubi-remove-unreachable-code.patch
 git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
 git am ../patch/0001-cmd-zip-use-correct-format-code.patch
-git am ../patch/0001-efi_selftest-events-unit-test-check-return-values.patch
-git am ../patch/0001-efi_selftest-tpl-unit-test-check-return-values.patch
-git am ../patch/0001-efi_driver-simplify-error-message.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -53,10 +46,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
 # efishell
-git am ../patch/0001-efi_loader-move-efi_init_obj_list-to-a-new-efi_setup.patch
-git am ../patch/0001-efi_loader-bootmgr-load-options.patch
-git am ../patch/0001-efi_loader-use-const-efi_guid_t-for-variable-service.patch
-git am ../patch/0001-efi_loader-efi_set_variable-use-const-void.patch
+# must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
 # sct
 git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
@@ -64,14 +54,12 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
 git am ../patch/0001-efi_loader-refactor-switch-to-non-secure-mode.patch
-git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
-git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
-git am ../patch/0001-efi_loader-avoid-unnecessary-pointer-to-long-convers.patch
-git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
-git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
+# must rebase: git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
+# must rebase: git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
+# must rebase: git am ../patch/0001-efi_loader-avoid-unnecessary-pointer-to-long-convers.patch
+# must rebase: git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
+# must rebase: git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
-git am ../patch/0001-efi_loader-CMD_BOOTEFI_HELLO_COMPILE-in-configs.patch
-git am ../patch/0001-efi_selftest-allow-building-on-ARMv7-M.patch
 git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
 git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
