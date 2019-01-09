@@ -63,6 +63,8 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
 git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
+git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
