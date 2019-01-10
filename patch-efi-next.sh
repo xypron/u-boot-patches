@@ -25,7 +25,6 @@ git am ../patch/0001-arm64-mvebu-defconfig-enable-CONFIG_CMD_NVME.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-arm64-dts-marvell-armada-ap806-reserve-PSCI-area.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
-git am ../patch/0001-doc-README.commands-fix-typo.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-sandbox-i2c_emul_find-No-emulators-for-device-rtc-43.patch
 git am ../patch/0001-cmd-gpio-use-correct-printf-code.patch

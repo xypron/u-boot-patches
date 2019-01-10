@@ -39,7 +39,7 @@ new file mode 100644
 index 0000000000..a3ce4b20f1
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
-@@ -0,0 +1,403 @@
+@@ -0,0 +1,405 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_start_image
@@ -103,6 +103,7 @@ index 0000000000..a3ce4b20f1
 +	},
 +	L"app.efi",
 +};
++
 +struct efi_file_info *file_info = &priv_file_info.info;
 +
 +static struct file_system_info priv_file_system_info = {
@@ -115,6 +116,7 @@ index 0000000000..a3ce4b20f1
 +	},
 +	L"EfiDisk",
 +};
++
 +static struct efi_file_system_info *file_system_info =
 +	&priv_file_system_info.info;
 +
@@ -125,7 +127,7 @@ index 0000000000..a3ce4b20f1
 +static efi_status_t EFIAPI open
 +	(struct efi_file_handle *this,
 +	 struct efi_file_handle **new_handle,
-+     	 s16 *file_name, u64 open_mode, u64 attributes);
++	 s16 *file_name, u64 open_mode, u64 attributes);
 +
 +static efi_status_t EFIAPI close(struct efi_file_handle *this);
 +
@@ -197,21 +199,21 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file_system || !root)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	*root = &volume;
 +	priv.volume_open_count++;
-+	
++
 +	return EFI_SUCCESS;
 +}
 +
 +static efi_status_t EFIAPI open
 +	(struct efi_file_handle *this,
 +	 struct efi_file_handle **new_handle,
-+     	 s16 *file_name, u64 open_mode, u64 attributes)
++	 s16 *file_name, u64 open_mode, u64 attributes)
 +{
 +	if (this != &volume)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	*new_handle = &file;
 +	priv.file_pos = 0;
 +	priv.file_open_count++;
@@ -227,7 +229,7 @@ index 0000000000..a3ce4b20f1
 +		priv.volume_open_count--;
 +	else
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
@@ -235,7 +237,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
@@ -244,15 +246,15 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	if (priv.file_pos >= img.length)
 +		*buffer_size = 0;
 +	else if (priv.file_pos + *buffer_size > img.length)
 +		*buffer_size = img.length - priv.file_pos;
-+	
++
 +	boottime->copy_mem(buffer, &image[priv.file_pos], *buffer_size);
 +	priv.file_pos += *buffer_size;
-+	
++
 +	return EFI_SUCCESS;
 +}
 +
@@ -261,7 +263,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
@@ -269,7 +271,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	*pos = priv.file_pos;
 +
 +	return EFI_UNSUPPORTED;
@@ -279,9 +281,9 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	priv.file_pos = pos;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
@@ -291,7 +293,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this == &file) {
 +		if (efi_st_memcmp(info_type, &file_info_guid,
-+		    sizeof(efi_guid_t)))
++				  sizeof(efi_guid_t)))
 +			return EFI_INVALID_PARAMETER;
 +		if (*buffer_size >= sizeof(struct file_info)) {
 +			boottime->copy_mem(buffer, file_info,
@@ -302,7 +304,7 @@ index 0000000000..a3ce4b20f1
 +		}
 +	} else if (this == &volume) {
 +		if (efi_st_memcmp(info_type, &file_system_info_guid,
-+		    sizeof(efi_guid_t)))
++				  sizeof(efi_guid_t)))
 +			return EFI_INVALID_PARAMETER;
 +		if (*buffer_size >= sizeof(struct file_system_info)) {
 +			boottime->copy_mem(buffer, file_system_info,
@@ -323,7 +325,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
@@ -331,7 +333,7 @@ index 0000000000..a3ce4b20f1
 +{
 +	if (this != &file)
 +		return EFI_INVALID_PARAMETER;
-+	
++
 +	return EFI_UNSUPPORTED;
 +}
 +
