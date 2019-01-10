@@ -1,4 +1,4 @@
-From dfcf5738ceed839aea4517360cd79d2ed1570192 Mon Sep 17 00:00:00 2001
+From f7e7f5d4dc9b887a031bfec1c00a914b7e792495 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
 Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
@@ -9,12 +9,12 @@ executes the application via StartImage().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |   3 +
- lib/efi_selftest/efi_selftest_loadimage.c | 403 ++++++++++++++++++++++
- 2 files changed, 406 insertions(+)
+ lib/efi_selftest/efi_selftest_loadimage.c | 456 ++++++++++++++++++++++
+ 2 files changed, 459 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_loadimage.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 5b804692aa..5939a2fd72 100644
+index b3d3dadf59..686b28633a 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -50,6 +50,7 @@ endif
@@ -36,10 +36,10 @@ index 5b804692aa..5939a2fd72 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..a3ce4b20f1
+index 0000000000..e2e3f045d1
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
-@@ -0,0 +1,405 @@
+@@ -0,0 +1,456 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_start_image
@@ -61,6 +61,9 @@ index 0000000000..a3ce4b20f1
 +
 +/* Binary logarithm of the block size */
 +#define LB_BLOCK_SIZE 9
++
++#define FILE_NAME L"app.efi"
++#define VOLUME_NAME L"EfiDisk"
 +
 +static efi_handle_t image_handle;
 +static struct efi_boot_services *boottime;
@@ -84,15 +87,15 @@ index 0000000000..a3ce4b20f1
 +
 +struct file_info {
 +	struct efi_file_info info;
-+	u16 file_name[8];
-+};
-+
-+struct file_system_info {
-+	struct efi_file_system_info info;
-+	u16 file_name[8];
++	u16 file_name[sizeof(FILE_NAME)];
 +};
 +
 +static efi_guid_t file_info_guid = EFI_FILE_INFO_GUID;
++
++struct file_system_info {
++	struct efi_file_system_info info;
++	u16 file_name[sizeof(VOLUME_NAME)];
++};
 +
 +static efi_guid_t file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
 +
@@ -101,10 +104,58 @@ index 0000000000..a3ce4b20f1
 +		.size = sizeof(struct file_info),
 +		.attribute = EFI_FILE_READ_ONLY,
 +	},
-+	L"app.efi",
++	FILE_NAME,
 +};
 +
 +struct efi_file_info *file_info = &priv_file_info.info;
++
++static struct {
++	struct efi_device_path_vendor vendor;
++	struct efi_device_path end;
++} __packed dp_volume = {
++	.vendor = {
++		.dp = {
++			.type =	DEVICE_PATH_TYPE_HARDWARE_DEVICE,
++			.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR,
++			.length = sizeof(struct efi_device_path_vendor),
++		},
++		.guid = EFI_GUID(0x4f9a0ebf, 0xa179, 0x88a6, 0x25, 0x68,
++				 0x10, 0x72, 0xb1, 0x93, 0x51, 0x71),
++	},
++	.end = {
++		.type = DEVICE_PATH_TYPE_END,
++		.sub_type = DEVICE_PATH_SUB_TYPE_END,
++		.length = sizeof(struct efi_device_path),
++	}
++};
++
++static struct {
++	struct efi_device_path_vendor vendor;
++	struct efi_device_path path;
++	u16 file[sizeof(FILE_NAME)];
++	struct efi_device_path end;
++} __packed dp_file = {
++	.vendor = {
++		.dp = {
++			.type =	DEVICE_PATH_TYPE_HARDWARE_DEVICE,
++			.sub_type = DEVICE_PATH_SUB_TYPE_VENDOR,
++			.length = sizeof(struct efi_device_path_vendor),
++		},
++		.guid = EFI_GUID(0x4f9a0ebf, 0xa179, 0x88a6, 0x25, 0x68,
++				 0x10, 0x72, 0xb1, 0x93, 0x51, 0x71),
++	},
++	.path = {
++		.type = DEVICE_PATH_TYPE_MEDIA_DEVICE,
++		.sub_type = DEVICE_PATH_SUB_TYPE_FILE_PATH,
++		.length = sizeof(struct efi_device_path) + sizeof(dp_file.file),
++	},
++	.file = FILE_NAME,
++	.end = {
++		.type = DEVICE_PATH_TYPE_END,
++		.sub_type = DEVICE_PATH_SUB_TYPE_END,
++		.length = sizeof(struct efi_device_path),
++	}
++};
 +
 +static struct file_system_info priv_file_system_info = {
 +	{
@@ -114,7 +165,7 @@ index 0000000000..a3ce4b20f1
 +		.free_space = 0x0,
 +		.block_size = 0x200,
 +	},
-+	L"EfiDisk",
++	VOLUME_NAME
 +};
 +
 +static struct efi_file_system_info *file_system_info =
