@@ -1,4 +1,4 @@
-From f7e7f5d4dc9b887a031bfec1c00a914b7e792495 Mon Sep 17 00:00:00 2001
+From 383c4f3218eb6e794f4385f568d4e29d658787d6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
 Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
@@ -36,7 +36,7 @@ index b3d3dadf59..686b28633a 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..e2e3f045d1
+index 0000000000..a90d08f827
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
 @@ -0,0 +1,456 @@
@@ -178,7 +178,7 @@ index 0000000000..e2e3f045d1
 +static efi_status_t EFIAPI open
 +	(struct efi_file_handle *this,
 +	 struct efi_file_handle **new_handle,
-+	 s16 *file_name, u64 open_mode, u64 attributes);
++	 u16 *file_name, u64 open_mode, u64 attributes);
 +
 +static efi_status_t EFIAPI close(struct efi_file_handle *this);
 +
@@ -260,7 +260,7 @@ index 0000000000..e2e3f045d1
 +static efi_status_t EFIAPI open
 +	(struct efi_file_handle *this,
 +	 struct efi_file_handle **new_handle,
-+	 s16 *file_name, u64 open_mode, u64 attributes)
++	 u16 *file_name, u64 open_mode, u64 attributes)
 +{
 +	if (this != &volume)
 +		return EFI_INVALID_PARAMETER;
