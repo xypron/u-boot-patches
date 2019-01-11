@@ -1,0 +1,91 @@
+From d1ab1d98ec5f396d407211a3d3fcf29961829529 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 11 Jan 2019 21:18:58 +0100
+Subject: [PATCH 1/1] efi_loader: use u16* for file name
+
+UTF-16 strings in our code should all be u16 *. Fix an inconsistency for
+file names which may lead to a warning for printf("%ls", ).
+
+Simon Glass <sjg@chromium.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h         |  2 +-
+ lib/efi_loader/efi_file.c | 14 +++++++-------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 9b6b97457b..3b67920117 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1151,7 +1151,7 @@ struct efi_file_handle {
+ 	u64 rev;
+ 	efi_status_t (EFIAPI *open)(struct efi_file_handle *file,
+ 			struct efi_file_handle **new_handle,
+-			s16 *file_name, u64 open_mode, u64 attributes);
++			u16 *file_name, u64 open_mode, u64 attributes);
+ 	efi_status_t (EFIAPI *close)(struct efi_file_handle *file);
+ 	efi_status_t (EFIAPI *delete)(struct efi_file_handle *file);
+ 	efi_status_t (EFIAPI *read)(struct efi_file_handle *file,
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 128cb0a627..dfa61bc2bc 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -148,7 +148,7 @@ static int sanitize_path(char *path)
+  * Returns:		handle to the opened file or NULL
+  */
+ static struct efi_file_handle *file_open(struct file_system *fs,
+-		struct file_handle *parent, s16 *file_name, u64 mode,
++		struct file_handle *parent, u16 *file_name, u64 mode,
+ 		u64 attributes)
+ {
+ 	struct file_handle *fh;
+@@ -157,8 +157,8 @@ static struct efi_file_handle *file_open(struct file_system *fs,
+ 	int flen = 0;
+ 
+ 	if (file_name) {
+-		utf16_to_utf8((u8 *)f0, (u16 *)file_name, 1);
+-		flen = u16_strlen((u16 *)file_name);
++		utf16_to_utf8((u8 *)f0, file_name, 1);
++		flen = u16_strlen(file_name);
+ 	}
+ 
+ 	/* we could have a parent, but also an absolute path: */
+@@ -183,7 +183,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
+ 			*p++ = '/';
+ 		}
+ 
+-		utf16_to_utf8((u8 *)p, (u16 *)file_name, flen);
++		utf16_to_utf8((u8 *)p, file_name, flen);
+ 
+ 		if (sanitize_path(fh->path))
+ 			goto error;
+@@ -216,7 +216,7 @@ error:
+ 
+ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
+ 		struct efi_file_handle **new_handle,
+-		s16 *file_name, u64 open_mode, u64 attributes)
++		u16 *file_name, u64 open_mode, u64 attributes)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret;
+@@ -375,7 +375,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+ 	if (dent->type == FS_DT_DIR)
+ 		info->attribute |= EFI_FILE_DIRECTORY;
+ 
+-	ascii2unicode((u16 *)info->file_name, dent->name);
++	ascii2unicode(info->file_name, dent->name);
+ 
+ 	fh->offset++;
+ 
+@@ -666,7 +666,7 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp)
+ 			return NULL;
+ 		}
+ 
+-		EFI_CALL(ret = f->open(f, &f2, (s16 *)fdp->str,
++		EFI_CALL(ret = f->open(f, &f2, fdp->str,
+ 				       EFI_FILE_MODE_READ, 0));
+ 		if (ret != EFI_SUCCESS)
+ 			return NULL;
+-- 
+2.20.1
+

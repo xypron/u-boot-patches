@@ -34,6 +34,7 @@ git am ../patch/0001-cmd-tpm-v2-use-correct-format-code.patch
 git am ../patch/0001-cmd-ubi-remove-unreachable-code.patch
 git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
 git am ../patch/0001-cmd-zip-use-correct-format-code.patch
+git am ../patch/0001-efi_loader-use-u16-for-file-name.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
