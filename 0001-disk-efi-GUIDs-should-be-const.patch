@@ -1,0 +1,28 @@
+From 86818de7ca520e6874caa3a034be5c423cfeb412 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 12 Jan 2019 11:15:00 +0100
+Subject: [PATCH 1/1] disk: efi: GUIDs should be const
+
+Make system_guid const.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ disk/part_efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/disk/part_efi.c b/disk/part_efi.c
+index d6bb53e6b5..239455b816 100644
+--- a/disk/part_efi.c
++++ b/disk/part_efi.c
+@@ -66,7 +66,7 @@ static char *print_efiname(gpt_entry *pte)
+ 	return name;
+ }
+ 
+-static efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
++static const efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
+ 
+ static inline int is_bootable(gpt_entry *p)
+ {
+-- 
+2.20.1
+
