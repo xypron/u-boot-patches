@@ -1,7 +1,7 @@
 From e043aff2733c7906af5444da1512cabe3ab54e97 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 11 Jan 2019 21:18:58 +0100
-Subject: [PATCH 1/1] efi_loader: use u16* for file name
+Subject: [PATCH v2 1/1] efi_loader: use u16* for file name
 
 UTF-16 strings in our code should all be u16 *. Fix an inconsistency for
 file names which may lead to a warning for printf("%ls", ).
