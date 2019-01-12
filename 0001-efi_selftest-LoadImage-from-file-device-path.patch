@@ -1,4 +1,4 @@
-From ee77cd73a485a79465d6958e301fb2b4a16f77c4 Mon Sep 17 00:00:00 2001
+From a619d5e807dbc1411a4ca0ad411cb2de06714de7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
 Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
@@ -9,8 +9,8 @@ executes the application via StartImage().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |   3 +
- lib/efi_selftest/efi_selftest_loadimage.c | 482 ++++++++++++++++++++++
- 2 files changed, 485 insertions(+)
+ lib/efi_selftest/efi_selftest_loadimage.c | 478 ++++++++++++++++++++++
+ 2 files changed, 481 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_loadimage.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -36,10 +36,10 @@ index b3d3dadf59..686b28633a 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..6114a9e384
+index 0000000000..03582f5100
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
-@@ -0,0 +1,482 @@
+@@ -0,0 +1,478 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_start_image
@@ -96,8 +96,6 @@ index 0000000000..6114a9e384
 +	struct efi_file_info info;
 +	u16 file_name[sizeof(FILE_NAME)];
 +};
-+
-+static efi_guid_t file_info_guid = EFI_FILE_INFO_GUID;
 +
 +struct file_system_info {
 +	struct efi_file_system_info info;
@@ -449,20 +447,18 @@ index 0000000000..6114a9e384
 +	/* Load the application image into memory */
 +	decompress(&image);
 +
-+	ret = boottime->install_protocol_interface(&handle_volume,
-+						   &guid_device_path,
-+						   EFI_NATIVE_INTERFACE,
-+						   &dp_volume);
++	ret = boottime->install_protocol_interface
++		(&handle_volume, &guid_device_path, EFI_NATIVE_INTERFACE,
++		 &dp_volume);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("Failed to install device path\n");	
 +		return EFI_ST_FAILURE;
 +	}
-+	ret = boottime->install_protocol_interface(&handle_volume,
-+						   &guid_device_path,
-+						   EFI_NATIVE_INTERFACE,
-+						   &dp_volume);
++	ret = boottime->install_protocol_interface
++		(&handle_volume, &guid_simple_file_system_protocol,
++		 EFI_NATIVE_INTERFACE, &file_system);
 +	if (ret != EFI_SUCCESS) {
-+		efi_st_error("Failed to install block io protcol\n");	
++		efi_st_error("Failed to install simple file ystem protcol\n");
 +		return EFI_ST_FAILURE;
 +	}
 +
@@ -500,8 +496,8 @@ index 0000000000..6114a9e384
 +	efi_status_t ret;
 +	efi_handle_t handle;
 +
-+	ret = boottime->load_image(false, handle_image, NULL, image,
-+				   img.length, &handle);
++	ret = boottime->load_image(false, handle_image, &dp_file.vendor.dp,
++				   NULL, 0, &handle);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("Failed to load image\n");
 +		return EFI_ST_FAILURE;
