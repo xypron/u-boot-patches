@@ -1,4 +1,4 @@
-From 383c4f3218eb6e794f4385f568d4e29d658787d6 Mon Sep 17 00:00:00 2001
+From ee77cd73a485a79465d6958e301fb2b4a16f77c4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
 Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
@@ -9,8 +9,8 @@ executes the application via StartImage().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |   3 +
- lib/efi_selftest/efi_selftest_loadimage.c | 456 ++++++++++++++++++++++
- 2 files changed, 459 insertions(+)
+ lib/efi_selftest/efi_selftest_loadimage.c | 482 ++++++++++++++++++++++
+ 2 files changed, 485 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_loadimage.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -36,10 +36,10 @@ index b3d3dadf59..686b28633a 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..a90d08f827
+index 0000000000..6114a9e384
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
-@@ -0,0 +1,456 @@
+@@ -0,0 +1,482 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_start_image
@@ -65,8 +65,15 @@ index 0000000000..a90d08f827
 +#define FILE_NAME L"app.efi"
 +#define VOLUME_NAME L"EfiDisk"
 +
-+static efi_handle_t image_handle;
 +static struct efi_boot_services *boottime;
++static efi_handle_t handle_image;
++static efi_handle_t handle_volume;
++
++static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
++static const efi_guid_t guid_simple_file_system_protocol =
++		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
++static const efi_guid_t guid_file_info = EFI_FILE_INFO_GUID;
++static const efi_guid_t guid_file_system_info = EFI_FILE_SYSTEM_INFO_GUID;
 +
 +/* One 8 byte block of the compressed disk image */
 +struct line {
@@ -97,8 +104,6 @@ index 0000000000..a90d08f827
 +	u16 file_name[sizeof(VOLUME_NAME)];
 +};
 +
-+static efi_guid_t file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
-+
 +static struct file_info priv_file_info = {
 +	{
 +		.size = sizeof(struct file_info),
@@ -108,6 +113,8 @@ index 0000000000..a90d08f827
 +};
 +
 +struct efi_file_info *file_info = &priv_file_info.info;
++
++efi_handle_t dp_handle;
 +
 +static struct {
 +	struct efi_device_path_vendor vendor;
@@ -343,7 +350,7 @@ index 0000000000..a90d08f827
 +	 efi_uintn_t *buffer_size, void *buffer)
 +{
 +	if (this == &file) {
-+		if (efi_st_memcmp(info_type, &file_info_guid,
++		if (efi_st_memcmp(info_type, &guid_file_info,
 +				  sizeof(efi_guid_t)))
 +			return EFI_INVALID_PARAMETER;
 +		if (*buffer_size >= sizeof(struct file_info)) {
@@ -354,7 +361,7 @@ index 0000000000..a90d08f827
 +			return EFI_BUFFER_TOO_SMALL;
 +		}
 +	} else if (this == &volume) {
-+		if (efi_st_memcmp(info_type, &file_system_info_guid,
++		if (efi_st_memcmp(info_type, &guid_file_system_info,
 +				  sizeof(efi_guid_t)))
 +			return EFI_INVALID_PARAMETER;
 +		if (*buffer_size >= sizeof(struct file_system_info)) {
@@ -434,11 +441,30 @@ index 0000000000..a90d08f827
 +static int setup(const efi_handle_t handle,
 +		 const struct efi_system_table *systable)
 +{
-+	image_handle = handle;
++	efi_status_t ret;
++
++	handle_image = handle;
 +	boottime = systable->boottime;
 +
 +	/* Load the application image into memory */
 +	decompress(&image);
++
++	ret = boottime->install_protocol_interface(&handle_volume,
++						   &guid_device_path,
++						   EFI_NATIVE_INTERFACE,
++						   &dp_volume);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("Failed to install device path\n");	
++		return EFI_ST_FAILURE;
++	}
++	ret = boottime->install_protocol_interface(&handle_volume,
++						   &guid_device_path,
++						   EFI_NATIVE_INTERFACE,
++						   &dp_volume);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("Failed to install block io protcol\n");	
++		return EFI_ST_FAILURE;
++	}
 +
 +	return EFI_ST_SUCCESS;
 +}
@@ -474,7 +500,7 @@ index 0000000000..a90d08f827
 +	efi_status_t ret;
 +	efi_handle_t handle;
 +
-+	ret = boottime->load_image(false, image_handle, NULL, image,
++	ret = boottime->load_image(false, handle_image, NULL, image,
 +				   img.length, &handle);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("Failed to load image\n");
