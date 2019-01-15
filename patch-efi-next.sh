@@ -34,9 +34,7 @@ git am ../patch/0001-cmd-tpm-v2-use-correct-format-code.patch
 git am ../patch/0001-cmd-ubi-remove-unreachable-code.patch
 git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
 git am ../patch/0001-cmd-zip-use-correct-format-code.patch
-git am ../patch/0001-efi_loader-use-u16-for-file-name.patch
 git am ../patch/0001-disk-efi-GUIDs-should-be-const.patch
-git am ../patch/0001-efi_loader-remove-duplicate-GUID-definition.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -61,7 +59,6 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 # must rebase: git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
 # must rebase: git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
-git am ../patch/0001-efi_loader-consistent-build-flags-for-EFI-applicatio.patch
 git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
