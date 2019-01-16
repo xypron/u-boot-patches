@@ -26,14 +26,6 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-arm64-dts-marvell-armada-ap806-reserve-PSCI-area.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-sandbox-i2c_emul_find-No-emulators-for-device-rtc-43.patch
-git am ../patch/0001-cmd-gpio-use-correct-printf-code.patch
-git am ../patch/0001-cmd-nvedit-use-correct-format-code.patch
-git am ../patch/0001-cmd-sf-use-correct-printf-code.patch
-git am ../patch/0001-cmd-tpm-v2-use-correct-format-code.patch
-git am ../patch/0001-cmd-ubi-remove-unreachable-code.patch
-git am ../patch/0001-cmd-unzip-use-correct-format-code.patch
-git am ../patch/0001-cmd-zip-use-correct-format-code.patch
 git am ../patch/0001-disk-efi-GUIDs-should-be-const.patch
 
 # USB keyboard
