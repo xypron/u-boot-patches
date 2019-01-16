@@ -451,14 +451,14 @@ index 0000000000..03582f5100
 +		(&handle_volume, &guid_device_path, EFI_NATIVE_INTERFACE,
 +		 &dp_volume);
 +	if (ret != EFI_SUCCESS) {
-+		efi_st_error("Failed to install device path\n");	
++		efi_st_error("Failed to install device path\n");
 +		return EFI_ST_FAILURE;
 +	}
 +	ret = boottime->install_protocol_interface
 +		(&handle_volume, &guid_simple_file_system_protocol,
 +		 EFI_NATIVE_INTERFACE, &file_system);
 +	if (ret != EFI_SUCCESS) {
-+		efi_st_error("Failed to install simple file ystem protcol\n");
++		efi_st_error("Failed to install simple file ystem protocol\n");
 +		return EFI_ST_FAILURE;
 +	}
 +
