@@ -1,0 +1,48 @@
+From cdf6d1d1a61402d7cdfdf90d154a277e2ad076cd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 18 Jan 2019 18:51:36 +0100
+Subject: [PATCH 1/1] efi_loader: remove duplicate function mem2hex()
+
+Replace duplicate function mem2hex() by inline function bin2hex().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index eea7f68b85..2ac27731fe 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -47,19 +47,6 @@
+ 
+ #define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
+ 
+-static char *mem2hex(char *hexstr, const u8 *mem, int count)
+-{
+-	static const char hexchars[] = "0123456789abcdef";
+-
+-	while (count-- > 0) {
+-		u8 ch = *mem++;
+-		*hexstr++ = hexchars[ch >> 4];
+-		*hexstr++ = hexchars[ch & 0xf];
+-	}
+-
+-	return hexstr;
+-}
+-
+ static efi_status_t efi_to_native(char **native, const u16 *variable_name,
+ 				  const efi_guid_t *vendor)
+ {
+@@ -282,7 +269,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 
+ 	/* store payload: */
+ 	s += sprintf(s, "(blob)");
+-	s = mem2hex(s, data, data_size);
++	s = bin2hex(s, data, data_size);
+ 	*s = '\0';
+ 
+ 	debug("%s: setting: %s=%s\n", __func__, native_name, val);
+-- 
+2.20.1
+
