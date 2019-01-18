@@ -28,7 +28,7 @@ git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-disk-efi-GUIDs-should-be-const.patch
 git am ../patch/0001-efi_loader-remove-duplicate-function-mem2hex.patch
-gti am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
+git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
