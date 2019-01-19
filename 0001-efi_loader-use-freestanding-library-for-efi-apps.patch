@@ -1,0 +1,43 @@
+From 37619f2794abf9485f3a8ffe3627f9a41debedb7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 19 Jan 2019 18:29:50 +0100
+Subject: [PATCH 2/3] efi_loader: use freestanding library for efi apps
+
+GCC requires that freestanding programs provide memcpy(), memmove(),
+memset(), and memcmp().
+
+Add the library functions when building a *.efi files.
+
+Reported-by: Alexander Graf <agraf@suse.de>
+Fixes: 5be444d14b38 ("efi_loader: consistent build flags for EFI applications")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_freestanding.c | 1 +
+ scripts/Makefile.lib                | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+ create mode 120000 lib/efi_selftest/efi_freestanding.c
+
+diff --git a/lib/efi_selftest/efi_freestanding.c b/lib/efi_selftest/efi_freestanding.c
+new file mode 120000
+index 0000000000..4b7edd52bd
+--- /dev/null
++++ b/lib/efi_selftest/efi_freestanding.c
+@@ -0,0 +1 @@
++../efi_loader/efi_freestanding.c
+\ No newline at end of file
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index a5b57fc6b9..4facb76ace 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -389,7 +389,7 @@ $(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcoun
+ 	$(call cmd,force_checksrc)
+ 	$(call if_changed_rule,cc_o_c)
+ 
+-$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o
++$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_freestanding.o
+ 	$(call cmd,efi_ld)
+ 
+ # ACPI
+-- 
+2.20.1
+

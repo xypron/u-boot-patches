@@ -29,6 +29,9 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-remove-duplicate-function-mem2hex.patch
 git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
+git am ../patch/0001-efi_loader-provide-freestanding-library.patch
+git am ../patch/0001-efi_loader-use-freestanding-library-for-efi-apps.patch
+git am ../patch/0001-efi_loader-use-library-memcpy-in-helloworld.efi.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
