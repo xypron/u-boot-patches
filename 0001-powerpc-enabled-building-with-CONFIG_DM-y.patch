@@ -1,0 +1,61 @@
+From 7d76c7b68f85871b01fca47e0b6c9f634bf0e44b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 12 Jan 2019 16:18:58 +0100
+Subject: [PATCH 1/1] powerpc: enabled building with CONFIG_DM=y
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Moving to the driver model requires CONFIG_DM to be enabled. Currently
+several boards like kmeter1_defconfig produce a build error when CONFIG_DM
+is enabled:
+
+In file included from include/common.h:35,
+                 from ./arch/powerpc/include/asm/fsl_lbc.h:10,
+                 from include/mpc83xx.h:10,
+                 from ./arch/powerpc/include/asm/ppc.h:27,
+                 from ./arch/powerpc/include/asm/u-boot.h:18,
+                 from include/dm/of.h:10,
+                 from include/dm/ofnode.h:12,
+                 from include/dm/device.h:13,
+                 from include/linux/mtd/mtd.h:26,
+                 from drivers/mtd/mtdconcat.c:25:
+include/image.h: In function ‘image_check_target_arch’:
+include/image.h:846:3: error: #error "please define IH_ARCH_DEFAULT in
+                       your arch asm/u-boot.h"
+ # error "please define IH_ARCH_DEFAULT in your arch asm/u-boot.h"
+   ^~~~~
+include/image.h:848:31: error: ‘IH_ARCH_DEFAULT’ undeclared (first use in
+                        this function); did you mean ‘IH_ARCH_COUNT’?
+  return image_check_arch(hdr, IH_ARCH_DEFAULT);
+
+The error can be avoided by moving the definition of IH_ARCH_DEFAULT before
+
+     #include <asm/ppc.h>
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/powerpc/include/asm/u-boot.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/powerpc/include/asm/u-boot.h b/arch/powerpc/include/asm/u-boot.h
+index 9e7e2d45e8..baafb7dfce 100644
+--- a/arch/powerpc/include/asm/u-boot.h
++++ b/arch/powerpc/include/asm/u-boot.h
+@@ -13,11 +13,12 @@
+ #ifndef __U_BOOT_H__
+ #define __U_BOOT_H__
+ 
++#define IH_ARCH_DEFAULT IH_ARCH_PPC
++
+ /* Use the generic board which requires a unified bd_info */
+ #include <asm-generic/u-boot.h>
+ #include <asm/ppc.h>
+ 
+ /* For image.h:image_check_target_arch() */
+-#define IH_ARCH_DEFAULT IH_ARCH_PPC
+ 
+ #endif	/* __U_BOOT_H__ */
+-- 
+2.20.1
+
