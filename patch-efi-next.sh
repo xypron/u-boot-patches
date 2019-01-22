@@ -21,9 +21,7 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 # git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
 # git am ../patch/0001-efi_loader-revert-Align-runtime-section-to-64kb.patch
 git am ../patch/0001-tools-imx8image-use-correct-printf-escape-sequence.patch
-git am ../patch/0001-arm64-mvebu-defconfig-enable-CONFIG_CMD_NVME.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
-git am ../patch/0001-arm64-dts-marvell-armada-ap806-reserve-PSCI-area.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
