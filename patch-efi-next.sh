@@ -26,8 +26,6 @@ git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
-git am ../patch/0001-efi_loader-fix-GetNextVariableName.patch
-git am ../patch/0001-efi_loader-GetNextVariableName-relies-on-REGEX.patch
 git am ../patch/0001-hashtable-remove-caps-buffer.patch
 
 # USB keyboard
