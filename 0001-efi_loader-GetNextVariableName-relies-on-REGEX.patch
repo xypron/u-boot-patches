@@ -1,0 +1,28 @@
+From e50c9d9e1f759e94eaae899785026a26a0a5bdd5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 22 Jan 2019 21:31:28 +0100
+Subject: [PATCH 1/1] efi_loader: GetNextVariableName() relies on REGEX
+
+Our implementation of GetNextVariableName() relies on
+CONFIG_REGEX=y. So EFI_LOADER has to select it.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index b921ea8821..f5de005ff8 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -8,6 +8,7 @@ config EFI_LOADER
+ 	default y
+ 	select LIB_UUID
+ 	select HAVE_BLOCK_DEVICE
++	select REGEX
+ 	imply CFB_CONSOLE_ANSI
+ 	help
+ 	  Select this option if you want to run EFI applications (like grub2)
+-- 
+2.20.1
+

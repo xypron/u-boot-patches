@@ -1,0 +1,33 @@
+From 118016a122a16b6c6615b58a29a3084160e59e1a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 22 Jan 2019 19:39:26 +0100
+Subject: [PATCH 1/1] efi_loader: fix GetNextVariableName
+
+Our current implementation of GetNextVariableName() first collects all EFI
+variables. If none is found at all hexport_r() returns a zero length string
+terminated by \0 and the value 1 as number of bytes in the returned buffer.
+
+In this case GetNextVariableName() has to return EFI_NOT_FOUND.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 537006e50a..2a5b202881 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -356,7 +356,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 		list_len = hexport_r(&env_htab, '\n',
+ 				     H_MATCH_REGEX | H_MATCH_KEY,
+ 				     &efi_variables_list, 0, 1, regexlist);
+-		if (list_len <= 0)
++		/* 1 indicates that no match was found */
++		if (list_len <= 1)
+ 			return EFI_EXIT(EFI_NOT_FOUND);
+ 
+ 		variable = efi_variables_list;
+-- 
+2.20.1
+
