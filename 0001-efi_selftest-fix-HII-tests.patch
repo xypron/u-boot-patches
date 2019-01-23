@@ -1,0 +1,73 @@
+From 561ef341fe025576eaa783a05bff58af979b2aab Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 23 Jan 2019 20:30:56 +0100
+Subject: [PATCH 1/1] efi_selftest: fix HII tests
+
+efi_st_printf() does not support format code %ld. Anyway the format code
+for size_t would be %zu which isn't supported either.
+
+We do not want any divisions to avoid invalid references to integer
+arithmetic routines, cf.
+https://gcc.gnu.org/onlinedocs/gccint/Integer-library-routines.html.
+
+As a simple remedy remove the noisy messages from the output.
+They are not relevant for automated testing.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_hii.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_hii.c b/lib/efi_selftest/efi_selftest_hii.c
+index 16d7b60829..e38af7dbf8 100644
+--- a/lib/efi_selftest/efi_selftest_hii.c
++++ b/lib/efi_selftest/efi_selftest_hii.c
+@@ -205,8 +205,6 @@ static int test_hii_database_list_package_lists(void)
+ 			     (unsigned int)ret);
+ 		goto out;
+ 	}
+-	efi_st_printf("list_package_lists returned %ld handles\n",
+-		      handles_size / sizeof(*handles));
+ 	free(handles);
+ 
+ 	/* STRINGS */
+@@ -236,8 +234,6 @@ static int test_hii_database_list_package_lists(void)
+ 		ret = EFI_ST_FAILURE;
+ 		goto out;
+ 	}
+-	efi_st_printf("list_package_lists returned %ld strings handles\n",
+-		      handles_size / sizeof(*handles));
+ 	free(handles);
+ 
+ 	/* GUID */
+@@ -267,8 +263,6 @@ static int test_hii_database_list_package_lists(void)
+ 		ret = EFI_ST_FAILURE;
+ 		goto out;
+ 	}
+-	efi_st_printf("list_package_lists returned %ld guid handles\n",
+-		      handles_size / sizeof(*handles));
+ 	free(handles);
+ 
+ 	/* KEYBOARD_LAYOUT */
+@@ -298,8 +292,6 @@ static int test_hii_database_list_package_lists(void)
+ 		ret = EFI_ST_FAILURE;
+ 		goto out;
+ 	}
+-	efi_st_printf("list_package_lists returned %ld keyboard layout handles\n",
+-		      handles_size / sizeof(*handles));
+ 	free(handles);
+ 
+ 	result = EFI_ST_SUCCESS;
+@@ -420,9 +412,6 @@ static int test_hii_database_find_keyboard_layouts(void)
+ 	}
+ 	free(guids);
+ 
+-	efi_st_printf("find_keyboard_layouts returned %ld guids\n",
+-		      guids_size / sizeof(*guids));
+-
+ 	result = EFI_ST_SUCCESS;
+ 
+ out:
+-- 
+2.20.1
+
