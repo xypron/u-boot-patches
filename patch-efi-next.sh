@@ -27,7 +27,6 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-hashtable-remove-caps-buffer.patch
-git am ../patch/0001-x86-do-not-use-i386-code-for-x86_64-memory-functions.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -42,7 +41,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
 # sct
-git am ../patch/0001-efi_loader-Initial-HII-database-protocols.patch
 git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
