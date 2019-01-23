@@ -29,6 +29,7 @@ git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-hashtable-remove-caps-buffer.patch
 git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-efi_selftest-fix-HII-tests.patch
+git am ../patch/0001-efi_loader-debug-output-for-HII-protocols.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
