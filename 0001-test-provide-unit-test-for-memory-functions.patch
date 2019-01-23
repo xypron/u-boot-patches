@@ -1,0 +1,211 @@
+From 80f5c47a00fd4768ddb40fcfd0a0b70dc6c01d1c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 23 Jan 2019 19:01:05 +0100
+Subject: [PATCH 1/1] test: provide unit test for memory functions
+
+Memory functions may have architecture specific implementations. These
+should be tested.
+
+Provide unit tests for memset(), memcpy(), memmove().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/test/lib.h    | 14 ++++++++++
+ include/test/suites.h |  1 +
+ test/Kconfig          |  8 ++++++
+ test/cmd_ut.c         |  6 ++++
+ test/lib/Makefile     |  2 ++
+ test/lib/cmd_ut_lib.c | 20 +++++++++++++
+ test/lib/string.c     | 65 +++++++++++++++++++++++++++++++++++++++++++
+ 7 files changed, 116 insertions(+)
+ create mode 100644 include/test/lib.h
+ create mode 100644 test/lib/cmd_ut_lib.c
+ create mode 100644 test/lib/string.c
+
+diff --git a/include/test/lib.h b/include/test/lib.h
+new file mode 100644
+index 0000000000..12cca61e8b
+--- /dev/null
++++ b/include/test/lib.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#ifndef __TEST_LIB_H__
++#define __TEST_LIB_H__
++
++#include <test/test.h>
++
++/* Declare a new library function test */
++#define LIB_TEST(_name, _flags)	UNIT_TEST(_name, _flags, lib_test)
++
++#endif /* __TEST_LIB_H__ */
+diff --git a/include/test/suites.h b/include/test/suites.h
+index 77d863b4a6..01bee09346 100644
+--- a/include/test/suites.h
++++ b/include/test/suites.h
+@@ -27,6 +27,7 @@ int do_ut_bloblist(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+ int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+ int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
++int do_ut_lib(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+diff --git a/test/Kconfig b/test/Kconfig
+index de16d179d0..48a0e501f8 100644
+--- a/test/Kconfig
++++ b/test/Kconfig
+@@ -6,6 +6,14 @@ menuconfig UNIT_TEST
+ 	  This does not require sandbox to be included, but it is most
+ 	  often used there.
+ 
++config UT_LIB
++	bool "Unit tests for library functions"
++	depends on UNIT_TEST
++	default y
++	help
++	  Enables the 'ut lib' command which tests library functions like
++	  memcat(), memcyp(), memmove().
++
+ config UT_TIME
+ 	bool "Unit tests for time functions"
+ 	depends on UNIT_TEST
+diff --git a/test/cmd_ut.c b/test/cmd_ut.c
+index 56924a5272..e3b89504e7 100644
+--- a/test/cmd_ut.c
++++ b/test/cmd_ut.c
+@@ -46,6 +46,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
+ #ifdef CONFIG_UT_OVERLAY
+ 	U_BOOT_CMD_MKENT(overlay, CONFIG_SYS_MAXARGS, 1, do_ut_overlay, "", ""),
+ #endif
++#ifdef CONFIG_UT_LIB
++	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
++#endif
+ #ifdef CONFIG_UT_TIME
+ 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+ #endif
+@@ -108,6 +111,9 @@ static char ut_help_text[] =
+ #ifdef CONFIG_UT_ENV
+ 	"ut env [test-name]\n"
+ #endif
++#ifdef CONFIG_UT_LIB
++	"ut lib [test-name] - test library functions\n"
++#endif
+ #ifdef CONFIG_UT_OVERLAY
+ 	"ut overlay [test-name]\n"
+ #endif
+diff --git a/test/lib/Makefile b/test/lib/Makefile
+index 5a636aac74..308c61708e 100644
+--- a/test/lib/Makefile
++++ b/test/lib/Makefile
+@@ -2,5 +2,7 @@
+ #
+ # (C) Copyright 2018
+ # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
++obj-y += cmd_ut_lib.o
+ obj-y += hexdump.o
+ obj-y += lmb.o
++obj-y += string.o
+diff --git a/test/lib/cmd_ut_lib.c b/test/lib/cmd_ut_lib.c
+new file mode 100644
+index 0000000000..eb90e53914
+--- /dev/null
++++ b/test/lib/cmd_ut_lib.c
+@@ -0,0 +1,20 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Unit tests for library functions
++ */
++
++#include <common.h>
++#include <command.h>
++#include <test/lib.h>
++#include <test/suites.h>
++#include <test/ut.h>
++
++int do_ut_lib(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	struct unit_test *tests = ll_entry_start(struct unit_test, lib_test);
++	const int n_ents = ll_entry_count(struct unit_test, lib_test);
++
++	return cmd_ut_category("lib", tests, n_ents, argc, argv);
++}
+diff --git a/test/lib/string.c b/test/lib/string.c
+new file mode 100644
+index 0000000000..52ac4809ac
+--- /dev/null
++++ b/test/lib/string.c
+@@ -0,0 +1,65 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Unit tests for memory functions
++ */
++
++#include <common.h>
++#include <command.h>
++#include <test/lib.h>
++#include <test/test.h>
++#include <test/ut.h>
++
++static int lib_memset(struct unit_test_state *uts)
++{
++	char work[] = "submarine";
++	const char expected[] = "suUUUUine";
++	char *ptr;
++
++	ptr = memset(work + 2, 'U', 4);
++	ut_asserteq_ptr(work + 2, ptr);
++	ut_asserteq_str(expected, work);
++
++	return 0;
++}
++
++LIB_TEST(lib_memset, 0);
++
++static int lib_memcpy(struct unit_test_state *uts)
++{
++	char work[] = "elephants";
++	const char expected[] = "elelephas";
++	char *ptr;
++
++	/* Overlapping forward copy */
++	ptr = memcpy(work + 2, "elepha", 6);
++	ut_asserteq_ptr(work + 2, ptr);
++	ut_asserteq_str(expected, work);
++
++	return 0;
++}
++
++LIB_TEST(lib_memcpy, 0);
++
++static int lib_memmove(struct unit_test_state *uts)
++{
++	char work[] = "elephants";
++	const char expected1[] = "eleelents";
++	const char expected2[] = "ellentnts";
++	char *ptr;
++
++	/* Overlapping forward copy */
++	ptr = memcpy(work + 3, work, 3);
++	ut_asserteq_ptr(work + 3, ptr);
++	ut_asserteq_str(expected1, work);
++
++	/* Overlapping backward copy */
++	ptr = memcpy(work + 2, work + 4, 4);
++	ut_asserteq_ptr(work + 2, ptr);
++	ut_asserteq_str(expected2, work);
++
++	return 0;
++}
++
++LIB_TEST(lib_memmove, 0);
+-- 
+2.20.1
+
