@@ -1,4 +1,4 @@
-From 80f5c47a00fd4768ddb40fcfd0a0b70dc6c01d1c Mon Sep 17 00:00:00 2001
+From 0c0bca5b236097ea0c31a17f791fd257176b1b68 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 23 Jan 2019 19:01:05 +0100
 Subject: [PATCH 1/1] test: provide unit test for memory functions
@@ -9,6 +9,17 @@ should be tested.
 Provide unit tests for memset(), memcpy(), memmove().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Hello Alex,
+
+you already picked up the patch correcting memmove for x86_64.
+x86: do not use i386 code for x86_64 memory functions
+https://lists.denx.de/pipermail/u-boot/2019-January/355851.html
+So I think you could also pick this patch for efi-next.
+
+Best regards
+
+Heinrich
 ---
  include/test/lib.h    | 14 ++++++++++
  include/test/suites.h |  1 +
