@@ -31,6 +31,7 @@ git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-efi_selftest-fix-HII-tests.patch
 git am ../patch/0001-efi_loader-debug-output-for-HII-protocols.patch
 git am ../patch/0001-x86-define-CONFIG_LOADADDR-0x1100000.patch
+git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
