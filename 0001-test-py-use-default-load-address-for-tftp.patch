@@ -1,7 +1,7 @@
-From af0c8b4d061b914f571e9128a0cd2a3e8d62e3b7 Mon Sep 17 00:00:00 2001
+From e7f4ae401fd06ce8661600f9279eee2cc62ffc96 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 25 Jan 2019 18:52:04 +0100
-Subject: [PATCH] test/py: use default load address for tftp
+Subject: [PATCH 1/1] test/py: use default load address for tftp
 
 On x86_64 the size of the file u-boot loaded by the tftp test has grown in
 size such that when loading the file to 0x200000 it overwrites a memory
@@ -12,11 +12,11 @@ If no load address is specified for tftp do not use the ram base address
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/py/tests/test_net.py | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ test/py/tests/test_net.py | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/test/py/tests/test_net.py b/test/py/tests/test_net.py
-index 9c395e69fa..f0cbc783ca 100644
+index 9c395e69fa..9ca6743afd 100644
 --- a/test/py/tests/test_net.py
 +++ b/test/py/tests/test_net.py
 @@ -145,11 +145,12 @@ def test_net_tftpboot(u_boot_console):
@@ -35,6 +35,15 @@ index 9c395e69fa..f0cbc783ca 100644
      expected_text = 'Bytes transferred = '
      sz = f.get('size', None)
      if sz:
+@@ -163,7 +164,7 @@ def test_net_tftpboot(u_boot_console):
+     if u_boot_console.config.buildconfig.get('config_cmd_crc32', 'n') != 'y':
+         return
+ 
+-    output = u_boot_console.run_command('crc32 %x $filesize' % addr)
++    output = u_boot_console.run_command('crc32 $fileaddr $filesize')
+     assert expected_crc in output
+ 
+ @pytest.mark.buildconfigspec('cmd_nfs')
 -- 
 2.20.1
 
