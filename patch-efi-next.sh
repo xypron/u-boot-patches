@@ -26,7 +26,6 @@ git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
-git am ../patch/0001-hashtable-remove-caps-buffer.patch
 git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-x86-define-CONFIG_LOADADDR-0x1100000.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
