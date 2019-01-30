@@ -35,7 +35,7 @@ index 0000000000..12cca61e8b
 @@ -0,0 +1,14 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Copyright (c) 2018 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
 + */
 +
 +#ifndef __TEST_LIB_H__
