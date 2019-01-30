@@ -29,7 +29,7 @@ git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-x86-define-CONFIG_LOADADDR-0x1100000.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 git am ../patch/0001-Makefile-remove-generated-font-files.patch
-git am ../patch/0001-configs-qemu-enable-CONFIG_UT.patch
+git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
