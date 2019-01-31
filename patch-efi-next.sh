@@ -1,5 +1,7 @@
 git am --abort || true
 
+git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
+
 # Xypron specific patches
 git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
@@ -28,8 +30,6 @@ git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-x86-define-CONFIG_LOADADDR-0x1100000.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
-git am ../patch/0001-Makefile-remove-generated-font-files.patch
-git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

@@ -23,11 +23,12 @@ diff --git a/configs/qemu-x86_defconfig b/configs/qemu-x86_defconfig
 index 12ea72f562..8fc725dcc4 100644
 --- a/configs/qemu-x86_defconfig
 +++ b/configs/qemu-x86_defconfig
-@@ -51,3 +51,4 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
+@@ -51,4 +51,5 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
  CONFIG_FRAMEBUFFER_VESA_MODE_USER=y
  CONFIG_FRAMEBUFFER_VESA_MODE=0x144
  CONFIG_CONSOLE_SCROLL_LINES=5
 +CONFIG_SYS_HZ=2000
+ CONFIG_UNIT_TEST=y
 diff --git a/lib/Kconfig b/lib/Kconfig
 index 622f3c26c3..f37db20593 100644
 --- a/lib/Kconfig
