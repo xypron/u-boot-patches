@@ -1,0 +1,46 @@
+From e06632f353f582d68b184050605c21d4005d32b1 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bmeng.cn@gmail.com>
+Date: Thu, 31 Jan 2019 08:22:12 -0800
+Subject: [PATCH 1/1] x86: Change 4-level page table base address to low memory
+
+At present the 4-level page table base address for 64-bit U-Boot
+proper is assigned an address that conflicts with CONFIG_LOADADDR.
+Change it to an address within the low memory range instead.
+
+Fixes crashes seen when 'dhcp' on QEMU x86_64 with
+"-net nic -net user,tftp=.,bootfile=u-boot".
+
+Reported-by: Alexander Graf <agraf@suse.de>
+Signed-off-by: Bin Meng <bmeng.cn@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/x86/cpu/i386/cpu.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/arch/x86/cpu/i386/cpu.c b/arch/x86/cpu/i386/cpu.c
+index 208ef08562..af42431f45 100644
+--- a/arch/x86/cpu/i386/cpu.c
++++ b/arch/x86/cpu/i386/cpu.c
+@@ -462,6 +462,7 @@ int cpu_has_64bit(void)
+ 		has_long_mode();
+ }
+ 
++#define PAGETABLE_BASE		0x80000
+ #define PAGETABLE_SIZE		(6 * 4096)
+ 
+ /**
+@@ -523,10 +524,7 @@ int cpu_jump_to_64bit_uboot(ulong target)
+ 	uint32_t *pgtable;
+ 	func_t func;
+ 
+-	/* TODO(sjg@chromium.org): Find a better place for this */
+-	pgtable = (uint32_t *)0x1000000;
+-	if (!pgtable)
+-		return -ENOMEM;
++	pgtable = (uint32_t *)PAGETABLE_BASE;
+ 
+ 	build_pagetable(pgtable);
+ 
+-- 
+2.20.1
+
