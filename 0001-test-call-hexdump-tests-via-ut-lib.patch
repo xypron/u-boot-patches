@@ -1,0 +1,67 @@
+From ccf5bb08f7d8c28aaf132c43e492c506ffc23447 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 1 Feb 2019 19:49:26 +0100
+Subject: [PATCH 1/1] test: call hexdump tests via `ut lib`
+
+The unit tests in test/lib/hexdump.c are not related to the device tree.
+So they should be executed via `ut lib` and not via `ut dm`.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/lib/Makefile  | 2 +-
+ test/lib/hexdump.c | 9 +++++----
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/test/lib/Makefile b/test/lib/Makefile
+index 733b925ebc..7a03459646 100644
+--- a/test/lib/Makefile
++++ b/test/lib/Makefile
+@@ -3,6 +3,6 @@
+ # (C) Copyright 2018
+ # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
+ obj-y += cmd_ut_lib.o
+-obj-y += hexdump.o
++obj-$(CONFIG_UT_LIB) += hexdump.o
+ obj-y += lmb.o
+ obj-$(CONFIG_UT_LIB) += string.o
+diff --git a/test/lib/hexdump.c b/test/lib/hexdump.c
+index 567b57686a..5dccf43886 100644
+--- a/test/lib/hexdump.c
++++ b/test/lib/hexdump.c
+@@ -6,7 +6,8 @@
+ 
+ #include <common.h>
+ #include <hexdump.h>
+-#include <dm/test.h>
++#include <test/lib.h>
++#include <test/test.h>
+ #include <test/ut.h>
+ 
+ static int lib_test_hex_to_bin(struct unit_test_state *uts)
+@@ -32,7 +33,7 @@ static int lib_test_hex_to_bin(struct unit_test_state *uts)
+ 	return 0;
+ }
+ 
+-DM_TEST(lib_test_hex_to_bin, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
++LIB_TEST(lib_test_hex_to_bin, 0);
+ 
+ static int lib_test_hex2bin(struct unit_test_state *uts)
+ {
+@@ -62,7 +63,7 @@ static int lib_test_hex2bin(struct unit_test_state *uts)
+ 	return 0;
+ }
+ 
+-DM_TEST(lib_test_hex2bin, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
++LIB_TEST(lib_test_hex2bin, 0);
+ 
+ static int lib_test_bin2hex(struct unit_test_state *uts)
+ {
+@@ -92,4 +93,4 @@ static int lib_test_bin2hex(struct unit_test_state *uts)
+ 	return 0;
+ }
+ 
+-DM_TEST(lib_test_bin2hex, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
++LIB_TEST(lib_test_bin2hex, 0);
+-- 
+2.20.1
+

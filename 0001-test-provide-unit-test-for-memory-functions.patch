@@ -1,7 +1,7 @@
-From abe27864676256d1558a3b5c21b53472b323b657 Mon Sep 17 00:00:00 2001
+From 8779e6ad70250bfe51a9ca1c8a92954e2f7127c4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 23 Jan 2019 19:01:05 +0100
-Subject: [PATCH 1/1] test: provide unit test for memory functions
+Subject: [PATCH v3 1/1] test: provide unit test for memory functions
 
 Memory functions may have architecture specific implementations. These
 should be tested.
@@ -11,9 +11,12 @@ Provide unit tests for memset(), memcpy(), memmove().
 Provide a 'ut lib' sub-command to execute the tests.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
+v3
+	Do not compile test if CONFIG_UT_LIB is not set.
 v2
-	vary alignment and length of copied or set memory region
+	Vary alignment and length of copied or set memory region
 ---
  include/test/lib.h    |  14 +++
  include/test/suites.h |   1 +
@@ -29,7 +32,7 @@ v2
 
 diff --git a/include/test/lib.h b/include/test/lib.h
 new file mode 100644
-index 0000000000..12cca61e8b
+index 0000000000..04b6241e54
 --- /dev/null
 +++ b/include/test/lib.h
 @@ -0,0 +1,14 @@
@@ -103,7 +106,7 @@ index 56924a5272..e3b89504e7 100644
  	"ut overlay [test-name]\n"
  #endif
 diff --git a/test/lib/Makefile b/test/lib/Makefile
-index 5a636aac74..308c61708e 100644
+index 5a636aac74..733b925ebc 100644
 --- a/test/lib/Makefile
 +++ b/test/lib/Makefile
 @@ -2,5 +2,7 @@
@@ -113,7 +116,7 @@ index 5a636aac74..308c61708e 100644
 +obj-y += cmd_ut_lib.o
  obj-y += hexdump.o
  obj-y += lmb.o
-+obj-y += string.o
++obj-$(CONFIG_UT_LIB) += string.o
 diff --git a/test/lib/cmd_ut_lib.c b/test/lib/cmd_ut_lib.c
 new file mode 100644
 index 0000000000..eb90e53914
@@ -142,7 +145,7 @@ index 0000000000..eb90e53914
 +}
 diff --git a/test/lib/string.c b/test/lib/string.c
 new file mode 100644
-index 0000000000..9b835e3e93
+index 0000000000..8e246ab4ed
 --- /dev/null
 +++ b/test/lib/string.c
 @@ -0,0 +1,194 @@
