@@ -458,7 +458,7 @@ index 0000000000..03582f5100
 +		(&handle_volume, &guid_simple_file_system_protocol,
 +		 EFI_NATIVE_INTERFACE, &file_system);
 +	if (ret != EFI_SUCCESS) {
-+		efi_st_error("Failed to install simple file ystem protocol\n");
++		efi_st_error("Failed to install simple file system protocol\n");
 +		return EFI_ST_FAILURE;
 +	}
 +

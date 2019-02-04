@@ -8,6 +8,8 @@ reference to a file it returns EFI_OUT_OF_RESOURCES. This does not properly
 indicate the kind of the problem that occurred. Return
 EFI_INVALID_PARAMETER instead.
 
+Update function description.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_device_path.c | 16 ++++++++++++----
