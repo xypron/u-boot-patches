@@ -55,8 +55,9 @@ git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 # must rebase: git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
 git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
-
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
+
+git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
 git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
 
 exit

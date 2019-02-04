@@ -1,0 +1,52 @@
+From b876a44353df09e4af91ece44960c18dbbfceb22 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 4 Feb 2019 12:49:43 +0100
+Subject: [PATCH 1/1] efi_loader: efi_dp_split_file_path() error handling
+
+If the path passed to efi_dp_split_file_path() does not contain a
+reference to a file it returns EFI_OUT_OF_RESOURCES. This does not properly
+indicate the kind of the problem that occurred. Return
+EFI_INVALID_PARAMETER instead.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index d94982314a..98c36e798f 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -910,9 +910,17 @@ struct efi_device_path *efi_dp_from_mem(uint32_t memory_type,
+ 	return start;
+ }
+ 
+-/*
+- * Helper to split a full device path (containing both device and file
+- * parts) into it's constituent parts.
++/**
++ * efi_dp_split_file_path() - split of relative file path from device path
++ *
++ * Given a device path indicating a file on a device, separate the device
++ * path in two: the device path of the actual device and the file path
++ * relative to this device.
++ *
++ * @full_path:		device path including device and file path
++ * @device_path:	path of the device
++ * @file_path:		relative path of the file
++ * Return:		status code
+  */
+ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+ 				    struct efi_device_path **device_path,
+@@ -929,7 +937,7 @@ efi_status_t efi_dp_split_file_path(struct efi_device_path *full_path,
+ 	while (!EFI_DP_TYPE(p, MEDIA_DEVICE, FILE_PATH)) {
+ 		p = efi_dp_next(p);
+ 		if (!p)
+-			return EFI_OUT_OF_RESOURCES;
++			return EFI_INVALID_PARAMETER;
+ 	}
+ 	fp = efi_dp_dup(p);
+ 	if (!fp)
+-- 
+2.20.1
+
