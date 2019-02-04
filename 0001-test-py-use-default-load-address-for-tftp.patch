@@ -12,6 +12,13 @@ If no load address is specified for tftp do not use the ram base address
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+Currently there is a bug in net/tftp.c introduced by commit a156c47e39ad
+("tftp: prevent overwriting reserved memory") which does not allow loading
+to the second DRAM bank. Simon Goldschmidt is working to fix it.
+
+Due to this bug with the proposed patch we see a Travis CI error for
+vexpress_ca15_tc2_defconfig and vexpress_ca9x4_defconfig.
+---
  test/py/tests/test_net.py | 9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
