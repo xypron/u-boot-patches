@@ -1,4 +1,4 @@
-From cee36bda5a784b783d5c034f41550d3f9e5a2e30 Mon Sep 17 00:00:00 2001
+From 90426b0d5a5641267d96a5fe878f528203045d7f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
 Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
@@ -9,8 +9,8 @@ executes the application via StartImage().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                 |   3 +
- lib/efi_selftest/efi_selftest_loadimage.c | 479 ++++++++++++++++++++++
- 2 files changed, 482 insertions(+)
+ lib/efi_selftest/efi_selftest_loadimage.c | 529 ++++++++++++++++++++++
+ 2 files changed, 532 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_loadimage.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -36,10 +36,10 @@ index 779f549940..2194dc7e33 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..a253a81ada
+index 0000000000..7369714281
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
-@@ -0,0 +1,479 @@
+@@ -0,0 +1,529 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_start_image
@@ -87,21 +87,25 @@ index 0000000000..a253a81ada
 +	struct line lines[];
 +};
 +
-+static struct compressed_file_image img = EFI_ST_DISK_IMG;
-+
-+/* Decompressed file image */
-+static u8 *image;
-+
++/* File info including file name */
 +struct file_info {
 +	struct efi_file_info info;
 +	u16 file_name[sizeof(FILE_NAME)];
 +};
 +
++/* File system info including volume name */
 +struct file_system_info {
 +	struct efi_file_system_info info;
 +	u16 file_name[sizeof(VOLUME_NAME)];
 +};
 +
++/* Compressed file image */
++static struct compressed_file_image img = EFI_ST_DISK_IMG;
++
++/* Pointer to decompressed file image */
++static u8 *image;
++
++/* File info */
 +static struct file_info priv_file_info = {
 +	{
 +		.size = sizeof(struct file_info),
@@ -110,10 +114,10 @@ index 0000000000..a253a81ada
 +	FILE_NAME,
 +};
 +
++/* Pointer to file info */
 +struct efi_file_info *file_info = &priv_file_info.info;
 +
-+efi_handle_t dp_handle;
-+
++/* Volume device path */
 +static struct {
 +	struct efi_device_path_vendor vendor;
 +	struct efi_device_path end;
@@ -134,6 +138,7 @@ index 0000000000..a253a81ada
 +	}
 +};
 +
++/* File device path */
 +static struct {
 +	struct efi_device_path_vendor vendor;
 +	struct efi_device_path path;
@@ -162,6 +167,7 @@ index 0000000000..a253a81ada
 +	}
 +};
 +
++/* File system info */
 +static struct file_system_info priv_file_system_info = {
 +	{
 +		.size = sizeof(struct file_system_info),
@@ -173,9 +179,11 @@ index 0000000000..a253a81ada
 +	VOLUME_NAME
 +};
 +
++/* Pointer to file system info */
 +static struct efi_file_system_info *file_system_info =
 +	&priv_file_system_info.info;
 +
++/* Forward definitions of file and file system functions */
 +static efi_status_t EFIAPI open_volume
 +	(struct efi_simple_file_system_protocol *this,
 +	 struct efi_file_handle **root);
@@ -209,13 +217,19 @@ index 0000000000..a253a81ada
 +
 +static efi_status_t EFIAPI flush(struct efi_file_handle *this);
 +
++/* Internal information about status of file system */
 +static struct {
++	/* Difference of volume open count minus volume close count */
 +	int volume_open_count;
++	/* Difference of file open count minus file close count */
 +	int file_open_count;
++	/* File size */
 +	u64 file_size;
++	/* Current position in file */
 +	u64 file_pos;
 +} priv;
 +
++/* EFI_FILE_PROTOCOL for file */
 +static struct efi_file_handle file = {
 +	.rev = 0x00010000,
 +	.open = open,
@@ -230,6 +244,7 @@ index 0000000000..a253a81ada
 +	.flush = flush,
 +};
 +
++/* EFI_FILE_PROTOCOL for root directory */
 +static struct efi_file_handle volume = {
 +	.rev = 0x00010000,
 +	.open = open,
@@ -244,6 +259,7 @@ index 0000000000..a253a81ada
 +	.flush = flush,
 +};
 +
++/* EFI_SIMPLE_FILE_SYSTEM_PROTOCOL of the block device */
 +struct efi_simple_file_system_protocol file_system = {
 +	.rev = 0x00010000,
 +	.open_volume = open_volume,
@@ -433,6 +449,9 @@ index 0000000000..a253a81ada
 +/*
 + * Setup unit test.
 + *
++ * Decompress application image and provide a handle for the in memory block
++ * device.
++ *
 + * @handle:	handle of the loaded image
 + * @systable:	system table
 + * @return:	EFI_ST_SUCCESS for success
@@ -469,20 +488,40 @@ index 0000000000..a253a81ada
 +/*
 + * Tear down unit test.
 + *
++ * Uninstall protocols and free memory.
++ *
 + * @return:	EFI_ST_SUCCESS for success
 + */
 +static int teardown(void)
 +{
-+	efi_status_t r = EFI_ST_SUCCESS;
++	efi_status_t ret = EFI_ST_SUCCESS;
++
++	if (handle_volume) {
++		ret = boottime->uninstall_protocol_interface
++			(handle_volume, &guid_simple_file_system_protocol,
++			 &file_system);
++		if (ret != EFI_SUCCESS) {
++			efi_st_error
++				("Failed to uninstall simple file system protocol\n");
++			return EFI_ST_FAILURE;
++		}
++		ret = boottime->uninstall_protocol_interface
++			(handle_volume, &guid_device_path, &dp_volume);
++		if (ret != EFI_SUCCESS) {
++			efi_st_error
++				("Failed to uninstall device path protocol\n");
++			return EFI_ST_FAILURE;
++		}
++	}
 +
 +	if (image) {
-+		r = efi_free_pool(image);
-+		if (r != EFI_SUCCESS) {
++		ret = efi_free_pool(image);
++		if (ret != EFI_SUCCESS) {
 +			efi_st_error("Failed to free image\n");
 +			return EFI_ST_FAILURE;
 +		}
 +	}
-+	return r;
++	return ret;
 +}
 +
 +/*
@@ -506,6 +545,17 @@ index 0000000000..a253a81ada
 +	ret = boottime->start_image(handle, NULL, NULL);
 +	if (ret != EFI_UNSUPPORTED) {
 +		efi_st_error("Wrong return value from application\n");
++		return EFI_ST_FAILURE;
++	}
++
++	if (priv.file_open_count != 0) {
++		efi_st_error("File open count = %d, expected 0\n",
++			     priv.file_open_count);
++		return EFI_ST_FAILURE;
++	}
++	if (priv.volume_open_count != 0) {
++		efi_st_error("Volume open count = %d, expected 0\n",
++			     priv.volume_open_count);
 +		return EFI_ST_FAILURE;
 +	}
 +
