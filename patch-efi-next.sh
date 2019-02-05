@@ -31,6 +31,7 @@ git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 git am ../patch/0001-x86-Change-4-level-page-table-base-address-to-low-me.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
+git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
