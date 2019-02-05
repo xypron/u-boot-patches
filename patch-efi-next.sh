@@ -25,11 +25,9 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
-git am ../patch/0001-x86-Change-4-level-page-table-base-address-to-low-me.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
 
@@ -42,25 +40,27 @@ git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
 git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
-# efishell
-# must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
-
 # sct
-git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
+# git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
-# must rebase: git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
-# must rebase: git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
-# must rebase: git am ../patch/0001-efi_loader-avoid-unnecessary-pointer-to-long-convers.patch
-# must rebase: git am ../patch/0001-efi_loader-signature-of-StartImage-and-Exit.patch
-# must rebase: git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
-
-git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
-git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
+git am ../patch/0001-x86-Change-4-level-page-table-base-address-to-low-me.patch
 
 git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
 git am ../patch/0001-efi_loader-comments-for-efi_file_from_path.patch
 git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
+
+git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
+git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
+git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
+
+git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
+git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
+
+# efishell
+# must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
+
+# must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
 exit
 
