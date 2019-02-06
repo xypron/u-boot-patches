@@ -1,4 +1,4 @@
-From bf27fa2b1b29652724ae5e69fd912450c070efa2 Mon Sep 17 00:00:00 2001
+From c3e0a90acb944c9f00208ca7b80429c02388cf1e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 09:19:07 +0100
 Subject: [PATCH 1/1] efi_loader: LoadImage: always allocate new pages
@@ -9,10 +9,10 @@ should do the same when the original image is in memory.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h          |  2 +-
- lib/efi_loader/efi_bootmgr.c  |  2 +-
- lib/efi_loader/efi_boottime.c | 93 +++++++++++++++++++++++++----------
- 3 files changed, 69 insertions(+), 28 deletions(-)
+ include/efi_loader.h          |   2 +-
+ lib/efi_loader/efi_bootmgr.c  |   2 +-
+ lib/efi_loader/efi_boottime.c | 100 ++++++++++++++++++++++++----------
+ 3 files changed, 73 insertions(+), 31 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 9dd933dae7..6a98981ebb 100644
@@ -41,7 +41,7 @@ index a095df3f54..196116b547 100644
  		if (ret != EFI_SUCCESS)
  			goto error;
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index fc26d6adc1..d171d64d7b 100644
+index fc26d6adc1..369cf269d3 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -1584,50 +1584,72 @@ failure:
@@ -67,7 +67,7 @@ index fc26d6adc1..d171d64d7b 100644
  	struct efi_file_info *info = NULL;
  	struct efi_file_handle *f;
  	static efi_status_t ret;
-+	u64 addr;
++	void *addr;
  	efi_uintn_t bs;
  
 +	/* In case of failure nothing is returned */
@@ -87,51 +87,52 @@ index fc26d6adc1..d171d64d7b 100644
 -		info = malloc(bs);
 -		EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
 -					  &bs, info));
+-	}
+-	if (ret != EFI_SUCCESS)
 +	if (ret != EFI_BUFFER_TOO_SMALL) {
 +		ret =  EFI_DEVICE_ERROR;
-+		goto error;
- 	}
-+
-+	info = malloc(bs);
-+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
-+		 info));
- 	if (ret != EFI_SUCCESS)
  		goto error;
++	}
  
 -	ret = efi_allocate_pool(EFI_LOADER_DATA, info->file_size, buffer);
 -	if (ret)
++	info = malloc(bs);
++	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
++		 info));
++	if (ret != EFI_SUCCESS)
+ 		goto error;
+ 
 +	/*
 +	 * When reading the file we do not yet know if it contains an
 +	 * application, a boottime driver, or a runtime driver. So here we
 +	 * allocate a buffer as EFI_BOOT_SERVICES_DATA. The caller has to
 +	 * update the reservation according to the image type.
 +	 */
-+	bs = info->file_size;
+ 	bs = info->file_size;
+-	EFI_CALL(ret = f->read(f, &bs, *buffer));
+-
+-error:
+-	free(info);
+-	EFI_CALL(f->close(f));
+-
 +	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 +				 EFI_BOOT_SERVICES_DATA,
-+				 efi_size_in_pages(bs), &addr);
-+	if (ret != EFI_SUCCESS) {
-+		ret = EFI_OUT_OF_RESOURCES;
- 		goto error;
-+	}
- 
--	bs = info->file_size;
-+	/* Read file */
- 	EFI_CALL(ret = f->read(f, &bs, *buffer));
--
-+	if (ret != EFI_SUCCESS)
-+		efi_free_pages(addr, efi_size_inpages(bs));
-+	*buffer = (void *)(uintptr_t)addr;
-+	*size = bs;
- error:
--	free(info);
- 	EFI_CALL(f->close(f));
--
--	if (ret != EFI_SUCCESS) {
++				 efi_size_in_pages(bs), (u64 *)&addr);
+ 	if (ret != EFI_SUCCESS) {
 -		efi_free_pool(*buffer);
 -		*buffer = NULL;
--	}
--
++		ret = EFI_OUT_OF_RESOURCES;
++		goto error;
+ 	}
+ 
++	/* Read file */
++	EFI_CALL(ret = f->read(f, &bs, addr));
++	if (ret != EFI_SUCCESS)
++		efi_free_pages((uintptr_t)addr, efi_size_in_pages(bs));
++	*buffer = addr;
++	*size = bs;
++error:
++	EFI_CALL(f->close(f));
 +	free(info);
  	return ret;
  }
@@ -158,7 +159,7 @@ index fc26d6adc1..d171d64d7b 100644
  		if (ret != EFI_SUCCESS)
  			goto failure;
  		/*
-@@ -1683,26 +1707,43 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1683,26 +1707,44 @@ static efi_status_t EFIAPI efi_load_image(bool boot_policy,
  		 * file parts:
  		 */
  		efi_dp_split_file_path(file_path, &dp, &fp);
@@ -187,11 +188,12 @@ index fc26d6adc1..d171d64d7b 100644
  	}
 +	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
 +	if (ret != EFI_SUCCESS)
-+		goto failure;
++		goto error_invalid_image;
  	(*image_obj)->entry = efi_load_pe(*image_obj, source_buffer, info);
  	if (!(*image_obj)->entry) {
  		ret = EFI_UNSUPPORTED;
- 		goto failure;
+-		goto failure;
++		goto error_invalid_image;
  	}
 +	/* Update the type of the allocated memory */
 +	efi_add_memory_map((uintptr_t)source_buffer,
@@ -200,7 +202,9 @@ index fc26d6adc1..d171d64d7b 100644
  	info->system_table = &systab;
  	info->parent_handle = parent_image;
  	return EFI_EXIT(EFI_SUCCESS);
- failure:
+-failure:
++error_invalid_image:
++	/* The image is invalid. Release all associated resources. */
 +	efi_free_pages((uintptr_t)source_buffer,
 +		       efi_size_in_pages(source_size));
  	efi_delete_handle(*image_handle);
