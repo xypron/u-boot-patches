@@ -1,4 +1,4 @@
-From 744422c9274bcf995aec359b655b541e257817b5 Mon Sep 17 00:00:00 2001
+From 2bb690accad7f12b9569a8f336a7ff25c60f0178 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 Jan 2019 14:42:40 +0100
 Subject: [PATCH 1/1] efi_loader: clean up bootefi_test_prepare()
@@ -11,9 +11,8 @@ path passed via the EFI_LOADED_IMAGE_PROTOCOL simply use 0 as address.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c                 | 58 ++++++++++++++++++++---------------
- lib/efi_loader/efi_boottime.c |  2 +-
- 2 files changed, 34 insertions(+), 26 deletions(-)
+ cmd/bootefi.c | 58 +++++++++++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 25 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index 2bcff182b7..d09cb81bf0 100644
@@ -101,19 +100,6 @@ index 2bcff182b7..d09cb81bf0 100644
  			return CMD_RET_FAILURE;
  
  		/* Execute the test */
-diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index ed1e6b39e0..2548696873 100644
---- a/lib/efi_loader/efi_boottime.c
-+++ b/lib/efi_loader/efi_boottime.c
-@@ -1644,7 +1644,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
- 	/* Read file */
- 	EFI_CALL(ret = f->read(f, &bs, *buffer));
- 	if (ret != EFI_SUCCESS)
--		efi_free_pages(addr, efi_size_inpages(bs));
-+		efi_free_pages(addr, efi_size_in_pages(bs));
- 	*buffer = (void *)(uintptr_t)addr;
- 	*size = bs;
- error:
 -- 
 2.20.1
 
