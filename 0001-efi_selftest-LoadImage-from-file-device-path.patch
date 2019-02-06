@@ -42,7 +42,7 @@ index 0000000000..7369714281
 @@ -0,0 +1,529 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * efi_selftest_start_image
++ * efi_selftest_loadimage
 + *
 + * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
