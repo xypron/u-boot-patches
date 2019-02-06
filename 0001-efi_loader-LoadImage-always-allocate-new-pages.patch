@@ -7,6 +7,8 @@ If we want to properly unload images in Exit() the memory should always be
 allocated in the same way. As we allocate memory when reading from file we
 should do the same when the original image is in memory.
 
+A further patch will be needed to free the memory when Exit() is called.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h          |   2 +-
