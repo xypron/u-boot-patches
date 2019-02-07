@@ -1,4 +1,4 @@
-From 88e3783b41d6be24de54c749201ff152a28130fc Mon Sep 17 00:00:00 2001
+From 818c8cc3db1af592d1bec278434ee26d6a5c8632 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 26 Dec 2018 13:28:09 +0100
 Subject: [PATCH 1/1] efi_loader: use efi_start_image() for bootefi
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 8 insertions(+), 24 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 9ed15ec083..f8f65c63f9 100644
+index 7f9913c0ee..a2d38256e9 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -223,20 +223,6 @@ done:
+@@ -133,20 +133,6 @@ done:
  	return ret;
  }
  
@@ -38,7 +38,7 @@ index 9ed15ec083..f8f65c63f9 100644
  /*
   * efi_carve_out_dt_rsv() - Carve out DT reserved memory ranges
   *
-@@ -405,13 +391,7 @@ static efi_status_t do_bootefi_exec(void *efi,
+@@ -315,13 +301,7 @@ static efi_status_t do_bootefi_exec(void *efi,
  
  	/* Call our payload! */
  	debug("%s: Jumping to 0x%p\n", __func__, image_obj->entry);
@@ -49,15 +49,15 @@ index 9ed15ec083..f8f65c63f9 100644
 -	}
 -
 -	ret = efi_do_enter(&image_obj->header, &systab, image_obj->entry);
-+	ret = efi_start_image(&image_obj->header, NULL, NULL);
++	ret = EFI_CALL(efi_start_image(&image_obj->header, NULL, NULL));
  
  err_prepare:
  	/* image has returned, loaded-image obj goes *poof*: */
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 481b420494..f8d26fda37 100644
+index 3ce43f7a6f..512880ab8f 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -314,6 +314,10 @@ efi_status_t efi_create_handle(efi_handle_t *handle);
+@@ -320,6 +320,10 @@ efi_status_t efi_create_handle(efi_handle_t *handle);
  void efi_delete_handle(efi_handle_t obj);
  /* Call this to validate a handle and find the EFI object for it */
  struct efi_object *efi_search_obj(const efi_handle_t handle);
@@ -69,10 +69,10 @@ index 481b420494..f8d26fda37 100644
  efi_status_t efi_search_protocol(const efi_handle_t handle,
  				 const efi_guid_t *protocol_guid,
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index dc74979888..d1250a93c8 100644
+index 7a61a905f4..6c4e2f82ba 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1735,9 +1735,9 @@ error:
+@@ -1770,9 +1770,9 @@ error:
   *
   * Return: status code
   */
@@ -86,5 +86,5 @@ index dc74979888..d1250a93c8 100644
  	struct efi_loaded_image_obj *image_obj =
  		(struct efi_loaded_image_obj *)image_handle;
 -- 
-2.19.2
+2.20.1
 
