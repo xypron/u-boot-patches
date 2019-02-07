@@ -55,7 +55,6 @@ git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
 git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
 git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 
-git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 
 # efishell
@@ -73,6 +72,7 @@ git am ../patch/0001-efi_selftest-test-exit_data.patch
 
 # Patches needing rework
 # git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
+# git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
 # Fix simple network protocol
 # KGDB
