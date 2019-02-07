@@ -4,6 +4,7 @@ Date: Sat, 12 Jan 2019 14:42:40 +0100
 Subject: [PATCH 1/1] efi_loader: clean up bootefi_test_prepare()
 
 Free resources upon failure.
+
 Correct the function description.
 
 As there is no need for any special address in the dummy memory device
