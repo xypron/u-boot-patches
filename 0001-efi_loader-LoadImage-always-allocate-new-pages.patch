@@ -1,7 +1,7 @@
-From ca467cd68adcc6fab1172e3338a52c005d8ce540 Mon Sep 17 00:00:00 2001
+From db1238cba4b2c449ad836823c10baffc88c502ad Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 24 Dec 2018 09:19:07 +0100
-Subject: [PATCH 1/1] efi_loader: LoadImage: always allocate new pages
+Subject: [PATCH v2 1/4] efi_loader: LoadImage: always allocate new pages
 
 If we want to properly unload images in Exit() the memory should always be
 allocated in the same way. As we allocate memory when reading from file we
@@ -10,6 +10,12 @@ should do the same when the original image is in memory.
 A further patch will be needed to free the memory when Exit() is called.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	fix errors
+	- missing parameters efi_size_in_pages(
+	- inconsistent error handling
+	- missing comments
 ---
  include/efi_loader.h          |   2 +-
  lib/efi_loader/efi_bootmgr.c  |   2 +-
@@ -100,7 +106,7 @@ index 6df20649c4..7abdcf6da6 100644
 -	if (ret)
 +	info = malloc(bs);
 +	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
-+		 info));
++				  info));
 +	if (ret != EFI_SUCCESS)
  		goto error;
  
