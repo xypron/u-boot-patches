@@ -54,10 +54,8 @@ git am ../patch/0001-efi_loader-error-handling-in-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
 git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
 git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
-
-git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
-
 git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
+git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
