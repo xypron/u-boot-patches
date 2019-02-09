@@ -57,6 +57,8 @@ git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 
+git am ../patch/0001-efi_loader-fix-EFI_FILE_PROTOCOL.GetInfo.patch
+
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
