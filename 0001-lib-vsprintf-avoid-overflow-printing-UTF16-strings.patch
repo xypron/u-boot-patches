@@ -1,0 +1,41 @@
+From 2d246e4d7798660274045543a928ffded579860d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 10 Feb 2019 00:29:13 +0100
+Subject: [PATCH 1/1] lib: vsprintf: avoid overflow printing UTF16 strings
+
+We have to ensure while printing UTF16 strings that we do not exceed the
+end of the print buffer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/vsprintf.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 4213441fbf..48304607b7 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -279,13 +279,17 @@ static char *string(char *buf, char *end, char *s, int field_width,
+ static char *string16(char *buf, char *end, u16 *s, int field_width,
+ 		int precision, int flags)
+ {
+-	u16 *str = s ? s : L"<NULL>";
+-	ssize_t len = utf16_strnlen(str, precision);
++	const u16 *str = s ? s : L"<NULL>";
++	ssize_t i, len = utf16_strnlen(str, precision);
+ 
+ 	if (!(flags & LEFT))
+ 		for (; len < field_width; --field_width)
+ 			ADDCH(buf, ' ');
+-	utf16_utf8_strncpy(&buf, str, len);
++	for (i = 0; i < len && buf <= end - MAX_UTF8_PER_UTF16; ++i) {
++		s32 s = utf16_get(&str);
++
++		utf8_put(s, &buf);
++	}
+ 	for (; len < field_width; --field_width)
+ 		ADDCH(buf, ' ');
+ 	return buf;
+-- 
+2.20.1
+

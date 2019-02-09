@@ -30,6 +30,7 @@ git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
+git am ../patch/0001-lib-vsprintf-avoid-overflow-printing-UTF16-strings.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -58,6 +59,7 @@ git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 
 git am ../patch/0001-efi_loader-fix-EFI_FILE_PROTOCOL.GetInfo.patch
+
 
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
