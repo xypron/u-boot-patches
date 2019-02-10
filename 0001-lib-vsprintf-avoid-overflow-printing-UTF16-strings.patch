@@ -1,18 +1,23 @@
-From 2d246e4d7798660274045543a928ffded579860d Mon Sep 17 00:00:00 2001
+From cb6fc86a524ad324dd6b3dd2d27c835e3df386df Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 10 Feb 2019 00:29:13 +0100
-Subject: [PATCH 1/1] lib: vsprintf: avoid overflow printing UTF16 strings
+Subject: [PATCH v2 1/1] lib: vsprintf: avoid overflow printing UTF16 strings
 
 We have to ensure while printing UTF16 strings that we do not exceed the
 end of the print buffer.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	Use the exact UTF8 length of the converted UTF16 character when
+	checking if sufficient space is remaining in the buffer. This
+	avoids missing up to 2 characters.
+---
  lib/vsprintf.c | 10 +++++++---
  1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/lib/vsprintf.c b/lib/vsprintf.c
-index 4213441fbf..48304607b7 100644
+index 4213441fbf..de5db1aa5c 100644
 --- a/lib/vsprintf.c
 +++ b/lib/vsprintf.c
 @@ -279,13 +279,17 @@ static char *string(char *buf, char *end, char *s, int field_width,
@@ -28,7 +33,7 @@ index 4213441fbf..48304607b7 100644
  		for (; len < field_width; --field_width)
  			ADDCH(buf, ' ');
 -	utf16_utf8_strncpy(&buf, str, len);
-+	for (i = 0; i < len && buf <= end - MAX_UTF8_PER_UTF16; ++i) {
++	for (i = 0; i < len && buf + utf16_utf8_strnlen(str, 1) <= end; ++i) {
 +		s32 s = utf16_get(&str);
 +
 +		utf8_put(s, &buf);
