@@ -1,7 +1,7 @@
-From 72b0fba4beac8e154af90c1dbc7ea76b645fc0ab Mon Sep 17 00:00:00 2001
+From f172e5cd1525714e55f3d297766607aa38afbb8e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 6 Feb 2019 19:41:29 +0100
-Subject: [PATCH] efi_loader: error handling in efi_setup_loaded_image()
+Subject: [PATCH 1/1] efi_loader: error handling in efi_setup_loaded_image()
 
 In case of an error we should set the returned pointers to NULL. This
 ensures that an illegal free does not occur even if the caller calls
@@ -15,10 +15,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 21 insertions(+), 12 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index fc26d6adc1..6df20649c4 100644
+index 872f577c98..fdf4935b6b 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1497,15 +1497,18 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+@@ -1498,15 +1498,18 @@ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
  
  /**
   * efi_setup_loaded_image() - initialize a loaded image
@@ -42,7 +42,7 @@ index fc26d6adc1..6df20649c4 100644
   */
  efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
  				    struct efi_device_path *file_path,
-@@ -1513,8 +1516,12 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+@@ -1514,8 +1517,12 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
  				    struct efi_loaded_image **info_ptr)
  {
  	efi_status_t ret;
@@ -57,7 +57,7 @@ index fc26d6adc1..6df20649c4 100644
  
  	info = calloc(1, sizeof(*info));
  	if (!info)
-@@ -1528,11 +1535,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+@@ -1529,11 +1536,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
  	/* Add internal object to object list */
  	efi_add_handle(&obj->header);
  
@@ -69,9 +69,9 @@ index fc26d6adc1..6df20649c4 100644
  	info->revision =  EFI_LOADED_IMAGE_PROTOCOL_REVISION;
  	info->file_path = file_path;
  	info->system_table = &systab;
-@@ -1576,9 +1578,16 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
- 	if (ret != EFI_SUCCESS)
+@@ -1579,9 +1581,16 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
  		goto failure;
+ #endif
  
 +	if (info_ptr)
 +		*info_ptr = info;
