@@ -26,11 +26,9 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
-git am ../patch/0001-test-provide-unit-test-for-memory-functions.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
-git am ../patch/0001-lib-vsprintf-avoid-overflow-printing-UTF16-strings.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -45,8 +43,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
-git am ../patch/0001-x86-Change-4-level-page-table-base-address-to-low-me.patch
-
 git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
 git am ../patch/0001-efi_loader-comments-for-efi_file_from_path.patch
 git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
