@@ -1,13 +1,15 @@
-From 90426b0d5a5641267d96a5fe878f528203045d7f Mon Sep 17 00:00:00 2001
+From 1f04ade50ded2db23477546faa21c5516a6afe67 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
-Subject: [PATCH v2 1/1] efi_selftest: LoadImage from file device path
+Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
 
 Provide a unit test that calls LoadImage() with a file device path and
 executes the application via StartImage().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3
+	do not use library function efi_free_pool() but boot time service
 v2
 	correct a comment
 ---
@@ -39,7 +41,7 @@ index 779f549940..2194dc7e33 100644
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
 new file mode 100644
-index 0000000000..7369714281
+index 0000000000..bb7f8b5376
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_loadimage.c
 @@ -0,0 +1,529 @@
@@ -518,7 +520,7 @@ index 0000000000..7369714281
 +	}
 +
 +	if (image) {
-+		ret = efi_free_pool(image);
++		ret = boottime->free_pool(image);
 +		if (ret != EFI_SUCCESS) {
 +			efi_st_error("Failed to free image\n");
 +			return EFI_ST_FAILURE;
