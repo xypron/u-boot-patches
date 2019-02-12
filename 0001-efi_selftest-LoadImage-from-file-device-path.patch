@@ -1,7 +1,7 @@
 From 1f04ade50ded2db23477546faa21c5516a6afe67 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Jan 2019 19:04:14 +0100
-Subject: [PATCH 1/1] efi_selftest: LoadImage from file device path
+Subject: [PATCH v3 1/1] efi_selftest: LoadImage from file device path
 
 Provide a unit test that calls LoadImage() with a file device path and
 executes the application via StartImage().
@@ -58,7 +58,7 @@ index 0000000000..bb7f8b5376
 + */
 +
 +#include <efi_selftest.h>
-+/* Include containing the miniapp.efi application */
++/* Include containing the efi_selftest_miniapp_exit.efi application */
 +#include "efi_miniapp_file_image_exit.h"
 +
 +/* Block size of compressed disk image */
@@ -553,12 +553,12 @@ index 0000000000..bb7f8b5376
 +		return EFI_ST_FAILURE;
 +	}
 +
-+	if (priv.file_open_count != 0) {
++	if (priv.file_open_count) {
 +		efi_st_error("File open count = %d, expected 0\n",
 +			     priv.file_open_count);
 +		return EFI_ST_FAILURE;
 +	}
-+	if (priv.volume_open_count != 0) {
++	if (priv.volume_open_count) {
 +		efi_st_error("Volume open count = %d, expected 0\n",
 +			     priv.volume_open_count);
 +		return EFI_ST_FAILURE;
