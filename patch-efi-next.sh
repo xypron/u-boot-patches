@@ -27,7 +27,6 @@ git am ../patch/0001-dm-scsi-report-correct-device-number.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
-git am ../patch/0001-test-py-use-default-load-address-for-tftp.patch
 git am ../patch/0001-tpm-simplify-tpm_set_global_lock.patch
 
 # USB keyboard
