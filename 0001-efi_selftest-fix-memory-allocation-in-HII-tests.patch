@@ -9,6 +9,14 @@ instead.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+There are still issues remaining in this test:
+- not all allocated memory is freed
+- variable ret used for efi_status_t returned by EFI services and for
+  the selftest return value though both are of different type
+
+But at least this correction is enough to allow efi_selftest() to be
+called via EFI_CALL() and not crashing.
+---
  lib/efi_selftest/efi_selftest_hii.c | 102 ++++++++++++++++++----------
  1 file changed, 68 insertions(+), 34 deletions(-)
 
