@@ -8,6 +8,7 @@ functions malloc() and free() but should use the boot time services
 instead.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <agraf@suse.de>
 ---
 There are still issues remaining in this test:
 - not all allocated memory is freed
