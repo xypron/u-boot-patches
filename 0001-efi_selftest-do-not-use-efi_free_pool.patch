@@ -7,6 +7,7 @@ In efi_selftest we are in EFI land. We should not use U-Boot library
 functions but boot time services for memory management.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <agraf@suse.de>
 ---
  lib/efi_selftest/efi_selftest_block_device.c      | 2 +-
  lib/efi_selftest/efi_selftest_startimage_exit.c   | 2 +-
