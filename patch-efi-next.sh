@@ -49,7 +49,8 @@ git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
 git am ../patch/0001-efi_loader-comments-for-efi_file_from_path.patch
 git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
 
-git am ../patch/0001-lib-vsprintf-print-for-illega-Unicode-sequence.patch
+git am ../patch/0001-lib-vsprintf-print-for-illegal-Unicode-sequence.patch
+git am ../patch/0001-test-adjust-names-of-Unicode-test-functions.patch
 
 git am ../patch/0001-efi_loader-error-handling-in-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
