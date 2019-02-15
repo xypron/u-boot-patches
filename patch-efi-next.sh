@@ -42,11 +42,12 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
+git am ../patch/0001-efi_selftest-do-not-use-efi_free_pool.patch
+git am ../patch/0001-efi_selftest-fix-memory-allocation-in-HII-tests.patch
+
 git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
 git am ../patch/0001-efi_loader-comments-for-efi_file_from_path.patch
 git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
-git am ../patch/0001-efi_selftest-fix-memory-allocation-in-HII-tests.patch
-git am ../patch/0001-efi_selftest-do-not-use-efi_free_pool.patch
 
 git am ../patch/0001-efi_loader-error-handling-in-efi_setup_loaded_image.patch
 git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
@@ -54,6 +55,8 @@ git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
 git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
+
+git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
 
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
