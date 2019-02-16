@@ -1,0 +1,31 @@
+From eb6e4f0af5df9e696502577ebc600cad3cc7de1f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 16 Feb 2019 15:36:33 +0100
+Subject: [PATCH] efi_loader: do not miss last relocation block
+
+If the last block in the relocation table contains only a single
+relocation, the current coding ignores it.
+
+Fix the determination of the end of the relocation table.k
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_image_loader.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index cec17eabaa..fe66e7b9ff 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -111,7 +111,7 @@ static efi_status_t efi_loader_relocate(const IMAGE_BASE_RELOCATION *rel,
+ 		return EFI_SUCCESS;
+ 
+ 	end = (const IMAGE_BASE_RELOCATION *)((const char *)rel + rel_size);
+-	while (rel < end - 1 && rel->SizeOfBlock) {
++	while (rel < end && rel->SizeOfBlock) {
+ 		const uint16_t *relocs = (const uint16_t *)(rel + 1);
+ 		i = (rel->SizeOfBlock - sizeof(*rel)) / sizeof(uint16_t);
+ 		while (i--) {
+-- 
+2.20.1
+
