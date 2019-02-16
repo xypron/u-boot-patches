@@ -6,7 +6,7 @@ Subject: [PATCH] efi_loader: do not miss last relocation block
 If the last block in the relocation table contains only a single
 relocation, the current coding ignores it.
 
-Fix the determination of the end of the relocation table.k
+Fix the determination of the end of the relocation table.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
