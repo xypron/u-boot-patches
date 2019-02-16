@@ -62,7 +62,9 @@ git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 git am ../patch/0001-efi_loader-documentation-of-image-loader.patch
 git am ../patch/0001-efi_loader-do-not-miss-last-relocation-block.patch
 
-git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
+git am ../patch/0001-efi_loader-in-situ-relocation.patch
+
+# git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
 
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
