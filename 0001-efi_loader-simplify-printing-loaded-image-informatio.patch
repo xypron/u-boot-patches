@@ -1,0 +1,65 @@
+From 33c41ba9cb7de9e4d76e2e19f2bdb53a2971c615 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 16 Feb 2019 20:29:02 +0100
+Subject: [PATCH 1/1] efi_loader: simplify printing loaded image information
+
+When printing information about loaded images use the address and size
+information from the loaded image protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h              |  4 ----
+ lib/efi_loader/efi_image_loader.c | 10 ++++------
+ 2 files changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 512880ab8fb..9f776021ab1 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -203,15 +203,11 @@ struct efi_object {
+  * struct efi_loaded_image_obj - handle of a loaded image
+  *
+  * @header:		EFI object header
+- * @reloc_base:		base address for the relocated image
+- * @reloc_size:		size of the relocated image
+  * @exit_jmp:		long jump buffer for returning form started image
+  * @entry:		entry address of the relocated image
+  */
+ struct efi_loaded_image_obj {
+ 	struct efi_object header;
+-	void *reloc_base;
+-	aligned_u64 reloc_size;
+ 	efi_status_t exit_status;
+ 	struct jmp_buf_data exit_jmp;
+ 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 6146acc6b6f..5aef0e4d88f 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -59,10 +59,10 @@ static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
+ {
+ 	printf("UEFI image");
+ 	printf(" [0x%p:0x%p]",
+-	       obj->reloc_base, obj->reloc_base + obj->reloc_size - 1);
+-	if (pc && pc >= obj->reloc_base &&
+-	    pc < obj->reloc_base + obj->reloc_size)
+-		printf(" pc=0x%zx", pc - obj->reloc_base);
++	       image->image_base, image->image_base + image->image_size - 1);
++	if (pc && pc >= image->image_base &&
++	    pc < image->image_base + image->image_size)
++		printf(" pc=0x%zx", pc - image->image_base);
+ 	if (image->file_path)
+ 		printf(" '%pD'", image->file_path);
+ 	printf("\n");
+@@ -290,8 +290,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 	/* Populate the loaded image interface bits */
+ 	loaded_image_info->image_base = efi;
+ 	loaded_image_info->image_size = image_size;
+-	handle->reloc_base = efi;
+-	handle->reloc_size = image_size;
+ 
+ 	return EFI_SUCCESS;
+ }
+-- 
+2.20.1
+
