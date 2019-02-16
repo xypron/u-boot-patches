@@ -59,6 +59,8 @@ git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
 git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
 git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
 
+git am ../patch/0001-efi_loader-documentation-of-image-loader.patch
+
 git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
 
 # efishell
