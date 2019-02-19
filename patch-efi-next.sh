@@ -20,8 +20,6 @@ git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
-# git am ../patch/0001-test-py-replace-deprecated-item.get_marker.patch
-# git am ../patch/0001-efi_loader-revert-Align-runtime-section-to-64kb.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
@@ -40,26 +38,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
-git am ../patch/0001-efi_selftest-do-not-use-efi_free_pool.patch
-git am ../patch/0001-efi_selftest-fix-memory-allocation-in-HII-tests.patch
-
-git am ../patch/0001-efi_loader-efi_dp_split_file_path-error-handling.patch
-git am ../patch/0001-efi_loader-comments-for-efi_file_from_path.patch
-git am ../patch/0001-efi_selftest-LoadImage-from-file-device-path.patch
-
-git am ../patch/0001-lib-vsprintf-print-for-illegal-Unicode-sequence.patch
-git am ../patch/0001-test-adjust-names-of-Unicode-test-functions.patch
-
-git am ../patch/0001-efi_loader-error-handling-in-efi_setup_loaded_image.patch
-git am ../patch/0001-efi_loader-LoadImage-always-allocate-new-pages.patch
-git am ../patch/0001-efi_loader-set-entry-point-in-efi_load_pe.patch
-git am ../patch/0001-efi_loader-use-efi_start_image-for-bootefi.patch
-git am ../patch/0001-efi_loader-fix-EFI-entry-counting.patch
-git am ../patch/0001-efi_loader-clean-up-bootefi_test_prepare.patch
-
-git am ../patch/0001-efi_loader-documentation-of-image-loader.patch
-git am ../patch/0001-efi_loader-do-not-miss-last-relocation-block.patch
-
 git am ../patch/0001-efi_loader-in-situ-relocation.patch
 git am ../patch/0001-efi_loader-simplify-printing-loaded-image-informatio.patch
 
