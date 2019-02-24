@@ -24,6 +24,7 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-powerpc-enabled-building-with-CONFIG_DM-y.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
+git am ../patch/0001-efi_loader-error-message-if-BootOrder-not-defined.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

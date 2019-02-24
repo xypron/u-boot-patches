@@ -1,0 +1,33 @@
+From c096565c4abaf956532dc39dc3901e18c3320862 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 24 Feb 2019 04:44:48 +0100
+Subject: [PATCH 1/1] efi_loader: error message if BootOrder not defined
+
+For booting via `bootefi bootmgr` it is necessary that the EFI variable
+BootOrder is defined. Provide a diagnostic message if the variable is
+missing.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_bootmgr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 8bb84f888c1..15a06085364 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -180,8 +180,10 @@ void *efi_bootmgr_load(struct efi_device_path **device_path,
+ 	rs = systab.runtime;
+ 
+ 	bootorder = get_var(L"BootOrder", &efi_global_variable_guid, &size);
+-	if (!bootorder)
++	if (!bootorder) {
++		printf("BootOrder not defined\n");
+ 		goto error;
++	}
+ 
+ 	num = size / sizeof(uint16_t);
+ 	for (i = 0; i < num; i++) {
+-- 
+2.20.1
+
