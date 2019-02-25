@@ -1,0 +1,50 @@
+From 0779132ee1425edd6e1f3d80da90a6b2c15da8ea Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 25 Feb 2019 19:04:52 +0100
+Subject: [PATCH 1/1] fs: fat: fix link error when building with DEBUG=1
+
+When compiling with DEBUG=1 an error
+fs/fat/fat_write.c:831: undefined reference to `__aeabi_ldivmod'
+occurred.
+
+We should use do_div() instead of the modulus operator.
+
+filesize and cur_pos cannot be negative. So let's use u64 to avoid
+warnings.
+
+Fixes: cb8af8af5ba0 ("fs: fat: support write with non-zero offset")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 3272412ca9..852f874e58 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -696,11 +696,11 @@ static int
+ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
+ 	     loff_t maxsize, loff_t *gotsize)
+ {
+-	loff_t filesize;
+ 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+ 	__u32 curclust = START(dentptr);
+ 	__u32 endclust = 0, newclust = 0;
+-	loff_t cur_pos, offset, actsize, wsize;
++	u64 cur_pos, filesize;
++	loff_t offset, actsize, wsize;
+ 
+ 	*gotsize = 0;
+ 	filesize = pos + maxsize;
+@@ -828,7 +828,7 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
+ 
+ 	curclust = endclust;
+ 	filesize -= cur_pos;
+-	assert(!(cur_pos % bytesperclust));
++	assert(!do_div(cur_pos, bytesperclust));
+ 
+ set_clusters:
+ 	/* allocate and write */
+-- 
+2.20.1
+
