@@ -28,6 +28,7 @@ git am ../patch/0001-fs-fat-fix-link-error-when-building-with-DEBUG-1.patch
 git am ../patch/0001-cmd-set-CONFIG_SYS_HELP_CMD_WIDTH-10.patch
 git am ../patch/0001-efi_loader-do-not-add-in-efi_fs_from_name.patch
 git am ../patch/0001-efi_loader-HII-protocols-fix-new_package_list.patch
+git am ../patch/0001-efi_loader-error-handling-for-efidebug-boot-add.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

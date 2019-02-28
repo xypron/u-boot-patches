@@ -1,0 +1,30 @@
+From bf14a6d39980589989f7e83c43f6a39164744d84 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 28 Feb 2019 20:41:58 +0100
+Subject: [PATCH 1/1] efi_loader: error handling for `efidebug boot add`
+
+In  `efidebug boot add iPXE scsi 0:1 snp-arm64.efi --foo` a parameter is
+missing. Hence the command should not silently return as if everything were
+ok but should display the usage info.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 5072a7b39bc..db96682c5a4 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -491,7 +491,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
+ 
+ 	id = (int)simple_strtoul(argv[1], &endp, 16);
+ 	if (*endp != '\0' || id > 0xffff)
+-		return CMD_RET_FAILURE;
++		return CMD_RET_USAGE;
+ 
+ 	sprintf(var_name, "Boot%04X", id);
+ 	p = var_name16;
+-- 
+2.20.1
+
