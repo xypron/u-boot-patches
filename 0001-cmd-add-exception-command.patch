@@ -69,9 +69,9 @@ diff --git a/cmd/Kconfig b/cmd/Kconfig
 index ea1a325eb3..308e5458b9 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -1397,6 +1397,12 @@ config CMD_DISPLAY
- 	  displayed on a simple board-specific display. Implement
- 	  display_putc() to use it.
+@@ -1397,6 +1397,12 @@ config EFIDEBUG
+ 	  particularly for managing boot parameters as  well as examining
+ 	  various EFI status for debugging.
  
 +config CMD_EXCEPTION
 +	bool "exception - raise exception"
@@ -81,7 +81,7 @@ index ea1a325eb3..308e5458b9 100644
 +
  config CMD_LED
  	bool "led"
- 	default y if LED
+ 	depends on LED
 diff --git a/cmd/Makefile b/cmd/Makefile
 index 15ae4d250f..bff6be0146 100644
 --- a/cmd/Makefile

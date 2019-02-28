@@ -41,8 +41,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
 # Clean up load image
-git am ../patch/0001-efi_loader-in-situ-relocation.patch
-git am ../patch/0001-efi_loader-simplify-printing-loaded-image-informatio.patch
+# git am ../patch/0001-efi_loader-simplify-printing-loaded-image-informatio.patch
 
 # git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
 
