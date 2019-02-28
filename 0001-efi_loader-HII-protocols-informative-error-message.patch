@@ -1,0 +1,147 @@
+From 9b02f779ebd0aab841cedfc4f56b040da2e1e85e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 28 Feb 2019 23:56:35 +0100
+Subject: [PATCH 1/1] efi_loader: HII protocols: informative error message
+
+When package types are not supported an error message is displayed.
+Unfortunately there is no hint in the messages that they concern the HII
+protocols. Furthermore they are indent by tab for no obvious reason.
+
+Prefix the messages by "HII: " instead of "\t".
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_hii.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
+index d63d2d84184..6ee386596a5 100644
+--- a/lib/efi_loader/efi_hii.c
++++ b/lib/efi_loader/efi_hii.c
+@@ -387,7 +387,7 @@ add_packages(struct efi_hii_packagelist *hii,
+ 				(struct efi_hii_guid_package *)package);
+ 			break;
+ 		case EFI_HII_PACKAGE_FORMS:
+-			printf("\tForm package not supported\n");
++			printf("HII: Form package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_STRINGS:
+@@ -395,19 +395,19 @@ add_packages(struct efi_hii_packagelist *hii,
+ 				(struct efi_hii_strings_package *)package);
+ 			break;
+ 		case EFI_HII_PACKAGE_FONTS:
+-			printf("\tFont package not supported\n");
++			printf("HII: Font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_IMAGES:
+-			printf("\tImage package not supported\n");
++			printf("HII: Image package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_SIMPLE_FONTS:
+-			printf("\tSimple font package not supported\n");
++			printf("HII: Simple font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_DEVICE_PATH:
+-			printf("\tDevice path package not supported\n");
++			printf("HII: Device path package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
+@@ -415,7 +415,7 @@ add_packages(struct efi_hii_packagelist *hii,
+ 				(struct efi_hii_keyboard_package *)package);
+ 			break;
+ 		case EFI_HII_PACKAGE_ANIMATIONS:
+-			printf("\tAnimation package not supported\n");
++			printf("HII: Animation package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_END:
+@@ -522,33 +522,33 @@ update_package_list(const struct efi_hii_database_protocol *this,
+ 			remove_guid_package(hii);
+ 			break;
+ 		case EFI_HII_PACKAGE_FORMS:
+-			printf("\tForm package not supported\n");
++			printf("HII: Form package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_STRINGS:
+ 			remove_strings_package(hii);
+ 			break;
+ 		case EFI_HII_PACKAGE_FONTS:
+-			printf("\tFont package not supported\n");
++			printf("HII: Font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_IMAGES:
+-			printf("\tImage package not supported\n");
++			printf("HII: Image package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_SIMPLE_FONTS:
+-			printf("\tSimple font package not supported\n");
++			printf("HII: Simple font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_DEVICE_PATH:
+-			printf("\tDevice path package not supported\n");
++			printf("HII: Device path package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
+ 			remove_keyboard_package(hii);
+ 			break;
+ 		case EFI_HII_PACKAGE_ANIMATIONS:
+-			printf("\tAnimation package not supported\n");
++			printf("HII: Animation package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			break;
+ 		case EFI_HII_PACKAGE_END:
+@@ -609,7 +609,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
+ 				break;
+ 			continue;
+ 		case EFI_HII_PACKAGE_FORMS:
+-			printf("\tForm package not supported\n");
++			printf("HII: Form package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_STRINGS:
+@@ -617,19 +617,19 @@ list_package_lists(const struct efi_hii_database_protocol *this,
+ 				break;
+ 			continue;
+ 		case EFI_HII_PACKAGE_FONTS:
+-			printf("\tFont package not supported\n");
++			printf("HII: Font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_IMAGES:
+-			printf("\tImage package not supported\n");
++			printf("HII: Image package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_SIMPLE_FONTS:
+-			printf("\tSimple font package not supported\n");
++			printf("HII: Simple font package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_DEVICE_PATH:
+-			printf("\tDevice path package not supported\n");
++			printf("HII: Device path package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
+@@ -637,7 +637,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
+ 				break;
+ 			continue;
+ 		case EFI_HII_PACKAGE_ANIMATIONS:
+-			printf("\tAnimation package not supported\n");
++			printf("HII: Animation package not supported\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			continue;
+ 		case EFI_HII_PACKAGE_END:
+-- 
+2.20.1
+
