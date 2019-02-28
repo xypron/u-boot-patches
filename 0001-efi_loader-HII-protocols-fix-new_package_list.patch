@@ -1,0 +1,45 @@
+From d07ed3dac39c60bb3c046e235a56abe69d91b51d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 28 Feb 2019 23:07:00 +0100
+Subject: [PATCH 1/1] efi_loader: HII protocols: fix new_package_list()
+
+In new_package_list() we call new_packagelist() to create a new package
+list. Next we try to add the packages which fails for form packages. Due
+to this error we call free_packagelist(). Now in free_packagelist()
+list_del() is called for an uninitialized field hii->link. This leads to
+changing random memory addresses.
+
+To solve the problem move the initialization of hii->link to
+new_packagelist().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+@Takahiro:
+Please, review the patch.
+---
+ lib/efi_loader/efi_hii.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
+index d63d2d84184..0ed4b196333 100644
+--- a/lib/efi_loader/efi_hii.c
++++ b/lib/efi_loader/efi_hii.c
+@@ -343,6 +343,7 @@ static struct efi_hii_packagelist *new_packagelist(void)
+ 	struct efi_hii_packagelist *hii;
+ 
+ 	hii = malloc(sizeof(*hii));
++	list_add_tail(&hii->link, &efi_package_lists);
+ 	hii->max_string_id = 0;
+ 	INIT_LIST_HEAD(&hii->string_tables);
+ 	INIT_LIST_HEAD(&hii->guid_list);
+@@ -465,7 +466,6 @@ new_package_list(const struct efi_hii_database_protocol *this,
+ 	}
+ 
+ 	hii->driver_handle = driver_handle;
+-	list_add_tail(&hii->link, &efi_package_lists);
+ 	*handle = hii;
+ 
+ 	return EFI_EXIT(EFI_SUCCESS);
+-- 
+2.20.1
+
