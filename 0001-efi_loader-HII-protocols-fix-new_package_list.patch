@@ -13,9 +13,7 @@ To solve the problem move the initialization of hii->link to
 new_packagelist().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
-@Takahiro:
-Please, review the patch.
+Reviewed-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
  lib/efi_loader/efi_hii.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
