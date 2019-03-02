@@ -1,4 +1,4 @@
-From bf14a6d39980589989f7e83c43f6a39164744d84 Mon Sep 17 00:00:00 2001
+From 623b8a4c9020d4b98191c08e7357cea2c8b56abf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 28 Feb 2019 20:41:58 +0100
 Subject: [PATCH 1/1] efi_loader: error handling for `efidebug boot add`
@@ -8,12 +8,13 @@ missing. Hence the command should not silently return as if everything were
 ok but should display the usage info.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <agraf@csgraf.de>
 ---
  cmd/efidebug.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 5072a7b39bc..db96682c5a4 100644
+index 5072a7b39b..db96682c5a 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
 @@ -491,7 +491,7 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
