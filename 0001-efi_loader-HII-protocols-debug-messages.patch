@@ -1,24 +1,27 @@
-From 8f31a5f68df1d3be7813ddc81359c6a668e78f49 Mon Sep 17 00:00:00 2001
+From 1a9fce50393d2e7b7c3adb70764ab22a9267d815 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 28 Feb 2019 23:56:35 +0100
-Subject: [PATCH v2 1/1] efi_loader: HII protocols: informative error message
+Subject: [PATCH 1/1] efi_loader: HII protocols: debug messages
 
-When package types are not supported an error message is displayed.
-Unfortunately there is no hint in the messages that they concern the HII
-protocols. Furthermore they are indent by tab for no obvious reason.
+When package types are not supported by our implementation of the HII
+database protocol supported error messages are displayed.
 
-Prefix the messages by "EFI HII: " instead of "\t".
+Essentially the output is only needed for debugging. By using EFI_PRINT()
+the messages are only written for in debug mode and with correct
+indentation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3
+	Use EFI_PRINT() and add no further prefix.
 v2
-	Use "EFI HII:" as prefix
+	Use "EFI HII:" as prefix.
 ---
  lib/efi_loader/efi_hii.c | 36 ++++++++++++++++++------------------
  1 file changed, 18 insertions(+), 18 deletions(-)
 
 diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
-index 0ed4b196333..38e54969c84 100644
+index 0ed4b19633..3a966fa4df 100644
 --- a/lib/efi_loader/efi_hii.c
 +++ b/lib/efi_loader/efi_hii.c
 @@ -388,7 +388,7 @@ add_packages(struct efi_hii_packagelist *hii,
@@ -26,7 +29,7 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_FORMS:
 -			printf("\tForm package not supported\n");
-+			printf"EFI HII: Form package not supported\n");
++			EFI_PRINT("Form package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_STRINGS:
@@ -35,22 +38,22 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_FONTS:
 -			printf("\tFont package not supported\n");
-+			printf"EFI HII: Font package not supported\n");
++			EFI_PRINT("Font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_IMAGES:
 -			printf("\tImage package not supported\n");
-+			printf"EFI HII: Image package not supported\n");
++			EFI_PRINT("Image package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_SIMPLE_FONTS:
 -			printf("\tSimple font package not supported\n");
-+			printf"EFI HII: Simple font package not supported\n");
++			EFI_PRINT("Simple font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_DEVICE_PATH:
 -			printf("\tDevice path package not supported\n");
-+			printf"EFI HII: Device path package not supported\n");
++			EFI_PRINT("Device path package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
@@ -59,7 +62,7 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_ANIMATIONS:
 -			printf("\tAnimation package not supported\n");
-+			printf"EFI HII: Animation package not supported\n");
++			EFI_PRINT("Animation package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_END:
@@ -68,7 +71,7 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_FORMS:
 -			printf("\tForm package not supported\n");
-+			printf"EFI HII: Form package not supported\n");
++			EFI_PRINT("Form package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_STRINGS:
@@ -76,22 +79,22 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_FONTS:
 -			printf("\tFont package not supported\n");
-+			printf"EFI HII: Font package not supported\n");
++			EFI_PRINT("Font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_IMAGES:
 -			printf("\tImage package not supported\n");
-+			printf"EFI HII: Image package not supported\n");
++			EFI_PRINT("Image package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_SIMPLE_FONTS:
 -			printf("\tSimple font package not supported\n");
-+			printf"EFI HII: Simple font package not supported\n");
++			EFI_PRINT("Simple font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_DEVICE_PATH:
 -			printf("\tDevice path package not supported\n");
-+			printf"EFI HII: Device path package not supported\n");
++			EFI_PRINT("Device path package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
@@ -99,7 +102,7 @@ index 0ed4b196333..38e54969c84 100644
  			break;
  		case EFI_HII_PACKAGE_ANIMATIONS:
 -			printf("\tAnimation package not supported\n");
-+			printf"EFI HII: Animation package not supported\n");
++			EFI_PRINT("Animation package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			break;
  		case EFI_HII_PACKAGE_END:
@@ -108,7 +111,7 @@ index 0ed4b196333..38e54969c84 100644
  			continue;
  		case EFI_HII_PACKAGE_FORMS:
 -			printf("\tForm package not supported\n");
-+			printf"EFI HII: Form package not supported\n");
++			EFI_PRINT("Form package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_STRINGS:
@@ -117,22 +120,22 @@ index 0ed4b196333..38e54969c84 100644
  			continue;
  		case EFI_HII_PACKAGE_FONTS:
 -			printf("\tFont package not supported\n");
-+			printf"EFI HII: Font package not supported\n");
++			EFI_PRINT("Font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_IMAGES:
 -			printf("\tImage package not supported\n");
-+			printf"EFI HII: Image package not supported\n");
++			EFI_PRINT("Image package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_SIMPLE_FONTS:
 -			printf("\tSimple font package not supported\n");
-+			printf"EFI HII: Simple font package not supported\n");
++			EFI_PRINT("Simple font package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_DEVICE_PATH:
 -			printf("\tDevice path package not supported\n");
-+			printf"EFI HII: Device path package not supported\n");
++			EFI_PRINT("Device path package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_KEYBOARD_LAYOUT:
@@ -141,7 +144,7 @@ index 0ed4b196333..38e54969c84 100644
  			continue;
  		case EFI_HII_PACKAGE_ANIMATIONS:
 -			printf("\tAnimation package not supported\n");
-+			printf"EFI HII: Animation package not supported\n");
++			EFI_PRINT("Animation package not supported\n");
  			ret = EFI_INVALID_PARAMETER;
  			continue;
  		case EFI_HII_PACKAGE_END:
