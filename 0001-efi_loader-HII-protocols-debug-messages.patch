@@ -1,7 +1,7 @@
 From 1a9fce50393d2e7b7c3adb70764ab22a9267d815 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 28 Feb 2019 23:56:35 +0100
-Subject: [PATCH 1/1] efi_loader: HII protocols: debug messages
+Subject: [PATCH v3 1/1] efi_loader: HII protocols: debug messages
 
 When package types are not supported by our implementation of the HII
 database protocol supported error messages are displayed.
