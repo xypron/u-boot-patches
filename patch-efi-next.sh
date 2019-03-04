@@ -51,6 +51,8 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 # must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
+git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
