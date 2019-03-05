@@ -28,6 +28,7 @@ git am ../patch/0001-efi_loader-do-not-add-in-efi_fs_from_name.patch
 git am ../patch/0001-efi_loader-HII-protocols-fix-new_package_list.patch
 git am ../patch/0001-efi_loader-error-handling-for-efidebug-boot-add.patch
 git am ../patch/0001-efi_loader-HII-protocols-debug-messages.patch
+git am ../patch/0001-efi_loader-Fix-serial-console-size-detection.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
