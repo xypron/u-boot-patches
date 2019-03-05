@@ -1,4 +1,4 @@
-From dbe5be9a5a2c98cb6f7f8135b757a021c0421732 Mon Sep 17 00:00:00 2001
+From b921f61b285267a6cc9e6c92489faeb234274c1a Mon Sep 17 00:00:00 2001
 From: Matthias Brugger <mbrugger@suse.com>
 Date: Tue, 5 Mar 2019 12:50:18 +0100
 Subject: [PATCH 1/1] efi_loader: Fix serial console size detection
@@ -19,13 +19,12 @@ Change type of argument of term_get_char() *s32. This renders the function
 reusable in efi_cin_read_key().
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 65 +++++++++++++++++++++---------------
- 1 file changed, 38 insertions(+), 27 deletions(-)
+ lib/efi_loader/efi_console.c | 62 ++++++++++++++++++++----------------
+ 1 file changed, 35 insertions(+), 27 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 66c33a551d5..35073242668 100644
+index 66c33a551d5..8e0965bfc89 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -62,6 +62,21 @@ static struct simple_text_output_mode efi_con_mode = {
@@ -128,16 +127,6 @@ index 66c33a551d5..35073242668 100644
  	/* Read {rows,cols} */
  	if (term_read_reply(n, 2, 'R')) {
  		ret = 1;
-@@ -232,6 +240,9 @@ static int query_console_serial(int *rows, int *cols)
- 
- 	*cols = n[1];
- 	*rows = n[0];
-+
-+	printf("Rows = %d, cols = %d\n", *rows, *cols);
-+
- out:
- 	printf(ESC "8");	/* Restore cursor position */
- 	return ret;
 -- 
 2.20.1
 
