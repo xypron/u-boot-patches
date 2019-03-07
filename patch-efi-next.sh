@@ -24,10 +24,6 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 git am ../patch/0001-cmd-set-CONFIG_SYS_HELP_CMD_WIDTH-10.patch
-git am ../patch/0001-efi_loader-do-not-add-in-efi_fs_from_name.patch
-git am ../patch/0001-efi_loader-HII-protocols-fix-new_package_list.patch
-git am ../patch/0001-efi_loader-error-handling-for-efidebug-boot-add.patch
-git am ../patch/0001-efi_loader-HII-protocols-debug-messages.patch
 git am ../patch/0001-efi_loader-Fix-serial-console-size-detection.patch
 
 # USB keyboard
