@@ -1,7 +1,7 @@
-From b921f61b285267a6cc9e6c92489faeb234274c1a Mon Sep 17 00:00:00 2001
+From dd1a1ec2afa61c55c52e9389764037181f2c31ed Mon Sep 17 00:00:00 2001
 From: Matthias Brugger <mbrugger@suse.com>
 Date: Tue, 5 Mar 2019 12:50:18 +0100
-Subject: [PATCH 1/1] efi_loader: Fix serial console size detection
+Subject: [PATCH v3 1/1] efi_loader: Fix serial console size detection
 
 Function term_read_reply tries to read from the serial console until
 the end_char was read. This can hang forever if we are, for some reason,
@@ -19,6 +19,15 @@ Change type of argument of term_get_char() *s32. This renders the function
 reusable in efi_cin_read_key().
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v3
+	Throw missing error when an incomplete reply for the cursor
+	position is received.
+
+	Change type of argument of term_get_char() *s32. This renders the
+	function reusable in efi_cin_read_key().
+v2
+	move timeout into term_get_char
 ---
  lib/efi_loader/efi_console.c | 62 ++++++++++++++++++++----------------
  1 file changed, 35 insertions(+), 27 deletions(-)
