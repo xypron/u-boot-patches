@@ -50,6 +50,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
+git am ../patch/0001-efi_loader-fix-build-error-for-freestanding.o.patch
 
 exit
 
