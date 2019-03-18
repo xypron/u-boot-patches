@@ -24,7 +24,6 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 git am ../patch/0001-cmd-set-CONFIG_SYS_HELP_CMD_WIDTH-10.patch
-git am ../patch/0001-efi_loader-Fix-serial-console-size-detection.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -50,7 +49,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
-git am ../patch/0001-efi_loader-fix-build-error-for-freestanding.o.patch
 
 exit
 
