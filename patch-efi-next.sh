@@ -51,6 +51,7 @@ git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 
 # Covertiy Scan results
+git am ../patch/0001-efi_loader-correct-parameter-size-in-efi_allocate_po.patch
 git am ../patch/0001-efi_loader-endless-loop-in-add_strings_package.patch
 git am ../patch/0001-efi_loader-missing-return-in-efi_get_next_variable_n.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_dump_single_var.patch
