@@ -50,6 +50,9 @@ git am ../patch/0001-cmd-add-exception-command.patch
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 
+# Covertiy Scan results
+git am ../patch/0001-efi_loader-endless-loop-in-add_strings_package.patch
+
 exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
