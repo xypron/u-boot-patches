@@ -1,13 +1,12 @@
-From 6d00e2d85eb71eda43c9470907af410b22a9bf42 Mon Sep 17 00:00:00 2001
+From bd3b7478d1e17b4d487d276f5cc0e4f4ef9fc4b7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 19 Mar 2019 12:30:27 +0100
 Subject: [PATCH 1/1] efi_loader: endless loop in add_strings_package()
 
 Avoid an endless loop in add_strings_package().
 
-Fixes Coverity CID 185833
-
 Suggested-by: Takahiro Akashi <takahiro.akashi@linaro.org>
+Reported-by: Coverity (CID 185833)
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_hii.c | 5 ++---

@@ -1,4 +1,4 @@
-From 605237581b1ca4b3fbf0c7b74dc9e03da1cee970 Mon Sep 17 00:00:00 2001
+From 1fd7a4764103781e424ef687034da06de3cb60b7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 19 Mar 2019 18:44:05 +0100
 Subject: [PATCH 1/1] efi_loader: memory leak in efi_dump_single_var()
@@ -6,8 +6,7 @@ Subject: [PATCH 1/1] efi_loader: memory leak in efi_dump_single_var()
 A misplaced return statement lead to a memory leak in
 efi_dump_single_var().
 
-Fixes Coverity CID 185829
-
+Reported-by: Coverity (CID 185829)
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/nvedit_efi.c | 1 -
