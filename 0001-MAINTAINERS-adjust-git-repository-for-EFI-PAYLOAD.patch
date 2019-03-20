@@ -1,0 +1,28 @@
+From c548e5a9ca1573daad5b19050e27c5a8d497b597 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 20 Mar 2019 18:47:07 +0100
+Subject: [PATCH 1/1] MAINTAINERS: adjust git repository for EFI PAYLOAD
+
+The EFI PAYLOAD will use git://git.denx.de/u-boot-efi.git in future.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8a4c5d4eabd..3166ec74f0c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -454,7 +454,7 @@ EFI PAYLOAD
+ M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
+ R:	Alexander Graf <agraf@csgraf.de>
+ S:	Maintained
+-T:	git git://github.com/agraf/u-boot.git
++T:	git git://git.denx.de/u-boot-efi.git
+ F:	doc/README.uefi
+ F:	doc/README.iscsi
+ F:	Documentation/efi.rst
+-- 
+2.20.1
+
