@@ -65,7 +65,6 @@ exit
 
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
 git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
-git am ../patch/0001-efi_loader-fix-typo-in-efi_boottime.c.patch
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_selftest-test-exit_data.patch
 
