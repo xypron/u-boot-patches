@@ -61,10 +61,12 @@ git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
 
-exit
-
+# next
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
 git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
+
+exit
+
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_selftest-test-exit_data.patch
 
