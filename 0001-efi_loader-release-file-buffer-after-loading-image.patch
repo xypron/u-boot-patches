@@ -1,12 +1,21 @@
 From e7a41410529b4252fc21f20281b2c20ece09b9cb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 4 Mar 2019 17:50:05 +0100
-Subject: [PATCH 1/1] efi_loader: release file buffer after loading image
+Subject: [PATCH v2 1/1] efi_loader: release file buffer after loading image
+
+Commit 0e18f584de59 ("efi_loader: LoadImage: always allocate new pages")
+ensured that whether we load an image from file or from memory we end up
+with the same number of newly allocated buffers. But essentially we ended
+up with one buffer too many in both cases:
 
 efi_load_pe() copies and rebases the UEFI image.
 We do not need the buffer with the file contents afterwards.
 
+Fixes: 0e18f584de59 ("efi_loader: LoadImage: always allocate new pages")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	update commit message
 ---
  lib/efi_loader/efi_boottime.c | 50 +++++++++++++----------------------
  1 file changed, 18 insertions(+), 32 deletions(-)
