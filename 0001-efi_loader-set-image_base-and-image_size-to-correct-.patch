@@ -12,6 +12,7 @@ that.
 This bug was detected in UEFI SCT, "Loaded Image Protocol Test - test 2,"
 which shows that 'Unload' function doesn't fit into a range suggested by
 image_base and image_size.
+
 	TestCase/UEFI/EFI/Protocol/LoadedImage/BlackBoxTest/
 	LoadedImageBBTestMain.c:1002
 
@@ -20,55 +21,63 @@ and size" since newly added fields are no longer needed.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
-Rebase the patch. Keep the relocation address in struct efi_image_object.
-We will use the address to free the image in UnloadImage.
+Remove copying of the image header from patch
+Remove unused fields from struct efi_loaded_image_obj.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_image_loader.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ include/efi_loader.h              |  4 ----
+ lib/efi_loader/efi_image_loader.c | 10 ++++------
+ 2 files changed, 4 insertions(+), 10 deletions(-)
 
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 47a51ddc940..099f258da02 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -203,15 +203,11 @@ struct efi_object {
+  * struct efi_loaded_image_obj - handle of a loaded image
+  *
+  * @header:		EFI object header
+- * @reloc_base:		base address for the relocated image
+- * @reloc_size:		size of the relocated image
+  * @exit_jmp:		long jump buffer for returning form started image
+  * @entry:		entry address of the relocated image
+  */
+ struct efi_loaded_image_obj {
+ 	struct efi_object header;
+-	void *reloc_base;
+-	aligned_u64 reloc_size;
+ 	efi_status_t exit_status;
+ 	struct jmp_buf_data exit_jmp;
+ 	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index a18ce0a5705..39902152f3c 100644
+index fe66e7b9ffe..39b72d34241 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
-@@ -212,7 +212,6 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
- 	int rel_idx = IMAGE_DIRECTORY_ENTRY_BASERELOC;
- 	void *entry;
- 	uint64_t image_base;
--	uint64_t image_size;
- 	unsigned long virt_size = 0;
- 	int supported = 0;
- 
-@@ -256,7 +255,6 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
- 		IMAGE_NT_HEADERS64 *nt64 = (void *)nt;
- 		IMAGE_OPTIONAL_HEADER64 *opt = &nt64->OptionalHeader;
- 		image_base = opt->ImageBase;
--		image_size = opt->SizeOfImage;
- 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
- 		efi_reloc = efi_alloc(virt_size,
- 				      loaded_image_info->image_code_type);
-@@ -272,7 +270,6 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
- 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
- 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
- 		image_base = opt->ImageBase;
--		image_size = opt->SizeOfImage;
- 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
- 		efi_reloc = efi_alloc(virt_size,
- 				      loaded_image_info->image_code_type);
-@@ -315,10 +312,10 @@ void *efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
- 	invalidate_icache_all();
- 
+@@ -59,10 +59,10 @@ static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
+ {
+ 	printf("UEFI image");
+ 	printf(" [0x%p:0x%p]",
+-	       obj->reloc_base, obj->reloc_base + obj->reloc_size - 1);
+-	if (pc && pc >= obj->reloc_base &&
+-	    pc < obj->reloc_base + obj->reloc_size)
+-		printf(" pc=0x%zx", pc - obj->reloc_base);
++	       image->image_base, image->image_base + image->image_size - 1);
++	if (pc && pc >= image->image_base &&
++	    pc < image->image_base + image->image_size)
++		printf(" pc=0x%zx", pc - image->image_base);
+ 	if (image->file_path)
+ 		printf(" '%pD'", image->file_path);
+ 	printf("\n");
+@@ -332,8 +332,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	/* Populate the loaded image interface bits */
--	loaded_image_info->image_base = efi;
--	loaded_image_info->image_size = image_size;
- 	handle->reloc_base = efi_reloc;
- 	handle->reloc_size = virt_size;
-+	loaded_image_info->image_base = efi_reloc;
-+	loaded_image_info->image_size = virt_size;
+ 	loaded_image_info->image_base = efi;
+ 	loaded_image_info->image_size = image_size;
+-	handle->reloc_base = efi_reloc;
+-	handle->reloc_size = virt_size;
  
- 	return entry;
+ 	return EFI_SUCCESS;
  }
 -- 
-2.19.0
+2.20.1
 
