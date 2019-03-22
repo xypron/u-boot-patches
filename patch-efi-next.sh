@@ -48,12 +48,6 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
 # efi-2019-04-rc5
-git am ../patch/0001-efi_loader-correct-parameter-size-in-efi_allocate_po.patch
-git am ../patch/0001-efi_loader-endless-loop-in-add_strings_package.patch
-git am ../patch/0001-efi_loader-missing-return-in-efi_get_next_variable_n.patch
-git am ../patch/0001-efi_loader-memory-leak-in-efi_dump_single_var.patch
-git am ../patch/0001-efi_loader-superfluous-conversion-in-efi_file_open.patch
-git am ../patch/0001-efi_selftest-fix-test_hii_string_get_string.patch
 git am ../patch/0001-MAINTAINERS-adjust-git-repository-for-EFI-PAYLOAD.patch
 
 # efi-2019-07
