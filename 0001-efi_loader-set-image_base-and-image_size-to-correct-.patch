@@ -1,7 +1,7 @@
-From de751d6bbb0c9268a8da66d7055416082a153a5a Mon Sep 17 00:00:00 2001
-From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Thu, 21 Mar 2019 21:26:42 +0100
-Subject: [PATCH 1/1] efi_loader: set image_base and image_size to correct
+From be860b489b825ca8bd5ae67c9c2723de01836a19 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Thu, 11 Oct 2018 04:09:58 -0700
+Subject: [PATCH v3 1/1] efi_loader: set image_base and image_size to correct
  values
 
 Currently, image's image_base points to an address where the image was
@@ -16,22 +16,31 @@ image_base and image_size.
 	TestCase/UEFI/EFI/Protocol/LoadedImage/BlackBoxTest/
 	LoadedImageBBTestMain.c:1002
 
-This patch also reverts a patch, "efi_loader: save image relocation address
-and size" since newly added fields are no longer needed.
+Changes in this patch also includes:
+* reverts a patch, "efi_loader: save image relocation address
+  and size" since newly added fields are no longer needed.
+* copy PE headers as well since those information will be needed
+  for module loading, in particular, at gurb.
+  (This bug was reported by Heinrich.)
 
+Reported-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
-Remove copying of the image header.
-Remove unused fields from [200~struct efi_loaded_image_obj.
+Rebase patch.
+Remove unused fields from struct efi_loaded_image_obj.
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3
+	rebase patch
+	remove unused fields from struct efi_loaded_image_obj
+---
  include/efi_loader.h              |  4 ----
- lib/efi_loader/efi_image_loader.c | 17 ++++++-----------
- 2 files changed, 6 insertions(+), 15 deletions(-)
+ lib/efi_loader/efi_image_loader.c | 22 +++++++++++-----------
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 47a51ddc940..099f258da02 100644
+index 47a51ddc94..099f258da0 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -203,15 +203,11 @@ struct efi_object {
@@ -51,7 +60,7 @@ index 47a51ddc940..099f258da02 100644
  	struct jmp_buf_data exit_jmp;
  	EFIAPI efi_status_t (*entry)(efi_handle_t image_handle,
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index fe66e7b9ffe..1c31db881ba 100644
+index fe66e7b9ff..6101e6d037 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -59,10 +59,10 @@ static efi_status_t efi_print_image_info(struct efi_loaded_image_obj *obj,
@@ -93,7 +102,19 @@ index fe66e7b9ffe..1c31db881ba 100644
  		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
  		efi_reloc = efi_alloc(virt_size,
  				      loaded_image_info->image_code_type);
-@@ -330,10 +327,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -306,6 +303,11 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+ 		return EFI_LOAD_ERROR;
+ 	}
+ 
++	/* Copy PE headers */
++	memcpy(efi_reloc, efi, sizeof(*dos) + sizeof(*nt)
++	       + nt->FileHeader.SizeOfOptionalHeader
++	       + num_sections * sizeof(IMAGE_SECTION_HEADER));
++
+ 	/* Load sections into RAM */
+ 	for (i = num_sections - 1; i >= 0; i--) {
+ 		IMAGE_SECTION_HEADER *sec = &sections[i];
+@@ -330,10 +332,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	invalidate_icache_all();
  
  	/* Populate the loaded image interface bits */
