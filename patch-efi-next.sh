@@ -23,7 +23,6 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
-git am ../patch/0001-cmd-set-CONFIG_SYS_HELP_CMD_WIDTH-10.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
