@@ -1,0 +1,32 @@
+From 23da43e45ef1cd871b0b131af8b772b10492efa9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 26 Mar 2019 05:56:31 +0100
+Subject: [PATCH 1/1] efi_selftest: avoid double free in dp utilities test
+
+Avoid duplicate FreePool() in unit test for the device patch utilities
+protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_devicepath_util.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_devicepath_util.c b/lib/efi_selftest/efi_selftest_devicepath_util.c
+index 5fef5cfccd..c846e057d3 100644
+--- a/lib/efi_selftest/efi_selftest_devicepath_util.c
++++ b/lib/efi_selftest/efi_selftest_devicepath_util.c
+@@ -256,11 +256,6 @@ static int execute(void)
+ 		efi_st_error("GetNextDevicePathInstance did not signal end\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	ret = boottime->free_pool(dp2);
+-	if (ret != EFI_ST_SUCCESS) {
+-		efi_st_error("FreePool failed\n");
+-		return EFI_ST_FAILURE;
+-	}
+ 
+ 	/* Clean up */
+ 	ret = boottime->free_pool(dp2);
+-- 
+2.20.1
+

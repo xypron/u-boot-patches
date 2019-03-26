@@ -1,0 +1,98 @@
+From c88bf8ba4fcfba4f31eae1f06152d1941496b0c1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 26 Mar 2019 19:03:17 +0100
+Subject: [PATCH 1/1] efi_loader: parameter checks in StartImage and Exit()
+
+Add parameter checks in the StartImage() and Exit() boottime services:
+- check that the image handle is valid and has the loaded image protocol
+  installed
+- in StartImage() record the current image
+- in Exit() check that the image is the current image
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index d940f9feb4..56caf00f7c 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -26,6 +26,9 @@ LIST_HEAD(efi_obj_list);
+ /* List of all events */
+ LIST_HEAD(efi_events);
+ 
++/* Handle of the currently executing image */
++static efi_handle_t current_image;
++
+ /*
+  * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
+  * we need to do trickery with caches. Since we don't want to break the EFI
+@@ -2645,9 +2648,18 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 	struct efi_loaded_image_obj *image_obj =
+ 		(struct efi_loaded_image_obj *)image_handle;
+ 	efi_status_t ret;
++	void *info;
++	efi_handle_t parent_image;
+ 
+ 	EFI_ENTRY("%p, %p, %p", image_handle, exit_data_size, exit_data);
+ 
++	/* Check parameters */
++	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
++					 &info, NULL, NULL,
++					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
++	if (ret != EFI_SUCCESS)
++		return EFI_EXIT(EFI_INVALID_PARAMETER);
++
+ 	efi_is_direct_boot = false;
+ 
+ 	/* call the image! */
+@@ -2676,9 +2688,12 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 		      __efi_nesting_dec(),
+ 		      (unsigned long)((uintptr_t)image_obj->exit_status &
+ 				      ~EFI_ERROR_MASK));
++		current_image = parent_image;
+ 		return EFI_EXIT(image_obj->exit_status);
+ 	}
+ 
++	parent_image = current_image;
++	current_image = image_handle;
+ 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
+ 
+ 	/*
+@@ -2713,12 +2728,23 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+ 	 * TODO: We should call the unload procedure of the loaded
+ 	 *	 image protocol.
+ 	 */
++	efi_status_t ret;
++	void *info;
+ 	struct efi_loaded_image_obj *image_obj =
+ 		(struct efi_loaded_image_obj *)image_handle;
+ 
+ 	EFI_ENTRY("%p, %ld, %zu, %p", image_handle, exit_status,
+ 		  exit_data_size, exit_data);
+ 
++	/* Check parameters */
++	if (image_handle != current_image)
++		goto out;
++	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
++					 &info, NULL, NULL,
++					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ 	/* Make sure entry/exit counts for EFI world cross-overs match */
+ 	EFI_EXIT(exit_status);
+ 
+@@ -2732,6 +2758,8 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+ 	longjmp(&image_obj->exit_jmp, 1);
+ 
+ 	panic("EFI application exited");
++out:
++	return EFI_EXIT(EFI_INVALID_PARAMETER);
+ }
+ 
+ /**
+-- 
+2.20.1
+

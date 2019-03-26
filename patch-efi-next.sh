@@ -48,6 +48,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 # efi-2019-04-rc5
 git am ../patch/0001-MAINTAINERS-adjust-git-repository-for-EFI-PAYLOAD.patch
+git am ../patch/0001-efi_selftest-avoid-double-free-in-dp-utilities-test.patch
 
 # efi-2019-07
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
@@ -56,6 +57,8 @@ git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
 git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
 git am ../patch/0001-efi_loader-sanity-checks-when-freeing-memory.patch
+git am ../patch/0001-efi_loader-rearrange-boottime-service-functions.patch
+git am ../patch/0001-efi_loader-parameter-checks-in-StartImage-and-Exit.patch
 
 exit
 
