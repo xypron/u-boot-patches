@@ -55,6 +55,7 @@ git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
 git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
+git am ../patch/0001-efi_loader-sanity-checks-when-freeing-memory.patch
 
 exit
 
