@@ -1,0 +1,49 @@
+From 98dc26016837447ae8e3e943418af5c8bdab7c43 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 27 Mar 2019 22:02:30 +0100
+Subject: [PATCH 1/1] efi_loader: update TODOs in doc/README.uefi
+
+The following TODOs are closed:
+
+- GetNextVariableName is not implemented
+- event groups
+- manage events in a linked list
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/README.uefi | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/doc/README.uefi b/doc/README.uefi
+index cda29cdcf7..b38efbc0cc 100644
+--- a/doc/README.uefi
++++ b/doc/README.uefi
+@@ -299,7 +299,7 @@ This driver is only available if U-Boot is configured with
+     CONFIG_BLK=y
+     CONFIG_PARTITIONS=y
+ 
+-## TODOs as of U-Boot 2018.07
++## TODOs as of U-Boot 2019.04
+ 
+ * unimplemented or incompletely implemented boot services
+   * Exit - call unload function, unload applications only
+@@ -308,16 +308,13 @@ This driver is only available if U-Boot is configured with
+ 
+ * unimplemented or incompletely implemented runtime services
+   * SetVariable() ignores attribute EFI_VARIABLE_APPEND_WRITE
+-  * GetNextVariableName is not implemented
+   * QueryVariableInfo is not implemented
+ 
+ * unimplemented events
+   * EVT_RUNTIME
+   * EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
+-  * event groups
+ 
+ * data model
+-  * manage events in a linked list
+   * manage configuration tables in a linked list
+ 
+ * UEFI drivers
+-- 
+2.20.1
+
