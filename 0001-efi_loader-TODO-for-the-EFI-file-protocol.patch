@@ -1,0 +1,76 @@
+From 038c1f811f958efa38e395bb33f9f6e4387be690 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 27 Mar 2019 21:41:04 +0100
+Subject: [PATCH 1/1] efi_loader: TODO for the EFI file protocol
+
+We currently only support EFI_FILE_PROTOCOL_REVISION while
+UEFI specs 2.4 - 2.7 prescribe EFI_FILE_PROTOCOL_REVISION2.
+Add a todo.
+
+Add missing constants for the EFI file protocol revision.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/README.uefi           | 3 +++
+ include/efi_api.h         | 8 +++++++-
+ lib/efi_loader/efi_file.c | 4 ++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/doc/README.uefi b/doc/README.uefi
+index 0982fad92e..cda29cdcf7 100644
+--- a/doc/README.uefi
++++ b/doc/README.uefi
+@@ -329,6 +329,9 @@ This driver is only available if U-Boot is configured with
+   * persistence
+   * runtime support
+ 
++* incompletely implemented protocols
++  * support version 0x00020000 of the EFI file protocol
++
+ ## Links
+ 
+ * [1](http://uefi.org/specifications)
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 63b703c951..407acacc81 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1326,7 +1326,9 @@ struct efi_pxe {
+ #define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID \
+ 	EFI_GUID(0x964e5b22, 0x6459, 0x11d2, \
+ 		 0x8e, 0x39, 0x0, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+-#define EFI_FILE_PROTOCOL_REVISION 0x00010000
++#define EFI_FILE_PROTOCOL_REVISION	0x00010000
++#define EFI_FILE_PROTOCOL_REVISION2	0x00020000
++#define EFI_FILE_PROTOCOL_LATEST_REVISION EFI_FILE_PROTOCOL_REVISION2
+ 
+ struct efi_file_handle {
+ 	u64 rev;
+@@ -1350,6 +1352,10 @@ struct efi_file_handle {
+ 			const efi_guid_t *info_type, efi_uintn_t buffer_size,
+ 			void *buffer);
+ 	efi_status_t (EFIAPI *flush)(struct efi_file_handle *file);
++	/*
++	 * TODO: We currently only support EFI file protocol revision 0x00010000
++	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
++	 */
+ };
+ 
+ #define EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_REVISION 0x00010000
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index bc715218a1..f2843cad2d 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -628,6 +628,10 @@ static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
+ }
+ 
+ static const struct efi_file_handle efi_file_handle_protocol = {
++	/*
++	 * TODO: We currently only support EFI file protocol revision 0x00010000
++	 *	 while UEFI specs 2.4 - 2.7 prescribe revision 0x00020000.
++	 */
+ 	.rev = EFI_FILE_PROTOCOL_REVISION,
+ 	.open = efi_file_open,
+ 	.close = efi_file_close,
+-- 
+2.20.1
+

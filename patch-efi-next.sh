@@ -49,6 +49,7 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # efi-2019-04-rc5
 git am ../patch/0001-MAINTAINERS-adjust-git-repository-for-EFI-PAYLOAD.patch
 git am ../patch/0001-efi_selftest-avoid-double-free-in-dp-utilities-test.patch
+git am ../patch/0001-efi_loader-TODO-for-the-EFI-file-protocol.patch
 
 # efi-2019-07
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
