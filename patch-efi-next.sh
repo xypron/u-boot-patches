@@ -46,6 +46,8 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 # must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
+git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
+
 # efi-2019-04-rc5
 git am ../patch/0001-efi_selftest-avoid-double-free-in-dp-utilities-test.patch
 git am ../patch/0001-efi_loader-TODO-for-the-EFI-file-protocol.patch

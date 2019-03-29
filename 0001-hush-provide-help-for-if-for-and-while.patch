@@ -1,0 +1,44 @@
+From ea8137ef576968f0aece55a6e1cf495dceb3aa77 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Mar 2019 05:42:23 +0100
+Subject: [PATCH 1/1] hush: provide help for 'if', 'for', and 'while'
+
+Provide online help for hush commands 'if', 'for', and 'while'.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/cli_hush.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/common/cli_hush.c b/common/cli_hush.c
+index 955e8fe536..d7dfa8a75a 100644
+--- a/common/cli_hush.c
++++ b/common/cli_hush.c
+@@ -3711,5 +3711,24 @@ U_BOOT_CMD(
+ 	"    - print value of hushshell variable 'name'"
+ );
+ 
++U_BOOT_CMD(
++	for, 0, 0, NULL,
++	"execute command for each member of a list",
++	"NAME in WORDS; do COMMANDS; done"
++);
++
++U_BOOT_CMD(
++	if, 0, 0, NULL,
++	"execute commands based on condition",
++	"COMMANDS; then COMMANDS; "
++	"[ elif COMMANDS; then COMMANDS; ]... [ else COMMANDS; ] fi"
++);
++
++U_BOOT_CMD(
++	while, 0, 0, NULL,
++	"execute commands as long as a test succeeds",
++	"COMMANDS; do COMMANDS; done"
++);
++
+ #endif
+ /****************************************************************************/
+-- 
+2.20.1
+
