@@ -65,6 +65,7 @@ git am ../patch/0001-efi_loader-parameter-checks-in-StartImage-and-Exit.patch
 git am ../patch/0001-efi_loader-boottime-add-loaded-image-device-path-pro.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 
+git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch

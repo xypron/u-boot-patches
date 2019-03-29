@@ -1,0 +1,145 @@
+From d319a07910151cd77d07a31919d7e2df76be030d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Mar 2019 18:32:21 +0100
+Subject: [PATCH 1/1] efi_loader: remove relocation header
+
+The UEFI firmware is responsible for relocating the UEFI payload. So there
+is no reason to provide extra relocation code in the payload.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/lib/crt0_aarch64_efi.S | 10 +---------
+ arch/arm/lib/crt0_arm_efi.S     | 13 ++-----------
+ arch/riscv/lib/crt0_riscv_efi.S |  2 --
+ arch/x86/lib/crt0_ia32_efi.S    |  9 +--------
+ arch/x86/lib/crt0_x86_64_efi.S  | 16 +---------------
+ scripts/Makefile.lib            |  2 +-
+ 6 files changed, 6 insertions(+), 46 deletions(-)
+
+diff --git a/arch/arm/lib/crt0_aarch64_efi.S b/arch/arm/lib/crt0_aarch64_efi.S
+index cb205fa30a..f6015073d6 100644
+--- a/arch/arm/lib/crt0_aarch64_efi.S
++++ b/arch/arm/lib/crt0_aarch64_efi.S
+@@ -121,15 +121,7 @@ _start:
+ 	stp		x29, x30, [sp, #-32]!
+ 	mov		x29, sp
+ 
+-	stp		x0, x1, [sp, #16]
+-	adr		x0, ImageBase
+-	adrp		x1, _DYNAMIC
+-	add		x1, x1, #:lo12:_DYNAMIC
+-	bl		_relocate
+-	cbnz		x0, 0f
+-
+-	ldp		x0, x1, [sp, #16]
+ 	bl		efi_main
+ 
+-0:	ldp		x29, x30, [sp], #32
++	ldp		x29, x30, [sp], #32
+ 	ret
+diff --git a/arch/arm/lib/crt0_arm_efi.S b/arch/arm/lib/crt0_arm_efi.S
+index 5470e2ff0e..3f7fc51f1f 100644
+--- a/arch/arm/lib/crt0_arm_efi.S
++++ b/arch/arm/lib/crt0_arm_efi.S
+@@ -117,20 +117,11 @@ section_table:
+ 	.long	0xe0500020	/* Characteristics (section flags) */
+ 
+ _start:
+-	stmfd		sp!, {r0-r2, lr}
++	stmfd		sp!, {r2, lr}
+ 
+-	adr		r1, .L_DYNAMIC
+-	ldr		r0, [r1]
+-	add		r1, r0, r1
+-	adr		r0, image_base
+-	bl		_relocate
+-	teq		r0, #0
+-	bne		0f
+-
+-	ldmfd		sp, {r0-r1}
+ 	bl		efi_main
+ 
+-0:	add		sp, sp, #12
++0:	add		sp, sp, #4
+ 	ldr		pc, [sp], #4
+ 
+ .L_DYNAMIC:
+diff --git a/arch/riscv/lib/crt0_riscv_efi.S b/arch/riscv/lib/crt0_riscv_efi.S
+index b7b5329e1f..4397b02fe9 100644
+--- a/arch/riscv/lib/crt0_riscv_efi.S
++++ b/arch/riscv/lib/crt0_riscv_efi.S
+@@ -138,8 +138,6 @@ _start:
+ 
+ 	lla		a0, ImageBase
+ 	lla		a1, _DYNAMIC
+-	call		_relocate
+-	bne		a0, zero, 0f
+ 
+ 	LOAD_LONG(a1, 1)
+ 	LOAD_LONG(a0, 0)
+diff --git a/arch/x86/lib/crt0_ia32_efi.S b/arch/x86/lib/crt0_ia32_efi.S
+index c0a4853eaa..6380ffc148 100644
+--- a/arch/x86/lib/crt0_ia32_efi.S
++++ b/arch/x86/lib/crt0_ia32_efi.S
+@@ -25,16 +25,9 @@ _start:
+ 	addl $image_base-0b,%eax	# %eax = ldbase
+ 	addl $_DYNAMIC-0b,%ebx		# %ebx = _DYNAMIC
+ 
+-	pushl %ebx			# pass _DYNAMIC as second argument
+-	pushl %eax			# pass ldbase as first argument
+-	call _relocate
+-	popl %ebx
+-	popl %ebx
+-	testl %eax,%eax
+-	jne .exit
+ 	call efi_main		# call app with "image" and "systab" argument
+ 
+-.exit:	leave
++	leave
+ 	ret
+ 
+ 	/*
+diff --git a/arch/x86/lib/crt0_x86_64_efi.S b/arch/x86/lib/crt0_x86_64_efi.S
+index 47ed5af972..8079e36ded 100644
+--- a/arch/x86/lib/crt0_x86_64_efi.S
++++ b/arch/x86/lib/crt0_x86_64_efi.S
+@@ -15,22 +15,8 @@
+ _start:
+ 	subq $8, %rsp
+ 
+-	pushq %rcx
+-	pushq %rdx
+-
+-	lea image_base(%rip), %rcx
+-	lea _DYNAMIC(%rip), %rdx
+-
+-	call _relocate
+-
+-	popq %rdx
+-	popq %rcx
+-
+-	testq %rax, %rax
+-	jnz .exit
+-
+ 	call efi_main
+-.exit:
++
+ 	addq $8, %rsp
+ 
+ 	ret
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index 70de9bb13a..5e18065844 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -390,7 +390,7 @@ $(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcoun
+ 	$(call cmd,force_checksrc)
+ 	$(call if_changed_rule,cc_o_c)
+ 
+-$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_freestanding.o
++$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_freestanding.o
+ 	$(call cmd,efi_ld)
+ 
+ # ACPI
+-- 
+2.20.1
+
