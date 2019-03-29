@@ -8,8 +8,6 @@ git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
 
-# git am ../patch/0001-x86-adjust-addresses-in-u-boot-spl.lds.patch
-
 # Support EFI block device on BananaPi
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
