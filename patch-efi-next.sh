@@ -43,6 +43,8 @@ git am ../patch/0001-cmd-add-exception-command.patch
 # must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
 
 git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
+git am ../patch/0001-configs-tinker-rk3288-disable-CONFIG_SPL_I2C_SUPPORT.patch
+git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
 # efi-2019-04-rc5
 git am ../patch/0001-efi_selftest-avoid-double-free-in-dp-utilities-test.patch
