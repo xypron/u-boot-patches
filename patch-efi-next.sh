@@ -44,6 +44,10 @@ git am ../patch/0001-cmd-add-exception-command.patch
 
 git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-configs-tinker-rk3288-disable-CONFIG_SPL_I2C_SUPPORT.patch
+
+git am ../patch/0001-Makefile-reusable-function-for-BOARD_SIZE_CHECK.patch
+git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
+git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
 # efi-2019-04-rc5
