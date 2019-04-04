@@ -3,7 +3,7 @@ git am --abort || true
 git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # Xypron specific patches
-git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
+# git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
