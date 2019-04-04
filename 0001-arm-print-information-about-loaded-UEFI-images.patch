@@ -1,0 +1,103 @@
+From b57f580bddf17d48ff12b9355e6fdc0aed6f7b61 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 4 Apr 2019 22:06:25 +0200
+Subject: [PATCH 1/1] arm: print information about loaded UEFI images
+
+If an exception occurs in a UEFI loaded image we need the start address of
+the image to determine the relocation offset.
+
+This patch adds the necessary lines after the registers in the crash dump
+for armv8. A possible output would be:
+
+UEFI image [0x00000000bffe6000:0x00000000bffe631f] pc=0x138 '/\snp.efi'
+
+With the offset 0x138 we can now find the relevant instruction in the
+disassembled 'snp.efi' binary.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/lib/interrupts_64.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/arch/arm/lib/interrupts_64.c b/arch/arm/lib/interrupts_64.c
+index 458319ab48..0bfdb8d93d 100644
+--- a/arch/arm/lib/interrupts_64.c
++++ b/arch/arm/lib/interrupts_64.c
+@@ -25,6 +25,11 @@ int disable_interrupts(void)
+ 	return 0;
+ }
+ 
++static void show_efi_loaded_images(struct pt_regs *regs)
++{
++	efi_print_image_infos((void *)regs->elr);
++}
++
+ void show_regs(struct pt_regs *regs)
+ {
+ 	int i;
+@@ -49,6 +54,7 @@ void do_bad_sync(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("Bad mode in \"Synchronous Abort\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -60,6 +66,7 @@ void do_bad_irq(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("Bad mode in \"Irq\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -71,6 +78,7 @@ void do_bad_fiq(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("Bad mode in \"Fiq\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -82,6 +90,7 @@ void do_bad_error(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("Bad mode in \"Error\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -93,6 +102,7 @@ void do_sync(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("\"Synchronous Abort\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -104,6 +114,7 @@ void do_irq(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("\"Irq\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -115,6 +126,7 @@ void do_fiq(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("\"Fiq\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+ 
+@@ -129,5 +141,6 @@ void __weak do_error(struct pt_regs *pt_regs, unsigned int esr)
+ 	efi_restore_gd();
+ 	printf("\"Error\" handler, esr 0x%08x\n", esr);
+ 	show_regs(pt_regs);
++	show_efi_loaded_images(pt_regs);
+ 	panic("Resetting CPU ...\n");
+ }
+-- 
+2.20.1
+

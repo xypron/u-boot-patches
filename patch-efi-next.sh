@@ -50,6 +50,8 @@ git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
+git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
+
 # efi-2019-07
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
