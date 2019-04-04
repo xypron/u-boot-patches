@@ -58,10 +58,13 @@ git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
 git am ../patch/0001-efi_loader-sanity-checks-when-freeing-memory.patch
 git am ../patch/0001-efi_loader-rearrange-boottime-service-functions.patch
 git am ../patch/0001-efi_loader-parameter-checks-in-StartImage-and-Exit.patch
+git am ../patch/0001-efi_loader-EFI_PRINT-instead-of-debug-for-variable-s.patch
+git am ../patch/0001-efi_loader-EFI_PRINT-instead-of-debug-for-memory-ser.patch
 
 git am ../patch/0001-efi_loader-boottime-add-loaded-image-device-path-pro.patch
 git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 
+exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 

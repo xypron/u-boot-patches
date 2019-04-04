@@ -1,0 +1,36 @@
+From 5a5d798e3145b73e39b171044a1b4ce4ac14890c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 4 Apr 2019 21:50:02 +0200
+Subject: [PATCH 1/1] efi_loader: EFI_PRINT instead of debug for memory
+ services
+
+For debug messages inside EFI API functions we should use the EFI_PRINT
+macro which gives us well aligned output like:
+
+EFI: Entry efi_allocate_pool_ext(4, 14, 000000007edd7718)
+  EFI: efi_add_memory_map: 0x7dcfa000 0x1 4 yes
+EFI: Exit: efi_allocate_pool_ext: 0
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 55622d2fb4..469a667b3f 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -204,8 +204,8 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 	bool carve_again;
+ 	uint64_t carved_pages = 0;
+ 
+-	debug("%s: 0x%llx 0x%llx %d %s\n", __func__,
+-	      start, pages, memory_type, overlap_only_ram ? "yes" : "no");
++	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
++		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+ 
+ 	if (memory_type >= EFI_MAX_MEMORY_TYPE)
+ 		return EFI_INVALID_PARAMETER;
+-- 
+2.20.1
+
