@@ -50,13 +50,6 @@ git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
-# efi-2019-04-rc5
-git am ../patch/0001-efi_selftest-avoid-double-free-in-dp-utilities-test.patch
-git am ../patch/0001-efi_loader-TODO-for-the-EFI-file-protocol.patch
-git am ../patch/0001-MAINTAINERS-adjust-git-repository-for-EFI-PAYLOAD.patch
-git am ../patch/0001-efi_loader-update-TODOs-in-doc-README.uefi.patch
-git am ../patch/0001-efi_loader-define-development-target-in-README.uefi.patch
-
 # efi-2019-07
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
