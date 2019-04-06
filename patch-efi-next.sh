@@ -70,6 +70,7 @@ git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
 git am ../patch/0001-efi_loader-debug-output-file-handle-in-efi_file_open.patch
 git am ../patch/0001-efi_loader-correct-file-creation.patch
 git am ../patch/0001-efi_loader-enable-file-SetInfo.patch
+git am ../patch/0001-efi_loader-correct-CTRL-A-CTRL-Z-console-input.patch
 
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

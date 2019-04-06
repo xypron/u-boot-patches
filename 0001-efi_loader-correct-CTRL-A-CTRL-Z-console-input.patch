@@ -1,0 +1,50 @@
+From 78cbc601f1e8b7c7a799f9978d1bdf268a67b433 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 6 Apr 2019 20:59:24 +0200
+Subject: [PATCH 1/1] efi_loader: correct CTRL-A - CTRL-Z console input
+
+In the extended text input protocol CTRL-A - CTRL-Z have to be signaled as
+Unicode characters a-z or A-Z depending on the shift state and not as 0x01
+to 0x1a.
+
+This patch is required for using the EFI shell `edit` command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 8e0965bfc89..051fc1d339f 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -797,9 +797,26 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
+ 		ret = EFI_NOT_READY;
+ 		goto out;
+ 	}
++	/*
++	 * CTRL+A - CTRL+Z have to be signaled as a - z.
++	 * SHIFT+CTRL+A - SHIFT+CTRL+Z have to be signaled as A - Z.
++	 */
++	switch (next_key.key.unicode_char) {
++	case 0x01 ... 0x07:
++	case 0x0b ... 0x0c:
++	case 0x0e ... 0x1a:
++		if (!(next_key.key_state.key_toggle_state &
++		      EFI_CAPS_LOCK_ACTIVE) ^
++		    !(next_key.key_state.key_shift_state &
++		      (EFI_LEFT_SHIFT_PRESSED | EFI_RIGHT_SHIFT_PRESSED)))
++			next_key.key.unicode_char += 0x40;
++		else
++			next_key.key.unicode_char += 0x60;
++	}
+ 	*key_data = next_key;
+ 	key_available = false;
+ 	efi_con_in.wait_for_key->is_signaled = false;
++
+ out:
+ 	return EFI_EXIT(ret);
+ }
+-- 
+2.20.1
+
