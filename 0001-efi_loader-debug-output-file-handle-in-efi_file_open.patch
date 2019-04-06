@@ -1,0 +1,36 @@
+From ff0e6d7694a9790403360c4ca11173c4105f2ff1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 6 Apr 2019 16:36:16 +0200
+Subject: [PATCH 1/1] efi_loader: debug output file handle in efi_file_open()
+
+For debugging it is helpful to know the address of the file handle created
+by the Open() method of the EFI file protocol. So let's write it with
+EFI_PRINT().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 0483403be0d..39e37749fe2 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -257,10 +257,12 @@ static efi_status_t EFIAPI efi_file_open(struct efi_file_handle *file,
+ 
+ 	/* Open file */
+ 	*new_handle = file_open(fh->fs, fh, file_name, open_mode, attributes);
+-	if (*new_handle)
++	if (*new_handle) {
++		EFI_PRINT("file handle %p\n", *new_handle);
+ 		ret = EFI_SUCCESS;
+-	else
++	} else {
+ 		ret = EFI_NOT_FOUND;
++	}
+ out:
+ 	return EFI_EXIT(ret);
+ }
+-- 
+2.20.1
+
