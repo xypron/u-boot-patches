@@ -1,21 +1,27 @@
-From 78cbc601f1e8b7c7a799f9978d1bdf268a67b433 Mon Sep 17 00:00:00 2001
+From bfc2dd53812f7946b61c18e915118fb7aad12e6d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 6 Apr 2019 20:59:24 +0200
-Subject: [PATCH 1/1] efi_loader: correct CTRL-A - CTRL-Z console input
+Subject: [PATCH v2 1/1] efi_loader: correct CTRL-A - CTRL-Z console input
 
 In the extended text input protocol CTRL-A - CTRL-Z have to be signaled as
 Unicode characters a-z or A-Z depending on the shift state and not as 0x01
 to 0x1a.
 
+Update Python unit test.
+
 This patch is required for using the EFI shell `edit` command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+v2:
+	Update Python unit test.
+---
+ lib/efi_loader/efi_console.c       | 17 +++++++++++++++++
+ test/py/tests/test_efi_selftest.py |  2 +-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 8e0965bfc89..051fc1d339f 100644
+index 8e0965bfc8..051fc1d339 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -797,9 +797,26 @@ static efi_status_t EFIAPI efi_cin_read_key_stroke_ex(
@@ -45,6 +51,19 @@ index 8e0965bfc89..051fc1d339f 100644
  out:
  	return EFI_EXIT(ret);
  }
+diff --git a/test/py/tests/test_efi_selftest.py b/test/py/tests/test_efi_selftest.py
+index 36b35ee536..bc226a8e63 100644
+--- a/test/py/tests/test_efi_selftest.py
++++ b/test/py/tests/test_efi_selftest.py
+@@ -141,7 +141,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
+ 	u_boot_console.run_command(cmd=chr(4), wait_for_echo=False,
+ 				   send_nl=False, wait_for_prompt=False)
+ 	m = u_boot_console.p.expect(
+-		['Unicode char 4 \(unknown\), scan code 0 \(CTRL\+Null\)'])
++		['Unicode char 100 \\(\'d\'\\), scan code 0 \\(CTRL\\+Null\\)'])
+ 	if m != 0:
+ 		raise Exception('EOT failed in \'text input\' test')
+ 	u_boot_console.drain_console()
 -- 
 2.20.1
 
