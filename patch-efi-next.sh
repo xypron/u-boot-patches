@@ -73,6 +73,7 @@ git am ../patch/0001-efi_loader-correct-file-creation.patch
 git am ../patch/0001-efi_loader-enable-file-SetInfo.patch
 git am ../patch/0001-efi_loader-correct-CTRL-A-CTRL-Z-console-input.patch
 
+git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
