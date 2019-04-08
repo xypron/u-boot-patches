@@ -53,7 +53,7 @@ git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
-# efi-2019-07
+# efi-2019-07-rc1
 git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
 git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
 git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
@@ -73,7 +73,9 @@ git am ../patch/0001-efi_loader-correct-file-creation.patch
 git am ../patch/0001-efi_loader-enable-file-SetInfo.patch
 git am ../patch/0001-efi_loader-correct-CTRL-A-CTRL-Z-console-input.patch
 
+# efi-2019-07-rc1-2
 git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
+git am ../patch/0001-efi_loader-enable-HII-protocols-by-default.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
