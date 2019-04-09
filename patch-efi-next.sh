@@ -76,6 +76,7 @@ git am ../patch/0001-efi_loader-correct-CTRL-A-CTRL-Z-console-input.patch
 # efi-2019-07-rc1-2
 git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
 git am ../patch/0001-efi_loader-enable-HII-protocols-by-default.patch
+git am ../patch/0001-efi_loader-remove-stray-define-LOG_CATEGORY-LOGL_ERR.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
