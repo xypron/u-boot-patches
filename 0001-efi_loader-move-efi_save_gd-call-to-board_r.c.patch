@@ -1,0 +1,76 @@
+From d5774b83d74c87b4e2f67d1d4994aeb9c344363b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 10 Apr 2019 00:32:07 +0200
+Subject: [PATCH 1/1] efi_loader: move efi_save_gd() call to board_r.c
+
+The first functions of the UEFI sub-system are invoked before reaching the
+U-Boot shell, e.g. efi_set_bootdev(), efi_dp_from_name(),
+efi_dp_from_file(). We should be able to print out device paths for
+debugging purposes here.
+
+When printing device paths via printf("%pD\n", dp) this invokes functions
+defined as EFIAPI. So efi_save_gd() must be called beforehand.
+
+So let's move the efi_save_gd() call to function initr_reloc_global_data(()
+in board_r.c.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/board_r.c            | 7 +++++++
+ lib/efi_driver/efi_uclass.c | 3 ---
+ lib/efi_loader/efi_setup.c  | 7 -------
+ 3 files changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/common/board_r.c b/common/board_r.c
+index 472987d5d5..1ad44bbe3f 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -154,6 +154,13 @@ static int initr_reloc_global_data(void)
+ 	gd->fdt_blob += gd->reloc_off;
+ #endif
+ #ifdef CONFIG_EFI_LOADER
++	/*
++	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
++	 * As this register may be overwritten by an EFI payload we save it here
++	 * and restore it on every callback entered.
++	 */
++	efi_save_gd();
++
+ 	efi_runtime_relocate(gd->relocaddr, NULL);
+ #endif
+ 
+diff --git a/lib/efi_driver/efi_uclass.c b/lib/efi_driver/efi_uclass.c
+index 7cdf81f40c..b14746e6b1 100644
+--- a/lib/efi_driver/efi_uclass.c
++++ b/lib/efi_driver/efi_uclass.c
+@@ -300,9 +300,6 @@ efi_status_t efi_driver_init(void)
+ 	struct driver *drv;
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	/* Save 'gd' pointer */
+-	efi_save_gd();
+-
+ 	debug("EFI: Initializing EFI driver framework\n");
+ 	for (drv = ll_entry_start(struct driver, driver);
+ 	     drv < ll_entry_end(struct driver, driver); ++drv) {
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index a908843d87..6e9d5fe5b7 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -20,13 +20,6 @@ efi_status_t efi_init_obj_list(void)
+ {
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	/*
+-	 * On the ARM architecture gd is mapped to a fixed register (r9 or x18).
+-	 * As this register may be overwritten by an EFI payload we save it here
+-	 * and restore it on every callback entered.
+-	 */
+-	efi_save_gd();
+-
+ 	/*
+ 	 * Variable PlatformLang defines the language that the machine has been
+ 	 * configured for.
+-- 
+2.20.1
+
