@@ -53,26 +53,6 @@ git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
-# efi-2019-07-rc1
-git am ../patch/0001-efi_loader-release-file-buffer-after-loading-image.patch
-git am ../patch/0001-efi_loader-bootmgr-support-BootNext-and-BootCurrent-.patch
-git am ../patch/0001-efi_loader-set-image_base-and-image_size-to-correct-.patch
-git am ../patch/0001-efi_selftest-check-image_base-image_size.patch
-git am ../patch/0001-efi_loader-sanity-checks-when-freeing-memory.patch
-git am ../patch/0001-efi_loader-rearrange-boottime-service-functions.patch
-git am ../patch/0001-efi_loader-parameter-checks-in-StartImage-and-Exit.patch
-git am ../patch/0001-efi_loader-EFI_PRINT-instead-of-debug-for-variable-s.patch
-git am ../patch/0001-efi_loader-EFI_PRINT-instead-of-debug-for-memory-ser.patch
-git am ../patch/0001-efi_loader-variables-PlatformLang-and-PlatformLangCo.patch
-
-git am ../patch/0001-efi_loader-boottime-add-loaded-image-device-path-pro.patch
-git am ../patch/0001-efi_loader-boottime-export-efi_-un-load_image.patch
-
-git am ../patch/0001-efi_loader-debug-output-file-handle-in-efi_file_open.patch
-git am ../patch/0001-efi_loader-correct-file-creation.patch
-git am ../patch/0001-efi_loader-enable-file-SetInfo.patch
-git am ../patch/0001-efi_loader-correct-CTRL-A-CTRL-Z-console-input.patch
-
 # efi-2019-07-rc1-2
 git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
 git am ../patch/0001-efi_loader-enable-HII-protocols-by-default.patch
