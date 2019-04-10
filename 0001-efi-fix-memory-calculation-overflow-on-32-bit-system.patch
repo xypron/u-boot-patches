@@ -1,0 +1,41 @@
+From 247812e39d8173acbbbb66e08458e4858b1e7301 Mon Sep 17 00:00:00 2001
+From: Patrick Wildt <patrick@blueri.se>
+Date: Tue, 9 Apr 2019 22:58:30 +0200
+Subject: [PATCH 1/1] efi: fix memory calculation overflow on 32-bit systems
+
+There are Cubox-i machines out there with nearly 4 GiB of RAM.  The
+RAM starts at 0x10000000 with a size of 0xf0000000.  Thus the end
+of RAM is at 0x100000000.  This overflows a 32-bit integer, which
+should be fine since in the EFI memory code the variables used are
+all 64-bit with a fixed size.  Unfortunately EFI_PAGE_MASK, which is
+used in the EFI memory code to remove the lower bits, is based on
+the EFI_PAGE_SIZE macro which, uses 1UL with a shift.  This means
+the resulting mask is UL, which is only 32-bit on ARMv7.  Use ULL to
+make sure that even on 32-bit platforms we use a 64-bit long mask.
+Without this there will be no memory available in the EFI memory map
+and bootefi will fail allocating pages.
+
+Signed by: Patrick Wildt <patrick@blueri.se>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/efi.h b/include/efi.h
+index d98441ab19..3c9d20f8c0 100644
+--- a/include/efi.h
++++ b/include/efi.h
+@@ -190,7 +190,7 @@ enum efi_mem_type {
+ #define EFI_MEM_DESC_VERSION	1
+ 
+ #define EFI_PAGE_SHIFT		12
+-#define EFI_PAGE_SIZE		(1UL << EFI_PAGE_SHIFT)
++#define EFI_PAGE_SIZE		(1ULL << EFI_PAGE_SHIFT)
+ #define EFI_PAGE_MASK		(EFI_PAGE_SIZE - 1)
+ 
+ struct efi_mem_desc {
+-- 
+2.20.1
+
