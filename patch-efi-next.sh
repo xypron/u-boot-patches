@@ -59,6 +59,7 @@ git am ../patch/0001-efi_loader-remove-stray-define-LOG_CATEGORY-LOGL_ERR.patch
 git am ../patch/0001-efi_loader-move-efi_save_gd-call-to-board_r.c.patch
 git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 git am ../patch/0001-efi-fix-memory-calculation-overflow-on-32-bit-system.patch
+git am ../patch/0001-efi_loader-the-development-target-should-be-the-EBBR.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
