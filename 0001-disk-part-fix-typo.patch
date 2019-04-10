@@ -1,0 +1,28 @@
+From 9153968c0e9e5f331bebadd03c902873379b9be8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 10 Apr 2019 18:53:19 +0200
+Subject: [PATCH 1/1] disk: part: fix typo
+
+%g/rathen then/rather than/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ disk/part.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/disk/part.c b/disk/part.c
+index f30f9e9187..98cc54db20 100644
+--- a/disk/part.c
++++ b/disk/part.c
+@@ -468,7 +468,7 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
+ 
+ #ifdef CONFIG_CMD_UBIFS
+ 	/*
+-	 * Special-case ubi, ubi goes through a mtd, rathen then through
++	 * Special-case ubi, ubi goes through a mtd, rather than through
+ 	 * a regular block device.
+ 	 */
+ 	if (0 == strcmp(ifname, "ubi")) {
+-- 
+2.20.1
+
