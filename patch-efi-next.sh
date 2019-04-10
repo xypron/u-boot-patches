@@ -50,7 +50,6 @@ git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
-git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
 # efi-2019-07-rc1-2
@@ -58,6 +57,7 @@ git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
 git am ../patch/0001-efi_loader-enable-HII-protocols-by-default.patch
 git am ../patch/0001-efi_loader-remove-stray-define-LOG_CATEGORY-LOGL_ERR.patch
 git am ../patch/0001-efi_loader-move-efi_save_gd-call-to-board_r.c.patch
+git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
