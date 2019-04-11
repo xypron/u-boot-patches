@@ -1,0 +1,44 @@
+From fd6a96656f1a0ffdc20980116b558713b9026b05 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 11 Apr 2019 20:08:54 +0200
+Subject: [PATCH v2 1/1] efi_loader: update virtual address in efi_mem_carve_out
+
+Handle virtual address in efi_mem_carve_out() function
+when a new region is created to avoid issue in EFI memory map.
+
+Signed-off-by: Patrick Delaunay <patrick.delaunay@st.com>
+
+At boottime physical and virtual addressed have to be the same.
+This allowed to simplify the proposed logic.
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	simplify the proposed logic
+---
+ lib/efi_loader/efi_memory.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index dbe29b8960..46681dc208 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -193,6 +193,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+ 			free(map);
+ 		} else {
+ 			map->desc.physical_start = carve_end;
++			map->desc.virtual_start = carve_end;
+ 			map->desc.num_pages = (map_end - carve_end)
+ 					      >> EFI_PAGE_SHIFT;
+ 		}
+@@ -211,6 +212,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+ 	newmap = calloc(1, sizeof(*newmap));
+ 	newmap->desc = map->desc;
+ 	newmap->desc.physical_start = carve_start;
++	newmap->desc.virtual_start = carve_start;
+ 	newmap->desc.num_pages = (map_end - carve_start) >> EFI_PAGE_SHIFT;
+ 	/* Insert before current entry (descending address order) */
+ 	list_add_tail(&newmap->link, &map->link);
+-- 
+2.20.1
+
