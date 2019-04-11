@@ -17,6 +17,7 @@ and bootefi will fail allocating pages.
 
 Signed-off-by: Patrick Wildt <patrick@blueri.se>
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Patrick Delaunay <patrick.delaunay@st.com>
 ---
  include/efi.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
