@@ -1,0 +1,109 @@
+From 5b7f7884ed4a7aff6949b2c154eb5207548661c3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 11 Apr 2019 07:34:24 +0200
+Subject: [PATCH 1/1] efi_loader: fix setting PlatformLang
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig     | 10 +++++++++
+ lib/efi_loader/efi_setup.c | 44 ++++++++++++++++++++++++++++----------
+ 2 files changed, 43 insertions(+), 11 deletions(-)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index a6489ca534..07683af7f6 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -26,6 +26,16 @@ config EFI_UNICODE_CAPITALIZATION
+ 	  set, only the the correct handling of the letters of the codepage
+ 	  used by the FAT file system is ensured.
+ 
++config EFI_PLATFORM_LANG_CODES
++	string "Language codes supported by firmware"
++	depends on EFI_LOADER
++	default "en-US"
++	help
++	  This value is used to initialize the PlatformLangCodes variable. Its
++	  value is a semicolon (;) separated list of language codes in native
++	  RFC 4646 format. The first language code is used to initialize the
++	  PlatformLang variable.
++
+ config EFI_LOADER_BOUNCE_BUFFER
+ 	bool "EFI Applications use bounce buffers for DMA operations"
+ 	depends on EFI_LOADER && ARM64
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index 6e9d5fe5b7..8d50522ce7 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -11,36 +11,58 @@
+ #define OBJ_LIST_NOT_INITIALIZED 1
+ 
+ /* Language code for American English according to RFC 4646 */
+-#define EN_US L"en-US"
++#define EN_US "en-US"
+ 
+ static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
+ 
+-/* Initialize and populate EFI object list */
+-efi_status_t efi_init_obj_list(void)
++efi_status_t efi_init_platform_lang(void)
+ {
+ 	efi_status_t ret = EFI_SUCCESS;
+-
++	efi_uintn_t data_size = 0;
++	void *data;
++	
+ 	/*
+-	 * Variable PlatformLang defines the language that the machine has been
+-	 * configured for.
++	 * Variable PlatformLangCodes defines the language codes that the
++	 * machine can support.
+ 	 */
+-	ret = EFI_CALL(efi_set_variable(L"PlatformLang",
++	ret = EFI_CALL(efi_set_variable(L"PlatformLangCodes",
+ 					&efi_global_variable_guid,
++					EFI_VARIABLE_NON_VOLATILE |
+ 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 					EFI_VARIABLE_RUNTIME_ACCESS,
+ 					sizeof(EN_US), EN_US));
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
++	
++
++	ret = EFI_CALL(efi_get_variable(L"PlatformLangCodes",
++					&efi_global_variable_guid,
++					NULL, &data_size, &data));
++	if (ret == EFI_BUFFER_TOO_SMALL) {
++		ret = EFI_SUCCESS;
++		goto out;
++	}
+ 
+ 	/*
+-	 * Variable PlatformLangCodes defines the language codes that the
+-	 * machine can support.
++	 * Variable PlatformLang defines the language that the machine has been
++	 * configured for.
+ 	 */
+-	ret = EFI_CALL(efi_set_variable(L"PlatformLangCodes",
++	ret = EFI_CALL(efi_set_variable(L"PlatformLang",
+ 					&efi_global_variable_guid,
+ 					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 					EFI_VARIABLE_RUNTIME_ACCESS,
+-					sizeof(EN_US), EN_US));
++					sizeof(CONFIG_EFI_PLATFORM_LANG_CODES),
++					CONFIG_EFI_PLATFORM_LANG_CODES));
++out:
++	return ret;
++}
++
++/* Initialize and populate EFI object list */
++efi_status_t efi_init_obj_list(void)
++{
++	efi_status_t ret = EFI_SUCCESS;
++
++	ret = efi_init_platform_lang();
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+-- 
+2.20.1
+
