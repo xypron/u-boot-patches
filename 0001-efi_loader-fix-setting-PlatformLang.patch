@@ -1,16 +1,16 @@
-From ab3f730c2bbf591f347764dccdb953eca2392fc6 Mon Sep 17 00:00:00 2001
+From 65ae7763aa16f7b60cda3a6f23db14a72658207f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Apr 2019 07:34:24 +0200
 Subject: [PATCH 1/1] efi_loader: fix setting PlatformLang
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/Kconfig     | 10 ++++++++
- lib/efi_loader/efi_setup.c | 47 ++++++++++++++++++++++++++------------
- 2 files changed, 43 insertions(+), 14 deletions(-)
+ lib/efi_loader/Kconfig     | 10 +++++++
+ lib/efi_loader/efi_setup.c | 54 ++++++++++++++++++++++++++++----------
+ 2 files changed, 50 insertions(+), 14 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index a6489ca534..07683af7f6 100644
+index a6489ca534..50b050159c 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -26,6 +26,16 @@ config EFI_UNICODE_CAPITALIZATION
@@ -24,17 +24,17 @@ index a6489ca534..07683af7f6 100644
 +	help
 +	  This value is used to initialize the PlatformLangCodes variable. Its
 +	  value is a semicolon (;) separated list of language codes in native
-+	  RFC 4646 format. The first language code is used to initialize the
-+	  PlatformLang variable.
++	  RFC 4646 format, e.g. "en-US;de-DE". The first language code is used
++	  to initialize the PlatformLang variable.
 +
  config EFI_LOADER_BOUNCE_BUFFER
  	bool "EFI Applications use bounce buffers for DMA operations"
  	depends on EFI_LOADER && ARM64
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 6e9d5fe5b7..b052186e4a 100644
+index 6e9d5fe5b7..ffbaf76bf3 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -10,37 +10,56 @@
+@@ -10,37 +10,63 @@
  
  #define OBJ_LIST_NOT_INITIALIZED 1
  
@@ -50,7 +50,8 @@ index 6e9d5fe5b7..b052186e4a 100644
  	efi_status_t ret = EFI_SUCCESS;
 -
 +	efi_uintn_t data_size = 0;
-+	char *data = CONFIG_EFI_PLATFORM_LANG_CODES;
++	char *lang = CONFIG_EFI_PLATFORM_LANG_CODES;
++	char *pos;
 +	
  	/*
 -	 * Variable PlatformLang defines the language that the machine has been
@@ -69,14 +70,18 @@ index 6e9d5fe5b7..b052186e4a 100644
  	if (ret != EFI_SUCCESS)
  		goto out;
 +	
-+
-+	ret = EFI_CALL(efi_get_variable(L"PlatformLangCodes",
++	ret = EFI_CALL(efi_get_variable(L"PlatformLang",
 +					&efi_global_variable_guid,
-+					NULL, &data_size, &data));
++					NULL, &data_size, &lang));
 +	if (ret == EFI_BUFFER_TOO_SMALL) {
 +		ret = EFI_SUCCESS;
 +		goto out;
 +	}
++
++	/* Reduce to first language */
++	pos = strchr(lang, ';');
++	if (pos)
++		*pos = 0;
  
  	/*
 -	 * Variable PlatformLangCodes defines the language codes that the
@@ -91,8 +96,10 @@ index 6e9d5fe5b7..b052186e4a 100644
  					EFI_VARIABLE_BOOTSERVICE_ACCESS |
  					EFI_VARIABLE_RUNTIME_ACCESS,
 -					sizeof(EN_US), EN_US));
-+					1 + strlen(data), data));
++					1 + strlen(lang), lang));
 +out:
++	if (ret != EFI_SUCCESS)
++		printf("EFI: cannot intialize platform language settings\n");
 +	return ret;
 +}
 +
