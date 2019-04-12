@@ -66,6 +66,8 @@ git am ../patch/0001-efi_loader-fix-setting-PlatformLang.patch
 git am ../patch/0001-efi_loader-add-protection-for-block_dev.patch
 git am ../patch/0001-efi_loader-update-virtual-address-in-efi_mem_carve_o.patch
 git am ../patch/0001-efi_selftest-physical-and-virtual-addresses-must-mat.patch
+git am ../patch/0001-efi_loader-export-efi_install_multiple_protocol_inte.patch
+git am ../patch/0001-efi_loader-simplify-protocol-installation.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit

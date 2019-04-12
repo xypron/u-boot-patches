@@ -1,0 +1,45 @@
+From fbcb9aecef90a05296699cca01c0aad541621ac3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 12 Apr 2019 06:59:49 +0200
+Subject: [PATCH 1/2] efi_loader: export
+ efi_install_multiple_protocol_interfaces
+
+Export function efi_install_multiple_protocol_interfaces() so that we can
+call it in others parts of the UEFI subsystem.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          | 3 +++
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 00b81c6010..f7bf732827 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -344,6 +344,9 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ 				 void *protocol_interface);
+ /* Delete all protocols from a handle */
+ efi_status_t efi_remove_all_protocols(const efi_handle_t handle);
++/* Install multiple protocol interfaces */
++efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
++				(efi_handle_t *handle, ...);
+ /* Call this to create an event */
+ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ 			      void (EFIAPI *notify_function) (
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 31d11b8678..abc295e392 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -2267,7 +2267,7 @@ out:
+  *
+  * Return: status code
+  */
+-static efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
++efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+ 				(efi_handle_t *handle, ...)
+ {
+ 	EFI_ENTRY("%p", handle);
+-- 
+2.20.1
+
