@@ -1,7 +1,7 @@
-From 5cd4de363b914ee70a63b0ce288b60e202b1f8d6 Mon Sep 17 00:00:00 2001
+From 9cfcd687e07bc8d87b0ef2b95a5170212b28624a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Apr 2019 07:34:24 +0200
-Subject: [PATCH 1/1] efi_loader: fix setting PlatformLang
+Subject: [PATCH v2 1/1] efi_loader: fix setting PlatformLang
 
 The UEFI variables PlatformLang and PlatformLangCodes specify the current
 firmware language and the list of all available languages.
@@ -17,9 +17,14 @@ is used to initialize PlatformLang.
 Suggested-by: Takahiro Akashi <takahiro.akashi@linaro.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	We need to initialize the variables only once. So we have to move
+	the call to efi_init_platform_lang() after the check if the UEFI
+	subsystem is already initalized. Thanks Takahiro for catching this.
+---
  lib/efi_loader/Kconfig     | 10 ++++++
- lib/efi_loader/efi_setup.c | 70 ++++++++++++++++++++++++++++++--------
- 2 files changed, 66 insertions(+), 14 deletions(-)
+ lib/efi_loader/efi_setup.c | 72 ++++++++++++++++++++++++++++++--------
+ 2 files changed, 67 insertions(+), 15 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index a6489ca534..50b050159c 100644
@@ -43,10 +48,10 @@ index a6489ca534..50b050159c 100644
  	bool "EFI Applications use bounce buffers for DMA operations"
  	depends on EFI_LOADER && ARM64
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 6e9d5fe5b7..8f0da35ba4 100644
+index 6e9d5fe5b7..b32a7b3f93 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -10,37 +10,79 @@
+@@ -10,44 +10,86 @@
  
  #define OBJ_LIST_NOT_INITIALIZED 1
  
@@ -121,7 +126,8 @@ index 6e9d5fe5b7..8f0da35ba4 100644
 -					sizeof(EN_US), EN_US));
 +					1 + strlen(lang), lang));
 +out:
-+	if (ret != EFI_SUCCESS)
+ 	if (ret != EFI_SUCCESS)
+-		goto out;
 +		printf("EFI: cannot initialize platform language settings\n");
 +	return ret;
 +}
@@ -134,12 +140,19 @@ index 6e9d5fe5b7..8f0da35ba4 100644
 +efi_status_t efi_init_obj_list(void)
 +{
 +	efi_status_t ret = EFI_SUCCESS;
-+
+ 
+ 	/* Initialize once only */
+ 	if (efi_obj_list_initialized != OBJ_LIST_NOT_INITIALIZED)
+ 		return efi_obj_list_initialized;
+ 
 +	/* Define supported languages */
 +	ret = efi_init_platform_lang();
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ 	/* Initialize system table */
+ 	ret = efi_initialize_system_table();
  	if (ret != EFI_SUCCESS)
- 		goto out;
- 
 -- 
 2.20.1
 
