@@ -1,0 +1,44 @@
+From 344b3df4c83bf54e284fbf5d185c346a8ffaa34b Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Fri, 12 Apr 2019 21:26:28 +0300
+Subject: [PATCH 1/1] Change FDT memory type from runtime data to boot services
+ data
+
+Following Ard's suggestion:
+Runtime data sections are intended for data that is used by the runtime
+services implementation.
+Let's change the type to EFI_BOOT_SERVICES_DATA.
+
+This also fixes booting of armv7 using efi and fdtcontroladdr.
+
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 3619a20e64..15ee4af456 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -111,13 +111,13 @@ static efi_status_t copy_fdt(void **fdtp)
+ 	new_fdt_addr = (uintptr_t)map_sysmem(fdt_ram_start + 0x7f00000 +
+ 					     fdt_size, 0);
+ 	ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+-				 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
++				 EFI_BOOT_SERVICES_DATA, fdt_pages,
+ 				 &new_fdt_addr);
+ 	if (ret != EFI_SUCCESS) {
+ 		/* If we can't put it there, put it somewhere */
+ 		new_fdt_addr = (ulong)memalign(EFI_PAGE_SIZE, fdt_size);
+ 		ret = efi_allocate_pages(EFI_ALLOCATE_MAX_ADDRESS,
+-					 EFI_RUNTIME_SERVICES_DATA, fdt_pages,
++					 EFI_BOOT_SERVICES_DATA, fdt_pages,
+ 					 &new_fdt_addr);
+ 		if (ret != EFI_SUCCESS) {
+ 			printf("ERROR: Failed to reserve space for FDT\n");
+-- 
+2.20.1
+
