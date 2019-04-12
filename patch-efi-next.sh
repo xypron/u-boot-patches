@@ -69,6 +69,7 @@ git am ../patch/0001-efi_selftest-physical-and-virtual-addresses-must-mat.patch
 git am ../patch/0001-efi_loader-export-efi_install_multiple_protocol_inte.patch
 git am ../patch/0001-efi_loader-simplify-protocol-installation.patch
 git am ../patch/0001-Change-FDT-memory-type-from-runtime-data-to-boot-ser.patch
+git am ../patch/0001-efi_selftest-expect-boot-services-data-for-fdt.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
