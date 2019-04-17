@@ -54,22 +54,7 @@ git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
 git am ../patch/0001-disk-part-fix-typo.patch
 
-# efi-2019-07-rc1-2
-git am ../patch/0001-efi_loader-assign-HII-protocols-to-root-node.patch
-git am ../patch/0001-efi_loader-enable-HII-protocols-by-default.patch
-git am ../patch/0001-efi_loader-remove-stray-define-LOG_CATEGORY-LOGL_ERR.patch
-git am ../patch/0001-efi_loader-move-efi_save_gd-call-to-board_r.c.patch
-git am ../patch/0001-arm-print-information-about-loaded-UEFI-images.patch
-git am ../patch/0001-efi-fix-memory-calculation-overflow-on-32-bit-system.patch
-git am ../patch/0001-efi_loader-the-development-target-should-be-the-EBBR.patch
-git am ../patch/0001-efi_loader-fix-setting-PlatformLang.patch
-git am ../patch/0001-efi_loader-add-protection-for-block_dev.patch
-git am ../patch/0001-efi_loader-update-virtual-address-in-efi_mem_carve_o.patch
-git am ../patch/0001-efi_selftest-physical-and-virtual-addresses-must-mat.patch
-git am ../patch/0001-efi_loader-export-efi_install_multiple_protocol_inte.patch
-git am ../patch/0001-efi_loader-simplify-protocol-installation.patch
-git am ../patch/0001-Change-FDT-memory-type-from-runtime-data-to-boot-ser.patch
-git am ../patch/0001-efi_selftest-expect-boot-services-data-for-fdt.patch
+# efi-2019-07-rc1-3
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
