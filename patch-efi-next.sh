@@ -55,6 +55,7 @@ git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 git am ../patch/0001-disk-part-fix-typo.patch
 
 # efi-2019-07-rc1-3
+git am ../patch/0001-efi_loader-efi_setup_loaded_image-handle-missing-fil.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
