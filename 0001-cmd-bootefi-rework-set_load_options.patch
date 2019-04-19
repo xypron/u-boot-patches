@@ -9,7 +9,7 @@ In addition, set_load_options() now takes a handle, instead of
 loaded_image_info, to utilize efi_load_image() in a later patch.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/bootefi.c | 36 +++++++++++++++++++++++++++---------
  1 file changed, 27 insertions(+), 9 deletions(-)
