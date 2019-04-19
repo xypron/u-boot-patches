@@ -59,6 +59,7 @@ git am ../patch/0001-efi_loader-efi_setup_loaded_image-handle-missing-fil.patch
 git am ../patch/0001-efi_loader-export-root-node-handle.patch
 git am ../patch/0001-cmd-bootefi-rework-set_load_options.patch
 git am ../patch/0001-cmd-bootefi-carve-out-fdt-handling-from-do_bootefi.patch
+git am ../patch/0001-cmd-bootefi-merge-efi_install_fdt-and-efi_process_fd.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
