@@ -1,7 +1,7 @@
 From 70191c520d66d844ec50363024825bf86f958838 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Fri, 19 Apr 2019 12:22:35 +0900
-Subject: [PATCH v4] efi_loader: rework bootmgr/bootefi using load_image API
+Subject: [PATCH v5] efi_loader: rework bootmgr/bootefi using load_image API
 
 In the current implementation, bootefi command and EFI boot manager
 don't use load_image API, instead, use more primitive and internal
@@ -17,6 +17,9 @@ Use efi_root as parent handle for the loaded image.
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v5
+	LoadImage() should be called with BootPolicy = true by the boot
+	manager
 v4
 	Use efi_root as parent handle for the loaded image.
 ---
@@ -370,7 +373,7 @@ index 4fccadc548..4b8033eff6 100644
  
 -		ret = efi_load_image_from_path(lo.file_path, &image, &size);
 -
-+		ret = EFI_CALL(efi_load_image(false, efi_root, lo.file_path,
++		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
 +					      NULL, 0, handle));
  		if (ret != EFI_SUCCESS)
  			goto error;
