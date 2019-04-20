@@ -1,0 +1,50 @@
+From aafe4d4439f149ba0c2644ab995116663372a875 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 20 Apr 2019 19:24:43 +0000
+Subject: [PATCH 1/1] efi_loader: correctly split device path of loaded image
+
+When the LoadImage() service is called for an image that is already loaded
+to memory the file path may be NULL or it will contain both a device path
+as well as a media path. We should not assume that there is no media path.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+This patch resolves a problem occurring after
+
+    [PATCH v3 8/9] efi_loader: rework bootmgr/bootefi using load_image API
+    https://lists.denx.de/pipermail/u-boot/2019-April/365439.html
+
+leading to a failure to chain a script in iPXE.
+---
+ lib/efi_loader/efi_boottime.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 19a58144cf4..601b0a2cb88 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1700,19 +1700,11 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 					       &source_size);
+ 		if (ret != EFI_SUCCESS)
+ 			goto error;
+-		/*
+-		 * split file_path which contains both the device and
+-		 * file parts:
+-		 */
+-		efi_dp_split_file_path(file_path, &dp, &fp);
+ 	} else {
+-		/* In this case, file_path is the "device" path, i.e.
+-		 * something like a HARDWARE_DEVICE:MEMORY_MAPPED
+-		 */
+ 		dest_buffer = source_buffer;
+-		dp = file_path;
+-		fp = NULL;
+ 	}
++	/* split file_path which contains both the device and file parts */
++	efi_dp_split_file_path(file_path, &dp, &fp);
+ 	ret = efi_setup_loaded_image(dp, fp, image_obj, &info);
+ 	if (ret == EFI_SUCCESS)
+ 		ret = efi_load_pe(*image_obj, dest_buffer, info);
+-- 
+2.21.0
+
