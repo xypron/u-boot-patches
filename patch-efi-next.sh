@@ -66,6 +66,7 @@ git am ../patch/0001-cmd-bootefi-carve-out-efi_selftest-code-from-do_boot.patch
 git am ../patch/0001-cmd-bootefi-move-do_bootefi_bootmgr_exec-forward.patch
 git am ../patch/0001-cmd-bootefi-carve-out-bootmgr-code-from-do_bootefi.patch
 git am ../patch/0001-cmd-bootefi-carve-out-do_bootefi_image-from-do_boote.patch
+git am ../patch/0001-efi_loader-rework-bootmgr-bootefi-using-load_image-A.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
