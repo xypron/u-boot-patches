@@ -1,0 +1,340 @@
+From 96630c3ce38948b4c20570a9afe34d89969c77b8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 20 Apr 2019 07:39:11 +0200
+Subject: [PATCH 1/1] efi_loader: consistent naming of protocol GUIDs
+
+We should consistently use the same name for protocol GUIDs as defined in
+the UEFI specification. Not adhering to this rule has led to duplicate
+definitions for the EFI_LOADED_IMAGE_PROTOCOL_GUID.
+
+Adjust misnamed protocol GUIDs.
+
+Adjust the text for the graphics output protocol in the output of the
+`efidebug dh` command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c                               | 10 +++++-----
+ include/efi_api.h                            | 18 +++++++-----------
+ lib/efi/efi.c                                |  2 +-
+ lib/efi/efi_stub.c                           |  2 +-
+ lib/efi_loader/efi_disk.c                    |  2 +-
+ lib/efi_loader/efi_gop.c                     |  2 +-
+ lib/efi_loader/efi_image_loader.c            |  8 ++++----
+ lib/efi_loader/efi_net.c                     |  4 ++--
+ lib/efi_loader/helloworld.c                  |  2 +-
+ lib/efi_selftest/efi_selftest_bitblt.c       |  2 +-
+ lib/efi_selftest/efi_selftest_block_device.c |  4 ++--
+ lib/efi_selftest/efi_selftest_devicepath.c   |  2 +-
+ lib/efi_selftest/efi_selftest_gop.c          |  2 +-
+ lib/efi_selftest/efi_selftest_loadimage.c    |  2 +-
+ lib/efi_selftest/efi_selftest_miniapp_exit.c |  2 +-
+ lib/efi_selftest/efi_selftest_snp.c          |  2 +-
+ 16 files changed, 31 insertions(+), 35 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index db96682c5a..4bf91ed248 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -185,7 +185,7 @@ static const struct {
+ } guid_list[] = {
+ 	{
+ 		"Device Path",
+-		DEVICE_PATH_GUID,
++		EFI_DEVICE_PATH_PROTOCOL_GUID,
+ 	},
+ 	{
+ 		"Device Path To Text",
+@@ -217,7 +217,7 @@ static const struct {
+ 	},
+ 	{
+ 		"Block IO",
+-		BLOCK_IO_GUID,
++		EFI_BLOCK_IO_PROTOCOL_GUID,
+ 	},
+ 	{
+ 		"Simple File System",
+@@ -225,11 +225,11 @@ static const struct {
+ 	},
+ 	{
+ 		"Loaded Image",
+-		LOADED_IMAGE_PROTOCOL_GUID,
++		EFI_LOADED_IMAGE_PROTOCOL_GUID,
+ 	},
+ 	{
+-		"GOP",
+-		EFI_GOP_GUID,
++		"Graphics Output",
++		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
+ 	},
+ };
+ 
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 5b0a100635..472160cb30 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -290,10 +290,6 @@ struct efi_runtime_services {
+ 	EFI_GUID(0x8be4df61, 0x93ca, 0x11d2, 0xaa, 0x0d, \
+ 		 0x00, 0xe0, 0x98, 0x03, 0x2b, 0x8c)
+ 
+-#define LOADED_IMAGE_PROTOCOL_GUID \
+-	EFI_GUID(0x5b1b31a1, 0x9562, 0x11d2, 0x8e, 0x3f, \
+-		 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+-
+ #define EFI_FDT_GUID \
+ 	EFI_GUID(0xb1b621d5, 0xf19c, 0x41a5, \
+ 		 0x83, 0x0b, 0xd9, 0x15, 0x2c, 0x69, 0xaa, 0xe0)
+@@ -329,11 +325,11 @@ struct efi_system_table {
+ 	struct efi_configuration_table *tables;
+ };
+ 
+-#define LOADED_IMAGE_GUID \
++#define EFI_LOADED_IMAGE_PROTOCOL_GUID \
+ 	EFI_GUID(0x5b1b31a1, 0x9562, 0x11d2, \
+ 		 0x8e, 0x3f, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+ 
+-#define LOADED_IMAGE_DEVICE_PATH_GUID \
++#define EFI_LOADED_IMAGE_DEVICE_PATH_PROTOCOL_GUID \
+ 	EFI_GUID(0xbc62157e, 0x3e33, 0x4fec, \
+ 		 0x99, 0x20, 0x2d, 0x3b, 0x36, 0xd7, 0x50, 0xdf)
+ 
+@@ -355,7 +351,7 @@ struct efi_loaded_image {
+ 	unsigned long unload;
+ };
+ 
+-#define DEVICE_PATH_GUID \
++#define EFI_DEVICE_PATH_PROTOCOL_GUID \
+ 	EFI_GUID(0x09576e91, 0x6d3f, 0x11d2, \
+ 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+ 
+@@ -478,7 +474,7 @@ struct efi_device_path_file_path {
+ 	u16 str[];
+ } __packed;
+ 
+-#define BLOCK_IO_GUID \
++#define EFI_BLOCK_IO_PROTOCOL_GUID \
+ 	EFI_GUID(0x964e5b21, 0x6459, 0x11d2, \
+ 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+ 
+@@ -1123,7 +1119,7 @@ struct efi_hii_config_access_protocol {
+ 		efi_browser_action_request_t *action_request);
+ };
+ 
+-#define EFI_GOP_GUID \
++#define EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID \
+ 	EFI_GUID(0x9042a9de, 0x23dc, 0x4a38, \
+ 		 0x96, 0xfb, 0x7a, 0xde, 0xd0, 0x80, 0x51, 0x6a)
+ 
+@@ -1175,7 +1171,7 @@ struct efi_gop {
+ 	struct efi_gop_mode *mode;
+ };
+ 
+-#define EFI_SIMPLE_NETWORK_GUID \
++#define EFI_SIMPLE_NETWORK_PROTOCOL_GUID \
+ 	EFI_GUID(0xa19832b9, 0xac25, 0x11d3, \
+ 		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+ 
+@@ -1268,7 +1264,7 @@ struct efi_simple_network {
+ 	struct efi_simple_network_mode *mode;
+ };
+ 
+-#define EFI_PXE_GUID \
++#define EFI_PXE_BASE_CODE_PROTOCOL_GUID \
+ 	EFI_GUID(0x03c4e603, 0xac28, 0x11d3, \
+ 		 0x9a, 0x2d, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+ 
+diff --git a/lib/efi/efi.c b/lib/efi/efi.c
+index 2c6a50824f..7cba57b131 100644
+--- a/lib/efi/efi.c
++++ b/lib/efi/efi.c
+@@ -53,7 +53,7 @@ void efi_puts(struct efi_priv *priv, const char *str)
+ int efi_init(struct efi_priv *priv, const char *banner, efi_handle_t image,
+ 	     struct efi_system_table *sys_table)
+ {
+-	efi_guid_t loaded_image_guid = LOADED_IMAGE_PROTOCOL_GUID;
++	efi_guid_t loaded_image_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+ 	struct efi_boot_services *boot = sys_table->boottime;
+ 	struct efi_loaded_image *loaded_image;
+ 	int ret;
+diff --git a/lib/efi/efi_stub.c b/lib/efi/efi_stub.c
+index 12e3d637dd..6dd93ff435 100644
+--- a/lib/efi/efi_stub.c
++++ b/lib/efi/efi_stub.c
+@@ -278,7 +278,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image,
+ 	struct efi_gop *gop;
+ 	struct efi_entry_gopmode mode;
+ 	struct efi_entry_systable table;
+-	efi_guid_t efi_gop_guid = EFI_GOP_GUID;
++	efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+ 	efi_uintn_t key, desc_size, size;
+ 	efi_status_t ret;
+ 	u32 version;
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index c037526ad2..7a6b06821a 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -12,7 +12,7 @@
+ #include <part.h>
+ #include <malloc.h>
+ 
+-const efi_guid_t efi_block_io_guid = BLOCK_IO_GUID;
++const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
+ 
+ /**
+  * struct efi_disk_obj - EFI disk object
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index d62ce45912..e003823b60 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -14,7 +14,7 @@
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-static const efi_guid_t efi_gop_guid = EFI_GOP_GUID;
++static const efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+ 
+ /**
+  * struct efi_gop_obj - graphical output protocol object
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 93feefd366..f8092b6202 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -12,10 +12,10 @@
+ #include <pe.h>
+ 
+ const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
+-const efi_guid_t efi_guid_device_path = DEVICE_PATH_GUID;
+-const efi_guid_t efi_guid_loaded_image = LOADED_IMAGE_GUID;
+-const efi_guid_t efi_guid_loaded_image_device_path
+-		= LOADED_IMAGE_DEVICE_PATH_GUID;
++const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
++const efi_guid_t efi_guid_loaded_image = EFI_LOADED_IMAGE_PROTOCOL_GUID;
++const efi_guid_t efi_guid_loaded_image_device_path =
++		EFI_LOADED_IMAGE_DEVICE_PATH_PROTOCOL_GUID;
+ const efi_guid_t efi_simple_file_system_protocol_guid =
+ 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+ const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
+diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
+index c7d9da8521..e0e222a70b 100644
+--- a/lib/efi_loader/efi_net.c
++++ b/lib/efi_loader/efi_net.c
+@@ -9,8 +9,8 @@
+ #include <efi_loader.h>
+ #include <malloc.h>
+ 
+-static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
+-static const efi_guid_t efi_pxe_guid = EFI_PXE_GUID;
++static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
++static const efi_guid_t efi_pxe_guid = EFI_PXE_BASE_CODE_PROTOCOL_GUID;
+ static struct efi_pxe_packet *dhcp_ack;
+ static bool new_rx_packet;
+ static void *new_tx_packet;
+diff --git a/lib/efi_loader/helloworld.c b/lib/efi_loader/helloworld.c
+index 426f276361..9ae2ee3389 100644
+--- a/lib/efi_loader/helloworld.c
++++ b/lib/efi_loader/helloworld.c
+@@ -12,7 +12,7 @@
+ #include <common.h>
+ #include <efi_api.h>
+ 
+-static const efi_guid_t loaded_image_guid = LOADED_IMAGE_GUID;
++static const efi_guid_t loaded_image_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+ static const efi_guid_t fdt_guid = EFI_FDT_GUID;
+ static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
+ static const efi_guid_t smbios_guid = SMBIOS_TABLE_GUID;
+diff --git a/lib/efi_selftest/efi_selftest_bitblt.c b/lib/efi_selftest/efi_selftest_bitblt.c
+index 9033109807..fb33150c4b 100644
+--- a/lib/efi_selftest/efi_selftest_bitblt.c
++++ b/lib/efi_selftest/efi_selftest_bitblt.c
+@@ -23,7 +23,7 @@ static const struct efi_gop_pixel DARK_BLUE =	{128,   0,   0, 0};
+ static const struct efi_gop_pixel LIGHT_BLUE =	{255, 192, 192, 0};
+ 
+ static struct efi_boot_services *boottime;
+-static efi_guid_t efi_gop_guid = EFI_GOP_GUID;
++static efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+ static struct efi_gop *gop;
+ static struct efi_gop_pixel *bitmap;
+ static struct efi_event *event;
+diff --git a/lib/efi_selftest/efi_selftest_block_device.c b/lib/efi_selftest/efi_selftest_block_device.c
+index 21409aed6f..29ac0ce651 100644
+--- a/lib/efi_selftest/efi_selftest_block_device.c
++++ b/lib/efi_selftest/efi_selftest_block_device.c
+@@ -24,8 +24,8 @@
+ 
+ static struct efi_boot_services *boottime;
+ 
+-static const efi_guid_t block_io_protocol_guid = BLOCK_IO_GUID;
+-static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
++static const efi_guid_t block_io_protocol_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
++static const efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
+ static const efi_guid_t guid_simple_file_system_protocol =
+ 					EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+ static const efi_guid_t guid_file_system_info = EFI_FILE_SYSTEM_INFO_GUID;
+diff --git a/lib/efi_selftest/efi_selftest_devicepath.c b/lib/efi_selftest/efi_selftest_devicepath.c
+index 105ce2c92b..4ce3fad895 100644
+--- a/lib/efi_selftest/efi_selftest_devicepath.c
++++ b/lib/efi_selftest/efi_selftest_devicepath.c
+@@ -20,7 +20,7 @@ struct interface {
+ 	void (EFIAPI * inc)(void);
+ } interface;
+ 
+-static efi_guid_t guid_device_path = DEVICE_PATH_GUID;
++static efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
+ 
+ static efi_guid_t guid_device_path_to_text_protocol =
+ 	EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
+diff --git a/lib/efi_selftest/efi_selftest_gop.c b/lib/efi_selftest/efi_selftest_gop.c
+index 5b0e2a9605..4ad043c597 100644
+--- a/lib/efi_selftest/efi_selftest_gop.c
++++ b/lib/efi_selftest/efi_selftest_gop.c
+@@ -10,7 +10,7 @@
+ #include <efi_selftest.h>
+ 
+ static struct efi_boot_services *boottime;
+-static efi_guid_t efi_gop_guid = EFI_GOP_GUID;
++static efi_guid_t efi_gop_guid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+ static struct efi_gop *gop;
+ 
+ /*
+diff --git a/lib/efi_selftest/efi_selftest_loadimage.c b/lib/efi_selftest/efi_selftest_loadimage.c
+index 96faa67a15..449b6bfcac 100644
+--- a/lib/efi_selftest/efi_selftest_loadimage.c
++++ b/lib/efi_selftest/efi_selftest_loadimage.c
+@@ -27,7 +27,7 @@ static struct efi_boot_services *boottime;
+ static efi_handle_t handle_image;
+ static efi_handle_t handle_volume;
+ 
+-static const efi_guid_t guid_device_path = DEVICE_PATH_GUID;
++static const efi_guid_t guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
+ static const efi_guid_t guid_simple_file_system_protocol =
+ 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+ static const efi_guid_t guid_file_info = EFI_FILE_INFO_GUID;
+diff --git a/lib/efi_selftest/efi_selftest_miniapp_exit.c b/lib/efi_selftest/efi_selftest_miniapp_exit.c
+index d63b9e3add..b3ca109d81 100644
+--- a/lib/efi_selftest/efi_selftest_miniapp_exit.c
++++ b/lib/efi_selftest/efi_selftest_miniapp_exit.c
+@@ -11,7 +11,7 @@
+ #include <common.h>
+ #include <efi_api.h>
+ 
+-static efi_guid_t loaded_image_protocol_guid = LOADED_IMAGE_GUID;
++static efi_guid_t loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+ 
+ /**
+  * check_loaded_image_protocol() - check image_base/image_size
+diff --git a/lib/efi_selftest/efi_selftest_snp.c b/lib/efi_selftest/efi_selftest_snp.c
+index f1e23c4921..d7350e2158 100644
+--- a/lib/efi_selftest/efi_selftest_snp.c
++++ b/lib/efi_selftest/efi_selftest_snp.c
+@@ -66,7 +66,7 @@ struct dhcp {
+ static struct efi_boot_services *boottime;
+ static struct efi_simple_network *net;
+ static struct efi_event *timer;
+-static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_GUID;
++static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
+ /* IP packet ID */
+ static unsigned int net_ip_id;
+ 
+-- 
+2.20.1
+
