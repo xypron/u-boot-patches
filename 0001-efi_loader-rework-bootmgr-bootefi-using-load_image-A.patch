@@ -14,6 +14,7 @@ overhauled and re-implemented using load_image API.
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
 Use efi_root as parent handle for the loaded image.
+LoadImage() should be called with BootPolicy = true by the boot manager.
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
