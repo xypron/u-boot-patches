@@ -54,6 +54,8 @@ git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
 git am ../patch/0001-disk-part-fix-typo.patch
 
+git am ../patch/0001-arm-dts-add-missing-vexpress-device-trees.patch
+
 # efi-2019-07-rc1-3
 git am ../patch/0001-efi_loader-efi_setup_loaded_image-handle-missing-fil.patch
 git am ../patch/0001-efi_loader-export-root-node-handle.patch
