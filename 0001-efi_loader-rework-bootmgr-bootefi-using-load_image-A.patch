@@ -1,7 +1,7 @@
-From 70191c520d66d844ec50363024825bf86f958838 Mon Sep 17 00:00:00 2001
+From 63a8433506a99137e8ef8358d25ccb44d816c375 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Fri, 19 Apr 2019 12:22:35 +0900
-Subject: [PATCH v5] efi_loader: rework bootmgr/bootefi using load_image API
+Subject: [PATCH 1/1] efi_loader: rework bootmgr/bootefi using load_image API
 
 In the current implementation, bootefi command and EFI boot manager
 don't use load_image API, instead, use more primitive and internal
@@ -15,23 +15,31 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 
 Use efi_root as parent handle for the loaded image.
 LoadImage() should be called with BootPolicy = true by the boot manager.
+Avoid duplicate free_pool().
+Eliminate variable memdp which is not needed after anymore due to
+"efi_loader: correctly split device path of loaded image".
 
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v6
+	Avoid duplicate free_pool().
+	Eliminate variable memdp which is not needed after anymore due to
+	"efi_loader: correctly split device path of loaded image".
 v5
 	LoadImage() should be called with BootPolicy = true by the boot
 	manager
 v4
 	Use efi_root as parent handle for the loaded image.
 ---
- cmd/bootefi.c                 | 187 ++++++++++++++++++----------------
+ cmd/bootefi.c                 | 180 ++++++++++++++++++----------------
  include/efi_loader.h          |   5 +-
  lib/efi_loader/efi_bootmgr.c  |  42 ++++----
  lib/efi_loader/efi_boottime.c |   2 +
- 4 files changed, 126 insertions(+), 110 deletions(-)
+ 4 files changed, 119 insertions(+), 110 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index d62e9969ac..c406ac5d81 100644
+index d62e9969acb..be557518309 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -242,89 +242,36 @@ static efi_status_t efi_install_fdt(const char *fdt_opt)
@@ -181,14 +189,14 @@ index d62e9969ac..c406ac5d81 100644
 -	unsigned long addr;
 +	void *image_buf;
 +	struct efi_device_path *device_path, *image_path;
-+	struct efi_device_path *memdp = NULL, *file_path = NULL;
++	struct efi_device_path *file_path = NULL;
 +	unsigned long addr, size;
 +	const char *size_str;
 +	efi_handle_t mem_handle = NULL, handle;
  	efi_status_t ret;
  
  	/* Allow unaligned memory access */
-@@ -414,33 +365,90 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
+@@ -414,33 +365,83 @@ static int do_bootefi_image(const char *image_opt, const char *fdt_opt)
  #ifdef CONFIG_CMD_BOOTEFI_HELLO
  	if (!strcmp(image_opt, "hello")) {
  		char *saddr;
@@ -239,23 +247,20 @@ index d62e9969ac..c406ac5d81 100644
 +		 * such as 'bootefi hello' or for example payload
 +		 * loaded directly into memory via JTAG, etc:
 +		 */
-+		memdp = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
-+					(uintptr_t)image_buf, size);
-+		file_path = memdp; /* append(memdp, NULL) */
-+
++		file_path = efi_dp_from_mem(EFI_RESERVED_MEMORY_TYPE,
++					    (uintptr_t)image_buf, size);
 +		/*
 +		 * Make sure that device for device_path exist
 +		 * in load_image(). Otherwise, shell and grub will fail.
 +		 */
 +		ret = efi_create_handle(&mem_handle);
 +		if (ret != EFI_SUCCESS)
-+			/* TODO: leaks device_path */
-+			goto err_add_protocol;
++			goto out;
 +
 +		ret = efi_add_protocol(mem_handle, &efi_guid_device_path,
-+				       memdp);
++				       file_path);
 +		if (ret != EFI_SUCCESS)
-+			goto err_add_protocol;
++			goto out;
 +	} else {
 +		assert(device_path && image_path);
 +		file_path = efi_dp_append(device_path, image_path);
@@ -264,19 +269,15 @@ index d62e9969ac..c406ac5d81 100644
 +	ret = EFI_CALL(efi_load_image(false, efi_root,
 +				      file_path, image_buf, size, &handle));
 +	if (ret != EFI_SUCCESS)
-+		goto err_prepare;
++		goto out;
 +
 +	ret = do_bootefi_exec(handle);
 +	printf("## Application terminated, r = %lu\n", ret & ~EFI_ERROR_MASK);
 +
-+err_prepare:
-+	if (device_path)
-+		efi_free_pool(file_path);
-+
-+err_add_protocol:
++out:
 +	if (mem_handle)
 +		efi_delete_handle(mem_handle);
-+	if (file_path) /* hence memdp */
++	if (file_path)
 +		efi_free_pool(file_path);
  
  	if (ret != EFI_SUCCESS)
@@ -288,7 +289,7 @@ index d62e9969ac..c406ac5d81 100644
  }
  
  #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
-@@ -598,7 +606,7 @@ static char bootefi_help_text[] =
+@@ -598,7 +599,7 @@ static char bootefi_help_text[] =
  	"    Use environment variable efi_selftest to select a single test.\n"
  	"    Use 'setenv efi_selftest list' to enumerate all tests.\n"
  #endif
@@ -297,7 +298,7 @@ index d62e9969ac..c406ac5d81 100644
  	"  - load and boot EFI payload based on BootOrder/BootXXXX variables.\n"
  	"\n"
  	"    If specified, the device tree located at <fdt address> gets\n"
-@@ -623,6 +631,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
+@@ -623,6 +624,13 @@ void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
  	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
  	if (ret == EFI_SUCCESS) {
  		bootefi_device_path = device;
@@ -312,7 +313,7 @@ index d62e9969ac..c406ac5d81 100644
  	} else {
  		bootefi_device_path = NULL;
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 93f7672aec..39ed8a6fa5 100644
+index 93f7672aecb..39ed8a6fa59 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -412,8 +412,6 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
@@ -335,7 +336,7 @@ index 93f7672aec..39ed8a6fa5 100644
  #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
  
 diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
-index 4fccadc548..4b8033eff6 100644
+index 4fccadc5483..4ccba228757 100644
 --- a/lib/efi_loader/efi_bootmgr.c
 +++ b/lib/efi_loader/efi_bootmgr.c
 @@ -120,14 +120,14 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
@@ -458,7 +459,7 @@ index 4fccadc548..4b8033eff6 100644
 +	return ret;
  }
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index abc295e392..19a58144cf 100644
+index 72897dc2c84..601b0a2cb88 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -1591,6 +1591,7 @@ failure:
@@ -469,7 +470,7 @@ index abc295e392..19a58144cf 100644
  efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
  				      void **buffer, efi_uintn_t *size)
  {
-@@ -2664,6 +2665,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -2656,6 +2657,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  	}
  
  	current_image = image_handle;
