@@ -1,4 +1,4 @@
-From 5f5a96b52315e9085ecbb206a4c7d8ffe808bf9a Mon Sep 17 00:00:00 2001
+From f284176817390b366aa8ff4c0ab7f354245949d0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Apr 2019 13:33:55 +0200
 Subject: [PATCH 1/1] efi_loader: need either ACPI table or device tree
@@ -12,14 +12,25 @@ previously device tree or fall back to the internal device tree.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 94 +++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 68 insertions(+), 26 deletions(-)
+ cmd/bootefi.c                       | 98 +++++++++++++++++++++--------
+ lib/efi_selftest/Makefile           |  4 ++
+ lib/efi_selftest/efi_selftest_fdt.c | 47 +++++++++++---
+ 3 files changed, 114 insertions(+), 35 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index c406ac5d81..df7a95c65c 100644
+index c406ac5d815..f9d5727c928 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -185,6 +185,23 @@ static void efi_carve_out_dt_rsv(void *fdt)
+@@ -84,6 +84,8 @@ out:
+ 							efi_root, NULL));
+ }
+ 
++#if !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
++
+ /**
+  * copy_fdt() - Copy the device tree to a new location available to EFI
+  *
+@@ -185,6 +187,25 @@ static void efi_carve_out_dt_rsv(void *fdt)
  	}
  }
  
@@ -40,10 +51,12 @@ index c406ac5d81..df7a95c65c 100644
 +	return NULL;
 +}
 +
++#endif /* !CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE) */
++
  /**
   * efi_install_fdt() - install fdt passed by a command argument
   * @fdt_opt:	pointer to argument
-@@ -195,46 +212,71 @@ static void efi_carve_out_dt_rsv(void *fdt)
+@@ -195,46 +216,71 @@ static void efi_carve_out_dt_rsv(void *fdt)
   */
  static efi_status_t efi_install_fdt(const char *fdt_opt)
  {
@@ -141,6 +154,106 @@ index c406ac5d81..df7a95c65c 100644
  
  	return EFI_SUCCESS;
  }
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index c9720c9da8d..1d95133ed17 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -42,6 +42,10 @@ efi_selftest_watchdog.o
+ obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
+ obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
+ 
++ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
++obj-y += efi_selftest_fdt.o
++#endif
++
+ ifeq ($(CONFIG_BLK)$(CONFIG_PARTITIONS),yy)
+ obj-y += efi_selftest_block_device.o
+ endif
+diff --git a/lib/efi_selftest/efi_selftest_fdt.c b/lib/efi_selftest/efi_selftest_fdt.c
+index d545d518120..931a3b23448 100644
+--- a/lib/efi_selftest/efi_selftest_fdt.c
++++ b/lib/efi_selftest/efi_selftest_fdt.c
+@@ -13,13 +13,15 @@
+ #include <efi_selftest.h>
+ #include <linux/libfdt.h>
+ 
+-static struct efi_boot_services *boottime;
++static const struct efi_system_table *systemtab;
++static const struct efi_boot_services *boottime;
+ static const char *fdt;
+ 
+ /* This should be sufficient for */
+ #define BUFFERSIZE 0x100000
+ 
+-static efi_guid_t fdt_guid = EFI_FDT_GUID;
++static const efi_guid_t fdt_guid = EFI_FDT_GUID;
++static const efi_guid_t acpi_guid = EFI_ACPI_TABLE_GUID;
+ 
+ /*
+  * Convert FDT value to host endianness.
+@@ -115,6 +117,23 @@ static char *get_property(const u16 *property)
+ 	}
+ }
+ 
++/**
++ * efi_st_get_config_table() - get configuration table
++ *
++ * @guid:	GUID of the configuration table
++ * Return:	pointer to configuration table or NULL
++ */
++static void *efi_st_get_config_table(const efi_guid_t *guid)
++{
++	size_t i;
++
++	for (i = 0; i < systab.nr_tables; i++) {
++		if (!guidcmp(guid, &systemtab->tables[i].guid))
++			return systemtab->tables[i].table;
++	}
++	return NULL;
++}
++
+ /*
+  * Setup unit test.
+  *
+@@ -125,21 +144,31 @@ static char *get_property(const u16 *property)
+ static int setup(const efi_handle_t img_handle,
+ 		 const struct efi_system_table *systable)
+ {
+-	efi_uintn_t i;
++	void *acpi = efi_st_get_config_table(&acpi_guid);
++	void *fdt = efi_st_get_config_table(&fdt_guid);
+ 
++	systemtab = systable;
+ 	boottime = systable->boottime;
+ 
+-	/* Find configuration tables */
+-	for (i = 0; i < systable->nr_tables; ++i) {
+-		if (!efi_st_memcmp(&systable->tables[i].guid, &fdt_guid,
+-				   sizeof(efi_guid_t)))
+-			fdt = systable->tables[i].table;
++#if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
++	if (!acpi) {
++		efi_st_error("Missing ACPI table\n");
++		return EFI_ST_FAILURE;
++	}
++	if (fdt) {
++		efi_st_error("Found ACPI table and device tree\n");
++		return EFI_ST_FAILURE;
+ 	}
++#else
+ 	if (!fdt) {
+ 		efi_st_error("Missing device tree\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-
++	if (acpi) {
++		efi_st_error("Found ACPI table and device tree\n");
++		return EFI_ST_FAILURE;
++	}
++#endif
+ 	return EFI_ST_SUCCESS;
+ }
+ 
 -- 
 2.20.1
 
