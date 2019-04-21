@@ -4,7 +4,7 @@ git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # Xypron specific patches
 # git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
-git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
+# git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
 
@@ -12,7 +12,7 @@ git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
 
 # Various fixes
-git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
+# git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-docs-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
