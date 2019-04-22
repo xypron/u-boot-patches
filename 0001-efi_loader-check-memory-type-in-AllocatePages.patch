@@ -1,10 +1,12 @@
-From bf267e0a0f7ee7d0546dcee49c5c5cc1939fd27d Mon Sep 17 00:00:00 2001
+From f12bcc9149c32a01dac687718ad126d4d3ba29ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 23 Apr 2019 00:30:53 +0200
-Subject: [PATCH 1/1] efi_loader: check memory type in AllocatePages()
+Subject: [PATCH] efi_loader: check memory type in AllocatePages()
 
 The UEFI specification prescribes that AllocatePages() checks the memory
 type.
+
+Add missing definition of EFI_PERSISTENT_MEMORY_TYPE.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
