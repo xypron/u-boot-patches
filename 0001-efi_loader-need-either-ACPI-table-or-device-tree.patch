@@ -1,7 +1,7 @@
-From 53a08927890835212a692dad033d0f4d9de49180 Mon Sep 17 00:00:00 2001
+From bdd5706b0fc2ba2d834e46f3679165c4845a49ff Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Apr 2019 13:33:55 +0200
-Subject: [PATCH 1/1] efi_loader: need either ACPI table or device tree
+Subject: [PATCH v3 1/1] efi_loader: need either ACPI table or device tree
 
 The EBBR specification prescribes that we should have either an ACPI table
 or a device tree but not both. Let us enforce this condition in the
@@ -14,11 +14,14 @@ The fdt unit test should not be run on boards with an ACPI table.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3
+	The fdt unit test should not be run on boards with an ACPI table.
 v2
 	Avoid functions defined but no used.
 ---
- cmd/bootefi.c | 98 +++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 72 insertions(+), 26 deletions(-)
+ cmd/bootefi.c             | 98 ++++++++++++++++++++++++++++-----------
+ lib/efi_selftest/Makefile |  1 -
+ 2 files changed, 72 insertions(+), 27 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index be55751830..efaa548be4 100644
@@ -157,6 +160,18 @@ index be55751830..efaa548be4 100644
  
  	return EFI_SUCCESS;
  }
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index fb82e71976..4945691e67 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -23,7 +23,6 @@ efi_selftest_events.o \
+ efi_selftest_event_groups.o \
+ efi_selftest_exception.o \
+ efi_selftest_exitbootservices.o \
+-efi_selftest_fdt.o \
+ efi_selftest_gop.o \
+ efi_selftest_loaded_image.o \
+ efi_selftest_manageprotocols.o \
 -- 
 2.20.1
 
