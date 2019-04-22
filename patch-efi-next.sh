@@ -71,6 +71,7 @@ git am ../patch/0001-cmd-bootefi-carve-out-do_bootefi_image-from-do_boote.patch
 git am ../patch/0001-efi_loader-correctly-split-device-path-of-loaded-ima.patch
 git am ../patch/0001-efi_loader-rework-bootmgr-bootefi-using-load_image-A.patch
 git am ../patch/0001-efi_loader-disable-EFI_LOADER-on-vexpress_ca15_tc2-a.patch
+git am ../patch/0001-test-py-pytest.mark.notbuildconfigspec.patch
 git am ../patch/0001-efi_selftest-do-not-run-FDT-test-with-ACPI-table.patch
 git am ../patch/0001-efi_loader-need-either-ACPI-table-or-device-tree.patch
 exit
