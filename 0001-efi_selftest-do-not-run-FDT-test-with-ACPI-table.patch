@@ -1,4 +1,4 @@
-From a08c25b4cf6acada603d51e1636fd809513ea507 Mon Sep 17 00:00:00 2001
+From 975cb76ff294d90d634b50ba6c0ba1024da26d2a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Apr 2019 13:33:55 +0200
 Subject: [PATCH 1/1] efi_selftest: do not run FDT test with ACPI table.
@@ -8,12 +8,14 @@ or a device tree but not both.
 
 So do not run the device tree unit test on boards with an ACPI table.
 Hence there is no need any longer to make it 'on request' only.
+Do not pass $fdtcontroladdr to `bootefi selftest`.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile           |  4 +++
  lib/efi_selftest/efi_selftest_fdt.c | 41 +++++++++++++++++++++--------
- 2 files changed, 34 insertions(+), 11 deletions(-)
+ test/py/tests/test_efi_selftest.py  |  3 ++-
+ 3 files changed, 36 insertions(+), 12 deletions(-)
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
 index c9720c9da8..fb82e71976 100644
@@ -113,6 +115,27 @@ index d545d51812..94d72d3f6d 100644
  	.execute = execute,
 -	.on_request = true,
  };
+diff --git a/test/py/tests/test_efi_selftest.py b/test/py/tests/test_efi_selftest.py
+index bc226a8e63..07e4db0452 100644
+--- a/test/py/tests/test_efi_selftest.py
++++ b/test/py/tests/test_efi_selftest.py
+@@ -15,7 +15,7 @@ def test_efi_selftest(u_boot_console):
+ 	This function executes all selftests that are not marked as on request.
+ 	"""
+ 	u_boot_console.run_command(cmd='setenv efi_selftest')
+-	u_boot_console.run_command(cmd='bootefi selftest ${fdtcontroladdr}', wait_for_prompt=False)
++	u_boot_console.run_command(cmd='bootefi selftest', wait_for_prompt=False)
+ 	m = u_boot_console.p.expect(['Summary: 0 failures', 'Press any key'])
+ 	if m != 0:
+ 		raise Exception('Failures occurred during the EFI selftest')
+@@ -27,6 +27,7 @@ def test_efi_selftest(u_boot_console):
+ 
+ @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
+ @pytest.mark.buildconfigspec('of_control')
++@pytest.mark.notbuildconfigspec('generate_acpi_table')
+ def test_efi_selftest_device_tree(u_boot_console):
+ 	u_boot_console.run_command(cmd='setenv efi_selftest list')
+ 	output = u_boot_console.run_command('bootefi selftest')
 -- 
 2.20.1
 
