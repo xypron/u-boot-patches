@@ -13,6 +13,14 @@ for this purpose.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+Hello Tom,
+
+I will introduce the patch via u-boot-efi.git.
+
+Regards
+
+Heinrich
+---
  test/py/README.md   |  1 +
  test/py/conftest.py | 14 +++++++++-----
  2 files changed, 10 insertions(+), 5 deletions(-)
