@@ -1,0 +1,30 @@
+From 7d1e4b73e3f321cd4f0e039aa0387484cf97b25c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 23 Apr 2019 00:51:01 +0200
+Subject: [PATCH 1/1] efi_loader: check length in CreateDeviceNode()
+
+When creating a device path node ensure that the size of the allocated
+memory at lest matches the size of the node header.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index 6104c7d33b..10f890f44f 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -335,6 +335,9 @@ struct efi_device_path *efi_dp_create_device_node(const u8 type,
+ {
+ 	struct efi_device_path *ret;
+ 
++	if (length < sizeof(struct efi_device_path))
++		return NULL;
++
+ 	ret = dp_alloc(length);
+ 	if (!ret)
+ 		return ret;
+-- 
+2.20.1
+

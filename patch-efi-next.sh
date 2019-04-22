@@ -75,6 +75,7 @@ git am ../patch/0001-test-py-pytest.mark.notbuildconfigspec.patch
 git am ../patch/0001-efi_selftest-do-not-run-FDT-test-with-ACPI-table.patch
 git am ../patch/0001-efi_loader-need-either-ACPI-table-or-device-tree.patch
 git am ../patch/0001-efi_loader-check-memory-type-in-AllocatePages.patch
+git am ../patch/0001-efi_loader-check-length-in-CreateDeviceNode.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
