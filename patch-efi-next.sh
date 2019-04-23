@@ -56,6 +56,8 @@ git am ../patch/0001-disk-part-fix-typo.patch
 
 git am ../patch/0001-arm-dts-add-missing-vexpress-device-trees.patch
 
+git am ../patch/0001-Workarounds-for-SCT.patch
+
 # efi-2019-07-rc1-3
 git am ../patch/0001-efi_loader-efi_setup_loaded_image-handle-missing-fil.patch
 git am ../patch/0001-efi_loader-export-root-node-handle.patch
