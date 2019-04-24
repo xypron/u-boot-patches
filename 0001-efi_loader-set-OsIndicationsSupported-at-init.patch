@@ -1,0 +1,68 @@
+From 57702d613cfd8fc6f35a51459b824ca4c6c7031b Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 24 Apr 2019 15:30:38 +0900
+Subject: [PATCH v2 1/1] efi_loader: set OsIndicationsSupported at init
+
+UEFI variables should be installed using well-defined API.
+Currently we don't support much, but the value of OsIndicationsSupported
+will be updated once some features are added in the future.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Add comments. Rename a variable.
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Applied to efi-2019-07 branch.
+---
+ cmd/bootefi.c              |  4 ----
+ lib/efi_loader/efi_setup.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index efaa548be4..b93d8c6a32 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -303,10 +303,6 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+ 
+-	/* we don't support much: */
+-	env_set("efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_OsIndicationsSupported",
+-		"{ro,boot}(blob)0000000000000000");
+-
+ 	/* Call our payload! */
+ 	ret = EFI_CALL(efi_start_image(handle, NULL, NULL));
+ 
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index b32a7b3f93..87db51cbb7 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -79,6 +79,7 @@ out:
+  */
+ efi_status_t efi_init_obj_list(void)
+ {
++	u64 os_indications_supported = 0; /* None */
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+ 	/* Initialize once only */
+@@ -90,6 +91,16 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
++	/* Indicate supported features */
++	ret = EFI_CALL(efi_set_variable(L"OsIndicationsSupported",
++					&efi_global_variable_guid,
++					EFI_VARIABLE_BOOTSERVICE_ACCESS |
++					EFI_VARIABLE_RUNTIME_ACCESS,
++					sizeof(os_indications_supported),
++					&os_indications_supported));
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ 	/* Initialize system table */
+ 	ret = efi_initialize_system_table();
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.20.1
+
