@@ -20,7 +20,6 @@ git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -28,7 +27,6 @@ git am ../patch/0001-test-call-hexdump-tests-via-ut-lib.patch
 # git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
 # git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
-git am ../patch/0001-cmd-add-exception-command.patch
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
 # sct
@@ -49,8 +47,6 @@ git am ../patch/0001-Makefile-reusable-function-for-BOARD_SIZE_CHECK.patch
 git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
-
-git am ../patch/0001-test-env-Enable-env-unit-tests-by-default.patch
 
 git am ../patch/0001-disk-part-fix-typo.patch
 
