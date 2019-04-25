@@ -1,7 +1,7 @@
 From 73dc3ad18d4cc5ad7a1d9a75ac893cdb1f0bcb9d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 25 Apr 2019 23:37:59 +0200
-Subject: [PATCH 1/1] efi_loader: user upper case for GUIDs
+Subject: [PATCH 1/1] efi_loader: use upper case for GUIDs
 
 This patch adjusts the GUID output in the UEFI subsystem to upper case to
 match the UEFI SCT implementation.
