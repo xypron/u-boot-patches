@@ -54,26 +54,6 @@ git am ../patch/0001-arm-dts-add-missing-vexpress-device-trees.patch
 
 git am ../patch/0001-Workarounds-for-SCT.patch
 
-# efi-2019-07-rc1-3
-git am ../patch/0001-efi_loader-efi_setup_loaded_image-handle-missing-fil.patch
-git am ../patch/0001-efi_loader-export-root-node-handle.patch
-git am ../patch/0001-efi_loader-consistent-naming-of-protocol-GUIDs.patch
-git am ../patch/0001-efi_loader-more-short-texts-for-protocols-in-efidebu.patch
-git am ../patch/0001-cmd-bootefi-rework-set_load_options.patch
-git am ../patch/0001-cmd-bootefi-carve-out-fdt-handling-from-do_bootefi.patch
-git am ../patch/0001-cmd-bootefi-merge-efi_install_fdt-and-efi_process_fd.patch
-git am ../patch/0001-cmd-bootefi-carve-out-efi_selftest-code-from-do_boot.patch
-git am ../patch/0001-cmd-bootefi-move-do_bootefi_bootmgr_exec-forward.patch
-git am ../patch/0001-cmd-bootefi-carve-out-bootmgr-code-from-do_bootefi.patch
-git am ../patch/0001-cmd-bootefi-carve-out-do_bootefi_image-from-do_boote.patch
-git am ../patch/0001-efi_loader-correctly-split-device-path-of-loaded-ima.patch
-git am ../patch/0001-efi_loader-rework-bootmgr-bootefi-using-load_image-A.patch
-git am ../patch/0001-efi_loader-disable-EFI_LOADER-on-vexpress_ca15_tc2-a.patch
-git am ../patch/0001-test-py-pytest.mark.notbuildconfigspec.patch
-git am ../patch/0001-efi_selftest-do-not-run-FDT-test-with-ACPI-table.patch
-git am ../patch/0001-efi_loader-need-either-ACPI-table-or-device-tree.patch
-git am ../patch/0001-efi_loader-check-memory-type-in-AllocatePages.patch
-git am ../patch/0001-efi_loader-check-length-in-CreateDeviceNode.patch
 # efi-2019-07-rc2
 git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
