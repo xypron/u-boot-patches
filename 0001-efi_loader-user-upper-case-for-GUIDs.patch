@@ -1,0 +1,309 @@
+From a74eeed7c49d00133f2b6f5b7f841b9b1b28430f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 25 Apr 2019 23:37:59 +0200
+Subject: [PATCH 1/1] efi_loader: user upper case for GUIDs
+
+This patch adjusts the GUID output in the UEFI subsystem to upper case to
+match the UEFI SCT implementation.
+
+This changes the vendor node and the GPT GUID in the media node in device
+paths.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c            | 26 ++++++++++++------------
+ lib/efi_loader/efi_device_path_to_text.c |  4 ++--
+ lib/efi_loader/efi_file.c                |  4 ++--
+ lib/efi_loader/efi_hii.c                 | 14 ++++++-------
+ lib/efi_loader/efi_hii_config.c          |  2 +-
+ lib/efi_loader/efi_variable.c            |  8 ++++----
+ 6 files changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index a72cbe1559..b8c74dbd60 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -662,7 +662,7 @@ efi_status_t EFIAPI efi_create_event_ex(uint32_t type, efi_uintn_t notify_tpl,
+ 					efi_guid_t *event_group,
+ 					struct efi_event **event)
+ {
+-	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUl", type, notify_tpl, notify_function,
++	EFI_ENTRY("%d, 0x%zx, %p, %p, %pUL", type, notify_tpl, notify_function,
+ 		  notify_context, event_group);
+ 	return EFI_EXIT(efi_create_event(type, notify_tpl, notify_function,
+ 					 notify_context, event_group, event));
+@@ -1035,7 +1035,7 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
+ {
+ 	efi_status_t r;
+ 
+-	EFI_ENTRY("%p, %pUl, %d, %p", handle, protocol, protocol_interface_type,
++	EFI_ENTRY("%p, %pUL, %d, %p", handle, protocol, protocol_interface_type,
+ 		  protocol_interface);
+ 
+ 	if (!handle || !protocol ||
+@@ -1239,7 +1239,7 @@ static efi_status_t EFIAPI efi_uninstall_protocol_interface
+ {
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%p, %pUl, %p", handle, protocol, protocol_interface);
++	EFI_ENTRY("%p, %pUL, %p", handle, protocol, protocol_interface);
+ 
+ 	ret = efi_uninstall_protocol(handle, protocol, protocol_interface);
+ 	if (ret != EFI_SUCCESS)
+@@ -1272,7 +1272,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
+ 						struct efi_event *event,
+ 						void **registration)
+ {
+-	EFI_ENTRY("%pUl, %p, %p", protocol, event, registration);
++	EFI_ENTRY("%pUL, %p, %p", protocol, event, registration);
+ 	return EFI_EXIT(EFI_OUT_OF_RESOURCES);
+ }
+ 
+@@ -1398,7 +1398,7 @@ static efi_status_t EFIAPI efi_locate_handle_ext(
+ 			const efi_guid_t *protocol, void *search_key,
+ 			efi_uintn_t *buffer_size, efi_handle_t *buffer)
+ {
+-	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
++	EFI_ENTRY("%d, %pUL, %p, %p, %p", search_type, protocol, search_key,
+ 		  buffer_size, buffer);
+ 
+ 	return EFI_EXIT(efi_locate_handle(search_type, protocol, search_key,
+@@ -1495,7 +1495,7 @@ out:
+ static efi_status_t EFIAPI efi_install_configuration_table_ext(efi_guid_t *guid,
+ 							       void *table)
+ {
+-	EFI_ENTRY("%pUl, %p", guid, table);
++	EFI_ENTRY("%pUL, %p", guid, table);
+ 	return EFI_EXIT(efi_install_configuration_table(guid, table));
+ }
+ 
+@@ -1927,7 +1927,7 @@ static efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
+ 	struct efi_open_protocol_info_item *pos;
+ 	efi_status_t r;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, agent_handle,
++	EFI_ENTRY("%p, %pUL, %p, %p", handle, protocol, agent_handle,
+ 		  controller_handle);
+ 
+ 	if (!agent_handle) {
+@@ -1977,7 +1977,7 @@ static efi_status_t EFIAPI efi_open_protocol_information(
+ 	struct efi_open_protocol_info_item *item;
+ 	efi_status_t r;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, entry_buffer,
++	EFI_ENTRY("%p, %pUL, %p, %p", handle, protocol, entry_buffer,
+ 		  entry_count);
+ 
+ 	/* Check parameters */
+@@ -2101,7 +2101,7 @@ static efi_status_t EFIAPI efi_locate_handle_buffer(
+ 	efi_status_t r;
+ 	efi_uintn_t buffer_size = 0;
+ 
+-	EFI_ENTRY("%d, %pUl, %p, %p, %p", search_type, protocol, search_key,
++	EFI_ENTRY("%d, %pUL, %p, %p, %p", search_type, protocol, search_key,
+ 		  no_handles, buffer);
+ 
+ 	if (!no_handles || !buffer) {
+@@ -2146,7 +2146,7 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
+ 	struct list_head *lhandle;
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
++	EFI_ENTRY("%pUL, %p, %p", protocol, registration, protocol_interface);
+ 
+ 	if (!protocol || !protocol_interface)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+@@ -2197,7 +2197,7 @@ static efi_status_t EFIAPI efi_locate_device_path(
+ 	u8 *remainder;
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%pUl, %p, %p", protocol, device_path, device);
++	EFI_ENTRY("%pUL, %p, %p", protocol, device_path, device);
+ 
+ 	if (!protocol || !device_path || !*device_path || !device) {
+ 		ret = EFI_INVALID_PARAMETER;
+@@ -2548,7 +2548,7 @@ static efi_status_t EFIAPI efi_open_protocol
+ 	struct efi_handler *handler;
+ 	efi_status_t r = EFI_INVALID_PARAMETER;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p, %p, 0x%x", handle, protocol,
++	EFI_ENTRY("%p, %pUL, %p, %p, %p, 0x%x", handle, protocol,
+ 		  protocol_interface, agent_handle, controller_handle,
+ 		  attributes);
+ 
+@@ -2947,7 +2947,7 @@ static efi_status_t EFIAPI efi_reinstall_protocol_interface(
+ {
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p", handle, protocol, old_interface,
++	EFI_ENTRY("%p, %pUL, %p, %p", handle, protocol, old_interface,
+ 		  new_interface);
+ 
+ 	/* Uninstall protocol but do not delete handle */
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index e219f84b28..d5019511c6 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -62,7 +62,7 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
+ 	case DEVICE_PATH_SUB_TYPE_VENDOR: {
+ 		struct efi_device_path_vendor *vdp =
+ 			(struct efi_device_path_vendor *)dp;
+-		s += sprintf(s, "VenHw(%pUl)", &vdp->guid);
++		s += sprintf(s, "VenHw(%pUL)", &vdp->guid);
+ 		break;
+ 	}
+ 	default:
+@@ -191,7 +191,7 @@ static char *dp_media(char *s, struct efi_device_path *dp)
+ 			}
+ 		case SIG_TYPE_GUID:
+ 			s += sprintf(
+-				s, "HD(%d,GPT,%pUl,0x%llx,0x%llx)",
++				s, "HD(%d,GPT,%pUL,0x%llx,0x%llx)",
+ 				hddp->partition_number, sig, start, end);
+ 			break;
+ 		default:
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 182d735e6b..c7eaf13912 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -553,7 +553,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
++	EFI_ENTRY("%p, %pUL, %p, %p", file, info_type, buffer_size, buffer);
+ 
+ 	if (!guidcmp(info_type, &efi_file_info_guid)) {
+ 		struct efi_file_info *info = buffer;
+@@ -640,7 +640,7 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_UNSUPPORTED;
+ 
+-	EFI_ENTRY("%p, %pUl, %zu, %p", file, info_type, buffer_size, buffer);
++	EFI_ENTRY("%p, %pUL, %zu, %p", file, info_type, buffer_size, buffer);
+ 
+ 	if (!guidcmp(info_type, &efi_file_info_guid)) {
+ 		struct efi_file_info *info = (struct efi_file_info *)buffer;
+diff --git a/lib/efi_loader/efi_hii.c b/lib/efi_loader/efi_hii.c
+index 61b71dec62..a206acad01 100644
+--- a/lib/efi_loader/efi_hii.c
++++ b/lib/efi_loader/efi_hii.c
+@@ -372,7 +372,7 @@ add_packages(struct efi_hii_packagelist *hii,
+ 	end = ((void *)package_list)
+ 		+ get_unaligned_le32(&package_list->package_length);
+ 
+-	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
++	EFI_PRINT("package_list: %pUL (%u)\n", &package_list->package_list_guid,
+ 		  get_unaligned_le32(&package_list->package_length));
+ 
+ 	package = ((void *)package_list) + sizeof(*package_list);
+@@ -504,7 +504,7 @@ update_package_list(const struct efi_hii_database_protocol *this,
+ 	if (!package_list)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 
+-	EFI_PRINT("package_list: %pUl (%u)\n", &package_list->package_list_guid,
++	EFI_PRINT("package_list: %pUL (%u)\n", &package_list->package_list_guid,
+ 		  get_unaligned_le32(&package_list->package_length));
+ 
+ 	package = ((void *)package_list) + sizeof(*package_list);
+@@ -583,7 +583,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
+ 	int package_cnt, package_max;
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+-	EFI_ENTRY("%p, %u, %pUl, %p, %p", this, package_type, package_guid,
++	EFI_ENTRY("%p, %u, %pUL, %p, %p", this, package_type, package_guid,
+ 		  handle_buffer_length, handle);
+ 
+ 	if (!handle_buffer_length ||
+@@ -594,7 +594,7 @@ list_package_lists(const struct efi_hii_database_protocol *this,
+ 	    (package_type == EFI_HII_PACKAGE_TYPE_GUID && !package_guid))
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 
+-	EFI_PRINT("package type=%x, guid=%pUl, length=%zu\n", (int)package_type,
++	EFI_PRINT("package type=%x, guid=%pUL, length=%zu\n", (int)package_type,
+ 		  package_guid, *handle_buffer_length);
+ 
+ 	package_cnt = 0;
+@@ -679,7 +679,7 @@ register_package_notify(const struct efi_hii_database_protocol *this,
+ 			efi_uintn_t notify_type,
+ 			efi_handle_t *notify_handle)
+ {
+-	EFI_ENTRY("%p, %u, %pUl, %p, %zu, %p", this, package_type,
++	EFI_ENTRY("%p, %u, %pUL, %p, %zu, %p", this, package_type,
+ 		  package_guid, package_notify_fn, notify_type,
+ 		  notify_handle);
+ 
+@@ -742,7 +742,7 @@ get_keyboard_layout(const struct efi_hii_database_protocol *this,
+ 	struct efi_keyboard_layout_data *layout_data;
+ 	u16 layout_length;
+ 
+-	EFI_ENTRY("%p, %pUl, %p, %p", this, key_guid, keyboard_layout_length,
++	EFI_ENTRY("%p, %pUL, %p, %p", this, key_guid, keyboard_layout_length,
+ 		  keyboard_layout);
+ 
+ 	if (!keyboard_layout_length ||
+@@ -777,7 +777,7 @@ static efi_status_t EFIAPI
+ set_keyboard_layout(const struct efi_hii_database_protocol *this,
+ 		    efi_guid_t *key_guid)
+ {
+-	EFI_ENTRY("%p, %pUl", this, key_guid);
++	EFI_ENTRY("%p, %pUL", this, key_guid);
+ 
+ 	return EFI_EXIT(EFI_NOT_FOUND);
+ }
+diff --git a/lib/efi_loader/efi_hii_config.c b/lib/efi_loader/efi_hii_config.c
+index 26ea4b9bc0..195b081bfe 100644
+--- a/lib/efi_loader/efi_hii_config.c
++++ b/lib/efi_loader/efi_hii_config.c
+@@ -84,7 +84,7 @@ get_alt_config(const struct efi_hii_config_routing_protocol *this,
+ 	       const efi_string_t alt_cfg_id,
+ 	       efi_string_t *alt_cfg_resp)
+ {
+-	EFI_ENTRY("%p, \"%ls\", %pUl, \"%ls\", %p, \"%ls\", %p",
++	EFI_ENTRY("%p, \"%ls\", %pUL, \"%ls\", %p, \"%ls\", %p",
+ 		  this, config_resp, guid, name, device_path,
+ 		  alt_cfg_id, alt_cfg_resp);
+ 
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 37728c3c16..ebab3f95d9 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -75,7 +75,7 @@ static efi_status_t efi_to_native(char **native, const u16 *variable_name,
+ 		return EFI_OUT_OF_RESOURCES;
+ 
+ 	pos = *native;
+-	pos += sprintf(pos, "efi_%pUl_", vendor);
++	pos += sprintf(pos, "efi_%pUL_", vendor);
+ 	utf16_utf8_strcpy(&pos, variable_name);
+ 
+ 	return EFI_SUCCESS;
+@@ -170,7 +170,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 	const char *val, *s;
+ 	u32 attr;
+ 
+-	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
++	EFI_ENTRY("\"%ls\" %pUL %p %p %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
+ 	if (!variable_name || !vendor || !data_size)
+@@ -332,7 +332,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 	int i;
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
++	EFI_ENTRY("%p \"%ls\" %pUL", variable_name_size, variable_name, vendor);
+ 
+ 	if (!variable_name_size || !variable_name || !vendor)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+@@ -419,7 +419,7 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 	efi_status_t ret = EFI_SUCCESS;
+ 	u32 attr;
+ 
+-	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
++	EFI_ENTRY("\"%ls\" %pUL %x %zu %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
+ 	if (!variable_name || !vendor) {
+-- 
+2.20.1
+

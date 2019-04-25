@@ -59,6 +59,8 @@ git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
 git am ../patch/0001-fs-correct-comments-for-fs_read-and-fs_write.patch
+git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
+git am ../patch/0001-efi_loader-user-upper-case-for-GUIDs.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit

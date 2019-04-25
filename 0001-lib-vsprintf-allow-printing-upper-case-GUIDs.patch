@@ -1,0 +1,186 @@
+From 71d0c496c3739abfd29c20bf922c8951e796ae91 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 25 Apr 2019 22:51:52 +0200
+Subject: [PATCH] lib/vsprintf: allow printing upper case GUIDs
+
+In the UEFI context GUIDs are expected to be rendered in upper case.
+
+The patch uses the formerly unused bit 1 of the parameter str_format
+of function uuid_bin_to_str() to indicate if we need upper or lower case
+output.
+
+Function uuid_string() in vsprint.c is adjusted to correctly set the bit
+depending on the print format code.
+
+%pUb: 01020304-0506-0708-090a-0b0c0d0e0f10
+%pUB: 01020304-0506-0708-090A-0B0C0D0E0F10
+%pUl: 04030201-0605-0807-090a-0b0c0d0e0f10
+%pUL: 04030201-0605-0807-090A-0B0C0D0E0F10
+
+Up to this point only a diagnostic message in mount_ubifs() using '%pUB' is
+concerned by the change. Further patches are needed to adjust the UEFI
+subsystem.
+
+A unit test is provided inside the ut_print command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+I suggest to merge the patch via the u-boot-efi repository.
+---
+ include/uuid.h  |  8 ++++----
+ lib/uuid.c      | 18 ++++++++++++------
+ lib/vsprintf.c  | 14 ++++++++------
+ test/print_ut.c | 22 ++++++++++++++++++++++
+ 4 files changed, 46 insertions(+), 16 deletions(-)
+
+diff --git a/include/uuid.h b/include/uuid.h
+index 124bbce8a2..47d5b0d8d4 100644
+--- a/include/uuid.h
++++ b/include/uuid.h
+@@ -16,10 +16,10 @@ struct uuid {
+ 	unsigned char node[6];
+ } __packed;
+ 
+-enum {
+-	UUID_STR_FORMAT_STD,
+-	UUID_STR_FORMAT_GUID
+-};
++/* Bits of a bitmask specifying the output format for GUIDs */
++#define UUID_STR_FORMAT_STD	0
++#define UUID_STR_FORMAT_GUID	1
++#define UUID_STR_UPPER_CASE	2
+ 
+ #define UUID_STR_LEN		36
+ #define UUID_BIN_LEN		sizeof(struct uuid)
+diff --git a/lib/uuid.c b/lib/uuid.c
+index fa20ee39fc..14d7f8ce7e 100644
+--- a/lib/uuid.c
++++ b/lib/uuid.c
+@@ -187,9 +187,10 @@ int uuid_str_to_bin(char *uuid_str, unsigned char *uuid_bin, int str_format)
+ /*
+  * uuid_bin_to_str() - convert big endian binary data to string UUID or GUID.
+  *
+- * @param uuid_bin - pointer to binary data of UUID (big endian) [16B]
+- * @param uuid_str - pointer to allocated array for output string [37B]
+- * @str_format     - UUID string format: 0 - UUID; 1 - GUID
++ * @param uuid_bin:	pointer to binary data of UUID (big endian) [16B]
++ * @param uuid_str:	pointer to allocated array for output string [37B]
++ * @str_format:		bit 0: 0 - UUID; 1 - GUID
++ *			bit 1: 0 - lower case; 2 - upper case
+  */
+ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
+ {
+@@ -198,6 +199,7 @@ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
+ 	const u8 guid_char_order[UUID_BIN_LEN] = {3, 2, 1, 0, 5, 4, 7, 6, 8,
+ 						  9, 10, 11, 12, 13, 14, 15};
+ 	const u8 *char_order;
++	const char *format;
+ 	int i;
+ 
+ 	/*
+@@ -205,13 +207,17 @@ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
+ 	 * 4B-2B-2B-2B-6B
+ 	 * be be be be be
+ 	 */
+-	if (str_format == UUID_STR_FORMAT_STD)
++	if (str_format & UUID_STR_FORMAT_GUID)
++		char_order = guid_char_order;
++	else
+ 		char_order = uuid_char_order;
++	if (str_format & UUID_STR_UPPER_CASE)
++		format = "%02X";
+ 	else
+-		char_order = guid_char_order;
++		format = "%02x";
+ 
+ 	for (i = 0; i < 16; i++) {
+-		sprintf(uuid_str, "%02x", uuid_bin[char_order[i]]);
++		sprintf(uuid_str, format, uuid_bin[char_order[i]]);
+ 		uuid_str += 2;
+ 		switch (i) {
+ 		case 3:
+diff --git a/lib/vsprintf.c b/lib/vsprintf.c
+index 2403825dc9..f1332df0f3 100644
+--- a/lib/vsprintf.c
++++ b/lib/vsprintf.c
+@@ -382,29 +382,31 @@ static char *ip4_addr_string(char *buf, char *end, u8 *addr, int field_width,
+ 
+ #ifdef CONFIG_LIB_UUID
+ /*
+- * This works (roughly) the same way as linux's, but we currently always
+- * print lower-case (ie. we just keep %pUB and %pUL for compat with linux),
+- * mostly just because that is what uuid_bin_to_str() supports.
++ * This works (roughly) the same way as Linux's.
+  *
+  *   %pUb:   01020304-0506-0708-090a-0b0c0d0e0f10
++ *   %pUB:   01020304-0506-0708-090A-0B0C0D0E0F10
+  *   %pUl:   04030201-0605-0807-090a-0b0c0d0e0f10
++ *   %pUL:   04030201-0605-0807-090A-0B0C0D0E0F10
+  */
+ static char *uuid_string(char *buf, char *end, u8 *addr, int field_width,
+ 			 int precision, int flags, const char *fmt)
+ {
+ 	char uuid[UUID_STR_LEN + 1];
+-	int str_format = UUID_STR_FORMAT_STD;
++	int str_format;
+ 
+ 	switch (*(++fmt)) {
+ 	case 'L':
++		str_format = UUID_STR_FORMAT_GUID | UUID_STR_UPPER_CASE;
++		break;
+ 	case 'l':
+ 		str_format = UUID_STR_FORMAT_GUID;
+ 		break;
+ 	case 'B':
+-	case 'b':
+-		/* this is the default */
++		str_format = UUID_STR_FORMAT_STD | UUID_STR_UPPER_CASE;
+ 		break;
+ 	default:
++		str_format = UUID_STR_FORMAT_STD;
+ 		break;
+ 	}
+ 
+diff --git a/test/print_ut.c b/test/print_ut.c
+index f0f1d6010a..4ec414940f 100644
+--- a/test/print_ut.c
++++ b/test/print_ut.c
+@@ -15,6 +15,25 @@
+ #define FAKE_BUILD_TAG	"jenkins-u-boot-denx_uboot_dm-master-build-aarch64" \
+ 			"and a lot more text to come"
+ 
++/* Test printing GUIDs */
++static void guid_ut_print(void)
++{
++#if CONFIG_IS_ENABLED(LIB_UUID)
++	unsigned char guid[16] = {
++		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
++	};
++	char str[40];
++
++	assert(!strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
++	sprintf(str, "%pUB", guid);
++	assert(!strcmp("01020304-0506-0708-090A-0B0C0D0E0F10", str));
++	sprintf(str, "%pUl", guid);
++	assert(!strcmp("04030201-0605-0807-090a-0b0c0d0e0f10", str));
++	sprintf(str, "%pUL", guid);
++	assert(!strcmp("04030201-0605-0807-090A-0B0C0D0E0F10", str));
++#endif
++}
++
+ /* Test efi_loader specific printing */
+ static void efi_ut_print(void)
+ {
+@@ -113,6 +132,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	/* Test efi_loader specific printing */
+ 	efi_ut_print();
+ 
++	/* Test printing GUIDs */
++	guid_ut_print();
++
+ 	printf("%s: Everything went swimmingly\n", __func__);
+ 	return 0;
+ }
+-- 
+2.20.1
+
