@@ -56,6 +56,7 @@ git am ../patch/0001-Workarounds-for-SCT.patch
 
 # efi-2019-07-rc2
 git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
+git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
