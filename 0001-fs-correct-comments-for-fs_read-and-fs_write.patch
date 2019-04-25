@@ -1,7 +1,7 @@
-From c25e28b0ff9556fee50a0e9da3b70e929f47a4b4 Mon Sep 17 00:00:00 2001
+From 6529b728bdbfda4f2288503d877f6593cdfcd125 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 25 Apr 2019 20:27:20 +0200
-Subject: [PATCH 1/1] fs: correct comments for fs_read() and write()
+Subject: [PATCH 1/1] fs: correct comments for fs_read() and fs_write()
 
 The existing comments where confusing read and write. The comment for
 fs_write() had:

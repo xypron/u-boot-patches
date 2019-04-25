@@ -58,7 +58,7 @@ git am ../patch/0001-Workarounds-for-SCT.patch
 git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
-git am ../patch/0001-fs-correct-comments-for-fs_read-and-write.patch
+git am ../patch/0001-fs-correct-comments-for-fs_read-and-fs_write.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
