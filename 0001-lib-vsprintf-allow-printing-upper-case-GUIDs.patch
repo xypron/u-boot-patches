@@ -1,7 +1,7 @@
-From 71d0c496c3739abfd29c20bf922c8951e796ae91 Mon Sep 17 00:00:00 2001
+From 47986d9802ae59578d600af060f4505c10ef9eb2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 25 Apr 2019 22:51:52 +0200
-Subject: [PATCH] lib/vsprintf: allow printing upper case GUIDs
+Subject: [PATCH 1/1] lib/vsprintf: allow printing upper case GUIDs
 
 In the UEFI context GUIDs are expected to be rendered in upper case.
 
@@ -30,8 +30,8 @@ I suggest to merge the patch via the u-boot-efi repository.
  include/uuid.h  |  8 ++++----
  lib/uuid.c      | 18 ++++++++++++------
  lib/vsprintf.c  | 14 ++++++++------
- test/print_ut.c | 22 ++++++++++++++++++++++
- 4 files changed, 46 insertions(+), 16 deletions(-)
+ test/print_ut.c | 23 +++++++++++++++++++++++
+ 4 files changed, 47 insertions(+), 16 deletions(-)
 
 diff --git a/include/uuid.h b/include/uuid.h
 index 124bbce8a2..47d5b0d8d4 100644
@@ -142,10 +142,10 @@ index 2403825dc9..f1332df0f3 100644
  	}
  
 diff --git a/test/print_ut.c b/test/print_ut.c
-index f0f1d6010a..4ec414940f 100644
+index f0f1d6010a..173860451d 100644
 --- a/test/print_ut.c
 +++ b/test/print_ut.c
-@@ -15,6 +15,25 @@
+@@ -15,6 +15,26 @@
  #define FAKE_BUILD_TAG	"jenkins-u-boot-denx_uboot_dm-master-build-aarch64" \
  			"and a lot more text to come"
  
@@ -158,6 +158,7 @@ index f0f1d6010a..4ec414940f 100644
 +	};
 +	char str[40];
 +
++	sprintf(str, "%pUb", guid);
 +	assert(!strcmp("01020304-0506-0708-090a-0b0c0d0e0f10", str));
 +	sprintf(str, "%pUB", guid);
 +	assert(!strcmp("01020304-0506-0708-090A-0B0C0D0E0F10", str));
@@ -171,7 +172,7 @@ index f0f1d6010a..4ec414940f 100644
  /* Test efi_loader specific printing */
  static void efi_ut_print(void)
  {
-@@ -113,6 +132,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
+@@ -113,6 +133,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
  	/* Test efi_loader specific printing */
  	efi_ut_print();
  
