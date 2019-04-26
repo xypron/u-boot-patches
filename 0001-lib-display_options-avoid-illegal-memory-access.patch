@@ -1,0 +1,69 @@
+From c8bfe48e73f79a141f9a8d241de72164f544c7c6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 26 Apr 2019 18:27:59 +0200
+Subject: [PATCH 1/1] lib/display_options: avoid illegal memory access
+
+display_options_get_banner_priv() overwrites bytes before the start of the
+buffer if the buffer size is less then 3. This case occurs in the Sandbox
+when executing the `ut_print` command.
+
+Correctly handle small buffer sizes. Adjust the print unit test to catch
+when bytes before the buffer are overwritten.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+I will take the patch via the u-boot-efi repository.
+---
+ lib/display_options.c |  4 +++-
+ test/print_ut.c       | 20 ++++++++++++--------
+ 2 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/lib/display_options.c b/lib/display_options.c
+index af1802ef99..cff20f3755 100644
+--- a/lib/display_options.c
++++ b/lib/display_options.c
+@@ -23,7 +23,9 @@ char *display_options_get_banner_priv(bool newlines, const char *build_tag,
+ 				build_tag);
+ 	if (len > size - 3)
+ 		len = size - 3;
+-	strcpy(buf + len, "\n\n");
++	if (len < 0)
++		len = 0;
++	snprintf(buf + len, size - len, "\n\n");
+ 
+ 	return buf;
+ }
+diff --git a/test/print_ut.c b/test/print_ut.c
+index f0f1d6010a..0bc548dca8 100644
+--- a/test/print_ut.c
++++ b/test/print_ut.c
+@@ -79,14 +79,18 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
+ 	assert(s == str);
+ 	assert(!strcmp("\n\nU-Boo\n\n", s));
+ 
+-	s = display_options_get_banner(true, str, 1);
+-	assert(s == str);
+-	assert(!strcmp("", s));
+-
+-	s = display_options_get_banner(true, str, 2);
+-	assert(s == str);
+-	assert(!strcmp("\n", s));
+-
++	/* Assert that we do not overwrite memory before the buffer */
++	str[0] = '`';
++	s = display_options_get_banner(true, str + 1, 1);
++	assert(s == str + 1);
++	assert(!strcmp("`", str));
++
++	str[0] = '~';
++	s = display_options_get_banner(true, str + 1, 2);
++	assert(s == str + 1);
++	assert(!strcmp("~\n", str));
++
++	/* The last two characters are set to \n\n for all buffer sizes > 2 */
+ 	s = display_options_get_banner(false, str, sizeof(str));
+ 	assert(s == str);
+ 	assert(!strcmp("U-Boot \n\n", s));
+-- 
+2.20.1
+
