@@ -1,7 +1,7 @@
 From 47986d9802ae59578d600af060f4505c10ef9eb2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 25 Apr 2019 22:51:52 +0200
-Subject: [PATCH 1/1] lib/vsprintf: allow printing upper case GUIDs
+Subject: [PATCH v3 1/1] lib/vsprintf: allow printing upper case GUIDs
 
 In the UEFI context GUIDs are expected to be rendered in upper case.
 
@@ -25,7 +25,10 @@ A unit test is provided inside the ut_print command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-I suggest to merge the patch via the u-boot-efi repository.
+v3:
+	use (1 << n) style for bits of bitmask as suggested by Alex
+v2:
+	add missing sprintf() statement in unit test
 ---
  include/uuid.h  |  8 ++++----
  lib/uuid.c      | 18 ++++++++++++------
@@ -47,8 +50,8 @@ index 124bbce8a2..47d5b0d8d4 100644
 -};
 +/* Bits of a bitmask specifying the output format for GUIDs */
 +#define UUID_STR_FORMAT_STD	0
-+#define UUID_STR_FORMAT_GUID	1
-+#define UUID_STR_UPPER_CASE	2
++#define UUID_STR_FORMAT_GUID	(1 << 0)
++#define UUID_STR_UPPER_CASE	(1 << 1)
  
  #define UUID_STR_LEN		36
  #define UUID_BIN_LEN		sizeof(struct uuid)
