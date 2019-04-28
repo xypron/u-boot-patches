@@ -1,0 +1,2040 @@
+From 6950f302fac569abc70f01063c1bddb8df5f632d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 27 Apr 2019 18:31:33 +0200
+Subject: [PATCH 1/1] fdt: update bcm283x device tree sources to Linux 5.1-rc6
+ state
+
+Updating the bcm283x device tree sources adds the device trees for
+
+- Raspberry Pi 3 Model A+
+- Raspberry Pi 3 Model B+
+- Raspberry Pi Compute Module IO board rev1
+- Raspberry Pi Compute Module 3 IO board V3.0
+- Raspberry Pi Zero
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/dts/Makefile                       |  13 +-
+ arch/arm/dts/bcm2835-rpi-a-plus.dts         |  15 +-
+ arch/arm/dts/bcm2835-rpi-a.dts              |   9 +-
+ arch/arm/dts/bcm2835-rpi-b-plus.dts         |  15 +-
+ arch/arm/dts/bcm2835-rpi-b-rev2.dts         |  11 +-
+ arch/arm/dts/bcm2835-rpi-b.dts              |   9 +-
+ arch/arm/dts/bcm2835-rpi-cm1-io1.dts        |  88 ++++++++++
+ arch/arm/dts/bcm2835-rpi-cm1.dtsi           |  34 ++++
+ arch/arm/dts/bcm2835-rpi-zero-w.dts         | 123 +++++++++++++-
+ arch/arm/dts/bcm2835-rpi-zero.dts           | 105 ++++++++++++
+ arch/arm/dts/bcm2835-rpi.dtsi               |  22 +--
+ arch/arm/dts/bcm2835.dtsi                   |   7 +-
+ arch/arm/dts/bcm2836-rpi-2-b.dts            |  81 ++++++++-
+ arch/arm/dts/bcm2836-rpi.dtsi               |   6 +
+ arch/arm/dts/bcm2836.dtsi                   |  25 +--
+ arch/arm/dts/bcm2837-rpi-3-a-plus.dts       | 175 +++++++++++++++++++
+ arch/arm/dts/bcm2837-rpi-3-b-plus.dts       | 178 ++++++++++++++++++++
+ arch/arm/dts/bcm2837-rpi-3-b.dts            | 128 +++++++++++++-
+ arch/arm/dts/bcm2837-rpi-cm3-io3.dts        |  87 ++++++++++
+ arch/arm/dts/bcm2837-rpi-cm3.dtsi           |  52 ++++++
+ arch/arm/dts/bcm2837.dtsi                   |  20 ++-
+ arch/arm/dts/bcm283x-rpi-lan7515.dtsi       |  41 +++++
+ arch/arm/dts/bcm283x-rpi-smsc9512.dtsi      |   1 +
+ arch/arm/dts/bcm283x-rpi-usb-otg.dtsi       |  11 ++
+ arch/arm/dts/bcm283x.dtsi                   |  57 +++++--
+ include/dt-bindings/clock/bcm2835-aux.h     |  10 +-
+ include/dt-bindings/clock/bcm2835.h         |  10 +-
+ include/dt-bindings/net/microchip-lan78xx.h |  21 +++
+ include/dt-bindings/pinctrl/bcm2835.h       |   8 +-
+ include/dt-bindings/soc/bcm2835-pm.h        |  28 +++
+ 30 files changed, 1290 insertions(+), 100 deletions(-)
+ create mode 100644 arch/arm/dts/bcm2835-rpi-cm1-io1.dts
+ create mode 100644 arch/arm/dts/bcm2835-rpi-cm1.dtsi
+ create mode 100644 arch/arm/dts/bcm2835-rpi-zero.dts
+ create mode 100644 arch/arm/dts/bcm2836-rpi.dtsi
+ create mode 100644 arch/arm/dts/bcm2837-rpi-3-a-plus.dts
+ create mode 100644 arch/arm/dts/bcm2837-rpi-3-b-plus.dts
+ create mode 100644 arch/arm/dts/bcm2837-rpi-cm3-io3.dts
+ create mode 100644 arch/arm/dts/bcm2837-rpi-cm3.dtsi
+ create mode 100644 arch/arm/dts/bcm283x-rpi-lan7515.dtsi
+ create mode 100644 arch/arm/dts/bcm283x-rpi-usb-otg.dtsi
+ create mode 100644 include/dt-bindings/net/microchip-lan78xx.h
+ create mode 100644 include/dt-bindings/soc/bcm2835-pm.h
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 0aee8dfde0..28cf37389b 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -678,14 +678,19 @@ dtb-$(CONFIG_TARGET_VINCO) += \
+ 	at91-vinco.dtb
+ 
+ dtb-$(CONFIG_ARCH_BCM283X) += \
+-	bcm2835-rpi-a-plus.dtb \
+ 	bcm2835-rpi-a.dtb \
++	bcm2835-rpi-a-plus.dtb \
++	bcm2835-rpi-b.dtb \
+ 	bcm2835-rpi-b-plus.dtb \
+ 	bcm2835-rpi-b-rev2.dtb \
+-	bcm2835-rpi-b.dtb \
+-	bcm2835-rpi-zero-w.dtb \
++	bcm2835-rpi-cm1-io1.dtb \
++	bcm2835-rpi-zero.dtb \
++	bcm2835-rpi-zero-w.dtb\
+ 	bcm2836-rpi-2-b.dtb \
+-	bcm2837-rpi-3-b.dtb
++	bcm2837-rpi-3-a-plus.dtb \
++	bcm2837-rpi-3-b.dtb \
++	bcm2837-rpi-3-b-plus.dtb \
++	bcm2837-rpi-cm3-io3.dtb
+ 
+ dtb-$(CONFIG_ARCH_BCM63158) += \
+ 	bcm963158.dtb
+diff --git a/arch/arm/dts/bcm2835-rpi-a-plus.dts b/arch/arm/dts/bcm2835-rpi-a-plus.dts
+index 9f866491ef..db8a6017f2 100644
+--- a/arch/arm/dts/bcm2835-rpi-a-plus.dts
++++ b/arch/arm/dts/bcm2835-rpi-a-plus.dts
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+@@ -9,12 +10,12 @@
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 0>;
++			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+ 		pwr {
+ 			label = "PWR";
+-			gpios = <&gpio 35 0>;
++			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+ 			linux,default-trigger = "default-on";
+ 		};
+@@ -30,8 +31,8 @@
+ 	 * "FOO" = GPIO line named "FOO" on the schematic
+ 	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
+ 	 */
+-	gpio-line-names = "SDA0",
+-			  "SCL0",
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
+ 			  "SDA1",
+ 			  "SCL1",
+ 			  "GPIO_GCLK",
+@@ -100,6 +101,12 @@
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+ };
+ 
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio14>;
+diff --git a/arch/arm/dts/bcm2835-rpi-a.dts b/arch/arm/dts/bcm2835-rpi-a.dts
+index 4b1af06c8d..067d1f07a2 100644
+--- a/arch/arm/dts/bcm2835-rpi-a.dts
++++ b/arch/arm/dts/bcm2835-rpi-a.dts
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+@@ -9,7 +10,7 @@
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 16 1>;
++			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+ };
+@@ -95,6 +96,12 @@
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_HIGH>;
+ };
+ 
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio14>;
+diff --git a/arch/arm/dts/bcm2835-rpi-b-plus.dts b/arch/arm/dts/bcm2835-rpi-b-plus.dts
+index a846f1e781..1e40d672b0 100644
+--- a/arch/arm/dts/bcm2835-rpi-b-plus.dts
++++ b/arch/arm/dts/bcm2835-rpi-b-plus.dts
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+@@ -10,12 +11,12 @@
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 0>;
++			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+ 		pwr {
+ 			label = "PWR";
+-			gpios = <&gpio 35 0>;
++			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+ 			linux,default-trigger = "default-on";
+ 		};
+@@ -32,8 +33,8 @@
+ 	 * "FOO" = GPIO line named "FOO" on the schematic
+ 	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
+ 	 */
+-	gpio-line-names = "SDA0",
+-			  "SCL0",
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
+ 			  "SDA1",
+ 			  "SCL1",
+ 			  "GPIO_GCLK",
+@@ -102,6 +103,12 @@
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+ };
+ 
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio14>;
+diff --git a/arch/arm/dts/bcm2835-rpi-b-rev2.dts b/arch/arm/dts/bcm2835-rpi-b-rev2.dts
+index e860964e39..28e7513ce6 100644
+--- a/arch/arm/dts/bcm2835-rpi-b-rev2.dts
++++ b/arch/arm/dts/bcm2835-rpi-b-rev2.dts
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+@@ -10,7 +11,7 @@
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 16 1>;
++			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+ };
+@@ -92,7 +93,13 @@
+ };
+ 
+ &hdmi {
+-	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
++	hpd-gpios = <&gpio 46 GPIO_ACTIVE_HIGH>;
++};
++
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
+ };
+ 
+ &uart0 {
+diff --git a/arch/arm/dts/bcm2835-rpi-b.dts b/arch/arm/dts/bcm2835-rpi-b.dts
+index 5d77f3f8c4..31ff602e2c 100644
+--- a/arch/arm/dts/bcm2835-rpi-b.dts
++++ b/arch/arm/dts/bcm2835-rpi-b.dts
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+@@ -10,7 +11,7 @@
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 16 1>;
++			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+ };
+@@ -90,6 +91,12 @@
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_HIGH>;
+ };
+ 
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio14>;
+diff --git a/arch/arm/dts/bcm2835-rpi-cm1-io1.dts b/arch/arm/dts/bcm2835-rpi-cm1-io1.dts
+new file mode 100644
+index 0000000000..4764a25585
+--- /dev/null
++++ b/arch/arm/dts/bcm2835-rpi-cm1-io1.dts
+@@ -0,0 +1,88 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2835-rpi-cm1.dtsi"
++#include "bcm283x-rpi-usb-host.dtsi"
++
++/ {
++	compatible = "raspberrypi,compute-module", "brcm,bcm2835";
++	model = "Raspberry Pi Compute Module IO board rev1";
++};
++
++&gpio {
++	/*
++	 * This is based on the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "GPIO0",
++			  "GPIO1",
++			  "GPIO2",
++			  "GPIO3",
++			  "GPIO4",
++			  "GPIO5",
++			  "GPIO6",
++			  "GPIO7",
++			  "GPIO8",
++			  "GPIO9",
++			  "GPIO10",
++			  "GPIO11",
++			  "GPIO12",
++			  "GPIO13",
++			  "GPIO14",
++			  "GPIO15",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "GPIO28",
++			  "GPIO29",
++			  "GPIO30",
++			  "GPIO31",
++			  "GPIO32",
++			  "GPIO33",
++			  "GPIO34",
++			  "GPIO35",
++			  "GPIO36",
++			  "GPIO37",
++			  "GPIO38",
++			  "GPIO39",
++			  "GPIO40",
++			  "GPIO41",
++			  "GPIO42",
++			  "GPIO43",
++			  "GPIO44",
++			  "GPIO45",
++			  "HDMI_HPD_N",
++			  /* Also used as ACT LED */
++			  "EMMC_EN_N",
++			  /* Used by eMMC */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++
++	pinctrl-0 = <&gpioout &alt0>;
++};
++
++&hdmi {
++	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2835-rpi-cm1.dtsi b/arch/arm/dts/bcm2835-rpi-cm1.dtsi
+new file mode 100644
+index 0000000000..ef22c2da78
+--- /dev/null
++++ b/arch/arm/dts/bcm2835-rpi-cm1.dtsi
+@@ -0,0 +1,34 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2835.dtsi"
++#include "bcm2835-rpi.dtsi"
++
++/ {
++	leds {
++		act {
++			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	reg_3v3: fixed-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "3V3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++	};
++
++	reg_1v8: fixed-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "1V8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-always-on;
++	};
++};
++
++&sdhost {
++	non-removable;
++	vmmc-supply = <&reg_3v3>;
++	vqmmc-supply = <&reg_1v8>;
++};
+diff --git a/arch/arm/dts/bcm2835-rpi-zero-w.dts b/arch/arm/dts/bcm2835-rpi-zero-w.dts
+index 7817054775..ba0167df6c 100644
+--- a/arch/arm/dts/bcm2835-rpi-zero-w.dts
++++ b/arch/arm/dts/bcm2835-rpi-zero-w.dts
+@@ -1,26 +1,135 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2017 Stefan Wahren <stefan.wahren@i2se.com>
++ */
++
+ /dts-v1/;
+ #include "bcm2835.dtsi"
+ #include "bcm2835-rpi.dtsi"
+-#include "bcm283x-rpi-smsc9512.dtsi"
+-#include "bcm283x-rpi-usb-host.dtsi"
++#include "bcm283x-rpi-usb-otg.dtsi"
+ 
+ / {
+ 	compatible = "raspberrypi,model-zero-w", "brcm,bcm2835";
+ 	model = "Raspberry Pi Zero W";
+ 
++	chosen {
++		/* 8250 auxiliary UART instead of pl011 */
++		stdout-path = "serial1:115200n8";
++	};
++
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 0>;
++			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&gpio 41 GPIO_ACTIVE_LOW>;
++	};
+ };
+ 
+-&uart1 {
+-    pinctrl-names = "default";
+-    pinctrl-0 = <&uart1_gpio14>;
+-    status = "okay";
++&gpio {
++	/*
++	 * This is based on the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD0",
++			  "RXD0",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "SDA0",
++			  "SCL0",
++			  "NC", /* GPIO30 */
++			  "NC", /* GPIO31 */
++			  "NC", /* GPIO32 */
++			  "NC", /* GPIO33 */
++			  "NC", /* GPIO34 */
++			  "NC", /* GPIO35 */
++			  "NC", /* GPIO36 */
++			  "NC", /* GPIO37 */
++			  "NC", /* GPIO38 */
++			  "NC", /* GPIO39 */
++			  "CAM_GPIO1", /* GPIO40 */
++			  "WL_ON", /* GPIO41 */
++			  "NC", /* GPIO42 */
++			  "WIFI_CLK", /* GPIO43 */
++			  "CAM_GPIO0", /* GPIO44 */
++			  "BT_ON", /* GPIO45 */
++			  "HDMI_HPD_N",
++			  "STATUS_LED_N",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++
++	pinctrl-0 = <&gpioout &alt0>;
+ };
+ 
+ &hdmi {
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+ };
++
++&sdhci {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-0 = <&emmc_gpio34 &gpclk2_gpio43>;
++	mmc-pwrseq = <&wifi_pwrseq>;
++	non-removable;
++	status = "okay";
++
++	brcmf: wifi@1 {
++		reg = <1>;
++		compatible = "brcm,bcm4329-fmac";
++	};
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_gpio32 &uart0_ctsrts_gpio30>;
++	status = "okay";
++
++	bluetooth {
++		compatible = "brcm,bcm43438-bt";
++		max-speed = <2000000>;
++		shutdown-gpios = <&gpio 45 GPIO_ACTIVE_HIGH>;
++	};
++};
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2835-rpi-zero.dts b/arch/arm/dts/bcm2835-rpi-zero.dts
+new file mode 100644
+index 0000000000..3b35a8a4a5
+--- /dev/null
++++ b/arch/arm/dts/bcm2835-rpi-zero.dts
+@@ -0,0 +1,105 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2016 Stefan Wahren <stefan.wahren@i2se.com>
++ */
++
++/dts-v1/;
++#include "bcm2835.dtsi"
++#include "bcm2835-rpi.dtsi"
++#include "bcm283x-rpi-usb-otg.dtsi"
++
++/ {
++	compatible = "raspberrypi,model-zero", "brcm,bcm2835";
++	model = "Raspberry Pi Zero";
++
++	leds {
++		act {
++			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
++		};
++	};
++};
++
++&gpio {
++	/*
++	 * This is based on the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD0",
++			  "RXD0",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "SDA0",
++			  "SCL0",
++			  "NC", /* GPIO30 */
++			  "NC", /* GPIO31 */
++			  "CAM_GPIO1", /* GPIO32 */
++			  "NC", /* GPIO33 */
++			  "NC", /* GPIO34 */
++			  "NC", /* GPIO35 */
++			  "NC", /* GPIO36 */
++			  "NC", /* GPIO37 */
++			  "NC", /* GPIO38 */
++			  "NC", /* GPIO39 */
++			  "NC", /* GPIO40 */
++			  "CAM_GPIO0", /* GPIO41 */
++			  "NC", /* GPIO42 */
++			  "NC", /* GPIO43 */
++			  "NC", /* GPIO44 */
++			  "NC", /* GPIO45 */
++			  "HDMI_HPD_N",
++			  "STATUS_LED_N",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++
++	pinctrl-0 = <&gpioout &alt0 &i2s_alt0>;
++
++	/* I2S interface */
++	i2s_alt0: i2s_alt0 {
++		brcm,pins = <18 19 20 21>;
++		brcm,function = <BCM2835_FSEL_ALT0>;
++	};
++};
++
++&hdmi {
++	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2835-rpi.dtsi b/arch/arm/dts/bcm2835-rpi.dtsi
+index 8b95832dd0..715d50c645 100644
+--- a/arch/arm/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/dts/bcm2835-rpi.dtsi
+@@ -1,7 +1,7 @@
+ #include <dt-bindings/power/raspberrypi-power.h>
+ 
+ / {
+-	memory {
++	memory@0 {
+ 		device_type = "memory";
+ 		reg = <0 0x10000000>;
+ 	};
+@@ -18,7 +18,7 @@
+ 
+ 	soc {
+ 		firmware: firmware {
+-			compatible = "raspberrypi,bcm2835-firmware";
++			compatible = "raspberrypi,bcm2835-firmware", "simple-bus";
+ 			mboxes = <&mailbox>;
+ 		};
+ 
+@@ -27,6 +27,12 @@
+ 			firmware = <&firmware>;
+ 			#power-domain-cells = <1>;
+ 		};
++
++		vchiq: mailbox@7e00b840 {
++			compatible = "brcm,bcm2835-vchiq";
++			reg = <0x7e00b840 0x3c>;
++			interrupts = <0 2>;
++		};
+ 	};
+ };
+ 
+@@ -65,30 +71,20 @@
+ &sdhci {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&emmc_gpio48>;
+-	status = "okay";
+ 	bus-width = <4>;
+ };
+ 
+ &sdhost {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&sdhost_gpio48>;
+-	bus-width = <4>;
+-};
+-
+-&pwm {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
+ 	status = "okay";
++	bus-width = <4>;
+ };
+ 
+ &usb {
+ 	power-domains = <&power RPI_POWER_DOMAIN_USB>;
+ };
+ 
+-&v3d {
+-	power-domains = <&power RPI_POWER_DOMAIN_V3D>;
+-};
+-
+ &hdmi {
+ 	power-domains = <&power RPI_POWER_DOMAIN_HDMI>;
+ 	status = "okay";
+diff --git a/arch/arm/dts/bcm2835.dtsi b/arch/arm/dts/bcm2835.dtsi
+index 659b6e9513..a5c3824c80 100644
+--- a/arch/arm/dts/bcm2835.dtsi
++++ b/arch/arm/dts/bcm2835.dtsi
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ #include "bcm283x.dtsi"
+ 
+ / {
+@@ -17,10 +18,10 @@
+ 	soc {
+ 		ranges = <0x7e000000 0x20000000 0x02000000>;
+ 		dma-ranges = <0x40000000 0x00000000 0x20000000>;
++	};
+ 
+-		arm-pmu {
+-			compatible = "arm,arm1176-pmu";
+-		};
++	arm-pmu {
++		compatible = "arm,arm1176-pmu";
+ 	};
+ };
+ 
+diff --git a/arch/arm/dts/bcm2836-rpi-2-b.dts b/arch/arm/dts/bcm2836-rpi-2-b.dts
+index e8de41444b..7b4e651baf 100644
+--- a/arch/arm/dts/bcm2836-rpi-2-b.dts
++++ b/arch/arm/dts/bcm2836-rpi-2-b.dts
+@@ -1,6 +1,7 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2836.dtsi"
+-#include "bcm2835-rpi.dtsi"
++#include "bcm2836-rpi.dtsi"
+ #include "bcm283x-rpi-smsc9514.dtsi"
+ #include "bcm283x-rpi-usb-host.dtsi"
+ 
+@@ -8,18 +9,18 @@
+ 	compatible = "raspberrypi,2-model-b", "brcm,bcm2836";
+ 	model = "Raspberry Pi 2 Model B";
+ 
+-	memory {
++	memory@0 {
+ 		reg = <0 0x40000000>;
+ 	};
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 0>;
++			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+ 		pwr {
+ 			label = "PWR";
+-			gpios = <&gpio 35 0>;
++			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+ 			linux,default-trigger = "default-on";
+ 		};
+@@ -27,6 +28,72 @@
+ };
+ 
+ &gpio {
++	/*
++	 * Taken from rpi_SCH_2b_1p2_reduced.pdf and
++	 * the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD0",
++			  "RXD0",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "SDA0",
++			  "SCL0",
++			  "", /* GPIO30 */
++			  "LAN_RUN",
++			  "CAM_GPIO1",
++			  "", /* GPIO33 */
++			  "", /* GPIO34 */
++			  "PWR_LOW_N",
++			  "", /* GPIO36 */
++			  "", /* GPIO37 */
++			  "USB_LIMIT",
++			  "", /* GPIO39 */
++			  "PWM0_OUT",
++			  "CAM_GPIO0",
++			  "SMPS_SCL",
++			  "SMPS_SDA",
++			  "ETHCLK",
++			  "PWM1_OUT",
++			  "HDMI_HPD_N",
++			  "STATUS_LED",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++
+ 	pinctrl-0 = <&gpioout &alt0 &i2s_alt0>;
+ 
+ 	/* I2S interface */
+@@ -40,6 +107,12 @@
+ 	hpd-gpios = <&gpio 46 GPIO_ACTIVE_LOW>;
+ };
+ 
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio45>;
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio14>;
+diff --git a/arch/arm/dts/bcm2836-rpi.dtsi b/arch/arm/dts/bcm2836-rpi.dtsi
+new file mode 100644
+index 0000000000..c4c858b984
+--- /dev/null
++++ b/arch/arm/dts/bcm2836-rpi.dtsi
+@@ -0,0 +1,6 @@
++// SPDX-License-Identifier: GPL-2.0
++#include "bcm2835-rpi.dtsi"
++
++&vchiq {
++	compatible = "brcm,bcm2836-vchiq", "brcm,bcm2835-vchiq";
++};
+diff --git a/arch/arm/dts/bcm2836.dtsi b/arch/arm/dts/bcm2836.dtsi
+index 2c26d0be8b..c933e84138 100644
+--- a/arch/arm/dts/bcm2836.dtsi
++++ b/arch/arm/dts/bcm2836.dtsi
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ #include "bcm283x.dtsi"
+ 
+ / {
+@@ -8,28 +9,28 @@
+ 			 <0x40000000 0x40000000 0x00001000>;
+ 		dma-ranges = <0xc0000000 0x00000000 0x3f000000>;
+ 
+-		local_intc: local_intc {
++		local_intc: local_intc@40000000 {
+ 			compatible = "brcm,bcm2836-l1-intc";
+ 			reg = <0x40000000 0x100>;
+ 			interrupt-controller;
+-			#interrupt-cells = <1>;
++			#interrupt-cells = <2>;
+ 			interrupt-parent = <&local_intc>;
+ 		};
++	};
+ 
+-		arm-pmu {
+-			compatible = "arm,cortex-a7-pmu";
+-			interrupt-parent = <&local_intc>;
+-			interrupts = <9>;
+-		};
++	arm-pmu {
++		compatible = "arm,cortex-a7-pmu";
++		interrupt-parent = <&local_intc>;
++		interrupts = <9 IRQ_TYPE_LEVEL_HIGH>;
+ 	};
+ 
+ 	timer {
+ 		compatible = "arm,armv7-timer";
+ 		interrupt-parent = <&local_intc>;
+-		interrupts = <0>, // PHYS_SECURE_PPI
+-			     <1>, // PHYS_NONSECURE_PPI
+-			     <3>, // VIRT_PPI
+-			     <2>; // HYP_PPI
++		interrupts = <0 IRQ_TYPE_LEVEL_HIGH>, // PHYS_SECURE_PPI
++			     <1 IRQ_TYPE_LEVEL_HIGH>, // PHYS_NONSECURE_PPI
++			     <3 IRQ_TYPE_LEVEL_HIGH>, // VIRT_PPI
++			     <2 IRQ_TYPE_LEVEL_HIGH>; // HYP_PPI
+ 		always-on;
+ 	};
+ 
+@@ -75,7 +76,7 @@
+ 	compatible = "brcm,bcm2836-armctrl-ic";
+ 	reg = <0x7e00b200 0x200>;
+ 	interrupt-parent = <&local_intc>;
+-	interrupts = <8>;
++	interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
+ };
+ 
+ &cpu_thermal {
+diff --git a/arch/arm/dts/bcm2837-rpi-3-a-plus.dts b/arch/arm/dts/bcm2837-rpi-3-a-plus.dts
+new file mode 100644
+index 0000000000..7f4437a8ee
+--- /dev/null
++++ b/arch/arm/dts/bcm2837-rpi-3-a-plus.dts
+@@ -0,0 +1,175 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2837.dtsi"
++#include "bcm2836-rpi.dtsi"
++#include "bcm283x-rpi-usb-host.dtsi"
++
++/ {
++	compatible = "raspberrypi,3-model-a-plus", "brcm,bcm2837";
++	model = "Raspberry Pi 3 Model A+";
++
++	chosen {
++		/* 8250 auxiliary UART instead of pl011 */
++		stdout-path = "serial1:115200n8";
++	};
++
++	memory@0 {
++		reg = <0 0x20000000>;
++	};
++
++	leds {
++		act {
++			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
++		};
++
++		pwr {
++			label = "PWR";
++			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
++		};
++	};
++};
++
++&firmware {
++	expgpio: gpio {
++		compatible = "raspberrypi,firmware-gpio";
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "",
++				  "BT_WL_ON",
++				  "STATUS_LED_R",
++				  "",
++				  "",
++				  "CAM_GPIO0",
++				  "CAM_GPIO1",
++				  "";
++		status = "okay";
++	};
++};
++
++&gpio {
++	/*
++	 * This is mostly based on the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD1",
++			  "RXD1",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "HDMI_HPD_N",
++			  "STATUS_LED_G",
++			  /* Used by BT module */
++			  "CTS0",
++			  "RTS0",
++			  "TXD0",
++			  "RXD0",
++			  /* Used by Wifi */
++			  "SD1_CLK",
++			  "SD1_CMD",
++			  "SD1_DATA0",
++			  "SD1_DATA1",
++			  "SD1_DATA2",
++			  "SD1_DATA3",
++			  "PWM0_OUT",
++			  "PWM1_OUT",
++			  "", /* GPIO42 */
++			  "WIFI_CLK",
++			  "SDA0",
++			  "SCL0",
++			  "SMPS_SCL",
++			  "SMPS_SDA",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++};
++
++&hdmi {
++	hpd-gpios = <&gpio 28 GPIO_ACTIVE_LOW>;
++};
++
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio41>;
++	status = "okay";
++};
++
++/*
++ * SDHCI is used to control the SDIO for wireless
++ *
++ * WL_REG_ON and BT_REG_ON of the CYW43455 Wifi/BT module are driven
++ * by a single GPIO. We can't give GPIO control to one of the drivers,
++ * otherwise the other part would get unexpectedly disturbed.
++ */
++&sdhci {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&emmc_gpio34>;
++	status = "okay";
++	bus-width = <4>;
++	non-removable;
++
++	brcmf: wifi@1 {
++		reg = <1>;
++		compatible = "brcm,bcm4329-fmac";
++	};
++};
++
++/* SDHOST is used to drive the SD card */
++&sdhost {
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhost_gpio48>;
++	status = "okay";
++	bus-width = <4>;
++};
++
++/* uart0 communicates with the BT module */
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_ctsrts_gpio30 &uart0_gpio32 &gpclk2_gpio43>;
++	status = "okay";
++
++	bluetooth {
++		compatible = "brcm,bcm43438-bt";
++		max-speed = <2000000>;
++	};
++};
++
++/* uart1 is mapped to the pin header */
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2837-rpi-3-b-plus.dts b/arch/arm/dts/bcm2837-rpi-3-b-plus.dts
+new file mode 100644
+index 0000000000..c6fa34c241
+--- /dev/null
++++ b/arch/arm/dts/bcm2837-rpi-3-b-plus.dts
+@@ -0,0 +1,178 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2837.dtsi"
++#include "bcm2836-rpi.dtsi"
++#include "bcm283x-rpi-lan7515.dtsi"
++#include "bcm283x-rpi-usb-host.dtsi"
++
++/ {
++	compatible = "raspberrypi,3-model-b-plus", "brcm,bcm2837";
++	model = "Raspberry Pi 3 Model B+";
++
++	chosen {
++		/* 8250 auxiliary UART instead of pl011 */
++		stdout-path = "serial1:115200n8";
++	};
++
++	memory@0 {
++		reg = <0 0x40000000>;
++	};
++
++	leds {
++		act {
++			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
++		};
++
++		pwr {
++			label = "PWR";
++			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
++		};
++	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&expgpio 1 GPIO_ACTIVE_LOW>;
++	};
++};
++
++&firmware {
++	expgpio: gpio {
++		compatible = "raspberrypi,firmware-gpio";
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "BT_ON",
++				  "WL_ON",
++				  "STATUS_LED_R",
++				  "LAN_RUN",
++				  "",
++				  "CAM_GPIO0",
++				  "CAM_GPIO1",
++				  "";
++		status = "okay";
++	};
++};
++
++&gpio {
++	/*
++	 * Taken from rpi_SCH_3bplus_1p0_reduced.pdf and
++	 * the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD1",
++			  "RXD1",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "HDMI_HPD_N",
++			  "STATUS_LED_G",
++			  /* Used by BT module */
++			  "CTS0",
++			  "RTS0",
++			  "TXD0",
++			  "RXD0",
++			  /* Used by Wifi */
++			  "SD1_CLK",
++			  "SD1_CMD",
++			  "SD1_DATA0",
++			  "SD1_DATA1",
++			  "SD1_DATA2",
++			  "SD1_DATA3",
++			  "PWM0_OUT",
++			  "PWM1_OUT",
++			  "ETHCLK",
++			  "WIFI_CLK",
++			  "SDA0",
++			  "SCL0",
++			  "SMPS_SCL",
++			  "SMPS_SDA",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++};
++
++&hdmi {
++	hpd-gpios = <&gpio 28 GPIO_ACTIVE_LOW>;
++};
++
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio41>;
++	status = "okay";
++};
++
++/* SDHCI is used to control the SDIO for wireless */
++&sdhci {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&emmc_gpio34>;
++	status = "okay";
++	bus-width = <4>;
++	non-removable;
++	mmc-pwrseq = <&wifi_pwrseq>;
++
++	brcmf: wifi@1 {
++		reg = <1>;
++		compatible = "brcm,bcm4329-fmac";
++	};
++};
++
++/* SDHOST is used to drive the SD card */
++&sdhost {
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhost_gpio48>;
++	status = "okay";
++	bus-width = <4>;
++};
++
++/* uart0 communicates with the BT module */
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_ctsrts_gpio30 &uart0_gpio32 &gpclk2_gpio43>;
++	status = "okay";
++
++	bluetooth {
++		compatible = "brcm,bcm43438-bt";
++		max-speed = <2000000>;
++		shutdown-gpios = <&expgpio 0 GPIO_ACTIVE_HIGH>;
++	};
++};
++
++/* uart1 is mapped to the pin header */
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2837-rpi-3-b.dts b/arch/arm/dts/bcm2837-rpi-3-b.dts
+index 20725ca487..ce71f578c5 100644
+--- a/arch/arm/dts/bcm2837-rpi-3-b.dts
++++ b/arch/arm/dts/bcm2837-rpi-3-b.dts
+@@ -1,6 +1,7 @@
++// SPDX-License-Identifier: GPL-2.0
+ /dts-v1/;
+ #include "bcm2837.dtsi"
+-#include "bcm2835-rpi.dtsi"
++#include "bcm2836-rpi.dtsi"
+ #include "bcm283x-rpi-smsc9514.dtsi"
+ #include "bcm283x-rpi-usb-host.dtsi"
+ 
+@@ -8,15 +9,122 @@
+ 	compatible = "raspberrypi,3-model-b", "brcm,bcm2837";
+ 	model = "Raspberry Pi 3 Model B";
+ 
+-	memory {
++	chosen {
++		/* 8250 auxiliary UART instead of pl011 */
++		stdout-path = "serial1:115200n8";
++	};
++
++	memory@0 {
+ 		reg = <0 0x40000000>;
+ 	};
+ 
+ 	leds {
+ 		act {
+-			gpios = <&gpio 47 0>;
++			gpios = <&expgpio 2 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&expgpio 1 GPIO_ACTIVE_LOW>;
++	};
++};
++
++&firmware {
++	expgpio: gpio {
++		compatible = "raspberrypi,firmware-gpio";
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "BT_ON",
++				  "WL_ON",
++				  "STATUS_LED",
++				  "LAN_RUN",
++				  "HDMI_HPD_N",
++				  "CAM_GPIO0",
++				  "CAM_GPIO1",
++				  "PWR_LOW_N";
++		status = "okay";
++	};
++};
++
++&gpio {
++	/*
++	 * Taken from rpi_SCH_3b_1p2_reduced.pdf and
++	 * the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "ID_SDA",
++			  "ID_SCL",
++			  "SDA1",
++			  "SCL1",
++			  "GPIO_GCLK",
++			  "GPIO5",
++			  "GPIO6",
++			  "SPI_CE1_N",
++			  "SPI_CE0_N",
++			  "SPI_MISO",
++			  "SPI_MOSI",
++			  "SPI_SCLK",
++			  "GPIO12",
++			  "GPIO13",
++			  /* Serial port */
++			  "TXD1",
++			  "RXD1",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "", /* GPIO 28 */
++			  "LAN_RUN_BOOT",
++			  /* Used by BT module */
++			  "CTS0",
++			  "RTS0",
++			  "TXD0",
++			  "RXD0",
++			  /* Used by Wifi */
++			  "SD1_CLK",
++			  "SD1_CMD",
++			  "SD1_DATA0",
++			  "SD1_DATA1",
++			  "SD1_DATA2",
++			  "SD1_DATA3",
++			  "PWM0_OUT",
++			  "PWM1_OUT",
++			  "ETHCLK",
++			  "WIFI_CLK",
++			  "SDA0",
++			  "SCL0",
++			  "SMPS_SCL",
++			  "SMPS_SDA",
++			  /* Used by SD Card */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++};
++
++&pwm {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pwm0_gpio40 &pwm1_gpio41>;
++	status = "okay";
++};
++
++&hdmi {
++	hpd-gpios = <&expgpio 4 GPIO_ACTIVE_LOW>;
+ };
+ 
+ /* uart0 communicates with the BT module */
+@@ -24,6 +132,12 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_gpio32 &gpclk2_gpio43>;
+ 	status = "okay";
++
++	bluetooth {
++		compatible = "brcm,bcm43438-bt";
++		max-speed = <2000000>;
++		shutdown-gpios = <&expgpio 0 GPIO_ACTIVE_HIGH>;
++	};
+ };
+ 
+ /* uart1 is mapped to the pin header */
+@@ -35,11 +149,19 @@
+ 
+ /* SDHCI is used to control the SDIO for wireless */
+ &sdhci {
++	#address-cells = <1>;
++	#size-cells = <0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&emmc_gpio34>;
+ 	status = "okay";
+ 	bus-width = <4>;
+ 	non-removable;
++	mmc-pwrseq = <&wifi_pwrseq>;
++
++	brcmf: wifi@1 {
++		reg = <1>;
++		compatible = "brcm,bcm4329-fmac";
++	};
+ };
+ 
+ /* SDHOST is used to drive the SD card */
+diff --git a/arch/arm/dts/bcm2837-rpi-cm3-io3.dts b/arch/arm/dts/bcm2837-rpi-cm3-io3.dts
+new file mode 100644
+index 0000000000..6c8233a36d
+--- /dev/null
++++ b/arch/arm/dts/bcm2837-rpi-cm3-io3.dts
+@@ -0,0 +1,87 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2837-rpi-cm3.dtsi"
++#include "bcm283x-rpi-usb-host.dtsi"
++
++/ {
++	compatible = "raspberrypi,3-compute-module", "brcm,bcm2837";
++	model = "Raspberry Pi Compute Module 3 IO board V3.0";
++};
++
++&gpio {
++	/*
++	 * This is based on the official GPU firmware DT blob.
++	 *
++	 * Legend:
++	 * "NC" = not connected (no rail from the SoC)
++	 * "FOO" = GPIO line named "FOO" on the schematic
++	 * "FOO_N" = GPIO line named "FOO" on schematic, active low
++	 */
++	gpio-line-names = "GPIO0",
++			  "GPIO1",
++			  "GPIO2",
++			  "GPIO3",
++			  "GPIO4",
++			  "GPIO5",
++			  "GPIO6",
++			  "GPIO7",
++			  "GPIO8",
++			  "GPIO9",
++			  "GPIO10",
++			  "GPIO11",
++			  "GPIO12",
++			  "GPIO13",
++			  "GPIO14",
++			  "GPIO15",
++			  "GPIO16",
++			  "GPIO17",
++			  "GPIO18",
++			  "GPIO19",
++			  "GPIO20",
++			  "GPIO21",
++			  "GPIO22",
++			  "GPIO23",
++			  "GPIO24",
++			  "GPIO25",
++			  "GPIO26",
++			  "GPIO27",
++			  "GPIO28",
++			  "GPIO29",
++			  "GPIO30",
++			  "GPIO31",
++			  "GPIO32",
++			  "GPIO33",
++			  "GPIO34",
++			  "GPIO35",
++			  "GPIO36",
++			  "GPIO37",
++			  "GPIO38",
++			  "GPIO39",
++			  "GPIO40",
++			  "GPIO41",
++			  "GPIO42",
++			  "GPIO43",
++			  "GPIO44",
++			  "GPIO45",
++			  "GPIO46",
++			  "GPIO47",
++			  /* Used by eMMC */
++			  "SD_CLK_R",
++			  "SD_CMD_R",
++			  "SD_DATA0_R",
++			  "SD_DATA1_R",
++			  "SD_DATA2_R",
++			  "SD_DATA3_R";
++
++	pinctrl-0 = <&gpioout &alt0>;
++};
++
++&hdmi {
++	hpd-gpios = <&expgpio 1 GPIO_ACTIVE_LOW>;
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_gpio14>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2837-rpi-cm3.dtsi b/arch/arm/dts/bcm2837-rpi-cm3.dtsi
+new file mode 100644
+index 0000000000..81399b2c5a
+--- /dev/null
++++ b/arch/arm/dts/bcm2837-rpi-cm3.dtsi
+@@ -0,0 +1,52 @@
++// SPDX-License-Identifier: GPL-2.0
++/dts-v1/;
++#include "bcm2837.dtsi"
++#include "bcm2836-rpi.dtsi"
++
++/ {
++	memory@0 {
++		reg = <0 0x40000000>;
++	};
++
++	reg_3v3: fixed-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "3V3";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++	};
++
++	reg_1v8: fixed-regulator {
++		compatible = "regulator-fixed";
++		regulator-name = "1V8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-always-on;
++	};
++};
++
++&firmware {
++	expgpio: gpio {
++		compatible = "raspberrypi,firmware-gpio";
++		gpio-controller;
++		#gpio-cells = <2>;
++		gpio-line-names = "HDMI_HPD_N",
++				  "EMMC_EN_N",
++				  "NC",
++				  "NC",
++				  "NC",
++				  "NC",
++				  "NC",
++				  "NC";
++		status = "okay";
++	};
++};
++
++&sdhost {
++	pinctrl-names = "default";
++	pinctrl-0 = <&sdhost_gpio48>;
++	bus-width = <4>;
++	vmmc-supply = <&reg_3v3>;
++	vqmmc-supply = <&reg_1v8>;
++	status = "okay";
++};
+diff --git a/arch/arm/dts/bcm2837.dtsi b/arch/arm/dts/bcm2837.dtsi
+index bc1cca5cf4..beb6c502da 100644
+--- a/arch/arm/dts/bcm2837.dtsi
++++ b/arch/arm/dts/bcm2837.dtsi
+@@ -8,22 +8,28 @@
+ 			 <0x40000000 0x40000000 0x00001000>;
+ 		dma-ranges = <0xc0000000 0x00000000 0x3f000000>;
+ 
+-		local_intc: local_intc {
++		local_intc: local_intc@40000000 {
+ 			compatible = "brcm,bcm2836-l1-intc";
+ 			reg = <0x40000000 0x100>;
+ 			interrupt-controller;
+-			#interrupt-cells = <1>;
++			#interrupt-cells = <2>;
+ 			interrupt-parent = <&local_intc>;
+ 		};
+ 	};
+ 
++	arm-pmu {
++		compatible = "arm,cortex-a53-pmu";
++		interrupt-parent = <&local_intc>;
++		interrupts = <9 IRQ_TYPE_LEVEL_HIGH>;
++	};
++
+ 	timer {
+ 		compatible = "arm,armv7-timer";
+ 		interrupt-parent = <&local_intc>;
+-		interrupts = <0>, // PHYS_SECURE_PPI
+-			     <1>, // PHYS_NONSECURE_PPI
+-			     <3>, // VIRT_PPI
+-			     <2>; // HYP_PPI
++		interrupts = <0 IRQ_TYPE_LEVEL_HIGH>, // PHYS_SECURE_PPI
++			     <1 IRQ_TYPE_LEVEL_HIGH>, // PHYS_NONSECURE_PPI
++			     <3 IRQ_TYPE_LEVEL_HIGH>, // VIRT_PPI
++			     <2 IRQ_TYPE_LEVEL_HIGH>; // HYP_PPI
+ 		always-on;
+ 	};
+ 
+@@ -73,7 +79,7 @@
+ 	compatible = "brcm,bcm2836-armctrl-ic";
+ 	reg = <0x7e00b200 0x200>;
+ 	interrupt-parent = <&local_intc>;
+-	interrupts = <8>;
++	interrupts = <8 IRQ_TYPE_LEVEL_HIGH>;
+ };
+ 
+ &cpu_thermal {
+diff --git a/arch/arm/dts/bcm283x-rpi-lan7515.dtsi b/arch/arm/dts/bcm283x-rpi-lan7515.dtsi
+new file mode 100644
+index 0000000000..70bece63f9
+--- /dev/null
++++ b/arch/arm/dts/bcm283x-rpi-lan7515.dtsi
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <dt-bindings/net/microchip-lan78xx.h>
++
++/ {
++	aliases {
++		ethernet0 = &ethernet;
++	};
++};
++
++&usb {
++	usb-port@1 {
++		compatible = "usb424,2514";
++		reg = <1>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		usb-port@1 {
++			compatible = "usb424,2514";
++			reg = <1>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			ethernet: ethernet@1 {
++				compatible = "usb424,7800";
++				reg = <1>;
++
++				mdio {
++					#address-cells = <0x1>;
++					#size-cells = <0x0>;
++					eth_phy: ethernet-phy@1 {
++						reg = <1>;
++						microchip,led-modes = <
++							LAN78XX_LINK_1000_ACTIVITY
++							LAN78XX_LINK_10_100_ACTIVITY
++						>;
++					};
++				};
++			};
++		};
++	};
++};
+diff --git a/arch/arm/dts/bcm283x-rpi-smsc9512.dtsi b/arch/arm/dts/bcm283x-rpi-smsc9512.dtsi
+index 9a0599f711..967e081cb9 100644
+--- a/arch/arm/dts/bcm283x-rpi-smsc9512.dtsi
++++ b/arch/arm/dts/bcm283x-rpi-smsc9512.dtsi
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ / {
+ 	aliases {
+ 		ethernet0 = &ethernet;
+diff --git a/arch/arm/dts/bcm283x-rpi-usb-otg.dtsi b/arch/arm/dts/bcm283x-rpi-usb-otg.dtsi
+new file mode 100644
+index 0000000000..e2fd9610e1
+--- /dev/null
++++ b/arch/arm/dts/bcm283x-rpi-usb-otg.dtsi
+@@ -0,0 +1,11 @@
++// SPDX-License-Identifier: GPL-2.0
++&usb {
++	dr_mode = "otg";
++	g-rx-fifo-size = <256>;
++	g-np-tx-fifo-size = <32>;
++	/*
++	 * According to dwc2 the sum of all device EP
++	 * fifo sizes shouldn't exceed 3776 bytes.
++	 */
++	g-tx-fifo-size = <256 256 512 512 512 768 768>;
++};
+diff --git a/arch/arm/dts/bcm283x.dtsi b/arch/arm/dts/bcm283x.dtsi
+index e45ba584e0..9777644c6c 100644
+--- a/arch/arm/dts/bcm283x.dtsi
++++ b/arch/arm/dts/bcm283x.dtsi
+@@ -2,6 +2,8 @@
+ #include <dt-bindings/clock/bcm2835.h>
+ #include <dt-bindings/clock/bcm2835-aux.h>
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/soc/bcm2835-pm.h>
+ 
+ /* firmware-provided startup stubs live here, where the secondary CPUs are
+  * spinning.
+@@ -20,8 +22,13 @@
+ 	#address-cells = <1>;
+ 	#size-cells = <1>;
+ 
++	aliases {
++		serial0 = &uart0;
++		serial1 = &uart1;
++	};
++
+ 	chosen {
+-		bootargs = "earlyprintk console=ttyAMA0";
++		stdout-path = "serial0:115200n8";
+ 	};
+ 
+ 	thermal-zones {
+@@ -44,7 +51,7 @@
+ 		};
+ 	};
+ 
+-	soc: soc {
++	soc {
+ 		compatible = "simple-bus";
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -60,6 +67,12 @@
+ 			clock-frequency = <1000000>;
+ 		};
+ 
++		txp@7e004000 {
++			compatible = "brcm,bcm2835-txp";
++			reg = <0x7e004000 0x20>;
++			interrupts = <1 11>;
++		};
++
+ 		dma: dma@7e007000 {
+ 			compatible = "brcm,bcm2835-dma";
+ 			reg = <0x7e007000 0xf00>;
+@@ -108,9 +121,18 @@
+ 			#interrupt-cells = <2>;
+ 		};
+ 
+-		watchdog@7e100000 {
+-			compatible = "brcm,bcm2835-pm-wdt";
+-			reg = <0x7e100000 0x28>;
++		pm: watchdog@7e100000 {
++			compatible = "brcm,bcm2835-pm", "brcm,bcm2835-pm-wdt";
++			#power-domain-cells = <1>;
++			#reset-cells = <1>;
++			reg = <0x7e100000 0x114>,
++			      <0x7e00a000 0x24>;
++			clocks = <&clocks BCM2835_CLOCK_V3D>,
++				 <&clocks BCM2835_CLOCK_PERI_IMAGE>,
++				 <&clocks BCM2835_CLOCK_H264>,
++				 <&clocks BCM2835_CLOCK_ISP>;
++			clock-names = "v3d", "peri_image", "h264", "isp";
++			system-power-controller;
+ 		};
+ 
+ 		clocks: cprman@7e101000 {
+@@ -130,6 +152,7 @@
+ 		rng@7e104000 {
+ 			compatible = "brcm,bcm2835-rng";
+ 			reg = <0x7e104000 0x10>;
++			interrupts = <2 29>;
+ 		};
+ 
+ 		mailbox: mailbox@7e00b880 {
+@@ -217,6 +240,7 @@
+ 			gpclk2_gpio43: gpclk2_gpio43 {
+ 				brcm,pins = <43>;
+ 				brcm,function = <BCM2835_FSEL_ALT0>;
++				brcm,pull = <BCM2835_PUD_OFF>;
+ 			};
+ 
+ 			i2c0_gpio0: i2c0_gpio0 {
+@@ -329,10 +353,12 @@
+ 			uart0_ctsrts_gpio30: uart0_ctsrts_gpio30 {
+ 				brcm,pins = <30 31>;
+ 				brcm,function = <BCM2835_FSEL_ALT3>;
++				brcm,pull = <BCM2835_PUD_UP BCM2835_PUD_OFF>;
+ 			};
+ 			uart0_gpio32: uart0_gpio32 {
+ 				brcm,pins = <32 33>;
+ 				brcm,function = <BCM2835_FSEL_ALT3>;
++				brcm,pull = <BCM2835_PUD_OFF BCM2835_PUD_UP>;
+ 			};
+ 			uart0_gpio36: uart0_gpio36 {
+ 				brcm,pins = <36 37>;
+@@ -391,8 +417,8 @@
+ 
+ 		i2s: i2s@7e203000 {
+ 			compatible = "brcm,bcm2835-i2s";
+-			reg = <0x7e203000 0x20>,
+-			      <0x7e101098 0x02>;
++			reg = <0x7e203000 0x24>;
++			clocks = <&clocks BCM2835_CLOCK_PCM>;
+ 
+ 			dmas = <&dma 2>,
+ 			       <&dma 3>;
+@@ -432,6 +458,17 @@
+ 			interrupts = <2 14>; /* pwa1 */
+ 		};
+ 
++		dpi: dpi@7e208000 {
++			compatible = "brcm,bcm2835-dpi";
++			reg = <0x7e208000 0x8c>;
++			clocks = <&clocks BCM2835_CLOCK_VPU>,
++				 <&clocks BCM2835_CLOCK_DPI>;
++			clock-names = "core", "pixel";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		dsi0: dsi@7e209000 {
+ 			compatible = "brcm,bcm2835-dsi0";
+ 			reg = <0x7e209000 0x78>;
+@@ -459,7 +496,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		aux: aux@0x7e215000 {
++		aux: aux@7e215000 {
+ 			compatible = "brcm,bcm2835-aux";
+ 			#clock-cells = <1>;
+ 			reg = <0x7e215000 0x8>;
+@@ -602,6 +639,7 @@
+ 			compatible = "brcm,bcm2835-v3d";
+ 			reg = <0x7ec00000 0x1000>;
+ 			interrupts = <1 10>;
++			power-domains = <&pm BCM2835_POWER_DOMAIN_GRAFX_V3D>;
+ 		};
+ 
+ 		vc4: gpu {
+@@ -634,7 +672,6 @@
+ 
+ 	usbphy: phy {
+ 		compatible = "usb-nop-xceiv";
++		#phy-cells = <0>;
+ 	};
+ };
+-
+-#include "bcm283x-uboot.dtsi"
+diff --git a/include/dt-bindings/clock/bcm2835-aux.h b/include/dt-bindings/clock/bcm2835-aux.h
+index d91156e265..bb79de383a 100644
+--- a/include/dt-bindings/clock/bcm2835-aux.h
++++ b/include/dt-bindings/clock/bcm2835-aux.h
+@@ -1,14 +1,6 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * Copyright (C) 2015 Broadcom Corporation
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation version 2.
+- *
+- * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+- * kind, whether express or implied; without even the implied warranty
+- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+  */
+ 
+ #define BCM2835_AUX_CLOCK_UART		0
+diff --git a/include/dt-bindings/clock/bcm2835.h b/include/dt-bindings/clock/bcm2835.h
+index a0c812b0fa..2cec01f968 100644
+--- a/include/dt-bindings/clock/bcm2835.h
++++ b/include/dt-bindings/clock/bcm2835.h
+@@ -1,14 +1,6 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * Copyright (C) 2015 Broadcom Corporation
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License as
+- * published by the Free Software Foundation version 2.
+- *
+- * This program is distributed "as is" WITHOUT ANY WARRANTY of any
+- * kind, whether express or implied; without even the implied warranty
+- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+  */
+ 
+ #define BCM2835_PLLA			0
+diff --git a/include/dt-bindings/net/microchip-lan78xx.h b/include/dt-bindings/net/microchip-lan78xx.h
+new file mode 100644
+index 0000000000..0742ff0753
+--- /dev/null
++++ b/include/dt-bindings/net/microchip-lan78xx.h
+@@ -0,0 +1,21 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _DT_BINDINGS_MICROCHIP_LAN78XX_H
++#define _DT_BINDINGS_MICROCHIP_LAN78XX_H
++
++/* LED modes for LAN7800/LAN7850 embedded PHY */
++
++#define LAN78XX_LINK_ACTIVITY           0
++#define LAN78XX_LINK_1000_ACTIVITY      1
++#define LAN78XX_LINK_100_ACTIVITY       2
++#define LAN78XX_LINK_10_ACTIVITY        3
++#define LAN78XX_LINK_100_1000_ACTIVITY  4
++#define LAN78XX_LINK_10_1000_ACTIVITY   5
++#define LAN78XX_LINK_10_100_ACTIVITY    6
++#define LAN78XX_DUPLEX_COLLISION        8
++#define LAN78XX_COLLISION               9
++#define LAN78XX_ACTIVITY                10
++#define LAN78XX_AUTONEG_FAULT           12
++#define LAN78XX_FORCE_LED_OFF           14
++#define LAN78XX_FORCE_LED_ON            15
++
++#endif
+diff --git a/include/dt-bindings/pinctrl/bcm2835.h b/include/dt-bindings/pinctrl/bcm2835.h
+index e4e4fdf5d3..b5b2654a0e 100644
+--- a/include/dt-bindings/pinctrl/bcm2835.h
++++ b/include/dt-bindings/pinctrl/bcm2835.h
+@@ -1,14 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * Header providing constants for bcm2835 pinctrl bindings.
+  *
+  * Copyright (C) 2015 Stefan Wahren <stefan.wahren@i2se.com>
+- *
+- * The code contained herein is licensed under the GNU General Public
+- * License. You may obtain a copy of the GNU General Public License
+- * Version 2 at the following locations:
+- *
+- * http://www.opensource.org/licenses/gpl-license.html
+- * http://www.gnu.org/copyleft/gpl.html
+  */
+ 
+ #ifndef __DT_BINDINGS_PINCTRL_BCM2835_H__
+diff --git a/include/dt-bindings/soc/bcm2835-pm.h b/include/dt-bindings/soc/bcm2835-pm.h
+new file mode 100644
+index 0000000000..153d75b8d9
+--- /dev/null
++++ b/include/dt-bindings/soc/bcm2835-pm.h
+@@ -0,0 +1,28 @@
++/* SPDX-License-Identifier: (GPL-2.0+ OR MIT) */
++
++#ifndef _DT_BINDINGS_ARM_BCM2835_PM_H
++#define _DT_BINDINGS_ARM_BCM2835_PM_H
++
++#define BCM2835_POWER_DOMAIN_GRAFX		0
++#define BCM2835_POWER_DOMAIN_GRAFX_V3D		1
++#define BCM2835_POWER_DOMAIN_IMAGE		2
++#define BCM2835_POWER_DOMAIN_IMAGE_PERI		3
++#define BCM2835_POWER_DOMAIN_IMAGE_ISP		4
++#define BCM2835_POWER_DOMAIN_IMAGE_H264		5
++#define BCM2835_POWER_DOMAIN_USB		6
++#define BCM2835_POWER_DOMAIN_DSI0		7
++#define BCM2835_POWER_DOMAIN_DSI1		8
++#define BCM2835_POWER_DOMAIN_CAM0		9
++#define BCM2835_POWER_DOMAIN_CAM1		10
++#define BCM2835_POWER_DOMAIN_CCP2TX		11
++#define BCM2835_POWER_DOMAIN_HDMI		12
++
++#define BCM2835_POWER_DOMAIN_COUNT		13
++
++#define BCM2835_RESET_V3D			0
++#define BCM2835_RESET_ISP			1
++#define BCM2835_RESET_H264			2
++
++#define BCM2835_RESET_COUNT			3
++
++#endif /* _DT_BINDINGS_ARM_BCM2835_PM_H */
+-- 
+2.20.1
+

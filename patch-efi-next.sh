@@ -50,6 +50,9 @@ git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
 git am ../patch/0001-Workarounds-for-SCT.patch
 
+git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
+git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
+
 # efi-2019-07-rc2
 git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
