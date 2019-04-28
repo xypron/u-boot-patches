@@ -1,4 +1,4 @@
-From 47986d9802ae59578d600af060f4505c10ef9eb2 Mon Sep 17 00:00:00 2001
+From a796096d1c641350895d4089b4aa3489b2ccc476 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 25 Apr 2019 22:51:52 +0200
 Subject: [PATCH v3 1/1] lib/vsprintf: allow printing upper case GUIDs
@@ -26,21 +26,31 @@ A unit test is provided inside the ut_print command.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v3:
-	use (1 << n) style for bits of bitmask as suggested by Alex
+	use BIT(n) style for bits of bitmask
+	(Alex suggested (1 << n) instead of 1, 2)
 v2:
 	add missing sprintf() statement in unit test
 ---
- include/uuid.h  |  8 ++++----
+ include/uuid.h  | 10 ++++++----
  lib/uuid.c      | 18 ++++++++++++------
  lib/vsprintf.c  | 14 ++++++++------
  test/print_ut.c | 23 +++++++++++++++++++++++
- 4 files changed, 47 insertions(+), 16 deletions(-)
+ 4 files changed, 49 insertions(+), 16 deletions(-)
 
 diff --git a/include/uuid.h b/include/uuid.h
-index 124bbce8a2..47d5b0d8d4 100644
+index 124bbce8a2..abcc325eae 100644
 --- a/include/uuid.h
 +++ b/include/uuid.h
-@@ -16,10 +16,10 @@ struct uuid {
+@@ -6,6 +6,8 @@
+ #ifndef __UUID_H__
+ #define __UUID_H__
+ 
++#include <linux/bitops.h>
++
+ /* This is structure is in big-endian */
+ struct uuid {
+ 	unsigned int time_low;
+@@ -16,10 +18,10 @@ struct uuid {
  	unsigned char node[6];
  } __packed;
  
@@ -50,8 +60,8 @@ index 124bbce8a2..47d5b0d8d4 100644
 -};
 +/* Bits of a bitmask specifying the output format for GUIDs */
 +#define UUID_STR_FORMAT_STD	0
-+#define UUID_STR_FORMAT_GUID	(1 << 0)
-+#define UUID_STR_UPPER_CASE	(1 << 1)
++#define UUID_STR_FORMAT_GUID	BIT(0)
++#define UUID_STR_UPPER_CASE	BIT(1)
  
  #define UUID_STR_LEN		36
  #define UUID_BIN_LEN		sizeof(struct uuid)
@@ -145,7 +155,7 @@ index 2403825dc9..f1332df0f3 100644
  	}
  
 diff --git a/test/print_ut.c b/test/print_ut.c
-index f0f1d6010a..173860451d 100644
+index 0bc548dca8..a3b9974ad2 100644
 --- a/test/print_ut.c
 +++ b/test/print_ut.c
 @@ -15,6 +15,26 @@
@@ -175,7 +185,7 @@ index f0f1d6010a..173860451d 100644
  /* Test efi_loader specific printing */
  static void efi_ut_print(void)
  {
-@@ -113,6 +133,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
+@@ -117,6 +137,9 @@ static int do_ut_print(cmd_tbl_t *cmdtp, int flag, int argc,
  	/* Test efi_loader specific printing */
  	efi_ut_print();
  
