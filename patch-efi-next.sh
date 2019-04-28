@@ -38,8 +38,6 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
-# must rebase: git am ../patch/0001-efi_loader-simplify-UEFI-variable-storage.patch
-
 git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-configs-tinker-rk3288-disable-CONFIG_SPL_I2C_SUPPORT.patch
 
@@ -48,18 +46,24 @@ git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
+0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
+
 git am ../patch/0001-Workarounds-for-SCT.patch
 
+# Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
+
+# vsprint
+git am ../patch/0001-lib-vsprintf-remove-include-uuid.h-from-vsprintf.c.patch
+git am ../patch/0001-lib-display_options-avoid-illegal-memory-access.patch
+git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
 # efi-2019-07-rc2
 git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
-git am ../patch/0001-fs-correct-comments-for-fs_read-and-fs_write.patch
-git am ../patch/0001-lib-display_options-avoid-illegal-memory-access.patch
-git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
+git am ../patch/0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 exit
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
