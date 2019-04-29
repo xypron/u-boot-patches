@@ -27,7 +27,6 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v3:
 	use BIT(n) style for bits of bitmask
-	(Alex suggested (1 << n) instead of 1, 2)
 v2:
 	add missing sprintf() statement in unit test
 ---
