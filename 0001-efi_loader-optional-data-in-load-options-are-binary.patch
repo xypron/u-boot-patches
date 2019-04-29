@@ -1,0 +1,179 @@
+From f40c8957659a64f003d4bf5b64592598e36eee2f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 29 Apr 2019 13:51:45 +0200
+Subject: [PATCH 1/1] efi_loader: optional data in load options are binary
+
+The field boot OptionalData in structure _EFI_LOAD_OPTIONS is for binary
+data.
+
+When we use `efidebug boot add` we should convert the 5th argument from
+UTF-8 to UTF-16 before putting it into the BootXXXX variable.
+
+When printing boot variables with `efidebug boot dump` we should support
+the OptionalData being arbitrary binary data. So let's dump the data as
+hexadecimal values.
+
+Here is an example session protocol:
+
+=> efidebug boot add 00a1 label1 scsi 0:1 doit1 'my option'
+=> efidebug boot add 00a2 label2 scsi 0:1 doit2
+=> efidebug boot dump
+Boot00A0:
+  attributes: A-- (0x00000001)
+  label: label1
+  file_path: .../HD(1,MBR,0xeac4e18b,0x800,0x3fffe)/doit1
+  data:
+    00000000: 6d 00 79 00 20 00 6f 00 70 00 74 00 69 00 6f 00  m.y. .o.p.t.i.o.
+    00000010: 6e 00 00 00                                      n...
+Boot00A1:
+  attributes: A-- (0x00000001)
+  label: label2
+  file_path: .../HD(1,MBR,0xeac4e18b,0x800,0x3fffe)/doit2
+  data:
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c               | 27 +++++++++++++++++----------
+ include/efi_loader.h         |  2 +-
+ lib/efi_loader/efi_bootmgr.c | 15 ++++++++-------
+ 3 files changed, 26 insertions(+), 18 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index a40c4f4be2..e4cc92ec0e 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -11,6 +11,7 @@
+ #include <efi_loader.h>
+ #include <environment.h>
+ #include <exports.h>
++#include <hexdump.h>
+ #include <malloc.h>
+ #include <search.h>
+ #include <linux/ctype.h>
+@@ -545,7 +546,10 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
+ 				+ sizeof(struct efi_device_path); /* for END */
+ 
+ 	/* optional data */
+-	lo.optional_data = (u8 *)(argc == 6 ? "" : argv[6]);
++	if (argc < 6)
++		lo.optional_data = NULL;
++	else
++		lo.optional_data = (const u8 *)argv[6];
+ 
+ 	size = efi_serialize_load_option(&lo, (u8 **)&data);
+ 	if (!size) {
+@@ -615,12 +619,13 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
+ /**
+  * show_efi_boot_opt_data() - dump UEFI load option
+  *
+- * @id:		Load option number
+- * @data:	Value of UEFI load option variable
++ * @id:		load option number
++ * @data:	value of UEFI load option variable
++ * @size:	size of the boot option
+  *
+  * Decode the value of UEFI load option variable and print information.
+  */
+-static void show_efi_boot_opt_data(int id, void *data)
++static void show_efi_boot_opt_data(int id, void *data, size_t size)
+ {
+ 	struct efi_load_option lo;
+ 	char *label, *p;
+@@ -638,7 +643,7 @@ static void show_efi_boot_opt_data(int id, void *data)
+ 	utf16_utf8_strncpy(&p, lo.label, label_len16);
+ 
+ 	printf("Boot%04X:\n", id);
+-	printf("\tattributes: %c%c%c (0x%08x)\n",
++	printf("  attributes: %c%c%c (0x%08x)\n",
+ 	       /* ACTIVE */
+ 	       lo.attributes & LOAD_OPTION_ACTIVE ? 'A' : '-',
+ 	       /* FORCE RECONNECT */
+@@ -646,14 +651,16 @@ static void show_efi_boot_opt_data(int id, void *data)
+ 	       /* HIDDEN */
+ 	       lo.attributes & LOAD_OPTION_HIDDEN ? 'H' : '-',
+ 	       lo.attributes);
+-	printf("\tlabel: %s\n", label);
++	printf("  label: %s\n", label);
+ 
+ 	dp_str = efi_dp_str(lo.file_path);
+-	printf("\tfile_path: %ls\n", dp_str);
++	printf("  file_path: %ls\n", dp_str);
+ 	efi_free_pool(dp_str);
+ 
+-	printf("\tdata: %s\n", lo.optional_data);
+-
++	printf("  data:\n");
++	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
++		       lo.optional_data, size + (u8 *)data -
++		       (u8 *)lo.optional_data, true);
+ 	free(label);
+ }
+ 
+@@ -686,7 +693,7 @@ static void show_efi_boot_opt(int id)
+ 						data));
+ 	}
+ 	if (ret == EFI_SUCCESS)
+-		show_efi_boot_opt_data(id, data);
++		show_efi_boot_opt_data(id, data, size);
+ 	else if (ret == EFI_NOT_FOUND)
+ 		printf("Boot%04X: not found\n", id);
+ 
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 39ed8a6fa5..07b913d256 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -560,7 +560,7 @@ struct efi_load_option {
+ 	u16 file_path_length;
+ 	u16 *label;
+ 	struct efi_device_path *file_path;
+-	u8 *optional_data;
++	const u8 *optional_data;
+ };
+ 
+ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 4ccba22875..7bf51874c1 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -53,19 +53,20 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data)
+  */
+ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
+ {
+-	unsigned long label_len, option_len;
++	unsigned long label_len;
+ 	unsigned long size;
+ 	u8 *p;
+ 
+ 	label_len = (u16_strlen(lo->label) + 1) * sizeof(u16);
+-	option_len = strlen((char *)lo->optional_data);
+ 
+ 	/* total size */
+ 	size = sizeof(lo->attributes);
+ 	size += sizeof(lo->file_path_length);
+ 	size += label_len;
+ 	size += lo->file_path_length;
+-	size += option_len + 1;
++	if (lo->optional_data)
++		size += (utf8_utf16_strlen((const char *)lo->optional_data)
++					   + 1) * sizeof(u16);
+ 	p = malloc(size);
+ 	if (!p)
+ 		return 0;
+@@ -84,10 +85,10 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data)
+ 	memcpy(p, lo->file_path, lo->file_path_length);
+ 	p += lo->file_path_length;
+ 
+-	memcpy(p, lo->optional_data, option_len);
+-	p += option_len;
+-	*(char *)p = '\0';
+-
++	if (lo->optional_data) {
++		utf8_utf16_strcpy((u16 **)&p, (const char *)lo->optional_data);
++		p += sizeof(u16); /* size of trailing \0 */
++	}
+ 	return size;
+ }
+ 
+-- 
+2.20.1
+
