@@ -123,7 +123,7 @@ index a72cbe1559..6551f2da30 100644
 +	if (exit_data_size && exit_data) {
 +		ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA,
 +					exit_data_size,
-+					(void**)image_obj->exit_data);
++					(void **)image_obj->exit_data);
 +		if (ret != EFI_SUCCESS)
 +			return ret;
 +		memcpy(*image_obj->exit_data, exit_data, exit_data_size);
