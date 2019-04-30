@@ -65,8 +65,10 @@ git am ../patch/0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
 git am ../patch/0001-efi_loader-optional-data-in-load-options-are-binary.patch
 git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
 git am ../patch/0001-efi_loader-implement-support-of-exit-data.patch
+
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-guid.patch
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-verify.patch
+git am ../patch/0001-cmd-gpt-fix-and-tidy-up-help-message.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
