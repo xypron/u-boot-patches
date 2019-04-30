@@ -64,9 +64,10 @@ git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
 git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
 git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
 git am ../patch/0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
-git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-optional-data-in-load-options-are-binary.patch
+git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
 exit
+git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
