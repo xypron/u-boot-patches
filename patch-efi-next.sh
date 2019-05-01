@@ -66,7 +66,7 @@ git am ../patch/0001-efi_loader-optional-data-in-load-options-are-binary.patch
 git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
 git am ../patch/0001-efi_loader-implement-support-of-exit-data.patch
 git am ../patch/0001-efi_loader-description-of-efi_add_handle.patch
-git am ../patch/0001-efi_loader-implement-Unload-service.patch
+git am ../patch/0001-efi_loader-mark-started-images.patch
 
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-guid.patch
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-verify.patch
