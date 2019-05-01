@@ -1,4 +1,4 @@
-From 64d327df14496e998977b3a5c9bb320b1b27c9be Mon Sep 17 00:00:00 2001
+From 657dc0ba29c6d459ac3ebb7ec7d70edfd948d5b4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 May 2019 14:20:18 +0200
 Subject: [PATCH 1/1] efi_loader: mark started images
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 15 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 39ed8a6fa5..a5c414270c 100644
+index 7af3f16ef8..3b50cd28ef 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -179,6 +179,18 @@ struct efi_handler {
@@ -45,10 +45,10 @@ index 39ed8a6fa5..a5c414270c 100644
  
  /**
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 88fafa0e59..ef63294b46 100644
+index e5c46e9f08..43a12c33c1 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1536,6 +1536,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
+@@ -1538,6 +1538,7 @@ efi_status_t efi_setup_loaded_image(struct efi_device_path *device_path,
  		free(info);
  		return EFI_OUT_OF_RESOURCES;
  	}
@@ -56,7 +56,7 @@ index 88fafa0e59..ef63294b46 100644
  
  	/* Add internal object to object list */
  	efi_add_handle(&obj->header);
-@@ -2693,6 +2694,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+@@ -2662,6 +2663,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
  	}
  
  	current_image = image_handle;
