@@ -1,0 +1,44 @@
+From fc07169f291d3bf899911c29cf68b76383745327 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 1 May 2019 14:20:18 +0200
+Subject: [PATCH 1/1] efi_loader: implement Unload() service
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 39ed8a6fa5..a5c414270c 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -179,6 +179,18 @@ struct efi_handler {
+ 	struct list_head open_infos;
+ };
+ 
++/**
++ * enum efi_object_type - type of EFI object
++ *
++ * In UnloadImage we must be able to identify if the handle relates to a
++ * started image.
++ */
++enum efi_object_type {
++	EFI_OBJECT_TYPE_UNDEFINED = 0,
++	EFI_OBJECT_TYPE_LOADED_IMAGE,
++	EFI_OBJECT_TYPE_STARTED_IMAGE,
++};
++
+ /**
+  * struct efi_object - dereferenced EFI handle
+  *
+@@ -201,6 +213,7 @@ struct efi_object {
+ 	struct list_head link;
+ 	/* The list of protocols */
+ 	struct list_head protocols;
++	enum efi_object_type type;
+ };
+ 
+ /**
+-- 
+2.20.1
+
