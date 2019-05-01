@@ -1,0 +1,38 @@
+From df098880e38badc82874349df8becb7e480fbc8e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 1 May 2019 09:42:39 +0200
+Subject: [PATCH v2 1/1] efi_loader: description of efi_add_handle()
+
+Correct the comments describing function efi_add_handle().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	title should start with efi_loader
+---
+ lib/efi_loader/efi_boottime.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 601b0a2cb8..cbf912f72b 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -423,10 +423,12 @@ static efi_status_t EFIAPI efi_free_pool_ext(void *buffer)
+ }
+ 
+ /**
+- * efi_add_handle() - add a new object to the object list
+- * @obj: object to be added
++ * efi_add_handle() - add a new handle to the object list
+  *
+- * The protocols list is initialized. The object handle is set.
++ * @handle:	handle to be added
++ *
++ * The protocols list is initialized. The handle is added to the list of known
++ * UEFI objects.
+  */
+ void efi_add_handle(efi_handle_t handle)
+ {
+-- 
+2.20.1
+
