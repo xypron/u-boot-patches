@@ -1,4 +1,4 @@
-From 632be3e3398010f2d1499d6e7f7c8c08720982b5 Mon Sep 17 00:00:00 2001
+From 1d25bf2fdad29e514b5756d693ca3dbcc9795e5b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 30 Sep 2018 13:26:36 +0200
 Subject: [PATCH 1/1] efi_selftest: test exit_data
@@ -13,7 +13,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 27 insertions(+), 7 deletions(-)
 
 diff --git a/include/efi_selftest.h b/include/efi_selftest.h
-index 56beac305e..b328d4e5c9 100644
+index 49d3d6d0b4..dd42e49023 100644
 --- a/include/efi_selftest.h
 +++ b/include/efi_selftest.h
 @@ -16,7 +16,7 @@
@@ -26,7 +26,7 @@ index 56beac305e..b328d4e5c9 100644
   * Prints a message.
   */
 diff --git a/lib/efi_selftest/efi_selftest_miniapp_exit.c b/lib/efi_selftest/efi_selftest_miniapp_exit.c
-index d63b9e3add..0c97510e1d 100644
+index b3ca109d81..6b5cfb01cf 100644
 --- a/lib/efi_selftest/efi_selftest_miniapp_exit.c
 +++ b/lib/efi_selftest/efi_selftest_miniapp_exit.c
 @@ -9,7 +9,7 @@
@@ -36,7 +36,7 @@ index d63b9e3add..0c97510e1d 100644
 -#include <efi_api.h>
 +#include <efi_selftest.h>
  
- static efi_guid_t loaded_image_protocol_guid = LOADED_IMAGE_GUID;
+ static efi_guid_t loaded_image_protocol_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
  
 @@ -66,15 +66,22 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  			     struct efi_system_table *systable)
@@ -66,7 +66,7 @@ index d63b9e3add..0c97510e1d 100644
  	/*
  	 * This statement should not be reached.
 diff --git a/lib/efi_selftest/efi_selftest_startimage_exit.c b/lib/efi_selftest/efi_selftest_startimage_exit.c
-index 0d9e16437a..aa85f6be3d 100644
+index fa4b7d4a9b..96049dea86 100644
 --- a/lib/efi_selftest/efi_selftest_startimage_exit.c
 +++ b/lib/efi_selftest/efi_selftest_startimage_exit.c
 @@ -123,6 +123,9 @@ static int execute(void)
@@ -103,5 +103,5 @@ index 0d9e16437a..aa85f6be3d 100644
  	return EFI_ST_SUCCESS;
  }
 -- 
-2.19.0
+2.20.1
 

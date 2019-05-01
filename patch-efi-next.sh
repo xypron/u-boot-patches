@@ -65,6 +65,7 @@ git am ../patch/0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
 git am ../patch/0001-efi_loader-optional-data-in-load-options-are-binary.patch
 git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
 git am ../patch/0001-efi_loader-implement-support-of-exit-data.patch
+git am ../patch/0001-efi_selftest-test-exit_data.patch
 git am ../patch/0001-efi_loader-description-of-efi_add_handle.patch
 git am ../patch/0001-efi_loader-mark-started-images.patch
 git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
@@ -78,7 +79,6 @@ git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
-git am ../patch/0001-efi_selftest-test-exit_data.patch
 
 # Patches needing rework
 # git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
