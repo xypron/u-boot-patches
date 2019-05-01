@@ -1,0 +1,66 @@
+From 03262fcc53a993f3cc8856360427ee8daebef453 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 1 May 2019 20:07:04 +0200
+Subject: [PATCH 1/1] efi_loader: unloading of not yet started images
+
+Implement the unloading of images that are not yet started in the Exit()
+boot service.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 6d2dc2dda3..b15a3f5012 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -2739,13 +2739,34 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+ 		  exit_data_size, exit_data);
+ 
+ 	/* Check parameters */
+-	if (image_handle != current_image)
++	if (image_handle != current_image) {
++		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
++	}
+ 	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
+ 					 &info, NULL, NULL,
+ 					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+-	if (ret != EFI_SUCCESS)
++	if (ret != EFI_SUCCESS) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++
++	/* Unloading of unstarted images */
++	switch (image_obj->header.type) {
++	case EFI_OBJECT_TYPE_STARTED_IMAGE:
++		break;
++	case EFI_OBJECT_TYPE_LOADED_IMAGE:
++		/*  Unload image that was not yet started */
++		free(info->image_base);
++		efi_delete_handle(&image_obj->header);
++		ret = EFI_SUCCESS;
++		goto out;
++	default:
++		/* Handle does not refer to loaded image */
++		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
++	}
++	image_obj->header.type = EFI_OBJECT_TYPE_LOADED_IMAGE;
+ 
+ 	/* Exit data is only foreseen in case of failure. */
+ 	if (exit_status != EFI_SUCCESS) {
+@@ -2770,7 +2791,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+ 
+ 	panic("EFI application exited");
+ out:
+-	return EFI_EXIT(EFI_INVALID_PARAMETER);
++	return EFI_EXIT(ret);
+ }
+ 
+ /**
+-- 
+2.20.1
+
