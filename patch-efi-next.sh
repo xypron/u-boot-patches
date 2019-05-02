@@ -67,14 +67,15 @@ git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
 git am ../patch/0001-efi_loader-implement-support-of-exit-data.patch
 git am ../patch/0001-efi_selftest-test-exit_data.patch
 git am ../patch/0001-efi_loader-description-of-efi_add_handle.patch
-git am ../patch/0001-efi_loader-mark-started-images.patch
-git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
-git am ../patch/0001-efi_loader-implement-UnloadImage.patch
-git am ../patch/0001-efi_loader-unloading-of-not-yet-started-images.patch
 
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-guid.patch
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-verify.patch
 git am ../patch/0001-cmd-gpt-fix-and-tidy-up-help-message.patch
+exit
+git am ../patch/0001-efi_loader-mark-started-images.patch
+git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
+git am ../patch/0001-efi_loader-implement-UnloadImage.patch
+git am ../patch/0001-efi_loader-unloading-of-not-yet-started-images.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
