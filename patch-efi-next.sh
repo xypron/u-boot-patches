@@ -72,7 +72,7 @@ git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-guid.patch
 git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-verify.patch
 git am ../patch/0001-cmd-gpt-fix-and-tidy-up-help-message.patch
 git am ../patch/0001-lib-uuid-Fix-unseeded-PRNG-on-RANDOM_UUID-y.patch
-exit
+
 # efi-2019-07-rc2-2
 git am ../patch/0001-efi_loader-mark-started-images.patch
 git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
