@@ -53,25 +53,8 @@ git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
 # vsprint
-git am ../patch/0001-lib-vsprintf-remove-include-uuid.h-from-vsprintf.c.patch
 git am ../patch/0001-lib-display_options-avoid-illegal-memory-access.patch
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
-
-# efi-2019-07-rc2
-git am ../patch/0001-efi_loader-parameter-check-CreateEventEx.patch
-git am ../patch/0001-efi_loader-FreePages-must-fail-with-pages-0.patch
-git am ../patch/0001-efi_loader-set-OsIndicationsSupported-at-init.patch
-git am ../patch/0001-cmd-efidebug-rework-boot-dump-sub-command-using-GetN.patch
-git am ../patch/0001-efi_loader-optional-data-in-load-options-are-binary.patch
-git am ../patch/0001-efi_loader-memory-leak-in-append-value.patch
-git am ../patch/0001-efi_loader-implement-support-of-exit-data.patch
-git am ../patch/0001-efi_selftest-test-exit_data.patch
-git am ../patch/0001-efi_loader-description-of-efi_add_handle.patch
-
-git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-guid.patch
-git am ../patch/0001-disk-efi-Fix-memory-leak-on-gpt-verify.patch
-git am ../patch/0001-cmd-gpt-fix-and-tidy-up-help-message.patch
-git am ../patch/0001-lib-uuid-Fix-unseeded-PRNG-on-RANDOM_UUID-y.patch
 
 # efi-2019-07-rc2-2
 git am ../patch/0001-efi_loader-mark-started-images.patch
