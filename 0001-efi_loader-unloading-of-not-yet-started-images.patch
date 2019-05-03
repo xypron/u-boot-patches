@@ -1,4 +1,4 @@
-From 27a06a257c0dbae097811d5c1a0b5cb3a9940355 Mon Sep 17 00:00:00 2001
+From b4446e98fbf171f0861e37fe5704815df1317576 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 May 2019 20:07:04 +0200
 Subject: [PATCH 1/1] efi_loader: unloading of not yet started images
@@ -8,11 +8,11 @@ boot service.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_boottime.c | 32 +++++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+ lib/efi_loader/efi_boottime.c | 33 ++++++++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 85e183b3687..6a13c6ebe11 100644
+index 85e183b368..2995fb2d54 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -2771,7 +2771,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
@@ -24,7 +24,7 @@ index 85e183b3687..6a13c6ebe11 100644
  	struct efi_loaded_image_obj *image_obj =
  		(struct efi_loaded_image_obj *)image_handle;
  
-@@ -2779,13 +2779,35 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2779,13 +2779,36 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  		  exit_data_size, exit_data);
  
  	/* Check parameters */
@@ -50,7 +50,8 @@ index 85e183b3687..6a13c6ebe11 100644
 +		break;
 +	case EFI_OBJECT_TYPE_LOADED_IMAGE:
 +		/*  Unload image that was not yet started */
-+		free(loaded_image_protocol->image_base);
++		efi_free_pages((uintptr_t) image_obj->image_base,
++			       efi_size_in_pages(image_obj->image_size);
 +		efi_delete_handle(&image_obj->header);
 +		ret = EFI_SUCCESS;
 +		goto out;
@@ -63,7 +64,7 @@ index 85e183b3687..6a13c6ebe11 100644
  
  	/* Exit data is only foreseen in case of failure. */
  	if (exit_status != EFI_SUCCESS) {
-@@ -2810,7 +2832,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2810,7 +2833,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  
  	panic("EFI application exited");
  out:
@@ -73,5 +74,5 @@ index 85e183b3687..6a13c6ebe11 100644
  
  /**
 -- 
-2.21.0
+2.20.1
 

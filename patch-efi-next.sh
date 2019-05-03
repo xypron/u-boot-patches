@@ -78,6 +78,7 @@ git am ../patch/0001-efi_loader-mark-started-images.patch
 git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_loader-unloading-of-not-yet-started-images.patch
+git am ../patch/0001-efi_loader-unload-applications-upon-Exit.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
