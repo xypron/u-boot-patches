@@ -1,4 +1,4 @@
-From 3dcd165a02b707ca703391c117021e386c7713a8 Mon Sep 17 00:00:00 2001
+From 6ba6389f6162cdad24d1aa11e3af3040b8ec0af4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 May 2019 20:07:04 +0200
 Subject: [PATCH 1/1] efi_loader: unloading of not yet started images
@@ -8,14 +8,14 @@ boot service.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_boottime.c | 33 ++++++++++++++++++++++++++++-----
- 1 file changed, 28 insertions(+), 5 deletions(-)
+ lib/efi_loader/efi_boottime.c | 30 +++++++++++++++++++++++++-----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 982bc7c71a..e6695b4926 100644
+index 6f07684b36..64a3539cd6 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -2772,7 +2772,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2782,7 +2782,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  	 *	 image protocol.
  	 */
  	efi_status_t ret;
@@ -24,7 +24,7 @@ index 982bc7c71a..e6695b4926 100644
  	struct efi_loaded_image_obj *image_obj =
  		(struct efi_loaded_image_obj *)image_handle;
  
-@@ -2780,13 +2780,36 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2790,13 +2790,33 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  		  exit_data_size, exit_data);
  
  	/* Check parameters */
@@ -49,10 +49,7 @@ index 982bc7c71a..e6695b4926 100644
 +	case EFI_OBJECT_TYPE_STARTED_IMAGE:
 +		break;
 +	case EFI_OBJECT_TYPE_LOADED_IMAGE:
-+		/*  Unload image that was not yet started */
-+		efi_free_pages((uintptr_t)loaded_image_protocol->image_base,
-+			       efi_size_in_pages(loaded_image_protocol->image_size));
-+		efi_delete_handle(&image_obj->header);
++		efi_delete_image(image_obj, loaded_image_protocol);
 +		ret = EFI_SUCCESS;
 +		goto out;
 +	default:
@@ -64,7 +61,7 @@ index 982bc7c71a..e6695b4926 100644
  
  	/* Exit data is only foreseen in case of failure. */
  	if (exit_status != EFI_SUCCESS) {
-@@ -2811,7 +2834,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2821,7 +2841,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  
  	panic("EFI application exited");
  out:
