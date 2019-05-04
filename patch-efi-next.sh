@@ -65,6 +65,7 @@ git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_loader-unload-applications-upon-Exit.patch
 git am ../patch/0001-efi_selftest-remove-redundant-function-efi_st_memcmp.patch
+git am ../patch/0001-efi_loader-EVT_NOTIFY_SIGNAL-events.patch
 git am ../patch/0001-efi_loader-implement-RegisterProtocolNotify.patch
 git am ../patch/0001-efi_selftest-unit-test-for-RegisterProtocolNotify.patch
 exit
