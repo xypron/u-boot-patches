@@ -64,6 +64,7 @@ git am ../patch/0001-efi_loader-mark-started-images.patch
 git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
 git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_loader-unload-applications-upon-Exit.patch
+git am ../patch/0001-efi_selftest-remove-redundant-function-efi_st_memcmp.patch
 git am ../patch/0001-efi_loader-implement-RegisterProtocolNotify.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
