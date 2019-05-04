@@ -1,0 +1,59 @@
+From c8227e4db8b57a148a98e5d355b521312a3f7f4a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 4 May 2019 17:37:32 +0200
+Subject: [PATCH 1/1] efi_loader: correct parameter check in LocateHandle()
+
+If LocateHandle() does not find an entry EFI_NOT_FOUND has to be returned
+even if BufferSize is NULL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 51e0bb2fd5..7aa2b4e16e 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1365,28 +1365,28 @@ static efi_status_t efi_locate_handle(
+ 		return EFI_INVALID_PARAMETER;
+ 	}
+ 
+-	/*
+-	 * efi_locate_handle_buffer uses this function for
+-	 * the calculation of the necessary buffer size.
+-	 * So do not require a buffer for buffersize == 0.
+-	 */
+-	if (!buffer_size || (*buffer_size && !buffer))
+-		return EFI_INVALID_PARAMETER;
+-
+ 	/* Count how much space we need */
+ 	list_for_each_entry(efiobj, &efi_obj_list, link) {
+ 		if (!efi_search(search_type, protocol, search_key, efiobj))
+ 			size += sizeof(void *);
+ 	}
+ 
++	if (size == 0)
++		return EFI_NOT_FOUND;
++
++	if (!buffer_size)
++		return EFI_INVALID_PARAMETER;
++
+ 	if (*buffer_size < size) {
+ 		*buffer_size = size;
+ 		return EFI_BUFFER_TOO_SMALL;
+ 	}
+ 
+ 	*buffer_size = size;
+-	if (size == 0)
+-		return EFI_NOT_FOUND;
++
++	/* The buffer size is sufficient but there is not buffer */
++	if (!buffer)
++		return EFI_INVALID_PARAMETER;
+ 
+ 	/* Then fill the array */
+ 	list_for_each_entry(efiobj, &efi_obj_list, link) {
+-- 
+2.20.1
+
