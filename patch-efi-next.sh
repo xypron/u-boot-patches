@@ -66,6 +66,7 @@ git am ../patch/0001-efi_loader-implement-UnloadImage.patch
 git am ../patch/0001-efi_loader-unload-applications-upon-Exit.patch
 git am ../patch/0001-efi_selftest-remove-redundant-function-efi_st_memcmp.patch
 git am ../patch/0001-efi_loader-implement-RegisterProtocolNotify.patch
+git am ../patch/0001-efi_selftest-unit-test-for-RegisterProtocolNotify.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
