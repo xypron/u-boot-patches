@@ -57,6 +57,7 @@ git am ../patch/0001-lib-display_options-avoid-illegal-memory-access.patch
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
 # efi-2019-07-rc2-2
+git am ../patch/0001-efi_loader-clean-up-UEFI-sub-system-initialization.patch
 git am ../patch/0001-efi_loader-allowable-event-types-in-CreateEventEx.patch
 git am ../patch/0001-efi_loader-mark-started-images.patch
 git am ../patch/0001-efi_loader-move-efi_unload_image-down-in-source.patch
