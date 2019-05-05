@@ -1,0 +1,48 @@
+From 45f3852b2c1440bb89637de88de6610c4c7a7270 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 5 May 2019 21:58:35 +0200
+Subject: [PATCH 1/1] efi_loader: signature of ExitBootServices()
+
+Consistently use efi_uintn_t as type of memory keys.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h             | 3 ++-
+ lib/efi_loader/efi_boottime.c | 4 ++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index b2ae279747..755c405793 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -128,7 +128,8 @@ struct efi_boot_services {
+ 				    efi_status_t exit_status,
+ 				    efi_uintn_t exitdata_size, u16 *exitdata);
+ 	efi_status_t (EFIAPI *unload_image)(efi_handle_t image_handle);
+-	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t, unsigned long);
++	efi_status_t (EFIAPI *exit_boot_services)(efi_handle_t image_handle,
++						  efi_uintn_t map_key);
+ 
+ 	efi_status_t (EFIAPI *get_next_monotonic_count)(u64 *count);
+ 	efi_status_t (EFIAPI *stall)(unsigned long usecs);
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index f75e6c0169..3989b67614 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1839,11 +1839,11 @@ static void efi_exit_caches(void)
+  * Return: status code
+  */
+ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+-						  unsigned long map_key)
++						  efi_uintn_t map_key)
+ {
+ 	struct efi_event *evt;
+ 
+-	EFI_ENTRY("%p, %ld", image_handle, map_key);
++	EFI_ENTRY("%p, %zx", image_handle, map_key);
+ 
+ 	/* Check that the caller has read the current memory map */
+ 	if (map_key != efi_memory_map_key)
+-- 
+2.20.1
+
