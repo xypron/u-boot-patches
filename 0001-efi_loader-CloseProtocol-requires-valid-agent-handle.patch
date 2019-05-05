@@ -6,7 +6,8 @@ Subject: [PATCH 1/1] efi_loader: CloseProtocol() requires valid agent handle
 Return EFI_INVALID_PARAMETER from CloseProtcol() if the agent handle is not
 valid.
 
-Return EFI_INVALID_PARAMETER if the optional controller handle is not valid.
+Return EFI_INVALID_PARAMETER if the optional controller handle is not
+valid.
 
 Return immediately from efi_search_obj if the handle is NULL.
 
