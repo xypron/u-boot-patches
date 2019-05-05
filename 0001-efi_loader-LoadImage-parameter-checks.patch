@@ -1,4 +1,4 @@
-From f3a21cb1ab22d80f52ed8de307747f526c500c19 Mon Sep 17 00:00:00 2001
+From ef35dd62ebf883310b703f19d0cdab43f3a10542 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 5 May 2019 16:55:06 +0200
 Subject: [PATCH 1/1] efi_loader: LoadImage() parameter checks
@@ -12,15 +12,15 @@ EFI_INVALID_PARAMETER.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h           |  1 +
- lib/efi_loader/efi_boottime.c  | 17 +++++++----
- lib/efi_loader/efi_root_node.c | 52 ++++++++++++++++++----------------
- 3 files changed, 41 insertions(+), 29 deletions(-)
+ lib/efi_loader/efi_boottime.c  | 17 ++++++++----
+ lib/efi_loader/efi_root_node.c | 48 ++++++++++++++++++----------------
+ 3 files changed, 39 insertions(+), 27 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index ef18d872d7..8bbfd0e3ed 100644
+index d3a1d4c465..07ef14ba1c 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -190,6 +190,7 @@ struct efi_handler {
+@@ -187,6 +187,7 @@ struct efi_handler {
   */
  enum efi_object_type {
  	EFI_OBJECT_TYPE_UNDEFINED = 0,
@@ -81,7 +81,7 @@ index 78a4063949..eb0aafa78b 100644
  	}
  	/* split file_path which contains both the device and file parts */
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
-index 9daeefdebe..6314caa870 100644
+index e0fcbb85a4..38514e0820 100644
 --- a/lib/efi_loader/efi_root_node.c
 +++ b/lib/efi_loader/efi_root_node.c
 @@ -28,6 +28,7 @@ struct efi_root_dp {
@@ -92,7 +92,7 @@ index 9daeefdebe..6314caa870 100644
  	struct efi_root_dp *dp;
  
  	/* Create device path protocol */
-@@ -47,30 +48,33 @@ efi_status_t efi_root_node_register(void)
+@@ -47,28 +48,31 @@ efi_status_t efi_root_node_register(void)
  	dp->end.length = sizeof(struct efi_device_path);
  
  	/* Create root node and install protocols */
@@ -107,8 +107,6 @@ index 9daeefdebe..6314caa870 100644
 -		       (void *)&efi_device_path_utilities,
 -		       /* Unicode collation protocol */
 -		       &efi_guid_unicode_collation_protocol,
--		       (void *)&efi_unicode_collation_protocol_eng,
--		       &efi_guid_unicode_collation_protocol2,
 -		       (void *)&efi_unicode_collation_protocol,
 +	ret = EFI_CALL(efi_install_multiple_protocol_interfaces
 +			(&efi_root,
@@ -122,8 +120,6 @@ index 9daeefdebe..6314caa870 100644
 +			 (void *)&efi_device_path_utilities,
 +			 /* Unicode collation protocol */
 +			 &efi_guid_unicode_collation_protocol,
-+			 (void *)&efi_unicode_collation_protocol_eng,
-+			 &efi_guid_unicode_collation_protocol2,
 +			 (void *)&efi_unicode_collation_protocol,
  #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
 -		       /* HII string protocol */
