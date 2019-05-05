@@ -1,4 +1,4 @@
-From dc54f083519d4e48bdb4194668cda5015fdc4d94 Mon Sep 17 00:00:00 2001
+From c7c34ca34f2489430f418416cd4a8d9f522bc040 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 23 Apr 2019 08:02:45 +0200
 Subject: [PATCH 1/1] Workarounds for SCT
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  4 files changed, 20 insertions(+)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 472160cb30..4ebb4a5f59 100644
+index b2ae279747..54c6232079 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -1424,6 +1424,9 @@ struct efi_driver_binding_protocol {
@@ -26,7 +26,7 @@ index 472160cb30..4ebb4a5f59 100644
  	EFI_GUID(0xa4c751fc, 0x23ae, 0x4c3e, \
  		 0x92, 0xe9, 0x49, 0x64, 0xcf, 0x63, 0xf3, 0x49)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 39ed8a6fa5..b4aaa6a851 100644
+index 07ef14ba1c..8bbfd0e3ed 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -107,6 +107,8 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
@@ -47,18 +47,18 @@ index 39ed8a6fa5..b4aaa6a851 100644
  extern const efi_guid_t efi_guid_hii_config_access_protocol;
  extern const efi_guid_t efi_guid_hii_database_protocol;
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
-index e0fcbb85a4..9daeefdebe 100644
+index 38514e0820..6314caa870 100644
 --- a/lib/efi_loader/efi_root_node.c
 +++ b/lib/efi_loader/efi_root_node.c
-@@ -58,6 +58,8 @@ efi_status_t efi_root_node_register(void)
- 		       (void *)&efi_device_path_utilities,
- 		       /* Unicode collation protocol */
- 		       &efi_guid_unicode_collation_protocol,
-+		       (void *)&efi_unicode_collation_protocol_eng,
-+		       &efi_guid_unicode_collation_protocol2,
- 		       (void *)&efi_unicode_collation_protocol,
+@@ -60,6 +60,8 @@ efi_status_t efi_root_node_register(void)
+ 			 (void *)&efi_device_path_utilities,
+ 			 /* Unicode collation protocol */
+ 			 &efi_guid_unicode_collation_protocol,
++			 (void *)&efi_unicode_collation_protocol_eng,
++			 &efi_guid_unicode_collation_protocol2,
+ 			 (void *)&efi_unicode_collation_protocol,
  #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
- 		       /* HII string protocol */
+ 			 /* HII string protocol */
 diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
 index 7f3ea3c77e..ca9fbaf269 100644
 --- a/lib/efi_loader/efi_unicode_collation.c

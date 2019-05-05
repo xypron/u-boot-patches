@@ -46,8 +46,6 @@ git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 
-git am ../patch/0001-Workarounds-for-SCT.patch
-
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
@@ -72,6 +70,8 @@ git am ../patch/0001-efi_loader-CloseProtocol-requires-valid-agent-handle.patch
 git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 git am ../patch/0001-efi_loader-HandleProtocol-parameter-checks.patch
 git am ../patch/0001-efi_loader-LoadImage-parameter-checks.patch
+# Workaround for SCT
+git am ../patch/0001-Workarounds-for-SCT.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
