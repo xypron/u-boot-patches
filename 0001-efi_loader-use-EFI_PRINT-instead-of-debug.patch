@@ -1,0 +1,66 @@
+From a97b52ac1faa77cd5cc29d58bbe406b5581f4614 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 5 May 2019 11:56:23 +0200
+Subject: [PATCH 1/1] efi_loader: use EFI_PRINT instead of debug
+
+For correct indentation of messages in the UEFI API implementation use
+EFI_PRINT() instead of debug().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 148927fbda..13ef8a6ddf 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -267,7 +267,7 @@ static unsigned long EFIAPI efi_raise_tpl(efi_uintn_t new_tpl)
+ 	EFI_ENTRY("0x%zx", new_tpl);
+ 
+ 	if (new_tpl < efi_tpl)
+-		debug("WARNING: new_tpl < current_tpl in %s\n", __func__);
++		EFI_PRINT("WARNING: new_tpl < current_tpl in %s\n", __func__);
+ 	efi_tpl = new_tpl;
+ 	if (efi_tpl > TPL_HIGH_LEVEL)
+ 		efi_tpl = TPL_HIGH_LEVEL;
+@@ -290,7 +290,7 @@ static void EFIAPI efi_restore_tpl(efi_uintn_t old_tpl)
+ 	EFI_ENTRY("0x%zx", old_tpl);
+ 
+ 	if (old_tpl > efi_tpl)
+-		debug("WARNING: old_tpl > current_tpl in %s\n", __func__);
++		EFI_PRINT("WARNING: old_tpl > current_tpl in %s\n", __func__);
+ 	efi_tpl = old_tpl;
+ 	if (efi_tpl > TPL_HIGH_LEVEL)
+ 		efi_tpl = TPL_HIGH_LEVEL;
+@@ -1093,11 +1093,9 @@ static efi_status_t EFIAPI efi_install_protocol_interface(
+ 		r = efi_create_handle(handle);
+ 		if (r != EFI_SUCCESS)
+ 			goto out;
+-		debug("%sEFI: new handle %p\n", indent_string(nesting_level),
+-		      *handle);
++		EFI_PRINT("new handle %p\n", *handle);
+ 	} else {
+-		debug("%sEFI: handle %p\n", indent_string(nesting_level),
+-		      *handle);
++		EFI_PRINT("handle %p\n", *handle);
+ 	}
+ 	/* Add new protocol */
+ 	r = efi_add_protocol(*handle, protocol, protocol_interface);
+@@ -2713,10 +2711,9 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 		 * missed out steps of EFI_CALL.
+ 		 */
+ 		assert(__efi_entry_check());
+-		debug("%sEFI: %lu returned by started image\n",
+-		      __efi_nesting_dec(),
+-		      (unsigned long)((uintptr_t)image_obj->exit_status &
+-				      ~EFI_ERROR_MASK));
++		EFI_PRINT("%lu returned by started image\n",
++			  (unsigned long)((uintptr_t)image_obj->exit_status &
++			  ~EFI_ERROR_MASK));
+ 		current_image = parent_image;
+ 		return EFI_EXIT(image_obj->exit_status);
+ 	}
+-- 
+2.20.1
+
