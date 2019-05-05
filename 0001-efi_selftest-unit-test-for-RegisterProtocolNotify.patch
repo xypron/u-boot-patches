@@ -1,4 +1,4 @@
-From d0f4cbc5df5baf536dbab57324e69df5bebca845 Mon Sep 17 00:00:00 2001
+From 0af2985214e04c3e6516c6bd8371ee28f24c465c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 4 May 2019 22:44:13 +0200
 Subject: [PATCH 1/1] efi_selftest: unit test for RegisterProtocolNotify()
@@ -8,8 +8,8 @@ Provide a unit test for the RegisterProtocolNotify() boot service.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                     |   1 +
- .../efi_selftest_register_notify.c            | 235 ++++++++++++++++++
- 2 files changed, 236 insertions(+)
+ .../efi_selftest_register_notify.c            | 231 ++++++++++++++++++
+ 2 files changed, 232 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_register_notify.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -26,10 +26,10 @@ index 4945691e67..c69ad7a9c0 100644
  efi_selftest_textinput.o \
 diff --git a/lib/efi_selftest/efi_selftest_register_notify.c b/lib/efi_selftest/efi_selftest_register_notify.c
 new file mode 100644
-index 0000000000..d24b01acff
+index 0000000000..ee0ef395de
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_register_notify.c
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,231 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_register_notify
@@ -237,19 +237,15 @@ index 0000000000..d24b01acff
 +		return EFI_ST_FAILURE;
 +	}
 +
-+	ret = boottime->uninstall_multiple_protocol_interfaces(
-+						handle1,
-+						&guid1, &interface2,
-+						&guid2, &interface1,
-+						NULL);
++	ret = boottime->uninstall_multiple_protocol_interfaces
++			(handle1, &guid1, &interface2,
++			 &guid2, &interface1, NULL);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("UninstallMultipleProtocolInterfaces failed\n");
 +		return EFI_ST_FAILURE;
 +	}
-+	ret = boottime->uninstall_multiple_protocol_interfaces(
-+						handle2,
-+						&guid1, &interface1,
-+						NULL);
++	ret = boottime->uninstall_multiple_protocol_interfaces
++			(handle2, &guid1, &interface1, NULL);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("UninstallMultipleProtocolInterfaces failed\n");
 +		return EFI_ST_FAILURE;
