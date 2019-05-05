@@ -71,6 +71,7 @@ git am ../patch/0001-efi_selftest-unit-test-for-RegisterProtocolNotify.patch
 git am ../patch/0001-efi_loader-CloseProtocol-requires-valid-agent-handle.patch
 git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 git am ../patch/0001-efi_loader-HandleProtocol-parameter-checks.patch
+git am ../patch/0001-efi_loader-LoadImage-parameter-checks.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
