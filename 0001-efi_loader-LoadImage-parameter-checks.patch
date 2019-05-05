@@ -1,4 +1,4 @@
-From ef35dd62ebf883310b703f19d0cdab43f3a10542 Mon Sep 17 00:00:00 2001
+From 41774c63f7a9e5e911c99820bd0c47da784d9555 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 5 May 2019 16:55:06 +0200
 Subject: [PATCH 1/1] efi_loader: LoadImage() parameter checks
@@ -29,20 +29,16 @@ index d3a1d4c465..07ef14ba1c 100644
  	EFI_OBJECT_TYPE_STARTED_IMAGE,
  };
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 78a4063949..eb0aafa78b 100644
+index 78a4063949..f75e6c0169 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1676,6 +1676,9 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
- 	u64 addr;
- 	efi_uintn_t bs;
+@@ -1680,10 +1680,13 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 	*buffer = NULL;
+ 	*size = 0;
  
 +	if (!file_path)
 +		return EFI_INVALID_PARAMETER;
 +
- 	/* In case of failure nothing is returned */
- 	*buffer = NULL;
- 	*size = 0;
-@@ -1683,7 +1686,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
  	/* Open file */
  	f = efi_file_from_path(file_path);
  	if (!f)
