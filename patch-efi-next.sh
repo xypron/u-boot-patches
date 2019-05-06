@@ -51,7 +51,6 @@ git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
 # vsprint
-git am ../patch/0001-lib-display_options-avoid-illegal-memory-access.patch
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
 # efi-2019-07-rc2-2
