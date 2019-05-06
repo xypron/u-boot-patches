@@ -69,11 +69,12 @@ git am ../patch/0001-efi_selftest-unit-test-for-RegisterProtocolNotify.patch
 git am ../patch/0001-efi_loader-CloseProtocol-requires-valid-agent-handle.patch
 git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 git am ../patch/0001-efi_loader-HandleProtocol-parameter-checks.patch
-git am ../patch/0001-efi_loader-LoadImage-parameter-checks.patch
+git am ../patch/0001-efi_loader-LoadImage-check-parent-image.patch
+git am ../patch/0001-efi_loader-LoadImage-check-source-size.patch
+git am ../patch/0001-efi_loader-signature-of-ExitBootServices.patch
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
 # efi-2019-07-rc3
-git am ../patch/0001-efi_loader-signature-of-ExitBootServices.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

@@ -1,26 +1,21 @@
-From 41774c63f7a9e5e911c99820bd0c47da784d9555 Mon Sep 17 00:00:00 2001
+From 85b83d26a8b3bd58bdedec933356c16817eac2f5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 5 May 2019 16:55:06 +0200
-Subject: [PATCH v2 1/1] efi_loader: LoadImage() parameter checks
+Subject: [PATCH 1/1] efi_loader: LoadImage() check parent image
 
-If the file path is NULL, return EFI_INVALID_PARAMETER.
-If the file path is invalid, return EFI_NOT_FOUND.
-If the size of the source buffer is 0, return EFI_LOAD_ERROR.
 If the parent image handle does not refer to a loaded image return
 EFI_INVALID_PARAMETER.
+(UEFI SCT II 2017: 3.4.1 LoadImage() - 5.1.4.1.1)
 
-The change is required to reach UEFI SCT conformance.
+Mark our root node as a loaded image to avoid an error when using it as
+parent image.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2
-	efi_load_image_from_path() must initalize *buffer even in case of
-	an error
----
  include/efi_loader.h           |  1 +
- lib/efi_loader/efi_boottime.c  | 17 ++++++++----
+ lib/efi_loader/efi_boottime.c  |  7 ++++-
  lib/efi_loader/efi_root_node.c | 48 ++++++++++++++++++----------------
- 3 files changed, 39 insertions(+), 27 deletions(-)
+ 3 files changed, 33 insertions(+), 23 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index d3a1d4c465..07ef14ba1c 100644
@@ -35,25 +30,10 @@ index d3a1d4c465..07ef14ba1c 100644
  	EFI_OBJECT_TYPE_STARTED_IMAGE,
  };
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 78a4063949..f75e6c0169 100644
+index 78a4063949..bf560c6234 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -1680,10 +1680,13 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
- 	*buffer = NULL;
- 	*size = 0;
- 
-+	if (!file_path)
-+		return EFI_INVALID_PARAMETER;
-+
- 	/* Open file */
- 	f = efi_file_from_path(file_path);
- 	if (!f)
--		return EFI_DEVICE_ERROR;
-+		return EFI_NOT_FOUND;
- 
- 	/* Get file size */
- 	bs = 0;
-@@ -1760,13 +1763,13 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
+@@ -1760,7 +1760,7 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
  	EFI_ENTRY("%d, %p, %pD, %p, %zd, %p", boot_policy, parent_image,
  		  file_path, source_buffer, source_size, image_handle);
  
@@ -62,26 +42,18 @@ index 78a4063949..f75e6c0169 100644
  		ret = EFI_INVALID_PARAMETER;
  		goto error;
  	}
--
--	if (!source_buffer && !file_path) {
--		ret = EFI_NOT_FOUND;
+@@ -1769,6 +1769,11 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
+ 		ret = EFI_NOT_FOUND;
+ 		goto error;
+ 	}
 +	/* The parent image handle must refer to a loaded image */
 +	if (!parent_image->type) {
 +		ret = EFI_INVALID_PARAMETER;
- 		goto error;
- 	}
++		goto error;
++	}
  
-@@ -1776,6 +1779,10 @@ efi_status_t EFIAPI efi_load_image(bool boot_policy,
- 		if (ret != EFI_SUCCESS)
- 			goto error;
- 	} else {
-+		if (!source_size) {
-+			ret = EFI_LOAD_ERROR;
-+			goto error;
-+		}
- 		dest_buffer = source_buffer;
- 	}
- 	/* split file_path which contains both the device and file parts */
+ 	if (!source_buffer) {
+ 		ret = efi_load_image_from_path(file_path, &dest_buffer,
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
 index e0fcbb85a4..38514e0820 100644
 --- a/lib/efi_loader/efi_root_node.c
