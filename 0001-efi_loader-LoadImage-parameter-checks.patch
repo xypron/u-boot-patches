@@ -9,6 +9,8 @@ If the size of the source buffer is 0, return EFI_LOAD_ERROR.
 If the parent image handle does not refer to a loaded image return
 EFI_INVALID_PARAMETER.
 
+The change is required to reach UEFI SCT conformance.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v2
