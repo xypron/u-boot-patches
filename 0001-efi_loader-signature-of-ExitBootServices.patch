@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] efi_loader: signature of ExitBootServices()
 Consistently use efi_uintn_t as type of memory keys.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <graf@amazon.com>
 ---
  include/efi_api.h             | 3 ++-
  lib/efi_loader/efi_boottime.c | 4 ++--
