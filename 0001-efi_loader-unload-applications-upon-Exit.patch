@@ -1,7 +1,7 @@
-From e3e2981bfd8bb61fcc038b5efa5c286f7aa123e2 Mon Sep 17 00:00:00 2001
+From 961cb53a6b637fbf0e548c2d11d176456218b3d6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 May 2019 20:07:04 +0200
-Subject: [PATCH 1/1] efi_loader: unload applications upon Exit()
+Subject: [PATCH v2 1/1] efi_loader: unload applications upon Exit()
 
 Implement unloading of images in the Exit() boot services:
 
@@ -11,10 +11,19 @@ Implement unloading of images in the Exit() boot services:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	Images that are no yet started can be unloaded by calling Exit().
+	In this case they are not the current image. Move the test for
+	current down in the code.
+
+	A started driver that called Exit() should still be considered a
+	started image. Exit cannot be called by another image afterwards,
+	cf. UEFI SCT 2.6 (2017), 3.5.1 Exit(), 5.1.4.5.8 - 5.1.4.5.10.
+---
  include/efi_loader.h              |  1 +
- lib/efi_loader/efi_boottime.c     | 34 ++++++++++++++++++++++++++-----
+ lib/efi_loader/efi_boottime.c     | 36 +++++++++++++++++++++++++------
  lib/efi_loader/efi_image_loader.c |  2 ++
- 3 files changed, 32 insertions(+), 5 deletions(-)
+ 3 files changed, 33 insertions(+), 6 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 3b50cd28ef..4e4cffa799 100644
@@ -29,7 +38,7 @@ index 3b50cd28ef..4e4cffa799 100644
  
  /**
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 6f07684b36..602b0da9f0 100644
+index 0385883ded..1ea96dab6c 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -13,6 +13,7 @@
@@ -40,7 +49,7 @@ index 6f07684b36..602b0da9f0 100644
  #include <watchdog.h>
  
  DECLARE_GLOBAL_DATA_PTR;
-@@ -2782,7 +2783,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2798,7 +2799,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  	 *	 image protocol.
  	 */
  	efi_status_t ret;
@@ -49,15 +58,12 @@ index 6f07684b36..602b0da9f0 100644
  	struct efi_loaded_image_obj *image_obj =
  		(struct efi_loaded_image_obj *)image_handle;
  
-@@ -2790,13 +2791,33 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2806,13 +2807,33 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  		  exit_data_size, exit_data);
  
  	/* Check parameters */
 -	if (image_handle != current_image)
-+	if (image_handle != current_image) {
-+		ret = EFI_INVALID_PARAMETER;
- 		goto out;
-+	}
+-		goto out;
  	ret = EFI_CALL(efi_open_protocol(image_handle, &efi_guid_loaded_image,
 -					 &info, NULL, NULL,
 +					 (void **)&loaded_image_protocol,
@@ -82,11 +88,15 @@ index 6f07684b36..602b0da9f0 100644
 +		ret = EFI_INVALID_PARAMETER;
 +		goto out;
 +	}
-+	image_obj->header.type = EFI_OBJECT_TYPE_LOADED_IMAGE;
++	/* A started image can only be unloaded it is the last one started. */
++	if (image_handle != current_image) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
  
  	/* Exit data is only foreseen in case of failure. */
  	if (exit_status != EFI_SUCCESS) {
-@@ -2806,6 +2827,9 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2822,6 +2843,9 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  		if (ret != EFI_SUCCESS)
  			EFI_PRINT("%s: out of memory\n", __func__);
  	}
@@ -96,7 +106,7 @@ index 6f07684b36..602b0da9f0 100644
  
  	/* Make sure entry/exit counts for EFI world cross-overs match */
  	EFI_EXIT(exit_status);
-@@ -2821,7 +2845,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
+@@ -2837,7 +2861,7 @@ static efi_status_t EFIAPI efi_exit(efi_handle_t image_handle,
  
  	panic("EFI application exited");
  out:
