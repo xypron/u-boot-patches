@@ -23,7 +23,7 @@ index 0307d731a8..4f79a9fcf4 100644
  if EFI_LOADER
  
 +config EFI_DEVICE_PATH_UTILITIES_PROTOCOL
-+	bool "Provice device path utilities protocol"
++	bool "Provide device path utilities protocol"
 +	default y
 +	help
 +	  The device path utilities protocol is used to create and manipulate
