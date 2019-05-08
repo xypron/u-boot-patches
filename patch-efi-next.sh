@@ -60,6 +60,7 @@ git am ../patch/0001-Workarounds-for-SCT.patch
 git am ../patch/0001-lib-charset-correct-utf8_utf16_strnlen-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
 git am ../patch/0001-efi_loader-observe-CONFIG_EFI_LOADER_HII.patch
+git am ../patch/0001-efi_loader-format-Kconfig.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
