@@ -1,4 +1,4 @@
-From 8f7d6b8deae533aac2ebe7560ee98668ff351e66 Mon Sep 17 00:00:00 2001
+From 68418966e37898bc62a9716c056acc02cf981f25 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 8 May 2019 23:17:38 +0200
 Subject: [PATCH 1/1] efi_loader: format Kconfig
@@ -9,10 +9,8 @@ Sort important settings to the top.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/Kconfig         | 43 +++++++++++++++++-----------------
- lib/efi_loader/Makefile        |  2 +-
- lib/efi_loader/efi_root_node.c |  2 ++
- 3 files changed, 25 insertions(+), 22 deletions(-)
+ lib/efi_loader/Kconfig | 43 +++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index 50b050159c..055051bde3 100644
@@ -84,35 +82,6 @@ index 50b050159c..055051bde3 100644
 -	  U-Boot implements enough of its features to be able to run the UEFI
 -	  Shell, but not more than that.
 +endif
-diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 4e90a35896..8fcde7c4b3 100644
---- a/lib/efi_loader/Makefile
-+++ b/lib/efi_loader/Makefile
-@@ -30,7 +30,7 @@ obj-y += efi_memory.o
- obj-y += efi_root_node.o
- obj-y += efi_runtime.o
- obj-y += efi_setup.o
--obj-y += efi_unicode_collation.o
-+obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL) += efi_unicode_collation.o
- obj-y += efi_variable.o
- obj-y += efi_watchdog.o
- obj-$(CONFIG_LCD) += efi_gop.o
-diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
-index 38514e0820..f36ca3456e 100644
---- a/lib/efi_loader/efi_root_node.c
-+++ b/lib/efi_loader/efi_root_node.c
-@@ -58,9 +58,11 @@ efi_status_t efi_root_node_register(void)
- 			 /* Device path utilities protocol */
- 			 &efi_guid_device_path_utilities_protocol,
- 			 (void *)&efi_device_path_utilities,
-+#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
- 			 /* Unicode collation protocol */
- 			 &efi_guid_unicode_collation_protocol,
- 			 (void *)&efi_unicode_collation_protocol,
-+#endif
- #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
- 			 /* HII string protocol */
- 			 &efi_guid_hii_string_protocol,
 -- 
 2.20.1
 
