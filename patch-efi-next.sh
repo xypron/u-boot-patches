@@ -53,15 +53,15 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 # vsprint
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
-# Workaround for SCT
-git am ../patch/0001-Workarounds-for-SCT.patch
-
 # efi-2019-07-rc3
 git am ../patch/0001-lib-charset-correct-utf8_utf16_strnlen-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
 git am ../patch/0001-efi_loader-observe-CONFIG_EFI_LOADER_HII.patch
 git am ../patch/0001-efi_loader-format-Kconfig.patch
 git am ../patch/0001-efi_loader-make-Unicode-collation-protocol-customiza.patch
+
+# Workaround for SCT
+git am ../patch/0001-Workarounds-for-SCT.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
