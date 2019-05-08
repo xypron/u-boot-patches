@@ -1,0 +1,29 @@
+From f03fbd615719d84df4e86a57fe6f7d0146a77ea7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 8 May 2019 19:41:35 +0200
+Subject: [PATCH 1/1] MAINTAINERS: assign include/charset.h
+
+Assign include/charset.h to EFI PAYLOAD.
+
+The functions defined in this include are used by the UEFI sub-system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 33fd4652a4..c41bc89fe9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -476,6 +476,7 @@ F:	doc/README.uefi
+ F:	doc/README.iscsi
+ F:	Documentation/efi.rst
+ F:	include/capitalization.h
++F:	include/charset.h
+ F:	include/cp1250.h
+ F:	include/cp437.h
+ F:	include/efi*
+-- 
+2.20.1
+
