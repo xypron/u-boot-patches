@@ -50,6 +50,10 @@ git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
+#
+git am ../patch/0001-configs-bcm963158-disable-CONFIG_CMD_BOOTEFI_SELFTES.patch
+git am ../patch/0001-configs-bcm968580-disable-CONFIG_CMD_BOOTEFI_SELFTES.patch
+
 # vsprint
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 

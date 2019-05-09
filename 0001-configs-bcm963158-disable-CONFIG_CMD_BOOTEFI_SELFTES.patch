@@ -1,0 +1,31 @@
+From bda7d4b0765f9b935d5d57a1a955298cc4eea7c4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 9 May 2019 17:19:02 +0200
+Subject: [PATCH 1/1] configs: bcm963158 disable CONFIG_CMD_BOOTEFI_SELFTEST
+
+Configuration option CONFIG_CMD_BOOTEFI_SELFTEST is useful for the
+development of the UEFI sub-system. For production it is not needed.
+
+Remove CONFIG_CMD_BOOTEFI_SELFTEST from bcm963158_ram_defconfig.
+
+Suggested-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/bcm963158_ram_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/bcm963158_ram_defconfig b/configs/bcm963158_ram_defconfig
+index 321bc22699..dfd69069c7 100644
+--- a/configs/bcm963158_ram_defconfig
++++ b/configs/bcm963158_ram_defconfig
+@@ -16,7 +16,6 @@ CONFIG_IMAGE_FORMAT_LEGACY=y
+ CONFIG_SUPPORT_RAW_INITRD=y
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_HUSH_PARSER=y
+-CONFIG_CMD_BOOTEFI_SELFTEST=y
+ # CONFIG_CMD_LZMADEC is not set
+ # CONFIG_CMD_UNZIP is not set
+ # CONFIG_CMD_FLASH is not set
+-- 
+2.20.1
+
