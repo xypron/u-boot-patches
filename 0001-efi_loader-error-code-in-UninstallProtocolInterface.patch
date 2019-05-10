@@ -1,0 +1,33 @@
+From a206729edcd6d0596b118880697e55a6f9093f26 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 May 2019 20:06:48 +0200
+Subject: [PATCH 1/1] efi_loader: error code in UninstallProtocolInterface()
+
+According to the UEFI specification UninstallProtocolInteface() has to
+return EFI_NOT_FOUND if the interface is not found.
+
+Correct the return value.
+
+Cf. UEFI SCT II spec (2017), 3.3.2 UninstallProtocolInterface(), 5.1.3.2.4
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 7263b2e0a7..375a4bd149 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -514,7 +514,7 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+ 	if (handler->protocol_interface != protocol_interface)
+-		return EFI_INVALID_PARAMETER;
++		return EFI_NOT_FOUND;
+ 	list_del(&handler->link);
+ 	free(handler);
+ 	return EFI_SUCCESS;
+-- 
+2.20.1
+
