@@ -1,0 +1,29 @@
+From c3b6a6e0867aa83bd7c31a79415873317979ff2f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 May 2019 19:55:53 +0200
+Subject: [PATCH 1/1] efi_loader: superfluous check in efi_remove_protocol()
+
+efi_search_protocol() already checks that the GUID matches. Don't check
+a second time.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index a1fac60ee1..7263b2e0a7 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -513,8 +513,6 @@ efi_status_t efi_remove_protocol(const efi_handle_t handle,
+ 	ret = efi_search_protocol(handle, protocol, &handler);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+-	if (guidcmp(handler->guid, protocol))
+-		return EFI_INVALID_PARAMETER;
+ 	if (handler->protocol_interface != protocol_interface)
+ 		return EFI_INVALID_PARAMETER;
+ 	list_del(&handler->link);
+-- 
+2.20.1
+

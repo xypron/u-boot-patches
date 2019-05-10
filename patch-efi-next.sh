@@ -65,6 +65,7 @@ git am ../patch/0001-efi_loader-format-Kconfig.patch
 git am ../patch/0001-efi_loader-make-Unicode-collation-protocol-customiza.patch
 git am ../patch/0001-efi_loader-fix-typo-in-efi_locate_handle-comment.patch
 git am ../patch/0001-efi_loader-LocateDevicePath-incorrect-parameter-chec.patch
+git am ../patch/0001-efi_loader-superfluous-check-in-efi_remove_protocol.patch
 
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
