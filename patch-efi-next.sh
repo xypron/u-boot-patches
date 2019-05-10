@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-fix-typo-in-efi_locate_handle-comment.patch
 git am ../patch/0001-efi_loader-LocateDevicePath-incorrect-parameter-chec.patch
 git am ../patch/0001-efi_loader-superfluous-check-in-efi_remove_protocol.patch
 git am ../patch/0001-efi_loader-error-code-in-UninstallProtocolInterface.patch
+git am ../patch/0001-efi_loader-check-memory-address-before-freeing.patch
 
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
