@@ -11,7 +11,7 @@ notification functions:
 
 In RestoreTPL() we trigger the notification function of queued events. If
 we do not mark the event as non-queued before calling the notification
-function this results in an infinite recursive call sequence.
+function, this results in an infinite recursive call sequence.
 
 Mark the event as non-queued before entering the notification function.
 
