@@ -1,19 +1,24 @@
-From 68418966e37898bc62a9716c056acc02cf981f25 Mon Sep 17 00:00:00 2001
+From b5dcd994a3336a6514deac0070969df2e0131fc1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 8 May 2019 23:17:38 +0200
-Subject: [PATCH 1/1] efi_loader: format Kconfig
+Subject: [PATCH v2 2/5] efi_loader: format Kconfig
 
 Use if/endif for dependencies to give structure to the configuration menu.
 
 Sort important settings to the top.
 
+Abbreviate the short description of EFI_LOADER_HII.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	change the brief description for EFI_LOADER_HII
 ---
  lib/efi_loader/Kconfig | 43 +++++++++++++++++++++---------------------
  1 file changed, 22 insertions(+), 21 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 50b050159c..055051bde3 100644
+index 50b050159c..03b082750f 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -16,9 +16,21 @@ config EFI_LOADER

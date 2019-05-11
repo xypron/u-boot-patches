@@ -1,7 +1,8 @@
-From 596874a1ebad7c5e58f02724a175817a1fd894f2 Mon Sep 17 00:00:00 2001
+From 93113eb991b7eae1f9b14007081237715c4afa23 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 8 May 2019 23:24:26 +0200
-Subject: [PATCH 1/1] efi_loader: make Unicode collation protocol customizable
+Subject: [PATCH v2 4/5] efi_loader: make Unicode collation protocol
+ customizable
 
 The Unicode collation protocol is not needed for EBBR compliance. So let's
 make it a customizable option.
@@ -11,6 +12,9 @@ depend on the Unicode collation protocol.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	abbreviate short Kconfig description
+---
  lib/efi_loader/Kconfig         | 11 +++++++++++
  lib/efi_loader/Makefile        |  2 +-
  lib/efi_loader/efi_root_node.c |  2 ++
@@ -18,7 +22,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  4 files changed, 16 insertions(+), 2 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 055051bde3..0307d731a8 100644
+index 2b7ac6855f..3feb04a5ed 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -29,6 +29,15 @@ config EFI_LOADER_HII
@@ -47,7 +51,7 @@ index 055051bde3..0307d731a8 100644
  	bool "EFI Applications use bounce buffers for DMA operations"
  	depends on ARM64
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 4e90a35896..8fcde7c4b3 100644
+index e6bbe43154..2b1ae61a3d 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -30,7 +30,7 @@ obj-y += efi_memory.o
