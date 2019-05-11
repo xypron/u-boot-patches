@@ -63,6 +63,7 @@ git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
 git am ../patch/0001-efi_loader-observe-CONFIG_EFI_LOADER_HII.patch
 git am ../patch/0001-efi_loader-format-Kconfig.patch
 git am ../patch/0001-efi_loader-make-Unicode-collation-protocol-customiza.patch
+git am ../patch/0001-efi_loader-make-device-path-to-text-protocol-customi.patch
 git am ../patch/0001-efi_loader-fix-typo-in-efi_locate_handle-comment.patch
 git am ../patch/0001-efi_loader-LocateDevicePath-incorrect-parameter-chec.patch
 git am ../patch/0001-efi_loader-superfluous-check-in-efi_remove_protocol.patch
