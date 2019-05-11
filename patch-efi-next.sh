@@ -70,6 +70,7 @@ git am ../patch/0001-efi_loader-error-code-in-UninstallProtocolInterface.patch
 git am ../patch/0001-efi_loader-check-memory-address-before-freeing.patch
 git am ../patch/0001-efi_loader-out-of-resource-in-AllocatePages.patch
 git am ../patch/0001-efi_loader-AllocateAdress-error-handling.patch
+git am ../patch/0001-efi_loader-simplify-efi_allocate_pages.patch
 
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
