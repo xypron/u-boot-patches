@@ -23,7 +23,7 @@ index 50b050159c..055051bde3 100644
 +if EFI_LOADER
 +
 +config EFI_LOADER_HII
-+	bool "Expose HII protocols to EFI applications"
++	bool "HII protocols"
 +	default y
 +	help
 +	  The Human Interface Infrastructure is a complicated framework that
