@@ -75,6 +75,9 @@ git am ../patch/0001-efi_loader-AllocateAdress-error-handling.patch
 git am ../patch/0001-efi_loader-simplify-efi_allocate_pages.patch
 git am ../patch/0001-efi_loader-infinite-recursion-notifying-events.patch
 
+# efi-2019-07-rc3-2
+git am ../patch/0001-efi_loader-ACPI-device-node-to-text.patch
+
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
 exit
