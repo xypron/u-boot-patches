@@ -26,7 +26,7 @@ index 055051bde3..0307d731a8 100644
  	  Shell, but not more than that.
  
 +config EFI_UNICODE_COLLATION_PROTOCOL
-+	bool "Provide Unicode collation protocol"
++	bool "Unicode collation protocol"
 +	default y
 +	help
 +	  The Unicode collation protocol is used for lexical comparisons. It is
