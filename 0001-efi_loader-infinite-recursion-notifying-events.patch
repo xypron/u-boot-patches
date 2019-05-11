@@ -1,0 +1,43 @@
+From 11552980c45d406f03cf3c2c4b128a5ad05c5d5b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 11 May 2019 21:44:59 +0200
+Subject: [PATCH 1/1] efi_loader: infinite recursion notifying events
+
+UEFI SCT uses this call sequence to determine the current TPL level inside
+notification functions:
+
+    OldTpl = BS->RaiseTPL(TPL_HIGH_LEVEL);
+    BS->RestoreTPL(OldTpl);
+
+In RestoreTPL() we trigger the notification function of queued events. If
+we do not mark the event as non-queued before calling the notification
+function this results in an infinite recursive call sequence.
+
+Mark the event as non-queued before entering the notification function.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index b583ac6a42..ec6f5758de 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -181,10 +181,12 @@ static void efi_queue_event(struct efi_event *event, bool check_tpl)
+ 		/* Check TPL */
+ 		if (check_tpl && efi_tpl >= event->notify_tpl)
+ 			return;
++		event->is_queued = false;
+ 		EFI_CALL_VOID(event->notify_function(event,
+ 						     event->notify_context));
++	} else {
++		event->is_queued = false;
+ 	}
+-	event->is_queued = false;
+ }
+ 
+ /**
+-- 
+2.20.1
+
