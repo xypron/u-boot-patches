@@ -1,7 +1,7 @@
 From 73bbff8bb8bfce9bba4f35e71a2f5ef67afb3dc9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 11 May 2019 07:55:05 +0200
-Subject: [PATCH 1/1] efi_loader: out of resource in AllocatePages()
+Subject: [PATCH v2 1/1] efi_loader: out of resources in AllocatePages()
 
 According to the UEFI AllocatePages() has to return EFI_OUT_OF_RESOURCES if
 sufficient memory is not available.
@@ -11,6 +11,9 @@ Change the return value.
 UEFI SCT II (2017): 3.2.1 AllocatePages(), 5.1.2.1.8
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	fix typo in title: %s/resource/resources/
 ---
  lib/efi_loader/efi_memory.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
