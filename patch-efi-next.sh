@@ -78,6 +78,8 @@ git am ../patch/0001-efi_loader-AllocateAdress-error-handling.patch
 git am ../patch/0001-efi_loader-simplify-efi_allocate_pages.patch
 git am ../patch/0001-efi_loader-infinite-recursion-notifying-events.patch
 git am ../patch/0001-efi_loader-ACPI-device-node-to-text.patch
+git am ../patch/0001-efi_loader-deduplicate-code-in-cmd-bootefi.c.patch
+git am ../patch/0001-efi_loader-comments-for-efi_install_fdt.patch
 
 # efi-2019-07-rc3-2
 
