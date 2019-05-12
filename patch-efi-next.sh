@@ -57,6 +57,9 @@ git am ../patch/0001-configs-bcm968580-disable-CONFIG_CMD_BOOTEFI_SELFTES.patch
 # vsprint
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
+# fat
+0001-fs-fat-correct-file-name-normalization.patch
+
 # efi-2019-07-rc3
 git am ../patch/0001-lib-charset-correct-utf8_utf16_strnlen-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
