@@ -65,27 +65,6 @@ git am ../patch/0001-fs-fat-flush-a-directory-cluster-properly.patch
 git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
 git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
-# efi-2019-07-rc3
-git am ../patch/0001-lib-charset-correct-utf8_utf16_strnlen-description.patch
-git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
-git am ../patch/0001-efi_loader-observe-CONFIG_EFI_LOADER_HII.patch
-git am ../patch/0001-efi_loader-format-Kconfig.patch
-git am ../patch/0001-efi_loader-reword-the-EFI_LOADER-config-option.patch
-git am ../patch/0001-efi_loader-make-Unicode-collation-protocol-customiza.patch
-git am ../patch/0001-efi_loader-make-device-path-to-text-protocol-customi.patch
-git am ../patch/0001-efi_loader-fix-typo-in-efi_locate_handle-comment.patch
-git am ../patch/0001-efi_loader-LocateDevicePath-incorrect-parameter-chec.patch
-git am ../patch/0001-efi_loader-superfluous-check-in-efi_remove_protocol.patch
-git am ../patch/0001-efi_loader-error-code-in-UninstallProtocolInterface.patch
-git am ../patch/0001-efi_loader-check-memory-address-before-freeing.patch
-git am ../patch/0001-efi_loader-out-of-resources-in-AllocatePages.patch
-git am ../patch/0001-efi_loader-AllocateAdress-error-handling.patch
-git am ../patch/0001-efi_loader-simplify-efi_allocate_pages.patch
-git am ../patch/0001-efi_loader-infinite-recursion-notifying-events.patch
-git am ../patch/0001-efi_loader-ACPI-device-node-to-text.patch
-git am ../patch/0001-efi_loader-deduplicate-code-in-cmd-bootefi.c.patch
-git am ../patch/0001-efi_loader-comments-for-efi_install_fdt.patch
-
 # efi-2019-07-rc3-2
 git am ../patch/0001-efi_loader-variable-attributes-may-not-be-changed-if.patch
 
