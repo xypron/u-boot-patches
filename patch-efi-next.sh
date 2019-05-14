@@ -82,6 +82,7 @@ git am ../patch/0001-efi_loader-deduplicate-code-in-cmd-bootefi.c.patch
 git am ../patch/0001-efi_loader-comments-for-efi_install_fdt.patch
 
 # efi-2019-07-rc3-2
+git am ../patch/0001-efi_loader-variable-attributes-may-not-be-changed-if.patch
 
 # Workaround for SCT
 git am ../patch/0001-Workarounds-for-SCT.patch
