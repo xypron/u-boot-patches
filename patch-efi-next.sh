@@ -60,6 +60,11 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 # fat
 git am ../patch/0001-fs-fat-correct-file-name-normalization.patch
 
+git am ../patch/0001-fs-fat-write-to-non-cluster-aligned-root-directory.patch
+git am ../patch/0001-fs-fat-flush-a-directory-cluster-properly.patch
+git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
+git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
+
 # efi-2019-07-rc3
 git am ../patch/0001-lib-charset-correct-utf8_utf16_strnlen-description.patch
 git am ../patch/0001-MAINTAINERS-assign-include-charset.h.patch
