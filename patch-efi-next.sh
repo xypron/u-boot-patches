@@ -70,6 +70,7 @@ git am ../patch/0001-Workarounds-for-SCT.patch
 
 # efi-2019-07-rc3-2
 git am ../patch/0001-efi_loader-GetVariable-set-attributes-for-EFI_BUFFER.patch
+git am ../patch/0001-efi_loader-parameter-checks-simple-network-protocol.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 
 exit
