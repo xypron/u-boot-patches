@@ -69,6 +69,7 @@ git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 git am ../patch/0001-Workarounds-for-SCT.patch
 
 # efi-2019-07-rc3-2
+git am ../patch/0001-efi_loader-GetVariable-set-attributes-for-EFI_BUFFER.patch
 git am ../patch/0001-efi_loader-variable-attributes-may-not-be-changed-if.patch
 
 exit
