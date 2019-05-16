@@ -74,6 +74,8 @@ git am ../patch/0001-efi_loader-parameter-checks-simple-network-protocol.patch
 git am ../patch/0001-efi_loader-merge-adjacent-sprintf.patch
 git am ../patch/0001-efi_loader-rename-Unicode-collation-protocol-2-varia.patch
 git am ../patch/0001-efi_loader-implement-deprecated-Unicode-collation-pr.patch
+git am ../patch/0001-efi_loader-check-device-path-in-InstallMultipleProto.patch
+git am ../patch/0001-efi_loader-parameter-checks-CalculateCrc32.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 
 exit
