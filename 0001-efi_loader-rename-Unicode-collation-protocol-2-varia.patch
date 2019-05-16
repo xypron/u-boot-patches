@@ -1,0 +1,133 @@
+From 7ecf24b63d92a461bd42f5fc3921941ec6a2de8f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 16 May 2019 07:52:58 +0200
+Subject: [PATCH 1/1] efi_loader: rename Unicode collation protocol 2 variables
+
+Rename variables to make it clear they refer to the Unicode collation
+protocol identified by the EFI_UNICODE_PROTOCOL2_GUID.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h                   | 4 ++--
+ lib/efi_loader/Kconfig                 | 4 ++--
+ lib/efi_loader/Makefile                | 2 +-
+ lib/efi_loader/efi_root_node.c         | 6 +++---
+ lib/efi_loader/efi_unicode_collation.c | 6 +++---
+ lib/efi_selftest/Makefile              | 3 ++-
+ 6 files changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 07ef14ba1c..835007e179 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -108,7 +108,7 @@ extern const struct efi_device_path_utilities_protocol
+ 					efi_device_path_utilities;
+ /* Implementation of the EFI_UNICODE_COLLATION_PROTOCOL */
+ extern const struct efi_unicode_collation_protocol
+-					efi_unicode_collation_protocol;
++					efi_unicode_collation_protocol2;
+ extern const struct efi_hii_config_routing_protocol efi_hii_config_routing;
+ extern const struct efi_hii_config_access_protocol efi_hii_config_access;
+ extern const struct efi_hii_database_protocol efi_hii_database;
+@@ -146,7 +146,7 @@ extern const efi_guid_t efi_file_info_guid;
+ extern const efi_guid_t efi_file_system_info_guid;
+ extern const efi_guid_t efi_guid_device_path_utilities_protocol;
+ /* GUID of the Unicode collation protocol */
+-extern const efi_guid_t efi_guid_unicode_collation_protocol;
++extern const efi_guid_t efi_guid_unicode_collation_protocol2;
+ extern const efi_guid_t efi_guid_hii_config_routing_protocol;
+ extern const efi_guid_t efi_guid_hii_config_access_protocol;
+ extern const efi_guid_t efi_guid_hii_database_protocol;
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 6501ee56aa..7e13ee54b2 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -36,14 +36,14 @@ config EFI_LOADER_HII
+ 	  U-Boot implements enough of its features to be able to run the UEFI
+ 	  Shell, but not more than that.
+ 
+-config EFI_UNICODE_COLLATION_PROTOCOL
++config EFI_UNICODE_COLLATION_PROTOCOL2
+ 	bool "Unicode collation protocol"
+ 	default y
+ 	help
+ 	  The Unicode collation protocol is used for lexical comparisons. It is
+ 	  required to run the UEFI shell.
+ 
+-if EFI_UNICODE_COLLATION_PROTOCOL
++if EFI_UNICODE_COLLATION_PROTOCOL2
+ 
+ config EFI_UNICODE_CAPITALIZATION
+ 	bool "Support Unicode capitalization"
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index f3d6773bf6..01769ea58b 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -30,7 +30,7 @@ obj-y += efi_memory.o
+ obj-y += efi_root_node.o
+ obj-y += efi_runtime.o
+ obj-y += efi_setup.o
+-obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL) += efi_unicode_collation.o
++obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
+ obj-y += efi_variable.o
+ obj-y += efi_watchdog.o
+ obj-$(CONFIG_LCD) += efi_gop.o
+diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
+index d8496cc3c2..2b7277de05 100644
+--- a/lib/efi_loader/efi_root_node.c
++++ b/lib/efi_loader/efi_root_node.c
+@@ -60,10 +60,10 @@ efi_status_t efi_root_node_register(void)
+ 			 /* Device path utilities protocol */
+ 			 &efi_guid_device_path_utilities_protocol,
+ 			 (void *)&efi_device_path_utilities,
+-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
++#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
+ 			 /* Unicode collation protocol */
+-			 &efi_guid_unicode_collation_protocol,
+-			 (void *)&efi_unicode_collation_protocol,
++			 &efi_guid_unicode_collation_protocol2,
++			 (void *)&efi_unicode_collation_protocol2,
+ #endif
+ #if CONFIG_IS_ENABLED(EFI_LOADER_HII)
+ 			 /* HII string protocol */
+diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
+index 7f3ea3c77e..e04a4de5b7 100644
+--- a/lib/efi_loader/efi_unicode_collation.c
++++ b/lib/efi_loader/efi_unicode_collation.c
+@@ -26,8 +26,8 @@ static const u16 codepage[] = CP1250;
+ static const u16 codepage[] = CP437;
+ #endif
+ 
+-/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
+-const efi_guid_t efi_guid_unicode_collation_protocol =
++/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL2 */
++const efi_guid_t efi_guid_unicode_collation_protocol2 =
+ 	EFI_UNICODE_COLLATION_PROTOCOL2_GUID;
+ 
+ /**
+@@ -318,7 +318,7 @@ static bool EFIAPI efi_str_to_fat(struct efi_unicode_collation_protocol *this,
+ 	return ret;
+ }
+ 
+-const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
++const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
+ 	.stri_coll = efi_stri_coll,
+ 	.metai_match = efi_metai_match,
+ 	.str_lwr = efi_str_lwr,
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index d0bebc7d0c..cfbb40c891 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -38,7 +38,8 @@ efi_selftest_variables.o \
+ efi_selftest_watchdog.o
+ 
+ obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_selftest_devicepath.o
+-obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL) += efi_selftest_unicode_collation.o
++obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += \
++efi_selftest_unicode_collation.o
+ 
+ obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o
+ obj-$(CONFIG_EFI_LOADER_HII) += efi_selftest_hii.o
+-- 
+2.20.1
+
