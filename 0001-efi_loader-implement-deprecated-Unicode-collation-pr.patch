@@ -13,6 +13,11 @@ available.
 
 The configuration option defaults to no.
 
+Signed-off-by: Rob Clark <robdclark@gmail.com>
+
+Most of Rob's original patch is already merged. Only the deprecated
+protocol is missing. Rebase it and make it configurable.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h                      |  5 +++++
