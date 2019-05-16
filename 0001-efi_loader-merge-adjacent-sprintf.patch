@@ -1,0 +1,32 @@
+From fb0acdc664fa34396653c8038dd269b41ca8527b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 16 May 2019 07:37:22 +0200
+Subject: [PATCH 1/1] efi_loader: merge adjacent sprintf()
+
+In the implementation of the device path to text protocol join adjacent
+sprintf() statements.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path_to_text.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index f3a9579076..96fd08971b 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -79,9 +79,8 @@ static char *dp_acpi(char *s, struct efi_device_path *dp)
+ 		struct efi_device_path_acpi_path *adp =
+ 			(struct efi_device_path_acpi_path *)dp;
+ 
+-		s += sprintf(s, "Acpi(PNP%04X", EISA_PNP_NUM(adp->hid));
+-		s += sprintf(s, ",%d", adp->uid);
+-		s += sprintf(s, ")");
++		s += sprintf(s, "Acpi(PNP%04X,%d)", EISA_PNP_NUM(adp->hid),
++			     adp->uid);
+ 		break;
+ 	}
+ 	default:
+-- 
+2.20.1
+
