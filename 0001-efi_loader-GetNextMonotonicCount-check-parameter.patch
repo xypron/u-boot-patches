@@ -1,0 +1,40 @@
+From 48dd0c0d2e38b4c7f5a8badecf88d086baed3865 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 17 May 2019 12:47:17 +0200
+Subject: [PATCH 1/1] efi_loader: GetNextMonotonicCount() check parameter
+
+Do not write to address indicated by NULL pointer.
+
+UEFI SCT II 2.6 (2017), 3.6.5 GetNextMonotonicCount(), 5.1.5.5.1
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index ce6ca06f75..971bd5ffa3 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1916,10 +1916,17 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+ static efi_status_t EFIAPI efi_get_next_monotonic_count(uint64_t *count)
+ {
+ 	static uint64_t mono;
++	efi_status_t ret;
+ 
+ 	EFI_ENTRY("%p", count);
++	if (!count) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
+ 	*count = mono++;
+-	return EFI_EXIT(EFI_SUCCESS);
++	ret = EFI_SUCCESS;
++out:
++	return EFI_EXIT(ret);
+ }
+ 
+ /**
+-- 
+2.20.1
+
