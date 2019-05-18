@@ -65,8 +65,8 @@ git am ../patch/0001-fs-fat-flush-a-directory-cluster-properly.patch
 git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
 git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
-# Workaround for SCT
-git am ../patch/0001-Workarounds-for-SCT.patch
+# MACCHIATObin
+git am ../patch/0001-arm64-mvebu-update-Armada-7K-and-8K-device-trees.patch
 
 # efi-2019-07-rc3-2
 git am ../patch/0001-efi_loader-GetVariable-set-attributes-for-EFI_BUFFER.patch
