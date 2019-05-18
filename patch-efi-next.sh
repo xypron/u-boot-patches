@@ -77,6 +77,7 @@ git am ../patch/0001-efi_loader-implement-deprecated-Unicode-collation-pr.patch
 git am ../patch/0001-efi_loader-check-device-path-in-InstallMultipleProto.patch
 git am ../patch/0001-efi_loader-parameter-checks-CalculateCrc32.patch
 git am ../patch/0001-efi_loader-GetNextMonotonicCount-check-parameter.patch
+git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.SetStat.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 
 exit
