@@ -1,4 +1,4 @@
-From 07479060e2df69b042e7d6e9a26eb52113e821ee Mon Sep 17 00:00:00 2001
+From b098aec2de5e7908cbc5a96e293d9219f9262c8e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 18 May 2019 10:14:18 +0200
 Subject: [PATCH 1/1] arm64: mvebu: update Armada 7K and 8K device trees
@@ -8,26 +8,418 @@ This adds the MACCHIATObin Singleshot.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ arch/arm/dts/armada-7040-db-nand.dts          | 309 +++++-----
  arch/arm/dts/armada-7040-db.dts               | 284 +++++----
  arch/arm/dts/armada-7040.dtsi                 |  44 +-
  arch/arm/dts/armada-70x0.dtsi                 |  64 ++
  arch/arm/dts/armada-8040-clearfog-gt-8k.dts   | 520 ++++++++++------
+ arch/arm/dts/armada-8040-db.dts               | 405 +++++++------
  arch/arm/dts/armada-8040-mcbin-singleshot.dts |  29 +
  arch/arm/dts/armada-8040-mcbin.dts            | 312 +---------
  arch/arm/dts/armada-8040-mcbin.dtsi           | 346 +++++++++++
  arch/arm/dts/armada-8040.dtsi                 |  54 +-
  arch/arm/dts/armada-80x0.dtsi                 | 108 ++++
  arch/arm/dts/armada-ap806-quad.dtsi           |  57 +-
+ arch/arm/dts/armada-ap806.dtsi                | 254 +++++---
  arch/arm/dts/armada-common.dtsi               |  11 +
  arch/arm/dts/armada-cp110.dtsi                | 564 ++++++++++++++++++
- 12 files changed, 1650 insertions(+), 743 deletions(-)
+ .../interrupt-controller/mvebu-icu.h          |  16 +
+ 16 files changed, 2216 insertions(+), 1161 deletions(-)
  create mode 100644 arch/arm/dts/armada-70x0.dtsi
  create mode 100644 arch/arm/dts/armada-8040-mcbin-singleshot.dts
  create mode 100644 arch/arm/dts/armada-8040-mcbin.dtsi
  create mode 100644 arch/arm/dts/armada-80x0.dtsi
  create mode 100644 arch/arm/dts/armada-common.dtsi
  create mode 100644 arch/arm/dts/armada-cp110.dtsi
+ create mode 100644 include/dt-bindings/interrupt-controller/mvebu-icu.h
 
+diff --git a/arch/arm/dts/armada-7040-db-nand.dts b/arch/arm/dts/armada-7040-db-nand.dts
+index 3a9df21a8c..acf2175d5b 100644
+--- a/arch/arm/dts/armada-7040-db-nand.dts
++++ b/arch/arm/dts/armada-7040-db-nand.dts
+@@ -1,135 +1,173 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+ /*
+- * Copyright (C) 2017 Marvell Technology Group Ltd.
++ * Copyright (C) 2016 Marvell Technology Group Ltd.
+  *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+  * Device Tree file for Marvell Armada 7040 Development board platform
+- * Boot device: NAND, 0xE (SW3)
+  */
+ 
++#include <dt-bindings/gpio/gpio.h>
+ #include "armada-7040.dtsi"
+ 
+ / {
+-	model = "Marvell Armada 7040 DB board with NAND";
+-	compatible = "marvell,armada7040-db-nand", "marvell,armada7040-db",
+-		     "marvell,armada7040", "marvell,armada-ap806-quad",
+-		     "marvell,armada-ap806";
++	model = "Marvell Armada 7040 DB board";
++	compatible = "marvell,armada7040-db", "marvell,armada7040",
++		     "marvell,armada-ap806-quad", "marvell,armada-ap806";
+ 
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
+ 
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		spi0 = &cpm_spi1;
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth1;
++		ethernet2 = &cp0_eth2;
+ 	};
+ 
+-	memory@00000000 {
+-		device_type = "memory";
+-		reg = <0x0 0x0 0x0 0x80000000>;
++	cp0_reg_usb3_0_vbus: cp0-usb3-0-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3h0-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
++	};
++
++	cp0_reg_usb3_1_vbus: cp0-usb3-1-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb3h1-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++	};
++
++	cp0_usb3_0_phy: cp0-usb3-0-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp0_reg_usb3_0_vbus>;
++	};
++
++	cp0_usb3_1_phy: cp0-usb3-1-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp0_reg_usb3_1_vbus>;
+ 	};
+ };
+ 
+-&ap_pinctl {
+-	   /* MPP Bus:
+-	    * SDIO  [0-5]
+-	    * UART0 [11,19]
+-	    */
+-		  /* 0   1   2   3   4   5   6   7   8   9 */
+-	pin-func = < 0x1 0x1 0x1 0x1 0x1 0x1 0x0 0x0 0x0 0x0
+-		     0x0 0x3 0x0 0x0 0x0 0x0 0x0 0x0 0x0 0x3 >;
++&i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&spi0 {
++	status = "okay";
++
++	spi-flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <10000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0 0x200000>;
++			};
++			partition@400000 {
++				label = "Filesystem";
++				reg = <0x200000 0xce0000>;
++			};
++		};
++	};
+ };
+ 
+ &uart0 {
+ 	status = "okay";
++	pinctrl-0 = <&uart0_pins>;
++	pinctrl-names = "default";
+ };
+ 
+ 
+-&cpm_pcie2 {
++&cp0_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++&cp0_i2c0 {
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+-};
+ 
+-&cpm_pinctl {
+-		/* MPP Bus:
+-		 * AUDIO   [0-5]
+-                 * GBE     [6-11]
+-		 * SS_PWDN [12]
+-		 * NF_RBn  [13]
+-                 * GPIO    [14]
+-		 * DEV_BUS [15-27]
+-		 * SATA1   [28]
+-		 * UART0   [29-30]
+-		 * MSS_VTT_EN [31]
+-		 * SMI	   [32,34]
+-		 * XSMI    [35-36]
+-		 * I2C	   [37-38]
+-		 * RGMII1  [44-55]
+-		 * SD	   [56-61]
+-		 * GPIO    [62]
++	expander0: pca9555@21 {
++		compatible = "nxp,pca9555";
++		pinctrl-names = "default";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x21>;
++		/*
++		 * IO0_0: USB3_PWR_EN0	IO1_0: USB_3_1_Dev_Detect
++		 * IO0_1: USB3_PWR_EN1	IO1_1: USB2_1_current_limit
++		 * IO0_2: DDR3_4_Detect	IO1_2: Hcon_IO_RstN
++		 * IO0_3: USB2_DEVICE_DETECT
++		 * IO0_4: GPIO_0	IO1_4: SD_Status
++		 * IO0_5: GPIO_1	IO1_5: LDO_5V_Enable
++		 * IO0_6: IHB_5V_Enable	IO1_6: PWR_EN_eMMC
++		 * IO0_7:		IO1_7: SDIO_Vcntrl
+ 		 */
+-		 /*   0   1   2   3   4   5   6   7   8   9 */
+-	 pin-func = < 0x2 0x2 0x2 0x2 0x2 0x2 0x3 0x3 0x3 0x3
+-		      0x3 0x3 0x0 0x2 0x0 0x1 0x1 0x1 0x1 0x1
+-		      0x1 0x1 0x1 0x1 0x1 0x1 0x1 0x1 0x9 0xa
+-		      0xa 0x0 0x7 0x0 0x7 0x7 0x7 0x2 0x2 0x0
+-		      0x0 0x0 0x0 0x0 0x1 0x1 0x1 0x1 0x1 0x1
+-		      0x1 0x1 0x1 0x1 0x1 0x1 0xe 0xe 0xe 0xe
+-		      0xe 0xe 0x0>;
++	};
+ };
+ 
+-&cpm_spi1 {
++&cp0_nand_controller {
++	/*
++	 * SPI on CPM and NAND have common pins on this board. We can
++	 * use only one at a time. To enable the NAND (which will
++	 * disable the SPI), the "status = "okay";" line have to be
++	 * added here.
++	 */
++	status = "okay";
++	pinctrl-0 = <&nand_pins>, <&nand_rb>;
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_spi0_pins>;
+-	status = "disabled";
++
++	nand@0 {
++		reg = <0>;
++		label = "pxa3xx_nand-0";
++		nand-rb = <0>;
++		nand-on-flash-bbt;
++		nand-ecc-strength = <4>;
++		nand-ecc-step-size = <512>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0 0x200000>;
++			};
++
++			partition@200000 {
++				label = "Linux";
++				reg = <0x200000 0xe00000>;
++			};
++
++			partition@1000000 {
++				label = "Filesystem";
++				reg = <0x1000000 0x3f000000>;
++			};
++
++		};
++	};
++};
++
++&cp0_spi1 {
++	status = "okay";
+ 
+ 	spi-flash@0 {
+-		#address-cells = <0x1>;
+-		#size-cells = <0x1>;
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0x0>;
+ 		spi-max-frequency = <20000000>;
+@@ -152,72 +190,73 @@
+ 	};
+ };
+ 
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_0 {
++&cp0_usb3_0 {
++	usb-phy = <&cp0_usb3_0_phy>;
+ 	status = "okay";
+ };
+ 
+-&cpm_usb3_1 {
++&cp0_usb3_1 {
++	usb-phy = <&cp0_usb3_1_phy>;
+ 	status = "okay";
+ };
+ 
+-&cpm_comphy {
+-	phy0 {
+-		phy-type = <PHY_TYPE_SGMII2>;
+-		phy-speed = <PHY_SPEED_3_125G>;
+-	};
+-
+-	phy1 {
+-		phy-type = <PHY_TYPE_USB3_HOST0>;
+-		phy-speed = <PHY_SPEED_5G>;
+-	};
++&ap_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	non-removable;
++};
+ 
+-	phy2 {
+-		phy-type = <PHY_TYPE_SGMII0>;
+-		phy-speed = <PHY_SPEED_1_25G>;
+-	};
++&cp0_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	no-1-8-v;
++	cd-gpios = <&expander0 12 GPIO_ACTIVE_LOW>;
++};
+ 
+-	phy3 {
+-		phy-type = <PHY_TYPE_SATA1>;
+-		phy-speed = <PHY_SPEED_5G>;
+-	};
++&cp0_mdio {
++	status = "okay";
+ 
+-	phy4 {
+-		phy-type = <PHY_TYPE_USB3_HOST1>;
+-		phy-speed = <PHY_SPEED_5G>;
++	phy0: ethernet-phy@0 {
++		reg = <0>;
+ 	};
+-
+-	phy5 {
+-		phy-type = <PHY_TYPE_PEX2>;
+-		phy-speed = <PHY_SPEED_5G>;
++	phy1: ethernet-phy@1 {
++		reg = <1>;
+ 	};
+ };
+ 
+-&cpm_nand {
++&cp0_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi0 {
++&cp0_eth0 {
+ 	status = "okay";
+-};
++	/* Network PHY */
++	phy-mode = "10gbase-kr";
++	/* Generic PHY, providing serdes lanes */
++	phys = <&cp0_comphy2 0>;
+ 
+-&cpm_utmi1 {
+-	status = "okay";
++	fixed-link {
++		speed = <10000>;
++		full-duplex;
++	};
+ };
+ 
+-&ap_sdhci0 {
++&cp0_eth1 {
+ 	status = "okay";
+-	bus-width = <4>;
+-	no-1-8-v;
+-	non-removable;
++	/* Network PHY */
++	phy = <&phy0>;
++	phy-mode = "sgmii";
++	/* Generic PHY, providing serdes lanes */
++	phys = <&cp0_comphy0 1>;
+ };
+ 
+-&cpm_sdhci0 {
++&cp0_eth2 {
+ 	status = "okay";
+-	bus-width = <4>;
+-	no-1-8-v;
+-	non-removable;
++	phy = <&phy1>;
++	phy-mode = "rgmii-id";
+ };
 diff --git a/arch/arm/dts/armada-7040-db.dts b/arch/arm/dts/armada-7040-db.dts
 index cfd2b4baf3..d20d84ce7c 100644
 --- a/arch/arm/dts/armada-7040-db.dts
@@ -1176,6 +1568,533 @@ index 720c95082b..2468762283 100644
 -	phy-speed = <2500>;
 -	phy-reset-gpios = <&cps_gpio0 24 GPIO_ACTIVE_LOW>;
  };
+diff --git a/arch/arm/dts/armada-8040-db.dts b/arch/arm/dts/armada-8040-db.dts
+index 65b30bbc64..9f4f939ab6 100644
+--- a/arch/arm/dts/armada-8040-db.dts
++++ b/arch/arm/dts/armada-8040-db.dts
+@@ -1,49 +1,11 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+ /*
+  * Copyright (C) 2016 Marvell Technology Group Ltd.
+  *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+  * Device Tree file for Marvell Armada 8040 Development board platform
+  */
+ 
++#include <dt-bindings/gpio/gpio.h>
+ #include "armada-8040.dtsi"
+ 
+ / {
+@@ -55,220 +17,240 @@
+ 		stdout-path = "serial0:115200n8";
+ 	};
+ 
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x0 0x0 0x80000000>;
++	};
++
+ 	aliases {
+-		i2c0 = &cpm_i2c0;
+-		spi0 = &cps_spi1;
++		ethernet0 = &cp0_eth0;
++		ethernet1 = &cp0_eth2;
++		ethernet2 = &cp1_eth0;
++		ethernet3 = &cp1_eth1;
+ 	};
+ 
+-	memory@00000000 {
+-		device_type = "memory";
+-		reg = <0x0 0x0 0x0 0x80000000>;
++	cp0_reg_usb3_0_vbus: cp0-usb3-0-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "cp0-usb3h0-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 0 GPIO_ACTIVE_HIGH>;
+ 	};
+-};
+ 
+-/* Accessible over the mini-USB CON9 connector on the main board */
+-&uart0 {
+-	status = "okay";
+-};
++	cp0_reg_usb3_1_vbus: cp0-usb3-1-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "cp0-usb3h1-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander0 1 GPIO_ACTIVE_HIGH>;
++	};
+ 
+-&ap_pinctl {
+-	/* MPP Bus:
+-	 * SDIO  [0-10]
+-	 * UART0 [11,19]
+-	 */
+-		  /* 0 1 2 3 4 5 6 7 8 9 */
+-	pin-func = < 1 1 1 1 1 1 1 1 1 1
+-		     1 3 0 0 0 0 0 0 0 3 >;
++	cp0_usb3_0_phy: cp0-usb3-0-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp0_reg_usb3_0_vbus>;
++	};
++
++	cp0_usb3_1_phy: cp0-usb3-1-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp0_reg_usb3_1_vbus>;
++	};
++
++	cp1_reg_usb3_0_vbus: cp1-usb3-0-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "cp1-usb3h0-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		enable-active-high;
++		gpio = <&expander1 0 GPIO_ACTIVE_HIGH>;
++	};
++
++	cp1_usb3_0_phy: cp1-usb3-0-phy {
++		compatible = "usb-nop-xceiv";
++		vcc-supply = <&cp1_reg_usb3_0_vbus>;
++	};
+ };
+ 
+-&ap_sdhci0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&ap_emmc_pins>;
+-	bus-width = <8>;
++&i2c0 {
+ 	status = "okay";
++	clock-frequency = <100000>;
+ };
+ 
+-&cpm_pinctl {
+-	/* MPP Bus:
+-	 *	[0-31]	= 0xff: Keep default CP0_shared_pins
+-	 *	[11]	CLKOUT_MPP_11 (out)
+-	 *	[23]	LINK_RD_IN_CP2CP (in)
+-	 *	[25]	CLKOUT_MPP_25 (out)
+-	 *	[29]	AVS_FB_IN_CP2CP (in)
+-	 *	[32,34]	GE_MDIO/MDC
+-	 *	[33]	GPIO: GE_INT#/push button/Wake
+-	 *	[35]	MSS_GPIO[3]: MSS_PWDN
+-	 *	[36]	MSS_GPIO[5]: MSS_VTT_EN
+-	 *	[37-38]	I2C0
+-	 *	[39]	PTP_CLK
+-	 *	[40-41]	SATA[0/1]_PRESENT_ACTIVEn
+-	 *	[42-43]	XG_MDC/XG_MDIO (XSMI)
+-	 *	[44-55]	RGMII1
+-	 *	[56-62]	SD
+-	 */
+-	/*   0    1    2    3    4    5    6    7    8    9 */
+-	pin-func = < 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0x7  0x0  0x7  0xa  0xa  0x2  0x2  0x5
+-		     0x9  0x9  0x8  0x8  0x1  0x1  0x1  0x1  0x1  0x1
+-		     0x1  0x1  0x1  0x1  0x1  0x1  0xe  0xe  0xe  0xe
+-		     0xe  0xe  0xe>;
+-};
++&spi0 {
++	status = "okay";
+ 
+-&cpm_comphy {
+-	/* Serdes Configuration:
+-	 *	Lane 0: PCIe0 (x1)
+-	 *	Lane 1: SATA0
+-	 *	Lane 2: SFI (10G)
+-	 *	Lane 3: SATA1
+-	 *	Lane 4: USB3_HOST1
+-	 *	Lane 5: PCIe2 (x1)
+-	 */
+-	phy0 {
+-		phy-type = <PHY_TYPE_PEX0>;
+-	};
+-	phy1 {
+-		phy-type = <PHY_TYPE_SATA0>;
+-	};
+-	phy2 {
+-		phy-type = <PHY_TYPE_SFI>;
+-	};
+-	phy3 {
+-		phy-type = <PHY_TYPE_SATA1>;
+-	};
+-	phy4 {
+-		phy-type = <PHY_TYPE_USB3_HOST1>;
+-	};
+-	phy5 {
+-		phy-type = <PHY_TYPE_PEX2>;
++	spi-flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <10000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "U-Boot";
++				reg = <0 0x200000>;
++			};
++			partition@400000 {
++				label = "Filesystem";
++				reg = <0x200000 0xce0000>;
++			};
++		};
+ 	};
+ };
+ 
+-/* CON6 on CP0 expansion */
+-&cpm_pcie0 {
++/* Accessible over the mini-USB CON9 connector on the main board */
++&uart0 {
+ 	status = "okay";
++	pinctrl-0 = <&uart0_pins>;
++	pinctrl-names = "default";
+ };
+ 
+-&cpm_pcie1 {
+-	status = "disabled";
++/* CON6 on CP0 expansion */
++&cp0_pcie0 {
++	status = "okay";
+ };
+ 
+ /* CON5 on CP0 expansion */
+-&cpm_pcie2 {
++&cp0_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cpm_i2c0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_i2c0_pins>;
++&cp0_i2c0 {
+ 	status = "okay";
+ 	clock-frequency = <100000>;
++
++	/* U31 */
++	expander0: pca9555@21 {
++		compatible = "nxp,pca9555";
++		pinctrl-names = "default";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x21>;
++	};
++
++	/* U25 */
++	expander1: pca9555@25 {
++		compatible = "nxp,pca9555";
++		pinctrl-names = "default";
++		gpio-controller;
++		#gpio-cells = <2>;
++		reg = <0x25>;
++	};
++
+ };
+ 
+ /* CON4 on CP0 expansion */
+-&cpm_sata0 {
++&cp0_sata0 {
+ 	status = "okay";
+ };
+ 
+ /* CON9 on CP0 expansion */
+-&cpm_usb3_0 {
++&cp0_usb3_0 {
++	usb-phy = <&cp0_usb3_0_phy>;
+ 	status = "okay";
+ };
+ 
+ /* CON10 on CP0 expansion */
+-&cpm_usb3_1 {
++&cp0_usb3_1 {
++	usb-phy = <&cp0_usb3_1_phy>;
+ 	status = "okay";
+ };
+ 
+-&cpm_utmi0 {
++&cp0_mdio {
+ 	status = "okay";
++
++	phy1: ethernet-phy@1 {
++		reg = <1>;
++	};
+ };
+ 
+-&cpm_utmi1 {
++&cp0_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cpm_sdhci0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cpm_sdhci_pins>;
+-	bus-width = <4>;
++&cp0_eth0 {
+ 	status = "okay";
+-};
++	phy-mode = "10gbase-kr";
+ 
+-&cps_pinctl {
+-	/* MPP Bus:
+-	 *	[0-11]	RGMII0
+-	 *	[13-16]	SPI1
+-	 *	[27,31]	GE_MDIO/MDC
+-	 *	[28]	SATA1_PRESENT_ACTIVEn
+-	 *	[29-30]	UART0
+-	 *	[32-62]	= 0xff: Keep default CP1_shared_pins
+-	 */
+-	/*   0    1    2    3    4    5    6    7    8    9 */
+-	pin-func = < 0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3  0x3
+-		     0x3  0x3  0x3  0x3  0x3  0x3  0x3  0xff 0xff 0xff
+-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0x8  0x9  0xa
+-		     0xA  0x8  0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
+-		     0xff 0xff 0xff>;
++	fixed-link {
++		speed = <10000>;
++		full-duplex;
++	};
+ };
+ 
+-&cps_comphy {
+-	/* Serdes Configuration:
+-	 *	Lane 0: PCIe0 (x1)
+-	 *	Lane 1: SATA0
+-	 *	Lane 2: SFI (10G)
+-	 *	Lane 3: SATA1
+-	 *	Lane 4: PCIe1 (x1)
+-	 *	Lane 5: PCIe2 (x1)
+-	 */
+-	phy0 {
+-		phy-type = <PHY_TYPE_PEX0>;
+-	};
+-	phy1 {
+-		phy-type = <PHY_TYPE_SATA0>;
+-	};
+-	phy2 {
+-		phy-type = <PHY_TYPE_SFI>;
+-	};
+-	phy3 {
+-		phy-type = <PHY_TYPE_SATA1>;
+-	};
+-	phy4 {
+-		phy-type = <PHY_TYPE_PEX1>;
+-	};
+-	phy5 {
+-		phy-type = <PHY_TYPE_PEX2>;
+-	};
++&cp0_eth2 {
++	status = "okay";
++	phy = <&phy1>;
++	phy-mode = "rgmii-id";
+ };
+ 
+ /* CON6 on CP1 expansion */
+-&cps_pcie0 {
++&cp1_pcie0 {
+ 	status = "okay";
+ };
+ 
+-&cps_pcie1 {
++/* CON7 on CP1 expansion */
++&cp1_pcie1 {
+ 	status = "okay";
+ };
+ 
+ /* CON5 on CP1 expansion */
+-&cps_pcie2 {
++&cp1_pcie2 {
+ 	status = "okay";
+ };
+ 
+-&cps_spi1 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cps_spi1_pins>;
++&cp1_i2c0 {
++	status = "okay";
++	clock-frequency = <100000>;
++};
++
++&cp1_spi1 {
+ 	status = "okay";
+ 
+ 	spi-flash@0 {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+ 		compatible = "jedec,spi-nor";
++		reg = <0x0>;
++		spi-max-frequency = <20000000>;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@0 {
++				label = "Boot";
++				reg = <0x0 0x200000>;
++			};
++			partition@200000 {
++				label = "Filesystem";
++				reg = <0x200000 0xd00000>;
++			};
++			partition@f00000 {
++				label = "Boot_2nd";
++				reg = <0xf00000 0x100000>;
++			};
++		};
++	};
++};
++
++/*
++ * Proper NAND usage will require DPR-76 to be in position 1-2, which disables
++ * MDIO signal of CP1.
++ */
++&cp1_nand_controller {
++	pinctrl-0 = <&nand_pins>, <&nand_rb>;
++	pinctrl-names = "default";
++
++	nand@0 {
+ 		reg = <0>;
+-		spi-max-frequency = <10000000>;
++		nand-rb = <0>;
++		nand-on-flash-bbt;
++		nand-ecc-strength = <4>;
++		nand-ecc-step-size = <512>;
+ 
+ 		partitions {
+ 			compatible = "fixed-partitions";
+@@ -279,45 +261,70 @@
+ 				label = "U-Boot";
+ 				reg = <0 0x200000>;
+ 			};
+-			partition@400000 {
++			partition@200000 {
++				label = "Linux";
++				reg = <0x200000 0xe00000>;
++			};
++			partition@1000000 {
+ 				label = "Filesystem";
+-				reg = <0x200000 0xce0000>;
++				reg = <0x1000000 0x3f000000>;
+ 			};
+ 		};
+ 	};
+ };
+ 
+ /* CON4 on CP1 expansion */
+-&cps_sata0 {
++&cp1_sata0 {
+ 	status = "okay";
+ };
+ 
+ /* CON9 on CP1 expansion */
+-&cps_usb3_0 {
++&cp1_usb3_0 {
++	usb-phy = <&cp1_usb3_0_phy>;
+ 	status = "okay";
+ };
+ 
+ /* CON10 on CP1 expansion */
+-&cps_usb3_1 {
++&cp1_usb3_1 {
+ 	status = "okay";
+ };
+ 
+-&cps_utmi0 {
++&cp1_mdio {
+ 	status = "okay";
+-};
+ 
+-&cpm_mdio {
+-	phy1: ethernet-phy@1 {
+-		reg = <1>;
++	phy0: ethernet-phy@0 {
++		reg = <0>;
+ 	};
+ };
+ 
+-&cpm_ethernet {
++&cp1_ethernet {
+ 	status = "okay";
+ };
+ 
+-&cpm_eth2 {
++&cp1_eth0 {
+ 	status = "okay";
+-	phy = <&phy1>;
++	phy-mode = "10gbase-kr";
++
++	fixed-link {
++		speed = <10000>;
++		full-duplex;
++	};
++};
++
++&cp1_eth1 {
++	status = "okay";
++	phy = <&phy0>;
+ 	phy-mode = "rgmii-id";
+ };
++
++&ap_sdhci0 {
++	status = "okay";
++	bus-width = <4>;
++	non-removable;
++};
++
++&cp0_sdhci0 {
++	status = "okay";
++	bus-width = <8>;
++	non-removable;
++};
 diff --git a/arch/arm/dts/armada-8040-mcbin-singleshot.dts b/arch/arm/dts/armada-8040-mcbin-singleshot.dts
 new file mode 100644
 index 0000000000..c3e18fd5bc
@@ -2175,6 +3094,383 @@ index ba43a4357b..2baafe12eb 100644
  			reg = <0x101>;
  			enable-method = "psci";
  		};
+diff --git a/arch/arm/dts/armada-ap806.dtsi b/arch/arm/dts/armada-ap806.dtsi
+index 713c2dba74..91dad7e4ee 100644
+--- a/arch/arm/dts/armada-ap806.dtsi
++++ b/arch/arm/dts/armada-ap806.dtsi
+@@ -1,50 +1,12 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+ /*
+  * Copyright (C) 2016 Marvell Technology Group Ltd.
+  *
+- * This file is dual-licensed: you can use it either under the terms
+- * of the GPLv2 or the X11 license, at your option. Note that this dual
+- * licensing only applies to this file, and not this project as a
+- * whole.
+- *
+- *  a) This library is free software; you can redistribute it and/or
+- *     modify it under the terms of the GNU General Public License as
+- *     published by the Free Software Foundation; either version 2 of the
+- *     License, or (at your option) any later version.
+- *
+- *     This library is distributed in the hope that it will be useful,
+- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *     GNU General Public License for more details.
+- *
+- * Or, alternatively,
+- *
+- *  b) Permission is hereby granted, free of charge, to any person
+- *     obtaining a copy of this software and associated documentation
+- *     files (the "Software"), to deal in the Software without
+- *     restriction, including without limitation the rights to use,
+- *     copy, modify, merge, publish, distribute, sublicense, and/or
+- *     sell copies of the Software, and to permit persons to whom the
+- *     Software is furnished to do so, subject to the following
+- *     conditions:
+- *
+- *     The above copyright notice and this permission notice shall be
+- *     included in all copies or substantial portions of the Software.
+- *
+- *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- *     OTHER DEALINGS IN THE SOFTWARE.
+- */
+-
+-/*
+  * Device Tree file for Marvell Armada AP806.
+  */
+ 
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/thermal/thermal.h>
+ 
+ /dts-v1/;
+ 
+@@ -57,6 +19,8 @@
+ 	aliases {
+ 		serial0 = &uart0;
+ 		serial1 = &uart1;
++		gpio0 = &ap_gpio;
++		spi0 = &spi0;
+ 	};
+ 
+ 	psci {
+@@ -69,6 +33,12 @@
+ 		#size-cells = <2>;
+ 		ranges;
+ 
++		/*
++		 * This area matches the mapping done with a
++		 * mainline U-Boot, and should be updated by the
++		 * bootloader.
++		 */
++
+ 		psci-area@4000000 {
+ 			reg = <0x0 0x4000000 0x0 0x200000>;
+ 			no-map;
+@@ -82,7 +52,7 @@
+ 		interrupt-parent = <&gic>;
+ 		ranges;
+ 
+-		config-space {
++		config-space@f0000000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			compatible = "simple-bus";
+@@ -133,10 +103,16 @@
+ 
+ 			timer {
+ 				compatible = "arm,armv8-timer";
+-				interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>,
+-					     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>,
+-					     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>,
+-					     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_EDGE_RISING)>;
++				interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++					     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++					     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
++					     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>;
++			};
++
++			pmu {
++				compatible = "arm,cortex-a72-pmu";
++				interrupt-parent = <&pic>;
++				interrupts = <17>;
+ 			};
+ 
+ 			odmi: odmi@300000 {
+@@ -151,61 +127,63 @@
+ 				marvell,spi-base = <128>, <136>, <144>, <152>;
+ 			};
+ 
+-			ap_pinctl: ap-pinctl@6F4000 {
+-				compatible = "marvell,ap806-pinctrl";
+-				bank-name ="apn-806";
+-				reg = <0x6F4000 0x10>;
+-				pin-count = <20>;
+-				max-func = <3>;
++			gicp: gicp@3f0040 {
++				compatible = "marvell,ap806-gicp";
++				reg = <0x3f0040 0x10>;
++				marvell,spi-ranges = <64 64>, <288 64>;
++				msi-controller;
++			};
+ 
+-				ap_i2c0_pins: i2c-pins-0 {
+-					marvell,pins = < 4 5 >;
+-					marvell,function = <3>;
+-				};
+-				ap_emmc_pins: emmc-pins-0 {
+-					marvell,pins = < 0 1 2 3 4 5 6 7
+-							 8 9 10 >;
+-					marvell,function = <1>;
+-				};
++			pic: interrupt-controller@3f0100 {
++				compatible = "marvell,armada-8k-pic";
++				reg = <0x3f0100 0x10>;
++				#interrupt-cells = <1>;
++				interrupt-controller;
++				interrupts = <GIC_PPI 15 IRQ_TYPE_LEVEL_HIGH>;
+ 			};
+ 
+-			ap_gpio0: gpio@6F5040 {
+-				compatible = "marvell,orion-gpio";
+-				reg = <0x6F5040 0x40>;
+-				ngpios = <20>;
+-				gpio-controller;
+-				#gpio-cells = <2>;
++			sei: interrupt-controller@3f0200 {
++				compatible = "marvell,ap806-sei";
++				reg = <0x3f0200 0x40>;
++				interrupts = <GIC_SPI 0 IRQ_TYPE_LEVEL_HIGH>;
++				#interrupt-cells = <1>;
++				interrupt-controller;
++				msi-controller;
+ 			};
+ 
+ 			xor@400000 {
+-				compatible = "marvell,mv-xor-v2";
++				compatible = "marvell,armada-7k-xor", "marvell,xor-v2";
+ 				reg = <0x400000 0x1000>,
+ 				      <0x410000 0x1000>;
+ 				msi-parent = <&gic_v2m0>;
++				clocks = <&ap_clk 3>;
+ 				dma-coherent;
+ 			};
+ 
+ 			xor@420000 {
+-				compatible = "marvell,mv-xor-v2";
++				compatible = "marvell,armada-7k-xor", "marvell,xor-v2";
+ 				reg = <0x420000 0x1000>,
+ 				      <0x430000 0x1000>;
+ 				msi-parent = <&gic_v2m0>;
++				clocks = <&ap_clk 3>;
+ 				dma-coherent;
+ 			};
+ 
+ 			xor@440000 {
+-				compatible = "marvell,mv-xor-v2";
++				compatible = "marvell,armada-7k-xor", "marvell,xor-v2";
+ 				reg = <0x440000 0x1000>,
+ 				      <0x450000 0x1000>;
+ 				msi-parent = <&gic_v2m0>;
++				clocks = <&ap_clk 3>;
+ 				dma-coherent;
+ 			};
+ 
+ 			xor@460000 {
+-				compatible = "marvell,mv-xor-v2";
++				compatible = "marvell,armada-7k-xor", "marvell,xor-v2";
+ 				reg = <0x460000 0x1000>,
+ 				      <0x470000 0x1000>;
+ 				msi-parent = <&gic_v2m0>;
++				clocks = <&ap_clk 3>;
+ 				dma-coherent;
+ 			};
+ 
+@@ -214,9 +192,8 @@
+ 				reg = <0x510600 0x50>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				cell-index = <0>;
+ 				interrupts = <GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>;
+-				clocks = <&ap_syscon 3>;
++				clocks = <&ap_clk 3>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -227,7 +204,7 @@
+ 				#size-cells = <0>;
+ 				interrupts = <GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>;
+ 				timeout-ms = <1000>;
+-				clocks = <&ap_syscon 3>;
++				clocks = <&ap_clk 3>;
+ 				status = "disabled";
+ 			};
+ 
+@@ -237,9 +214,8 @@
+ 				reg-shift = <2>;
+ 				interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
+ 				reg-io-width = <1>;
+-				clocks = <&ap_syscon 3>;
++				clocks = <&ap_clk 3>;
+ 				status = "disabled";
+-				clock-frequency = <200000000>;
+ 			};
+ 
+ 			uart1: serial@512100 {
+@@ -248,28 +224,138 @@
+ 				reg-shift = <2>;
+ 				interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+ 				reg-io-width = <1>;
+-				clocks = <&ap_syscon 3>;
++				clocks = <&ap_clk 3>;
+ 				status = "disabled";
+ 
+ 			};
+ 
++			watchdog: watchdog@610000 {
++				compatible = "arm,sbsa-gwdt";
++				reg = <0x610000 0x1000>, <0x600000 0x1000>;
++				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
++			};
++
+ 			ap_sdhci0: sdhci@6e0000 {
+-				compatible = "marvell,armada-8k-sdhci";
++				compatible = "marvell,armada-ap806-sdhci";
+ 				reg = <0x6e0000 0x300>;
+ 				interrupts = <GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>;
++				clock-names = "core";
++				clocks = <&ap_clk 4>;
+ 				dma-coherent;
++				marvell,xenon-phy-slow-mode;
+ 				status = "disabled";
+ 			};
+ 
+ 			ap_syscon: system-controller@6f4000 {
+-				compatible = "marvell,ap806-system-controller",
+-					     "syscon";
+-				#clock-cells = <1>;
+-				clock-output-names = "ap-cpu-cluster-0",
+-						     "ap-cpu-cluster-1",
+-						     "ap-fixed", "ap-mss";
+-				reg = <0x6f4000 0x1000>;
++				compatible = "syscon", "simple-mfd";
++				reg = <0x6f4000 0x2000>;
++
++				ap_clk: clock {
++					compatible = "marvell,ap806-clock";
++					#clock-cells = <1>;
++				};
++
++				ap_pinctrl: pinctrl {
++					compatible = "marvell,ap806-pinctrl";
++
++					uart0_pins: uart0-pins {
++						marvell,pins = "mpp11", "mpp19";
++						marvell,function = "uart0";
++					};
++				};
++
++				ap_gpio: gpio@1040 {
++					compatible = "marvell,armada-8k-gpio";
++					offset = <0x1040>;
++					ngpios = <20>;
++					gpio-controller;
++					#gpio-cells = <2>;
++					gpio-ranges = <&ap_pinctrl 0 0 20>;
++				};
++			};
++
++			ap_syscon1: system-controller@6f8000 {
++				compatible = "syscon", "simple-mfd";
++				reg = <0x6f8000 0x1000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				ap_thermal: thermal-sensor@80 {
++					compatible = "marvell,armada-ap806-thermal";
++					reg = <0x80 0x10>;
++					interrupt-parent = <&sei>;
++					interrupts = <18>;
++					#thermal-sensor-cells = <1>;
++				};
+ 			};
+ 		};
+ 	};
++
++	/*
++	 * The thermal IP features one internal sensor plus, if applicable, one
++	 * remote channel wired to one sensor per CPU.
++	 *
++	 * Only one thermal zone per AP/CP may trigger interrupts at a time, the
++	 * first one that will have a critical trip point will be chosen.
++	 *
++	 * The cooling maps are always empty as there are no cooling devices.
++	 */
++	thermal-zones {
++		ap_thermal_ic: ap-thermal-ic {
++			polling-delay-passive = <0>; /* Interrupt driven */
++			polling-delay = <0>; /* Interrupt driven */
++
++			thermal-sensors = <&ap_thermal 0>;
++
++			trips {
++				ap_crit: ap-crit {
++					temperature = <100000>; /* mC degrees */
++					hysteresis = <2000>; /* mC degrees */
++					type = "critical";
++				};
++			};
++
++			cooling-maps { };
++		};
++
++		ap_thermal_cpu1: ap-thermal-cpu1 {
++			polling-delay-passive = <1000>;
++			polling-delay = <1000>;
++
++			thermal-sensors = <&ap_thermal 1>;
++
++			trips { };
++			cooling-maps { };
++		};
++
++		ap_thermal_cpu2: ap-thermal-cpu2 {
++			polling-delay-passive = <1000>;
++			polling-delay = <1000>;
++
++			thermal-sensors = <&ap_thermal 2>;
++
++			trips { };
++			cooling-maps { };
++		};
++
++		ap_thermal_cpu3: ap-thermal-cpu3 {
++			polling-delay-passive = <1000>;
++			polling-delay = <1000>;
++
++			thermal-sensors = <&ap_thermal 3>;
++
++			trips { };
++			cooling-maps { };
++		};
++
++		ap_thermal_cpu4: ap-thermal-cpu4 {
++			polling-delay-passive = <1000>;
++			polling-delay = <1000>;
++
++			thermal-sensors = <&ap_thermal 4>;
++
++			trips { };
++			cooling-maps { };
++		};
++	};
+ };
 diff --git a/arch/arm/dts/armada-common.dtsi b/arch/arm/dts/armada-common.dtsi
 new file mode 100644
 index 0000000000..b29c6405d2
@@ -2762,6 +4058,28 @@ index 0000000000..4d6e4a097f
 +		status = "disabled";
 +	};
 +};
+diff --git a/include/dt-bindings/interrupt-controller/mvebu-icu.h b/include/dt-bindings/interrupt-controller/mvebu-icu.h
+new file mode 100644
+index 0000000000..bb5217c642
+--- /dev/null
++++ b/include/dt-bindings/interrupt-controller/mvebu-icu.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * This header provides constants for the MVEBU ICU driver.
++ */
++
++#ifndef _DT_BINDINGS_INTERRUPT_CONTROLLER_MVEBU_ICU_H
++#define _DT_BINDINGS_INTERRUPT_CONTROLLER_MVEBU_ICU_H
++
++/* interrupt specifier cell 0 */
++
++#define ICU_GRP_NSR		0x0
++#define ICU_GRP_SR		0x1
++#define ICU_GRP_SEI		0x4
++#define ICU_GRP_REI		0x5
++
++#endif
 -- 
 2.20.1
 
