@@ -1,0 +1,31 @@
+From a374f6577ec95e0fee1580c7da751cf482e48088 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 18 May 2019 18:11:54 +0200
+Subject: [PATCH] efi_loader: parameter check OutputString
+
+Check the parameters against NULL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 909fd5c29e..b2cb18e6d6 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -136,6 +136,11 @@ static efi_status_t EFIAPI efi_cout_output_string(
+ 
+ 	EFI_ENTRY("%p, %p", this, string);
+ 
++	if (!this || !string) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++
+ 	buf = malloc(utf16_utf8_strlen(string) + 1);
+ 	if (!buf) {
+ 		ret = EFI_OUT_OF_RESOURCES;
+-- 
+2.20.1
+
