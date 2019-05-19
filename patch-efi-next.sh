@@ -81,6 +81,8 @@ git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.SetStat.patch
 git am ../patch/0001-efi_loader-parameter-check-OutputString.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 
+# efi-2019-07-rc3-3
+git am ../patch/0001-efi_loader-implement-SetTime.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
