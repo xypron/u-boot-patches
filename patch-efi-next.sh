@@ -83,6 +83,7 @@ git am ../patch/0001-efi_loader-parameter-check-OutputString.patch
 
 # efi-2019-07-rc3-3
 git am ../patch/0001-efi_loader-implement-SetTime.patch
+git am ../patch/0001-efi_loader-return-values-of-GetTime.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
