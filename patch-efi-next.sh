@@ -50,10 +50,6 @@ git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
-#
-git am ../patch/0001-configs-bcm963158-disable-CONFIG_CMD_BOOTEFI_SELFTES.patch
-git am ../patch/0001-configs-bcm968580-disable-CONFIG_CMD_BOOTEFI_SELFTES.patch
-
 # vsprint
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
@@ -65,25 +61,10 @@ git am ../patch/0001-fs-fat-flush-a-directory-cluster-properly.patch
 git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
 git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
-# MACCHIATObin - serial not found, rework needed
-# git am ../patch/0001-arm64-mvebu-update-Armada-7K-and-8K-device-trees.patch
-
-# efi-2019-07-rc3-2
-git am ../patch/0001-efi_loader-GetVariable-set-attributes-for-EFI_BUFFER.patch
-git am ../patch/0001-efi_loader-parameter-checks-simple-network-protocol.patch
-git am ../patch/0001-efi_loader-merge-adjacent-sprintf.patch
-git am ../patch/0001-efi_loader-rename-Unicode-collation-protocol-2-varia.patch
-git am ../patch/0001-efi_loader-implement-deprecated-Unicode-collation-pr.patch
-git am ../patch/0001-efi_loader-check-device-path-in-InstallMultipleProto.patch
-git am ../patch/0001-efi_loader-parameter-checks-CalculateCrc32.patch
-git am ../patch/0001-efi_loader-GetNextMonotonicCount-check-parameter.patch
-git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL.SetStat.patch
-git am ../patch/0001-efi_loader-parameter-check-OutputString.patch
-# git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
-
 # efi-2019-07-rc3-3
 git am ../patch/0001-efi_loader-implement-SetTime.patch
 git am ../patch/0001-efi_loader-return-values-of-GetTime.patch
+# git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
