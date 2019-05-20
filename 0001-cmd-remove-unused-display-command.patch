@@ -1,0 +1,174 @@
+From 4fff519ae3bf3321f7fe6aae7b248e6730ee3124 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 20 May 2019 19:40:27 +0200
+Subject: [PATCH 1/1] cmd: remove unused `display` command
+
+Compiling the display command leads to an error
+
+    undefined reference to `display_set'
+
+No implementation of display_set() exists in U-Boot.
+
+Eliminate the `display` command as well as accompanying files.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig            |  8 -------
+ cmd/Makefile           |  1 -
+ cmd/display.c          | 53 ------------------------------------------
+ doc/README.LED_display | 26 ---------------------
+ include/led-display.h  | 18 --------------
+ 5 files changed, 106 deletions(-)
+ delete mode 100644 cmd/display.c
+ delete mode 100644 doc/README.LED_display
+ delete mode 100644 include/led-display.h
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 0d36da2a5c4..0badcb3fe00 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1425,14 +1425,6 @@ config CMD_CLS
+ 	  Enable the 'cls' command which clears the screen contents
+ 	  on video frame buffer.
+ 
+-config CMD_DISPLAY
+-	bool "Enable the 'display' command, for character displays"
+-	help
+-	  (this needs porting to driver model)
+-	  This enables the 'display' command which allows a string to be
+-	  displayed on a simple board-specific display. Implement
+-	  display_putc() to use it.
+-
+ config CMD_EFIDEBUG
+ 	bool "efidebug - display/configure UEFI environment"
+ 	depends on EFI_LOADER
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 7864fcf95c3..f982564ab9f 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -45,7 +45,6 @@ obj-$(CONFIG_CMD_SOUND) += sound.o
+ ifdef CONFIG_POST
+ obj-$(CONFIG_CMD_DIAG) += diag.o
+ endif
+-obj-$(CONFIG_CMD_DISPLAY) += display.o
+ obj-$(CONFIG_CMD_DTIMG) += dtimg.o
+ obj-$(CONFIG_CMD_ECHO) += echo.o
+ obj-$(CONFIG_ENV_IS_IN_EEPROM) += eeprom.o
+diff --git a/cmd/display.c b/cmd/display.c
+deleted file mode 100644
+index fbe5514a707..00000000000
+--- a/cmd/display.c
++++ /dev/null
+@@ -1,53 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * (C) Copyright 2005
+- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+- */
+-
+-#include <common.h>
+-#include <command.h>
+-#include <led-display.h>
+-
+-#undef DEBUG_DISP
+-
+-int do_display (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+-{
+-	int i;
+-
+-	/* Clear display */
+-	display_set(DISPLAY_CLEAR | DISPLAY_HOME);
+-
+-	if (argc < 2)
+-		return (0);
+-
+-	for (i = 1; i < argc; i++) {
+-		char *p = argv[i];
+-
+-		if (i > 1) { /* Insert a space between strings */
+-			display_putc(' ');
+-		}
+-
+-		while ((*p)) {
+-#ifdef DEBUG_DISP
+-			putc(*p);
+-#endif
+-			display_putc(*p++);
+-		}
+-	}
+-
+-#ifdef DEBUG_DISP
+-	putc('\n');
+-#endif
+-
+-	return (0);
+-}
+-
+-/***************************************************/
+-
+-U_BOOT_CMD(
+-	display,	CONFIG_SYS_MAXARGS,	1,	do_display,
+-	"display string on dot matrix display",
+-	"[<string>]\n"
+-	"    - with <string> argument: display <string> on dot matrix display\n"
+-	"    - without arguments: clear dot matrix display"
+-);
+diff --git a/doc/README.LED_display b/doc/README.LED_display
+deleted file mode 100644
+index 19977ea7e0d..00000000000
+--- a/doc/README.LED_display
++++ /dev/null
+@@ -1,26 +0,0 @@
+-LED display internal API
+-=======================================
+-
+-This README describes the LED display API.
+-
+-The API is defined by the include file include/led-display.h
+-
+-The first step in to define CONFIG_CMD_DISPLAY in the board config file.
+-Then you need to provide the following functions to access LED display:
+-
+-void display_set(int cmd);
+-
+-This function should control the state of the LED display. Argument is
+-an ORed combination of the following values:
+- DISPLAY_CLEAR	-- clear the display
+- DISPLAY_HOME	-- set the position to the beginning of display
+-
+-int display_putc(char c);
+-
+-This function should display it's parameter on the LED display in the
+-current position. Returns the displayed character on success or -1 in
+-case of failure.
+-
+-With this functions defined 'display' command will display it's
+-arguments on the LED display (or clear the display if called without
+-arguments).
+diff --git a/include/led-display.h b/include/led-display.h
+deleted file mode 100644
+index b21f3b05700..00000000000
+--- a/include/led-display.h
++++ /dev/null
+@@ -1,18 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0+ */
+-/*
+- * (C) Copyright 2005-2010
+- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+- *
+- * (C) Copyright 2010
+- * Sergei Poselenov, Emcraft Systems, sposelenov@emcraft.com.
+- */
+-#ifndef _led_display_h_
+-#define _led_display_h_
+-
+-/* Display Commands */
+-#define DISPLAY_CLEAR	0x1 /* Clear the display */
+-#define DISPLAY_HOME	0x2 /* Set cursor at home position */
+-
+-void display_set(int cmd);
+-int display_putc(char c);
+-#endif
+-- 
+2.20.1
+
