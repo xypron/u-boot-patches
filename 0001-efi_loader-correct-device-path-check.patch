@@ -1,0 +1,41 @@
+From 8b95345beeec9653059de38c3f61680585e44ea9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 20 May 2019 19:55:18 +0000
+Subject: [PATCH 1/1] efi_loader: correct device path check
+
+Since commit 226cddbe32f0 ("efi_loader: check device path in
+InstallMultipleProtocolInterfaces") iPXE fails to access the network.
+
+LocateDevicePath() returns EFI_SUCCESS even if a shorter path is found as a
+partial match. It returns the remaining path. So to be sure that we found a
+complete match we need to check that the remaining path refers to an end
+node.
+
+Provide debug output if a device path has already been installed.
+
+Fixes: 226cddbe32f0 ("efi_loader: check device path in
+       InstallMultipleProtocolInterfaces")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 971bd5ffa3..54fff85e64 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -2360,7 +2360,10 @@ efi_status_t EFIAPI efi_install_multiple_protocol_interfaces
+ 
+ 			r = EFI_CALL(efi_locate_device_path(protocol, &dp,
+ 							    &old_handle));
+-			if (r == EFI_SUCCESS) {
++			if (r == EFI_SUCCESS &&
++			    dp->type == DEVICE_PATH_TYPE_END) {
++				EFI_PRINT("Path %pD already installed\n",
++					  protocol_interface);
+ 				r = EFI_ALREADY_STARTED;
+ 				break;
+ 			}
+-- 
+2.20.1
+
