@@ -9,7 +9,7 @@ Compiling the display command leads to an error
 
 No implementation of display_set() exists in U-Boot.
 
-Eliminate the `display` command as well as accompanying files.
+Eliminate the `display` command as well as the accompanying files.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
