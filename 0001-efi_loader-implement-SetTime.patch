@@ -71,7 +71,7 @@ index 636dfdab39..5f40659ee7 100644
 +out:
 +	return EFI_EXIT(ret);
 +#else
-+	EFI_ENTRY("%p %p", time);
++	EFI_ENTRY("%p", time);
 +	return EFI_EXIT(EFI_UNSUPPORTED);
 +#endif
 +}
