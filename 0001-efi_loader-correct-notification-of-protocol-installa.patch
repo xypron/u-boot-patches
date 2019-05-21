@@ -1,0 +1,96 @@
+From e597a25e9857219d52d564c97919a00819f4447b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 21 May 2019 18:19:01 +0200
+Subject: [PATCH 1/1] efi_loader: correct notification of protocol installation
+
+WORK IN PROGRESS - DO NOT MERGE
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          | 26 ++++++++++++++++++++++----
+ lib/efi_loader/efi_boottime.c | 14 +++++++++++++-
+ 2 files changed, 35 insertions(+), 5 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 43d3a08428..77b2f60bdc 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -286,20 +286,38 @@ extern struct list_head efi_obj_list;
+ /* List of all events */
+ extern struct list_head efi_events;
+ 
++/**
++ * struct efi_protocol_notification - handle for notified protocol
++ *
++ * When a protocol interface is installed for which an event was registered with
++ * the RegisterProtocolNotify() service this structure is used to hold the
++ * handle on which the protocol interface was installed.
++ *
++ * @link:	link to list of all handles notified for this event
++ * @handle:	handle on which the notified protocol interface was installed
++ */
++struct efi_protocol_notification {
++	struct list_head link;
++	efi_handle_t handle;
++};
++
+ /**
+  * efi_register_notify_event - event registered by RegisterProtocolNotify()
+  *
+  * The address of this structure serves as registration value.
+  *
+- * @link:		link to list of all registered events
+- * @event:		registered event. The same event may registered for
+- *			multiple GUIDs.
+- * @protocol:		protocol for which the event is registered
++ * @link:	link to list of all registered events
++ * @event:	registered event. The same event may registered for multiple
++ *		GUIDs.
++ * @protocol:	protocol for which the event is registered
++ * @handles:	linked list of all handles on which the notified protocol was
++ *		installed
+  */
+ struct efi_register_notify_event {
+ 	struct list_head link;
+ 	struct efi_event *event;
+ 	efi_guid_t protocol;
++	struct list_head handles;
+ };
+ 
+ /* List of all events registered by RegisterProtocolNotify() */
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 54fff85e64..f117953345 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1049,8 +1049,19 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
+ 
+ 	/* Notify registered events */
+ 	list_for_each_entry(event, &efi_register_notify_events, link) {
+-		if (!guidcmp(protocol, &event->protocol))
++		if (!guidcmp(protocol, &event->protocol)) {
++			struct efi_protocol_notification *notif;
++
++			notif = calloc(1, sizeof(*notif));
++			if (!notif) {
++				list_del(&handler->link);
++				free(handler);
++				return EFI_OUT_OF_RESOURCES;
++			}
++			notif->handle = handle;
++			list_add_tail(&notif->link, &event->handles);
+ 			efi_signal_event(event->event, true);
++		}
+ 	}
+ 
+ 	if (!guidcmp(&efi_guid_device_path, protocol))
+@@ -1332,6 +1343,7 @@ static efi_status_t EFIAPI efi_register_protocol_notify(
+ 
+ 	item->event = event;
+ 	memcpy(&item->protocol, protocol, sizeof(efi_guid_t));
++	INIT_LIST_HEAD(&item->handles);
+ 
+ 	list_add_tail(&item->link, &efi_register_notify_events);
+ 
+-- 
+2.20.1
+
