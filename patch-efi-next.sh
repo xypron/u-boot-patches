@@ -69,6 +69,7 @@ git am ../patch/0001-efi_loader-correct-device-path-check.patch
 git am ../patch/0001-efi_loader-comments-for-structs.patch
 git am ../patch/0001-efi_loader-DEL-is-an-illegal-file-name-character.patch
 git am ../patch/0001-efi-selftest-APPEND_WRITE-is-not-supported.patch
+git am ../patch/0001-efi_loader-variable-return-error-for-APPEND_WRITE.patch
 git am ../patch/0001-efi_loader-variable-attributes-may-not-be-changed-if.patch
 exit
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch

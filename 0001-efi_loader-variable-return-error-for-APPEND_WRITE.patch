@@ -1,0 +1,60 @@
+From 44acb8742a987bc08b87ba8e886ae782e64c67f1 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 24 May 2019 15:59:02 +0900
+Subject: [PATCH 1/1] efi_loader: variable: return error for APPEND_WRITE
+
+The current efi_set_variable() doesn't support EFI_VARIABLE_APPEND_WRITE
+attribute for now, and so should return an error.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Fix typos in commit message.
+Add a TODO comment.
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 28b1aa7505a..50bc10537f4 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -427,7 +427,9 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
+-	if (!variable_name || !vendor) {
++	/* TODO: implement APPEND_WRITE */
++	if (!variable_name || !vendor ||
++	    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
+ 		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
+ 	}
+@@ -449,12 +451,21 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 	if (val) {
+ 		parse_attr(val, &attr);
+ 
++		/* We should not free val */
++		val = NULL;
+ 		if (attr & READ_ONLY) {
+-			/* We should not free val */
+-			val = NULL;
+ 			ret = EFI_WRITE_PROTECTED;
+ 			goto out;
+ 		}
++
++		/*
++		 * attributes won't be changed
++		 * TODO: take care of APPEND_WRITE once supported
++		 */
++		if (attr != attributes) {
++			ret = EFI_INVALID_PARAMETER;
++			goto out;
++		}
+ 	}
+ 
+ 	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
+-- 
+2.20.1
+
