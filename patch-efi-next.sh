@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-implement-SetTime.patch
 git am ../patch/0001-efi_loader-return-values-of-GetTime.patch
 git am ../patch/0001-efi_loader-correct-device-path-check.patch
 git am ../patch/0001-efi_loader-comments-for-structs.patch
+git am ../patch/0001-efi_loader-DEL-is-an-illegal-file-name-character.patch
 exit
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
