@@ -1,0 +1,46 @@
+From a036d767549c4387266e1431114cc58ca2714aeb Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 24 May 2019 15:59:03 +0900
+Subject: [PATCH 1/1] efi_loader: variable: attributes may not be changed if a
+ variable exists
+
+If a variable already exists, efi_set_variable() should not change
+the variable's attributes. This patch enforces it.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index e3ec502ffb4..1bb3bbf3393 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -450,12 +450,21 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 	if (val) {
+ 		parse_attr(val, &attr);
+ 
++		/* We should not free val */
++		val = NULL;
+ 		if (attr & READ_ONLY) {
+-			/* We should not free val */
+-			val = NULL;
+ 			ret = EFI_WRITE_PROTECTED;
+ 			goto out;
+ 		}
++
++		/*
++		 * attributes won't be changed
++		 * TODO: take care of APPEND_WRITE once supported
++		 */
++		if (attr != attributes) {
++			ret = EFI_INVALID_PARAMETER;
++			goto out;
++		}
+ 	}
+ 
+ 	val = malloc(2 * data_size + strlen("{ro,run,boot}(blob)") + 1);
+-- 
+2.20.1
+
