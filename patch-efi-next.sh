@@ -62,15 +62,7 @@ git am ../patch/0001-fs-fat-flush-a-directory-cluster-properly.patch
 git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
 git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
-# efi-2019-07-rc3-3
-git am ../patch/0001-efi_loader-implement-SetTime.patch
-git am ../patch/0001-efi_loader-return-values-of-GetTime.patch
-git am ../patch/0001-efi_loader-correct-device-path-check.patch
-git am ../patch/0001-efi_loader-comments-for-structs.patch
-git am ../patch/0001-efi_loader-DEL-is-an-illegal-file-name-character.patch
-git am ../patch/0001-efi-selftest-APPEND_WRITE-is-not-supported.patch
-git am ../patch/0001-efi_loader-variable-return-error-for-APPEND_WRITE.patch
-git am ../patch/0001-efi_loader-variable-attributes-may-not-be-changed-if.patch
+# efi-2019-07-rc4
 exit
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
