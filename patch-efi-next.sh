@@ -63,7 +63,6 @@ git am ../patch/0001-fs-fat-allocate-a-new-cluster-for-root-directory-of-.patch
 git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
 # efi-2019-07-rc4
-exit
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 # git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
 exit
