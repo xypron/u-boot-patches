@@ -1,4 +1,4 @@
-From 24cd8f71a637038f74d136f72e8a13fe52c9f671 Mon Sep 17 00:00:00 2001
+From 7f6693741513f53ffaedc7753eed1f158ae7cfa6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 21 May 2019 18:19:01 +0200
 Subject: [PATCH 1/1] efi_loader: correct notification of protocol installation
@@ -67,7 +67,7 @@ index 43d3a08428..77b2f60bdc 100644
  
  /* List of all events registered by RegisterProtocolNotify() */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 54fff85e64..ce393f2c70 100644
+index 54fff85e64..1ccf54c386 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -921,6 +921,14 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
@@ -78,7 +78,7 @@ index 54fff85e64..ce393f2c70 100644
 +
 +			/* Remove signaled handles */
 +			list_for_each_entry_safe(hitem, hnext, &item->handles,
-+				 link) {
++						 link) {
 +				list_del(&hitem->link);
 +				free(hitem);
 +			}
