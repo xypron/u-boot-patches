@@ -1,18 +1,26 @@
-From 175f2f45dfbba027077abb7531b776fa49be95c0 Mon Sep 17 00:00:00 2001
+From 1ba70fc994b4f6a7548dfb975823096574df0765 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 21 May 2019 18:19:01 +0200
 Subject: [PATCH 1/1] efi_loader: correct notification of protocol installation
 
-WORK IN PROGRESS - DO NOT MERGE
+When a protocol is installed the handle should be queued for the
+registration key of each registered event. LocateHandle() should return the
+first handle from the queue for the registration key and delete it from the
+queue.
+
+Implement the queueing.
+
+Correct the selftest.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h          | 26 ++++++++++++++++++++++----
- lib/efi_loader/efi_boottime.c | 22 +++++++++++++++++++++-
- 2 files changed, 43 insertions(+), 5 deletions(-)
+ include/efi_loader.h                          | 26 ++++++--
+ lib/efi_loader/efi_boottime.c                 | 59 +++++++++++++++----
+ .../efi_selftest_register_notify.c            | 21 ++++---
+ 3 files changed, 81 insertions(+), 25 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 43d3a084282..77b2f60bdc8 100644
+index 43d3a08428..77b2f60bdc 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -286,20 +286,38 @@ extern struct list_head efi_obj_list;
@@ -59,7 +67,7 @@ index 43d3a084282..77b2f60bdc8 100644
  
  /* List of all events registered by RegisterProtocolNotify() */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 54fff85e64e..9205c1012ba 100644
+index 54fff85e64..f52edc0305 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -921,6 +921,14 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
@@ -106,6 +114,128 @@ index 54fff85e64e..9205c1012ba 100644
  
  	list_add_tail(&item->link, &efi_register_notify_events);
  
+@@ -1359,7 +1379,6 @@ static int efi_search(enum efi_locate_search_type search_type,
+ 	switch (search_type) {
+ 	case ALL_HANDLES:
+ 		return 0;
+-	case BY_REGISTER_NOTIFY:
+ 	case BY_PROTOCOL:
+ 		ret = efi_search_protocol(handle, protocol, NULL);
+ 		return (ret != EFI_SUCCESS);
+@@ -1391,6 +1410,7 @@ static efi_status_t efi_locate_handle(
+ 	struct efi_object *efiobj;
+ 	efi_uintn_t size = 0;
+ 	struct efi_register_notify_event *item, *event = NULL;
++	struct efi_protocol_notification *handle = NULL;
+ 
+ 	/* Check parameters */
+ 	switch (search_type) {
+@@ -1409,8 +1429,6 @@ static efi_status_t efi_locate_handle(
+ 		}
+ 		if (!event)
+ 			return EFI_INVALID_PARAMETER;
+-
+-		protocol = &event->protocol;
+ 		break;
+ 	case BY_PROTOCOL:
+ 		if (!protocol)
+@@ -1421,13 +1439,23 @@ static efi_status_t efi_locate_handle(
+ 	}
+ 
+ 	/* Count how much space we need */
+-	list_for_each_entry(efiobj, &efi_obj_list, link) {
+-		if (!efi_search(search_type, protocol, efiobj))
+-			size += sizeof(void *);
+-	}
++	if (search_type == BY_REGISTER_NOTIFY) {
++		if (list_empty(&event->handles))
++			return EFI_NOT_FOUND;
++		handle = list_first_entry(&event->handles,
++					  struct efi_protocol_notification,
++					  link);
++		efiobj = handle->handle;
++		size += sizeof(void *);
++	} else {
++		list_for_each_entry(efiobj, &efi_obj_list, link) {
++			if (!efi_search(search_type, protocol, efiobj))
++				size += sizeof(void *);
++		}
++		if (size == 0)
++			return EFI_NOT_FOUND;
+ 
+-	if (size == 0)
+-		return EFI_NOT_FOUND;
++	}
+ 
+ 	if (!buffer_size)
+ 		return EFI_INVALID_PARAMETER;
+@@ -1444,9 +1472,14 @@ static efi_status_t efi_locate_handle(
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	/* Then fill the array */
+-	list_for_each_entry(efiobj, &efi_obj_list, link) {
+-		if (!efi_search(search_type, protocol, efiobj))
+-			*buffer++ = efiobj;
++	if (search_type == BY_REGISTER_NOTIFY) {
++		*buffer = efiobj;
++		list_del(&handle->link);
++	} else {
++		list_for_each_entry(efiobj, &efi_obj_list, link) {
++			if (!efi_search(search_type, protocol, efiobj))
++				*buffer++ = efiobj;
++		}
+ 	}
+ 
+ 	return EFI_SUCCESS;
+diff --git a/lib/efi_selftest/efi_selftest_register_notify.c b/lib/efi_selftest/efi_selftest_register_notify.c
+index ee0ef395de..ad763dd6cb 100644
+--- a/lib/efi_selftest/efi_selftest_register_notify.c
++++ b/lib/efi_selftest/efi_selftest_register_notify.c
+@@ -47,15 +47,20 @@ static void EFIAPI notify(struct efi_event *event, void *context)
+ {
+ 	struct context *cp = context;
+ 	efi_status_t ret;
++	efi_uintn_t handle_count;
++	efi_handle_t *handles;
+ 
+ 	cp->notify_count++;
+ 
+-	ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY, NULL,
+-					     cp->registration_key,
+-					     &cp->handle_count,
+-					     &cp->handles);
+-	if (ret != EFI_SUCCESS)
+-		cp->handle_count = 0;
++	for (;;) {
++		ret = boottime->locate_handle_buffer(BY_REGISTER_NOTIFY, NULL,
++						     cp->registration_key,
++						     &handle_count, &handles);
++		if (ret != EFI_SUCCESS)
++			break;
++		cp->handle_count += handle_count;
++		cp->handles = handles;
++	}
+ }
+ 
+ /*
+@@ -170,7 +175,7 @@ static int execute(void)
+ 		efi_st_error("reinstall was notified too often\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	if (context.handle_count != 1) {
++	if (context.handle_count != 2) {
+ 		efi_st_error("LocateHandle failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+@@ -195,7 +200,7 @@ static int execute(void)
+ 		efi_st_error("install was notified too often\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	if (context.handle_count != 2) {
++	if (context.handle_count != 3) {
+ 		efi_st_error("LocateHandle failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
 -- 
 2.20.1
 
