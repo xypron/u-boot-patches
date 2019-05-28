@@ -7,7 +7,7 @@ Subject: [PATCH 1/1] cmd: env: print a message when setting UEFI variable
 Error message will alert a user that setting/deleting a variable failed.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/nvedit_efi.c | 10 +++++++++-
  1 file changed, 9 insertions(+), 1 deletion(-)
