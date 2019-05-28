@@ -64,7 +64,7 @@ git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 
 # efi-2019-07-rc4
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
-# git am ../patch/0001-efi_selftest-SetVariable-does-not-yet-implement-appe.patch
+git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
