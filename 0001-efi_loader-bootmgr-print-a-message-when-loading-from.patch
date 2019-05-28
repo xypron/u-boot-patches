@@ -1,0 +1,58 @@
+From 4911221707971bc4fe015dec5cacc06aa38c82f2 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 24 May 2019 15:59:31 +0900
+Subject: [PATCH 1/1] efi_loader: bootmgr: print a message when loading from
+ BootNext failed
+
+If a user defines BootNext but not BootOrder and loading from BootNext
+fails, you will see only a message like this:
+	BootOrder not defined
+
+This may confuse a user. Adding an error message will be helpful.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Adjust message for fallback from BootNext to BootOrder.
+
+An example output looks like this:
+
+=> bootefi bootmgr
+Loading from Boot0010 failed
+Loading from BootNext failed, falling back to BootOrder
+Loading from Boot0002 failed
+Loading from Boot0003 failed
+Loading from Boot0004 failed
+EFI boot manager: Cannot load any image
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_bootmgr.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 7bf51874c1..00de8165d0 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -149,8 +149,10 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
+ 
+ 		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
+ 					      NULL, 0, handle));
+-		if (ret != EFI_SUCCESS)
++		if (ret != EFI_SUCCESS) {
++			printf("Loading from Boot%04X failed\n", n);
+ 			goto error;
++		}
+ 
+ 		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 			     EFI_VARIABLE_RUNTIME_ACCESS;
+@@ -215,6 +217,7 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
+ 				ret = try_load_entry(bootnext, handle);
+ 				if (ret == EFI_SUCCESS)
+ 					return ret;
++				printf("Loading from BootNext failed, falling back to BootOrder\n");
+ 			}
+ 		} else {
+ 			printf("Deleting BootNext failed\n");
+-- 
+2.20.1
+
