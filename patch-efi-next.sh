@@ -66,6 +66,7 @@ git am ../patch/0001-test-py-test_fs-add-tests-for-creating-deleting-many.patch
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
 git am ../patch/0001-efi_loader-bootmgr-print-a-message-when-loading-from.patch
+git am ../patch/0001-efi_loader-factor-our-efi_check_register_notify_even.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
