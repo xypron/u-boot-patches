@@ -46,6 +46,7 @@ git am ../patch/0001-Makefile-reusable-function-for-BOARD_SIZE_CHECK.patch
 git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
 git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
+git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
