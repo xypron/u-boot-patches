@@ -1,7 +1,7 @@
-From 175e26dcbe720d33a4c7972e58fce27e80538b2a Mon Sep 17 00:00:00 2001
+From 099024520c7a0e0c34f72f48e7487771975e07e7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 29 May 2019 18:06:46 +0200
-Subject: [PATCH 1/1] efi_loader: registration key in LocateProtocol()
+Subject: [PATCH 2/2] efi_loader: registration key in LocateProtocol()
 
 In LocateProtocol() implement searching by the registration key returned by
 RegisterNotifyProtocol().
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 39 insertions(+), 10 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index dd5f706af7..26237222cf 100644
+index dd5f706af7..ad38b816d3 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -2259,29 +2259,58 @@ static efi_status_t EFIAPI efi_locate_protocol(const efi_guid_t *protocol,
@@ -27,7 +27,7 @@ index dd5f706af7..26237222cf 100644
  	EFI_ENTRY("%pUl, %p, %p", protocol, registration, protocol_interface);
  
 +	/*
-+	 * The UEFI spec explicitely requires a protocol even if a registration
++	 * The UEFI spec explicitly requires a protocol even if a registration
 +	 * key is provided. This differs from the logic in LocateHandle().
 +	 */
  	if (!protocol || !protocol_interface)
