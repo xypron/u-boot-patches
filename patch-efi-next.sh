@@ -54,6 +54,11 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 # vsprint
 git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
+# FAT
+# git am ../patch/0001-fs-fat-use-if-FS_FAT-in-Kconfig.patch
+# git am ../patch/0001-fs-fat-Kconfig-option-for-codepage.patch
+# git am ../patch/0001-fs-fat-correct-conversion-to-lower-case.patch
+
 # efi-2019-07-rc4
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch

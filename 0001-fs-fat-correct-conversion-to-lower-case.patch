@@ -1,0 +1,106 @@
+From ca23c029119151550e32a273237b71b0d3b2ef66 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 30 May 2019 11:25:28 +0200
+Subject: [PATCH 3/3] fs: fat: correct conversion to lower case
+
+When checking if a filename already exists in the FAT file system the
+comparison must be case insensitive. The function downcase() is used to
+convert the two strings to lowercase. This function currently only handles
+the ASCII letters A-Z correctly. But the FAT filesystem uses a codepage
+with further non-ASCII letters.
+
+Implement the lower case conversion of letters 0x80-0xFF for code pages 437
+and 1250.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c | 70 ++++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 63 insertions(+), 7 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index bf2106ec15..7f64bf827b 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -21,16 +21,72 @@
+ #include <linux/compiler.h>
+ #include <linux/ctype.h>
+ 
+-/*
+- * Convert a string to lowercase.  Converts at most 'len' characters,
+- * 'len' may be larger than the length of 'str' if 'str' is NULL
+- * terminated.
++/**
++ * downcase() - convert string to lowercase
++ *
++ * Converts at most 'len' characters, 'len' may be larger than the length of
++ * 'str' if 'str' is NULL terminated.
++ *
++ * @str:	string to convert
++ * @len:	maximum number of characters to convert
+  */
+ static void downcase(char *str, size_t len)
+ {
+-	while (*str != '\0' && len--) {
+-		*str = tolower(*str);
+-		str++;
++	for (; *str && len; ++str, --len) {
++		switch ((unsigned char)*str) {
++		case 'A' ... 'Z':
++			*str += 0x20;
++			break;
++#if CONFIG_FAT_DEFAULT_CODEPAGE == 1250
++		case 0x8a:		/* LETTER S WITH CARON */
++		case 0x8c ... 0x8f:
++		case 0xa3:		/* LETTER L WITH STROKE */
++		case 0xaa:		/* LETTER S WITH CEDILLA */
++		case 0xaf:		/* LETTER Z WITH DOT ABOVE */
++			*str += 0x10;
++			break;
++		case 0xa5:		/* LETTER A WITH OGONEK */
++			*str = 0xb9;
++			break;
++		case 0xbc:		/* LETTER L WITH CARON */
++			*str = 0xbe;
++			break;
++		case 0xc0 ... 0xde:
++			*str += 0x20;
++			break;
++#else /* CODEPAGE 437 */
++		case 0x80:		/* C WITH CEDILLA */
++			*str = 0x87;
++			break;
++		case 0x8e:		/* LETTER A WITH DIAERESIS */
++			*str = 0x84;
++			break;
++		case 0x8f:		/* LETTER A WITH RING ABOVE */
++			*str = 0x86;
++			break;
++		case 0x90:		/* LETTER E WITH ACUTE */
++			*str = 0x82;
++			break;
++		case 0x92:		/* LETTER AE */
++			*str = 0x91;
++			break;
++		case 0x99:		/* LETTER O WITH DIAERESIS */
++			*str = 0x94;
++			break;
++		case 0x9a:		/* LETTER U WITH DIAERESIS */
++			*str = 0x81;
++			break;
++		case 0xa5:		/* LETTER N WITH TILDE */
++			*str = 0xa4;
++			break;
++		case 0xe4:		/* LETTER SIGMA */
++			*str = 0xe5;
++			break;
++		case 0xe8:		/* LETTER PHI */
++			*str = 0xed;
++			break;
++#endif
++		}
+ 	}
+ }
+ 
+-- 
+2.20.1
+
