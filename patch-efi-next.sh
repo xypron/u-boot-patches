@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-factor-our-efi_check_register_notify_even.patch
 git am ../patch/0001-efi_loader-registration-key-in-LocateProtocol.patch
 git am ../patch/0001-efi_loader-correct-OpenProtocol.patch
 git am ../patch/0001-efi_loader-avoid-crash-in-OpenProtocol.patch
+git am ../patch/0001-efi_loader-correct-UninstallProtocolInterface.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

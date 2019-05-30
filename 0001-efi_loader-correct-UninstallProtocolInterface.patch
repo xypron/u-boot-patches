@@ -1,0 +1,41 @@
+From bb535f9466dc4f7d957c68b5d326dece496fad98 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 30 May 2019 20:12:19 +0200
+Subject: [PATCH 1/1] efi_loader: correct UninstallProtocolInterface()
+
+When uninstalling a protocol the following steps are needed:
+* request all drivers to disconnect
+* close protocol for all non-drivers
+* check if any open instance of the protocol exists on the handle and
+  return EFI_ACCESS_DENIED in this case
+* remove the protocol interface
+
+By tort we tested for remaining open protocol instances already after
+requesting drivers to disconnect.
+
+With this correction the UEFI SCT II tests for UninstallProtocolInterface()
+and ReinstallProtocolInterface are passed.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index f71268440b..f5b5828f93 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1260,10 +1260,6 @@ static efi_status_t efi_uninstall_protocol
+ 		goto out;
+ 	/* Disconnect controllers */
+ 	efi_disconnect_all_drivers(efiobj, protocol, NULL);
+-	if (!list_empty(&handler->open_infos)) {
+-		r =  EFI_ACCESS_DENIED;
+-		goto out;
+-	}
+ 	/* Close protocol */
+ 	list_for_each_entry_safe(item, pos, &handler->open_infos, link) {
+ 		if (item->info.attributes ==
+-- 
+2.20.1
+
