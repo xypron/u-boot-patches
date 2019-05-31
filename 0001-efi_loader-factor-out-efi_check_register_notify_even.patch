@@ -1,7 +1,7 @@
-From f6c2157af7b026c2572ed5e6ee270549bffff9ac Mon Sep 17 00:00:00 2001
+From b11b4a66ed0153bcc399033a9755c70861123050 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 29 May 2019 07:46:33 +0200
-Subject: [PATCH 1/1] efi_loader: factor our efi_check_register_notify_event()
+Subject: [PATCH 1/1] efi_loader: factor out efi_check_register_notify_event()
 
 The code to check if a registration key is a valid key returned by
 RegisterProtocolNotify() can be reused. So let us factor it out into a new

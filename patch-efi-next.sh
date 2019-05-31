@@ -63,7 +63,7 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
 git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
 git am ../patch/0001-efi_loader-bootmgr-print-a-message-when-loading-from.patch
-git am ../patch/0001-efi_loader-factor-our-efi_check_register_notify_even.patch
+git am ../patch/0001-efi_loader-factor-out-efi_check_register_notify_even.patch
 git am ../patch/0001-efi_loader-registration-key-in-LocateProtocol.patch
 git am ../patch/0001-efi_loader-correct-OpenProtocol.patch
 git am ../patch/0001-efi_loader-avoid-crash-in-OpenProtocol.patch

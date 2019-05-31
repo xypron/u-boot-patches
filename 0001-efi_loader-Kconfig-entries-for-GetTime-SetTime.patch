@@ -1,4 +1,4 @@
-From b084cb38099b0afac2a0e41b1fc40dd94d32f63c Mon Sep 17 00:00:00 2001
+From 08bbff794a9fd758555d12f9ec679593ba811da2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 31 May 2019 22:56:02 +0200
 Subject: [PATCH 1/1] efi_loader: Kconfig entries for GetTime(), SetTime()
@@ -9,8 +9,8 @@ let's make the customizable.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/Kconfig       | 16 ++++++++++++++++
- lib/efi_loader/efi_runtime.c |  8 ++++++--
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ lib/efi_loader/efi_runtime.c |  6 +++---
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index fc04ea39d0..0c01200b1b 100644
@@ -40,7 +40,7 @@ index fc04ea39d0..0c01200b1b 100644
  	bool "Device path to text protocol"
  	default y
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 99832d2558..b5ebbcfba7 100644
+index 98ab4de03d..9c50955c9b 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -167,7 +167,7 @@ static efi_status_t EFIAPI efi_get_time_boottime(
@@ -52,25 +52,16 @@ index 99832d2558..b5ebbcfba7 100644
  	efi_status_t ret = EFI_SUCCESS;
  	struct rtc_time tm;
  	struct udevice *dev;
-@@ -214,6 +214,8 @@ out:
+@@ -214,7 +214,7 @@ out:
  #endif
  }
  
+-#ifdef CONFIG_DM_RTC
 +#ifdef CONFIG_EFI_SET_TIME
-+
+ 
  /**
   * efi_validate_time() - checks if timestamp is valid
-  *
-@@ -234,6 +236,8 @@ static int efi_validate_time(struct efi_time *time)
- 		time->timezone != EFI_UNSPECIFIED_TIMEZONE));
- }
- 
-+#endif /* EFI_SET_TIME */
-+
- /**
-  * efi_set_time_boottime() - set current time
-  *
-@@ -248,7 +252,7 @@ static int efi_validate_time(struct efi_time *time)
+@@ -252,7 +252,7 @@ static int efi_validate_time(struct efi_time *time)
   */
  static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
  {
