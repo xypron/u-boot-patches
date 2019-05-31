@@ -68,6 +68,7 @@ git am ../patch/0001-efi_loader-registration-key-in-LocateProtocol.patch
 git am ../patch/0001-efi_loader-correct-OpenProtocol.patch
 git am ../patch/0001-efi_loader-avoid-crash-in-OpenProtocol.patch
 git am ../patch/0001-efi_loader-correct-UninstallProtocolInterface.patch
+git am ../patch/0001-rtc-export-rtc_month_days.patch
 git am ../patch/0001-efi_loader-check-time-in-SetTime.patch
 git am ../patch/0001-efi_loader-export-efi_set_time.patch
 exit

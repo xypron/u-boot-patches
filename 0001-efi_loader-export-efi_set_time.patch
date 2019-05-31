@@ -1,4 +1,4 @@
-From 7ea2f30c527af4deb5f35a7868cb1b9c2420875a Mon Sep 17 00:00:00 2001
+From 693f3b862bfbf3193a2e698488afb2970dfff677 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 31 May 2019 07:38:29 +0200
 Subject: [PATCH 1/1] efi_loader: export efi_set_time()
@@ -12,18 +12,18 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 2 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index cb30000d1f..297d0aef41 100644
+index 77b2f60bdc..23ce732267 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -600,6 +600,8 @@ efi_status_t efi_reset_system_init(void);
-  */
- int __efi_runtime efi_validate_time(struct efi_time *time);
+@@ -594,6 +594,8 @@ efi_status_t __efi_runtime EFIAPI efi_get_time(
+ 			struct efi_time *time,
+ 			struct efi_time_cap *capabilities);
  
 +efi_status_t __efi_runtime EFIAPI efi_set_time(struct efi_time *time);
 +
- efi_status_t __efi_runtime EFIAPI efi_get_time(
- 			struct efi_time *time,
- 			struct efi_time_cap *capabilities);
+ #ifdef CONFIG_CMD_BOOTEFI_SELFTEST
+ /*
+  * Entry point for the tests of the EFI API.
 -- 
 2.20.1
 

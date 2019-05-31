@@ -1,0 +1,46 @@
+From d113d93c98017633e0cc37e4dffdf3b306228094 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 31 May 2019 07:21:03 +0200
+Subject: [PATCH 1/1] rtc: export rtc_month_days()
+
+Export function rtc_month_days() for reuse in the UEFI subsystem.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rtc/rtc-lib.c | 2 +-
+ include/rtc.h         | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+index 6528ddfebb..1f7bdade29 100644
+--- a/drivers/rtc/rtc-lib.c
++++ b/drivers/rtc/rtc-lib.c
+@@ -23,7 +23,7 @@ static const unsigned char rtc_days_in_month[] = {
+ /*
+  * The number of days in the month.
+  */
+-static int rtc_month_days(unsigned int month, unsigned int year)
++int rtc_month_days(unsigned int month, unsigned int year)
+ {
+ 	return rtc_days_in_month[month] + (is_leap_year(year) && month == 1);
+ }
+diff --git a/include/rtc.h b/include/rtc.h
+index 2c3a5743e3..b255bdc7a3 100644
+--- a/include/rtc.h
++++ b/include/rtc.h
+@@ -258,4 +258,12 @@ void rtc_to_tm(u64 time_t, struct rtc_time *time);
+  */
+ unsigned long rtc_mktime(const struct rtc_time *time);
+ 
++/**
++ * rtc_month_days() - The number of days in the month
++ *
++ * @month:	month (January = 0)
++ * @year:	year (4 digits)
++ */
++int rtc_month_days(unsigned int month, unsigned int year);
++
+ #endif	/* _RTC_H_ */
+-- 
+2.20.1
+
