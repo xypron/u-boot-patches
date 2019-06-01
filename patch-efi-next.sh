@@ -47,6 +47,7 @@ git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
 git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
+git am ../patch/0001-trace-undefined-reference-to-trace_early_init.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
