@@ -1,0 +1,58 @@
+From 2a055ed253731f9a04e86d2509275797bab6aa38 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 2 Jun 2019 00:04:50 +0200
+Subject: [PATCH 1/1] disk: part: avoid undefined reference to `__udivmoddi4'
+
+When compiling with FTRACE=1 an error
+
+ld.bfd: disk/built-in.o: in function `lba512_muldiv':
+disk/part.c:114: undefined reference to `__udivmoddi4
+
+occurred.
+
+Use '>> 11' instead of '/ 2048' to avoid the division.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ disk/part.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/disk/part.c b/disk/part.c
+index 98cc54db20..862078f3e7 100644
+--- a/disk/part.c
++++ b/disk/part.c
+@@ -103,17 +103,17 @@ typedef lbaint_t lba512_t;
+ #endif
+ 
+ /*
+- * Overflowless variant of (block_count * mul_by / div_by)
++ * Overflowless variant of (block_count * mul_by / 2**div_by)
+  * when div_by > mul_by
+  */
+-static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, lba512_t div_by)
++static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, int div_by)
+ {
+ 	lba512_t bc_quot, bc_rem;
+ 
+ 	/* x * m / d == x / d * m + (x % d) * m / d */
+-	bc_quot = block_count / div_by;
+-	bc_rem  = block_count - div_by * bc_quot;
+-	return bc_quot * mul_by + (bc_rem * mul_by) / div_by;
++	bc_quot = block_count >> div_by;
++	bc_rem  = block_count - (bc_quot << div_by);
++	return bc_quot * mul_by + ((bc_rem * mul_by) >> div_by);
+ }
+ 
+ void dev_print (struct blk_desc *dev_desc)
+@@ -193,7 +193,7 @@ void dev_print (struct blk_desc *dev_desc)
+ 		lba512 = (lba * (dev_desc->blksz/512));
+ 		/* round to 1 digit */
+ 		/* 2048 = (1024 * 1024) / 512 MB */
+-		mb = lba512_muldiv(lba512, 10, 2048);
++		mb = lba512_muldiv(lba512, 10, 11);
+ 
+ 		mb_quot	= mb / 10;
+ 		mb_rem	= mb - (10 * mb_quot);
+-- 
+2.20.1
+
