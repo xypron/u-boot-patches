@@ -71,9 +71,11 @@ git am ../patch/0001-efi_loader-correct-UninstallProtocolInterface.patch
 git am ../patch/0001-rtc-export-rtc_month_days.patch
 git am ../patch/0001-efi_loader-check-time-in-SetTime.patch
 git am ../patch/0001-efi_loader-export-efi_set_time.patch
-# efi-2019-07-rc4-2
 git am ../patch/0001-efi_loader-handling-of-daylight-saving-time.patch
 git am ../patch/0001-efi_loader-Kconfig-entries-for-GetTime-SetTime.patch
+# https://travis-ci.org/xypron2/u-boot/builds/539972198
+# efi-2019-07-rc4-2
+git am ../patch/0001-efi_loader-correct-HandleProtocol.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
