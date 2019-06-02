@@ -1,0 +1,49 @@
+From 2d6c20ab2cf66be9f6ef0296084ff74f4a1d4d0c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 2 Jun 2019 01:43:33 +0200
+Subject: [PATCH 1/1] efi_loader: DisconnectController() with no driver
+
+If DisconnectController() is called and no driver is managing
+ControllerHandle, return EFI_SUCCESS.
+
+UEFI SCT II 2017, 3.3.12 DisconnectController(), 5.1.3.12.4 - 5.1.3.12.6
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 5c6bc691a5..5714deca70 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1153,11 +1153,15 @@ static efi_status_t efi_get_drivers(efi_handle_t handle,
+ 				++count;
+ 		}
+ 	}
++	*number_of_drivers = 0;
++	if (!count) {
++		*driver_handle_buffer = NULL;
++		return EFI_SUCCESS;
++	}
+ 	/*
+ 	 * Create buffer. In case of duplicate driver assignments the buffer
+ 	 * will be too large. But that does not harm.
+ 	 */
+-	*number_of_drivers = 0;
+ 	*driver_handle_buffer = calloc(count, sizeof(efi_handle_t));
+ 	if (!*driver_handle_buffer)
+ 		return EFI_OUT_OF_RESOURCES;
+@@ -1213,7 +1217,8 @@ static efi_status_t efi_disconnect_all_drivers
+ 			      &driver_handle_buffer);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+-
++	if (!number_of_drivers)
++		return EFI_SUCCESS;
+ 	ret = EFI_NOT_FOUND;
+ 	while (number_of_drivers) {
+ 		r = EFI_CALL(efi_disconnect_controller(
+-- 
+2.20.1
+

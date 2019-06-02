@@ -81,6 +81,7 @@ git am ../patch/0001-efi_loader-correct-HandleProtocol.patch
 git am ../patch/0001-efi_loader-open-protocol-information.patch
 git am ../patch/0001-efi_loader-CloseProtocol-fix-open-protocol-informati.patch
 git am ../patch/0001-efi_selftest-unit-test-for-OpenProtocolInformation.patch
+git am ../patch/0001-efi_loader-DisconnectController-with-no-driver.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
