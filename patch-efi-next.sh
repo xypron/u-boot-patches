@@ -49,6 +49,7 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
 git am ../patch/0001-trace-undefined-reference-to-trace_early_init.patch
 git am ../patch/0001-trace-conserve-gd-register.patch
+git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
