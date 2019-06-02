@@ -1,0 +1,35 @@
+From ac684594c3565adf0a61a797b1e577d5b35b4b99 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 2 Jun 2019 21:12:17 +0200
+Subject: [PATCH 2/2] efi_loader: check timer events in Stall()
+
+During a call to Stall() we should periodically check for timer events.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index f4e3186ffc..5036e239b6 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1990,8 +1990,14 @@ out:
+  */
+ static efi_status_t EFIAPI efi_stall(unsigned long microseconds)
+ {
++	u64 end_tick;
++
+ 	EFI_ENTRY("%ld", microseconds);
+-	udelay(microseconds);
++
++	end_tick = get_ticks() + usec_to_tick(microseconds);
++	while (get_ticks() < end_tick)
++		efi_timer_check();
++
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
+-- 
+2.20.1
+
