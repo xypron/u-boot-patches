@@ -1,20 +1,45 @@
-From 6c14ae93074a2f648a61aad0b16a814aff45d91b Mon Sep 17 00:00:00 2001
+From 9215421ce24e3f9be9adfae3e6719df5f3d45087 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Jun 2019 21:02:10 +0200
-Subject: [PATCH 1/2] lib: time: export usec_to_tick()
+Subject: [PATCH v2 1/2] lib: time: export usec_to_tick()
 
 In the UEFI Stall() boottime service we need access to usec_to_tick().
 
 Export the function.
 
+Remove redundant implementation in arch/arm/mach-rockchip/rk_timer.c.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/time.h | 9 +++++++++
- lib/time.c     | 2 +-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+v2
+	Remove redundant implementation of usec_to_tick() in
+	arch/arm/mach-rockchip/rk_timer.c
+---
+ arch/arm/mach-rockchip/rk_timer.c | 7 -------
+ include/time.h                    | 9 +++++++++
+ lib/time.c                        | 2 +-
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
+diff --git a/arch/arm/mach-rockchip/rk_timer.c b/arch/arm/mach-rockchip/rk_timer.c
+index f20e64f48e..29d379fa0a 100644
+--- a/arch/arm/mach-rockchip/rk_timer.c
++++ b/arch/arm/mach-rockchip/rk_timer.c
+@@ -20,13 +20,6 @@ static uint64_t rockchip_get_ticks(void)
+ 	return timebase_h << 32 | timebase_l;
+ }
+ 
+-static uint64_t usec_to_tick(unsigned int usec)
+-{
+-	uint64_t tick = usec;
+-	tick *= CONFIG_SYS_TIMER_RATE / (1000 * 1000);
+-	return tick;
+-}
+-
+ void rockchip_udelay(unsigned int usec)
+ {
+ 	uint64_t tmp;
 diff --git a/include/time.h b/include/time.h
-index 9fd0d73fb4..99d45d3ae2 100644
+index 9fd0d73fb4..1e9b369be7 100644
 --- a/include/time.h
 +++ b/include/time.h
 @@ -4,6 +4,7 @@
