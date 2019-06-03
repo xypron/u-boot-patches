@@ -1,4 +1,4 @@
-From b0970b72cc8ad94bc695a2881deba1281ba29e0b Mon Sep 17 00:00:00 2001
+From c237e97acad8b9e557939ca9992cdb8671a8d1bf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Jun 2019 20:02:32 +0200
 Subject: [PATCH 1/1] efi_loader: close protocols in UnloadImage()
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 36 insertions(+), 2 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index b64ca54dbc..a1a70d9cc8 100644
+index b64ca54dbc..7d1d6e9213 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -2879,12 +2879,46 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
@@ -35,12 +35,12 @@ index b64ca54dbc..a1a70d9cc8 100644
 +		list_for_each_entry(protocol, &efiobj->protocols, link) {
 +			struct efi_open_protocol_info_item *info;
 +
-+			list_for_each_entry(info, &prot->open_infos, link) {
++			list_for_each_entry(info, &protocol->open_infos, link) {
 +				if (info->info.agent_handle !=
 +				    (efi_handle_t)image_obj)
 +					continue;
 +				r = EFI_CALL(efi_close_protocol
-+						(efiobj, prot->guid,
++						(efiobj, protocol->guid,
 +						 info->info.agent_handle,
 +						 info->info.controller_handle
 +						));
