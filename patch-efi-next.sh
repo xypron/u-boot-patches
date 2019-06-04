@@ -75,6 +75,7 @@ git am ../patch/0001-efi_loader-notify-memory-map-changes.patch
 git am ../patch/0001-efi_loader-variable-support-non-volatile-attribute.patch
 git am ../patch/0001-efi_loader-bootmgr-make-BootNext-non-volatile.patch
 git am ../patch/0001-cmd-efidebug-make-some-boot-variables-non-volatile.patch
+git am ../patch/0001-cmd-env-add-nv-option-for-UEFI-non-volatile-variable.patch
 exit
 git am ../patch/0001-efi_loader-signal-events-in-order-of-decreasing-TPL.patch
 git am ../patch/0001-efi_loader-call-event-function-at-event-TPL.patch

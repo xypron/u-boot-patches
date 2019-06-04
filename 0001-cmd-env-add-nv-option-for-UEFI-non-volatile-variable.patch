@@ -1,0 +1,73 @@
+From ebc24bfcfc006b4498177db4801275b7ea10c5de Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 4 Jun 2019 15:52:11 +0900
+Subject: [PATCH 1/1] cmd: env: add -nv option for UEFI non-volatile variable
+
+With this option, -nv, at "setenv -e" command, a variable will be defined
+as non-volatile.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit.c     |  3 ++-
+ cmd/nvedit_efi.c | 15 ++++++++++++---
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/nvedit.c b/cmd/nvedit.c
+index 24a6cf7824..52c242b4f6 100644
+--- a/cmd/nvedit.c
++++ b/cmd/nvedit.c
+@@ -1344,8 +1344,9 @@ U_BOOT_CMD_COMPLETE(
+ 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
+ 	"set environment variables",
+ #if defined(CONFIG_CMD_NVEDIT_EFI)
+-	"-e name [value ...]\n"
++	"-e [-nv] name [value ...]\n"
+ 	"    - set UEFI variable 'name' to 'value' ...'\n"
++	"      'nv' option makes the variable non-volatile\n"
+ 	"    - delete UEFI variable 'name' if 'value' not specified\n"
+ #endif
+ 	"setenv [-f] name value ...\n"
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index ff8eaa1aad..60a8ac84c8 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -349,6 +349,7 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	u16 *var_name16 = NULL, *p;
+ 	size_t len;
+ 	efi_guid_t guid;
++	u32 attributes;
+ 	efi_status_t ret;
+ 
+ 	if (argc == 1)
+@@ -362,6 +363,16 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 		return CMD_RET_FAILURE;
+ 	}
+ 
++	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
++		     EFI_VARIABLE_RUNTIME_ACCESS;
++	if (!strcmp(argv[1], "-nv")) {
++		attributes |= EFI_VARIABLE_NON_VOLATILE;
++		argc--;
++		argv++;
++		if (argc == 1)
++			return CMD_RET_SUCCESS;
++	}
++
+ 	var_name = argv[1];
+ 	if (argc == 2) {
+ 		/* delete */
+@@ -391,9 +402,7 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	utf8_utf16_strncpy(&p, var_name, len + 1);
+ 
+ 	guid = efi_global_variable_guid;
+-	ret = EFI_CALL(efi_set_variable(var_name16, &guid,
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
++	ret = EFI_CALL(efi_set_variable(var_name16, &guid, attributes,
+ 					size, value));
+ 	if (ret == EFI_SUCCESS) {
+ 		ret = CMD_RET_SUCCESS;
+-- 
+2.20.1
+
