@@ -1,0 +1,62 @@
+From fe7d49cc9e87ada922555250eb04b92e4966462e Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 29 May 2019 20:54:25 +0200
+Subject: [PATCH 1/1] efi_loader: bootmgr: print a message when loading from
+ BootNext failed
+
+If a user defines BootNext but not BootOrder and loading from BootNext
+fails, you will see only a message like this:
+	BootOrder not defined
+
+This may confuse a user. Adding an error message will be helpful.
+
+An example output looks like this:
+
+=> efidebug boot add 0001 label1 scsi 0:1 "\path1\file1.efi" "--option foo"
+=> efidebug boot add 0002 label2 scsi 0:1 "\path2\file2.efi" "--option bar"
+=> efidebug boot add 0003 label3 scsi 0:1 "\path3\file3.efi" "--option no"
+=> efidebug boot order 0001 0002
+=> efidebug boot next 0003
+=> bootefi bootmgr
+Loading from Boot0003 'label3' failed
+Loading from BootNext failed, falling back to BootOrder
+Loading from Boot0001 'label1' failed
+Loading from Boot0002 'label2' failed
+EFI boot manager: Cannot load any image
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Adjust messages.
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_bootmgr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 7bf51874c1..43791422c8 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -149,8 +149,11 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
+ 
+ 		ret = EFI_CALL(efi_load_image(true, efi_root, lo.file_path,
+ 					      NULL, 0, handle));
+-		if (ret != EFI_SUCCESS)
++		if (ret != EFI_SUCCESS) {
++			printf("Loading from Boot%04X '%ls' failed\n", n,
++			       lo.label);
+ 			goto error;
++		}
+ 
+ 		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 			     EFI_VARIABLE_RUNTIME_ACCESS;
+@@ -215,6 +218,7 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
+ 				ret = try_load_entry(bootnext, handle);
+ 				if (ret == EFI_SUCCESS)
+ 					return ret;
++				printf("Loading from BootNext failed, falling back to BootOrder\n");
+ 			}
+ 		} else {
+ 			printf("Deleting BootNext failed\n");
+-- 
+2.20.1
+

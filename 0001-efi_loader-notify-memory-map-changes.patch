@@ -1,0 +1,45 @@
+From cc4404363a215307c6a9664a7167f7d9834ebac3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 4 Jun 2019 20:55:12 +0200
+Subject: [PATCH 1/1] efi_loader: notify memory map changes
+
+When the memory map is changed signal events of the
+EFI_EVENT_GROUP_MEMORY_MAP_CHANGE event group.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 76dcaa48f4..386cf924fe 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -230,6 +230,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 	struct efi_mem_list *newlist;
+ 	bool carve_again;
+ 	uint64_t carved_pages = 0;
++	struct efi_event *evt;
+ 
+ 	EFI_PRINT("%s: 0x%llx 0x%llx %d %s\n", __func__,
+ 		  start, pages, memory_type, overlap_only_ram ? "yes" : "no");
+@@ -315,6 +316,16 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 	/* And make sure memory is listed in descending order */
+ 	efi_mem_sort();
+ 
++	/* Notify that the memory map was changed */
++	list_for_each_entry(evt, &efi_events, link) {
++		if (evt->group &&
++		    !guidcmp(evt->group,
++			     &efi_guid_event_group_memory_map_change)) {
++			efi_signal_event(evt, false);
++			break;
++		}
++	}
++
+ 	return start;
+ }
+ 
+-- 
+2.20.1
+
