@@ -86,7 +86,8 @@ git am ../patch/0001-efi_loader-DisconnectController-with-no-driver.patch
 git am ../patch/0001-lib-time-export-usec_to_tick.patch
 git am ../patch/0001-efi_loader-check-timer-events-in-Stall.patch
 git am ../patch/0001-efi_loader-fix-EnableCursor.patch
-# git am ../patch/0001-efi_loader-close-protocols-in-UnloadImage.patch
+git am ../patch/0001-efi_loader-close-protocols-in-UnloadImage.patch
+git am ../patch/0001-efi_loader-avoid-lost-network-packages.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
