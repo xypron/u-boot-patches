@@ -70,6 +70,7 @@ git am ../patch/0001-efi_loader-check-timer-events-in-Stall.patch
 git am ../patch/0001-efi_loader-fix-EnableCursor.patch
 git am ../patch/0001-efi_loader-close-protocols-in-UnloadImage.patch
 git am ../patch/0001-efi_loader-bootmgr-print-a-message-when-loading-from.patch
+git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
 git am ../patch/0001-efi_loader-notify-memory-map-changes.patch
 git am ../patch/0001-efi_loader-signal-events-in-order-of-decreasing-TPL.patch
 git am ../patch/0001-efi_loader-call-event-function-at-event-TPL.patch

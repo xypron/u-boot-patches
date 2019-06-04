@@ -27,7 +27,6 @@ EFI boot manager: Cannot load any image
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Adjust messages.
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_bootmgr.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
