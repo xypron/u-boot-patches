@@ -1,12 +1,16 @@
 From c237e97acad8b9e557939ca9992cdb8671a8d1bf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Jun 2019 20:02:32 +0200
-Subject: [PATCH 1/1] efi_loader: close protocols in UnloadImage()
+Subject: [PATCH v2 1/1] efi_loader: close protocols in UnloadImage()
 
 When UnloadImage() is called all protocols opened by the image have to be
 closed.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	Closing a protocol may have side effects. So restart looping
+	after each closed protocol.
 ---
  lib/efi_loader/efi_boottime.c | 38 +++++++++++++++++++++++++++++++++--
  1 file changed, 36 insertions(+), 2 deletions(-)
