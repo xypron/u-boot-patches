@@ -63,24 +63,6 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 # git am ../patch/0001-fs-fat-Kconfig-option-for-codepage.patch
 # git am ../patch/0001-fs-fat-correct-conversion-to-lower-case.patch
 
-# efi-2019-07-rc4
-git am ../patch/0001-efi_loader-correct-notification-of-protocol-installa.patch
-git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
-git am ../patch/0001-efi_loader-bootmgr-print-a-message-when-loading-from.patch
-git am ../patch/0001-efi_loader-factor-out-efi_check_register_notify_even.patch
-git am ../patch/0001-efi_loader-registration-key-in-LocateProtocol.patch
-git am ../patch/0001-efi_loader-correct-OpenProtocol.patch
-git am ../patch/0001-efi_loader-avoid-crash-in-OpenProtocol.patch
-git am ../patch/0001-efi_loader-correct-UninstallProtocolInterface.patch
-git am ../patch/0001-rtc-export-rtc_month_days.patch
-git am ../patch/0001-efi_loader-check-time-in-SetTime.patch
-git am ../patch/0001-efi_loader-export-efi_set_time.patch
-git am ../patch/0001-efi_loader-handling-of-daylight-saving-time.patch
-git am ../patch/0001-efi_loader-Kconfig-entries-for-GetTime-SetTime.patch
-git am ../patch/0001-efi_loader-correct-HandleProtocol.patch
-git am ../patch/0001-efi_loader-open-protocol-information.patch
-git am ../patch/0001-efi_loader-CloseProtocol-fix-open-protocol-informati.patch
-git am ../patch/0001-efi_selftest-unit-test-for-OpenProtocolInformation.patch
 # efi-2019-07-rc4-2
 git am ../patch/0001-efi_loader-DisconnectController-with-no-driver.patch
 git am ../patch/0001-lib-time-export-usec_to_tick.patch
