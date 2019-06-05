@@ -1,0 +1,333 @@
+From 117a80f3657dcdce3b3dea3d3c690f9034df3c6d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 5 Jun 2019 21:00:39 +0200
+Subject: [PATCH 1/1] efi_loader: implement event queue
+
+Up to now we have only been using a flag queued for events. But this does
+not satisfy the requirements of the UEFI spec. Events must be notified in
+the sequence of decreasing TPL level and within a TPL level in the sequence
+of signaling.
+
+Implement a queue for signaled events.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h          |   6 +-
+ lib/efi_loader/efi_boottime.c | 108 ++++++++++++++++++++++------------
+ lib/efi_loader/efi_console.c  |   4 +-
+ lib/efi_loader/efi_memory.c   |   2 +-
+ lib/efi_loader/efi_runtime.c  |   2 +-
+ 5 files changed, 79 insertions(+), 43 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 43d3a08428..dec2918ec1 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -256,6 +256,7 @@ struct efi_loaded_image_obj {
+  * struct efi_event
+  *
+  * @link:		Link to list of all events
++ * @queue_link:		Link to the list of queued events
+  * @type:		Type of event, see efi_create_event
+  * @notify_tpl:		Task priority level of notifications
+  * @nofify_function:	Function to call when the event is triggered
+@@ -264,11 +265,11 @@ struct efi_loaded_image_obj {
+  * @trigger_time:	Period of the timer
+  * @trigger_next:	Next time to trigger the timer
+  * @trigger_type:	Type of timer, see efi_set_timer
+- * @is_queued:		The notification function is queued
+  * @is_signaled:	The event occurred. The event is in the signaled state.
+  */
+ struct efi_event {
+ 	struct list_head link;
++	struct list_head queue_link;
+ 	uint32_t type;
+ 	efi_uintn_t notify_tpl;
+ 	void (EFIAPI *notify_function)(struct efi_event *event, void *context);
+@@ -277,7 +278,6 @@ struct efi_event {
+ 	u64 trigger_next;
+ 	u64 trigger_time;
+ 	enum efi_timer_delay trigger_type;
+-	bool is_queued;
+ 	bool is_signaled;
+ };
+ 
+@@ -414,7 +414,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
+ 			   uint64_t trigger_time);
+ /* Call this to signal an event */
+-void efi_signal_event(struct efi_event *event, bool check_tpl);
++void efi_signal_event(struct efi_event *event);
+ 
+ /* open file system: */
+ struct efi_simple_file_system_protocol *efi_simple_file_system(
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 78c6076e28..39a64b5a9c 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -27,6 +27,9 @@ LIST_HEAD(efi_obj_list);
+ /* List of all events */
+ LIST_HEAD(efi_events);
+ 
++/* List of queued events */
++LIST_HEAD(efi_event_queue);
++
+ /* List of all events registered by RegisterProtocolNotify() */
+ LIST_HEAD(efi_register_notify_events);
+ 
+@@ -160,6 +163,42 @@ const char *__efi_nesting_dec(void)
+ 	return indent_string(--nesting_level);
+ }
+ 
++/**
++ * efi_event_is_queued() - check if an event is queued
++ *
++ * @event:	event
++ * Return:	true if event is queued
++ */
++static bool efi_event_is_queued(struct efi_event *event)
++{
++	return !!event->queue_link.next;
++}
++
++/**
++ * efi_process_event_queue() - process event queue
++ */
++static void efi_process_event_queue(void)
++{
++	while (!list_empty(&efi_event_queue)) {
++		struct efi_event *event;
++		efi_uintn_t old_tpl;
++
++		event = list_first_entry(&efi_event_queue, struct efi_event,
++					 queue_link);
++		if (efi_tpl >= event->notify_tpl)
++			return;
++		list_del(&event->queue_link);
++		event->queue_link.next = NULL;
++		event->queue_link.prev = NULL;
++		/* Events must be executed at the event's TPL */
++		old_tpl = efi_tpl;
++		efi_tpl = event->notify_tpl;
++		EFI_CALL_VOID(event->notify_function(event,
++						     event->notify_context));
++		efi_tpl = old_tpl;
++	}
++}
++
+ /**
+  * efi_queue_event() - queue an EFI event
+  * @event:     event to signal
+@@ -168,24 +207,30 @@ const char *__efi_nesting_dec(void)
+  * This function queues the notification function of the event for future
+  * execution.
+  *
+- * The notification function is called if the task priority level of the event
+- * is higher than the current task priority level.
+- *
+- * For the SignalEvent service see efi_signal_event_ext.
+- *
+  */
+-static void efi_queue_event(struct efi_event *event, bool check_tpl)
++static void efi_queue_event(struct efi_event *event)
+ {
+-	if (event->notify_function) {
+-		event->is_queued = true;
+-		/* Check TPL */
+-		if (check_tpl && efi_tpl >= event->notify_tpl)
+-			return;
+-		event->is_queued = false;
+-		EFI_CALL_VOID(event->notify_function(event,
+-						     event->notify_context));
+-	} else {
+-		event->is_queued = false;
++	struct efi_event *item = NULL;
++
++	event->is_signaled = true;
++	if (!item->notify_function)
++		return;
++
++	if (!efi_event_is_queued(event)) {
++		/*
++		 * Events must be notified in order of decreasing task priority
++		 * level. Insert the new event accordingly.
++		 */
++		list_for_each_entry(item, &efi_event_queue, queue_link) {
++			if (item->notify_tpl < event->notify_tpl) {
++				list_add_tail(&event->queue_link,
++					      &item->queue_link);
++				event = NULL;
++				break;
++			}
++		}
++		if (event)
++			list_add_tail(&event->link, &efi_event_queue);
+ 	}
+ }
+ 
+@@ -219,7 +264,7 @@ efi_status_t is_valid_tpl(efi_uintn_t tpl)
+  *
+  * For the SignalEvent service see efi_signal_event_ext.
+  */
+-void efi_signal_event(struct efi_event *event, bool check_tpl)
++void efi_signal_event(struct efi_event *event)
+ {
+ 	if (event->group) {
+ 		struct efi_event *evt;
+@@ -234,20 +279,14 @@ void efi_signal_event(struct efi_event *event, bool check_tpl)
+ 			if (evt->is_signaled)
+ 				continue;
+ 			evt->is_signaled = true;
+-			if (evt->type & EVT_NOTIFY_SIGNAL &&
+-			    evt->notify_function)
+-				evt->is_queued = true;
+ 		}
+ 		list_for_each_entry(evt, &efi_events, link) {
+ 			if (!evt->group || guidcmp(evt->group, event->group))
+ 				continue;
+-			if (evt->is_queued)
+-				efi_queue_event(evt, check_tpl);
++			efi_queue_event(evt);
+ 		}
+ 	} else {
+-		event->is_signaled = true;
+-		if (event->type & EVT_NOTIFY_SIGNAL)
+-			efi_queue_event(event, check_tpl);
++		efi_queue_event(event);
+ 	}
+ }
+ 
+@@ -637,8 +676,6 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ 	evt->group = group;
+ 	/* Disable timers on boot up */
+ 	evt->trigger_next = -1ULL;
+-	evt->is_queued = false;
+-	evt->is_signaled = false;
+ 	list_add_tail(&evt->link, &efi_events);
+ 	*event = evt;
+ 	return EFI_SUCCESS;
+@@ -733,8 +770,6 @@ void efi_timer_check(void)
+ 	u64 now = timer_get_us();
+ 
+ 	list_for_each_entry(evt, &efi_events, link) {
+-		if (evt->is_queued)
+-			efi_queue_event(evt, true);
+ 		if (!(evt->type & EVT_TIMER) || now < evt->trigger_next)
+ 			continue;
+ 		switch (evt->trigger_type) {
+@@ -748,8 +783,9 @@ void efi_timer_check(void)
+ 			continue;
+ 		}
+ 		evt->is_signaled = false;
+-		efi_signal_event(evt, true);
++		efi_signal_event(evt);
+ 	}
++	efi_process_event_queue();
+ 	WATCHDOG_RESET();
+ }
+ 
+@@ -850,7 +886,7 @@ static efi_status_t EFIAPI efi_wait_for_event(efi_uintn_t num_events,
+ 		if (!event[i]->type || event[i]->type & EVT_NOTIFY_SIGNAL)
+ 			return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 		if (!event[i]->is_signaled)
+-			efi_queue_event(event[i], true);
++			efi_queue_event(event[i]);
+ 	}
+ 
+ 	/* Wait for signal */
+@@ -894,7 +930,7 @@ static efi_status_t EFIAPI efi_signal_event_ext(struct efi_event *event)
+ 	EFI_ENTRY("%p", event);
+ 	if (efi_is_event(event) != EFI_SUCCESS)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+-	efi_signal_event(event, true);
++	efi_signal_event(event);
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
+@@ -953,7 +989,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
+ 	    event->type & EVT_NOTIFY_SIGNAL)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 	if (!event->is_signaled)
+-		efi_queue_event(event, true);
++		efi_queue_event(event);
+ 	if (event->is_signaled) {
+ 		event->is_signaled = false;
+ 		return EFI_EXIT(EFI_SUCCESS);
+@@ -1050,7 +1086,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
+ 	/* Notify registered events */
+ 	list_for_each_entry(event, &efi_register_notify_events, link) {
+ 		if (!guidcmp(protocol, &event->protocol))
+-			efi_signal_event(event->event, true);
++			efi_signal_event(event->event);
+ 	}
+ 
+ 	if (!guidcmp(&efi_guid_device_path, protocol))
+@@ -1550,7 +1586,7 @@ out:
+ 	/* Notify that the configuration table was changed */
+ 	list_for_each_entry(evt, &efi_events, link) {
+ 		if (evt->group && !guidcmp(evt->group, guid)) {
+-			efi_signal_event(evt, false);
++			efi_signal_event(evt);
+ 			break;
+ 		}
+ 	}
+@@ -1873,7 +1909,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+ 		if (evt->group &&
+ 		    !guidcmp(evt->group,
+ 			     &efi_guid_event_group_exit_boot_services)) {
+-			efi_signal_event(evt, false);
++			efi_signal_event(evt);
+ 			break;
+ 		}
+ 	}
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 3b7578f3aa..2fc25e118f 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -704,7 +704,7 @@ static void efi_cin_check(void)
+ 	efi_status_t ret;
+ 
+ 	if (key_available) {
+-		efi_signal_event(efi_con_in.wait_for_key, true);
++		efi_signal_event(efi_con_in.wait_for_key);
+ 		return;
+ 	}
+ 
+@@ -718,7 +718,7 @@ static void efi_cin_check(void)
+ 
+ 			/* Queue the wait for key event */
+ 			if (key_available)
+-				efi_signal_event(efi_con_in.wait_for_key, true);
++				efi_signal_event(efi_con_in.wait_for_key);
+ 		}
+ 	}
+ }
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 386cf924fe..8d76851234 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -321,7 +321,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 		if (evt->group &&
+ 		    !guidcmp(evt->group,
+ 			     &efi_guid_event_group_memory_map_change)) {
+-			efi_signal_event(evt, false);
++			efi_signal_event(evt);
+ 			break;
+ 		}
+ 	}
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 058b40a887..9fc6eef132 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -130,7 +130,7 @@ static void EFIAPI efi_reset_system_boottime(
+ 		if (evt->group &&
+ 		    !guidcmp(evt->group,
+ 			     &efi_guid_event_group_reset_system)) {
+-			efi_signal_event(evt, false);
++			efi_signal_event(evt);
+ 			break;
+ 		}
+ 	}
+-- 
+2.20.1
+
