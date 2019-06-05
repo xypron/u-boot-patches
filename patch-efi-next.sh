@@ -76,6 +76,7 @@ git am ../patch/0001-efi_loader-variable-support-non-volatile-attribute.patch
 git am ../patch/0001-efi_loader-bootmgr-make-BootNext-non-volatile.patch
 git am ../patch/0001-cmd-efidebug-make-some-boot-variables-non-volatile.patch
 git am ../patch/0001-cmd-env-add-nv-option-for-UEFI-non-volatile-variable.patch
+git am ../patch/0001-efi_loader-wait-for-key-may-not-signal-itself.patch
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
 exit
