@@ -1,4 +1,4 @@
-From 00ff0984f3e7ad208c770254f564413c21e32c44 Mon Sep 17 00:00:00 2001
+From d763c762c6a3dced78315638dacc09bd68578017 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 5 Jun 2019 21:00:39 +0200
 Subject: [PATCH 1/1] efi_loader: implement event queue
@@ -20,7 +20,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  5 files changed, 84 insertions(+), 42 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 43d3a08428..dec2918ec1 100644
+index 23ce732267..f0e1313f93 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -256,6 +256,7 @@ struct efi_loaded_image_obj {
@@ -52,7 +52,7 @@ index 43d3a08428..dec2918ec1 100644
  	bool is_signaled;
  };
  
-@@ -414,7 +414,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+@@ -432,7 +432,7 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
  efi_status_t efi_set_timer(struct efi_event *event, enum efi_timer_delay type,
  			   uint64_t trigger_time);
  /* Call this to signal an event */
@@ -62,7 +62,7 @@ index 43d3a08428..dec2918ec1 100644
  /* open file system: */
  struct efi_simple_file_system_protocol *efi_simple_file_system(
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index ea98f2d893..f9641eb200 100644
+index 3072e85a0c..58edef925d 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -27,6 +27,9 @@ LIST_HEAD(efi_obj_list);
@@ -247,7 +247,7 @@ index ea98f2d893..f9641eb200 100644
  	return EFI_EXIT(EFI_SUCCESS);
  }
  
-@@ -927,6 +966,9 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
+@@ -935,6 +974,9 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
  			free(item);
  		}
  	}
@@ -257,7 +257,7 @@ index ea98f2d893..f9641eb200 100644
  
  	list_del(&event->link);
  	free(event);
-@@ -955,7 +997,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
+@@ -963,7 +1005,7 @@ static efi_status_t EFIAPI efi_check_event(struct efi_event *event)
  	    event->type & EVT_NOTIFY_SIGNAL)
  		return EFI_EXIT(EFI_INVALID_PARAMETER);
  	if (!event->is_signaled)
@@ -266,16 +266,16 @@ index ea98f2d893..f9641eb200 100644
  	if (event->is_signaled) {
  		event->is_signaled = false;
  		return EFI_EXIT(EFI_SUCCESS);
-@@ -1052,7 +1094,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
- 	/* Notify registered events */
- 	list_for_each_entry(event, &efi_register_notify_events, link) {
- 		if (!guidcmp(protocol, &event->protocol))
+@@ -1070,7 +1112,7 @@ efi_status_t efi_add_protocol(const efi_handle_t handle,
+ 			}
+ 			notif->handle = handle;
+ 			list_add_tail(&notif->link, &event->handles);
 -			efi_signal_event(event->event, true);
 +			efi_signal_event(event->event);
+ 		}
  	}
  
- 	if (!guidcmp(&efi_guid_device_path, protocol))
-@@ -1552,7 +1594,7 @@ out:
+@@ -1595,7 +1637,7 @@ out:
  	/* Notify that the configuration table was changed */
  	list_for_each_entry(evt, &efi_events, link) {
  		if (evt->group && !guidcmp(evt->group, guid)) {
@@ -284,7 +284,7 @@ index ea98f2d893..f9641eb200 100644
  			break;
  		}
  	}
-@@ -1875,7 +1917,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+@@ -1918,7 +1960,7 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
  		if (evt->group &&
  		    !guidcmp(evt->group,
  			     &efi_guid_event_group_exit_boot_services)) {
@@ -329,7 +329,7 @@ index 386cf924fe..8d76851234 100644
  		}
  	}
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 058b40a887..9fc6eef132 100644
+index 9c50955c9b..432551d0c8 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -130,7 +130,7 @@ static void EFIAPI efi_reset_system_boottime(
