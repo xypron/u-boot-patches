@@ -65,6 +65,8 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 
 # efi-2019-07-rc4-3
 git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
+git am ../patch/0001-efi_loader-event-signaling-in-ExitBootServices.patch
+exit
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
 exit
