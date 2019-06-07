@@ -64,6 +64,7 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 # git am ../patch/0001-fs-fat-correct-conversion-to-lower-case.patch
 
 # efi-2019-07-rc4-3
+git am ../patch/0001-efi_loader-RegisterProtocolNotify-event-signaling.patch
 git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
 git am ../patch/0001-efi_loader-event-signaling-in-ExitBootServices.patch
 exit
