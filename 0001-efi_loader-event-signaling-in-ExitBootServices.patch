@@ -83,8 +83,8 @@ index 7d1d6e9213..5b080a5d7b 100644
 -void efi_signal_event(struct efi_event *event, bool check_tpl)
 +void efi_signal_event(struct efi_event *event)
  {
- 	if (event->group) {
- 		struct efi_event *evt;
+ 	if (event->is_signaled)
+ 		return;
 @@ -242,12 +243,12 @@ void efi_signal_event(struct efi_event *event, bool check_tpl)
  			if (!evt->group || guidcmp(evt->group, event->group))
  				continue;
