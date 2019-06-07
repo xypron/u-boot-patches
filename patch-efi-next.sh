@@ -68,9 +68,6 @@ git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
 exit
-git am ../patch/0001-efi_loader-signal-events-in-order-of-decreasing-TPL.patch
-git am ../patch/0001-efi_loader-call-event-function-at-event-TPL.patch
-exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
