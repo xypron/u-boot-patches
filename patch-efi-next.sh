@@ -63,19 +63,7 @@ git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
 # git am ../patch/0001-fs-fat-Kconfig-option-for-codepage.patch
 # git am ../patch/0001-fs-fat-correct-conversion-to-lower-case.patch
 
-# efi-2019-07-rc4-2
-git am ../patch/0001-efi_loader-DisconnectController-with-no-driver.patch
-git am ../patch/0001-lib-time-export-usec_to_tick.patch
-git am ../patch/0001-efi_loader-check-timer-events-in-Stall.patch
-git am ../patch/0001-efi_loader-fix-EnableCursor.patch
-git am ../patch/0001-efi_loader-close-protocols-in-UnloadImage.patch
-git am ../patch/0001-efi_loader-bootmgr-print-a-message-when-loading-from.patch
-git am ../patch/0001-cmd-env-print-a-message-when-setting-UEFI-variable-f.patch
-git am ../patch/0001-efi_loader-notify-memory-map-changes.patch
-git am ../patch/0001-efi_loader-variable-support-non-volatile-attribute.patch
-git am ../patch/0001-efi_loader-bootmgr-make-BootNext-non-volatile.patch
-git am ../patch/0001-cmd-efidebug-make-some-boot-variables-non-volatile.patch
-git am ../patch/0001-cmd-env-add-nv-option-for-UEFI-non-volatile-variable.patch
+# efi-2019-07-rc4-3
 git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
