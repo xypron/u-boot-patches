@@ -41,10 +41,6 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-configs-tinker-rk3288-disable-CONFIG_SPL_I2C_SUPPORT.patch
 
-git am ../patch/0001-Makefile-reusable-function-for-BOARD_SIZE_CHECK.patch
-git am ../patch/0001-imx-move-BOARD_SIZE_CHECK-to-main-Makefile.patch
-git am ../patch/0001-configs-define-CONFIG_SPL_SIZE_LIMIT.patch
-git am ../patch/0001-configs-rk3288-Tinker-Board-SPL-file-must-fit-into-3.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
 git am ../patch/0001-trace-undefined-reference-to-trace_early_init.patch
@@ -54,14 +50,6 @@ git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
-
-# vsprint
-git am ../patch/0001-lib-vsprintf-allow-printing-upper-case-GUIDs.patch
-
-# FAT
-# git am ../patch/0001-fs-fat-use-if-FS_FAT-in-Kconfig.patch
-# git am ../patch/0001-fs-fat-Kconfig-option-for-codepage.patch
-# git am ../patch/0001-fs-fat-correct-conversion-to-lower-case.patch
 
 # efi-2019-07-rc4-3
 git am ../patch/0001-efi_loader-RegisterProtocolNotify-event-signaling.patch
