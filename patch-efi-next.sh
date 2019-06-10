@@ -55,7 +55,6 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 git am ../patch/0001-efi_loader-RegisterProtocolNotify-event-signaling.patch
 git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
 git am ../patch/0001-efi_loader-event-signaling-in-ExitBootServices.patch
-exit
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
 exit

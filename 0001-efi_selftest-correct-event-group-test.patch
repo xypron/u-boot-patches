@@ -1,10 +1,10 @@
-From a159549e120102cf30d7ac04db429eea0e6fdc08 Mon Sep 17 00:00:00 2001
+From 2b566acb6b9f206e4da68dff8b67a5c4a93c1ed1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 5 Jun 2019 22:50:42 +0200
-Subject: [PATCH 1/1] efi_selftest: correct event group test
+Subject: [PATCH 1/2] efi_selftest: correct event group test
 
-If any member of the event group is signaled all members must be set to
-signaled and their notification function have to be queued.
+If any member of the event group is signaled, all members must be set to
+signaled and their notification functions have to be queued.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
