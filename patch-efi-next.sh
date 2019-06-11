@@ -50,12 +50,15 @@ git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
-# efi-2019-07-rc4-3
+# efi-2019-07-rc5
 git am ../patch/0001-efi_loader-RegisterProtocolNotify-event-signaling.patch
 git am ../patch/0001-efi_loader-SignalEvent-for-event-in-signaled-state.patch
 git am ../patch/0001-efi_loader-event-signaling-in-ExitBootServices.patch
 git am ../patch/0001-efi_selftest-correct-event-group-test.patch
 git am ../patch/0001-efi_loader-implement-event-queue.patch
+# efi-2019-07-rc5-2
+git am ../patch/0001-efi_loader-LoadImage-w-o-SourceBuffer-and-DevicePath.patch
+git am ../patch/0001-efi_loader-LoadImage-must-return-EFI_NOT_FOUND.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

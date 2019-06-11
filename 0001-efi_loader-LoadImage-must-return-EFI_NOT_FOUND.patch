@@ -1,0 +1,29 @@
+From de17cb0d1965382fe8aaf2ed590ac8b7fe1bc29c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 11 Jun 2019 19:00:56 +0200
+Subject: [PATCH 1/1] efi_loader: LoadImage must return EFI_NOT_FOUND
+
+If the file path does not relate to an existing file, LoadImage() must
+return EFI_NOT_FOUND.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 7bb0fc2e52..251dfc4ecc 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1779,7 +1779,7 @@ efi_status_t efi_load_image_from_path(struct efi_device_path *file_path,
+ 	/* Open file */
+ 	f = efi_file_from_path(file_path);
+ 	if (!f)
+-		return EFI_DEVICE_ERROR;
++		return EFI_NOT_FOUND;
+ 
+ 	/* Get file size */
+ 	bs = 0;
+-- 
+2.20.1
+
