@@ -60,6 +60,7 @@ git am ../patch/0001-efi_loader-implement-event-queue.patch
 git am ../patch/0001-efi_loader-LoadImage-w-o-SourceBuffer-and-DevicePath.patch
 git am ../patch/0001-efi_loader-LoadImage-must-return-EFI_NOT_FOUND.patch
 git am ../patch/0001-efi_loader-loaded-images-cannot-be-started-twice.patch
+git am ../patch/0001-efi_loader-correct-ExitBootServices.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
