@@ -1,7 +1,7 @@
 From 08646c46919a1deff306f59f505e9f40ea0582e7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 12 Jun 2019 19:18:24 +0200
-Subject: [PATCH 1/1] efi_loader: MetaiMatch() must be cases insensitive
+Subject: [PATCH 1/1] efi_loader: MetaiMatch() must be case insensitive
 
 The MetaiMatch() service of the UnicodeCollationProtocol2 must be case
 insensitive.
@@ -79,7 +79,7 @@ index f293b42397..c5e5b55d07 100644
  			/* Match any character in the set */
 -			++p;
 -			first = *p;
-+			p = next_lower(&pattern);;
++			p = next_lower(&pattern);
 +			first = p;
  			if (first == ']')
  				/* Empty set */
