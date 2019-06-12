@@ -1,0 +1,48 @@
+From e1aaed229ac797118cdf3489dd70e10d5d9529c8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 12 Jun 2019 07:17:04 +0200
+Subject: [PATCH 1/1] efi_loader: AllocatePages() must accept addr == 0
+
+It must be possible to allocate memory at address 0 with AllocatePages().
+
+Move a NULL pointer check.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 8d76851234..27379381e8 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -334,7 +334,6 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+  *
+  * Check that the address is within allocated memory:
+  *
+- * * The address cannot be NULL.
+  * * The address must be in a range of the memory map.
+  * * The address may not point to EFI_CONVENTIONAL_MEMORY.
+  *
+@@ -349,8 +348,6 @@ static efi_status_t efi_check_allocated(u64 addr, bool must_be_allocated)
+ {
+ 	struct efi_mem_list *item;
+ 
+-	if (!addr)
+-		return EFI_INVALID_PARAMETER;
+ 	list_for_each_entry(item, &efi_mem, link) {
+ 		u64 start = item->desc.physical_start;
+ 		u64 end = start + (item->desc.num_pages << EFI_PAGE_SHIFT);
+@@ -560,6 +557,9 @@ efi_status_t efi_free_pool(void *buffer)
+ 	efi_status_t ret;
+ 	struct efi_pool_allocation *alloc;
+ 
++	if (!buffer)
++		return EFI_INVALID_PARAMETER;
++
+ 	ret = efi_check_allocated((uintptr_t)buffer, true);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+-- 
+2.20.1
+

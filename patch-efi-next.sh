@@ -61,6 +61,7 @@ git am ../patch/0001-efi_loader-LoadImage-w-o-SourceBuffer-and-DevicePath.patch
 git am ../patch/0001-efi_loader-LoadImage-must-return-EFI_NOT_FOUND.patch
 git am ../patch/0001-efi_loader-loaded-images-cannot-be-started-twice.patch
 git am ../patch/0001-efi_loader-correct-ExitBootServices.patch
+git am ../patch/0001-efi_loader-AllocatePages-must-accept-addr-0.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
