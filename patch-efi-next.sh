@@ -41,7 +41,6 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
-git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
 git am ../patch/0001-trace-undefined-reference-to-trace_early_init.patch
 git am ../patch/0001-trace-conserve-gd-register.patch
 git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
@@ -64,6 +63,8 @@ git am ../patch/0001-efi_loader-correct-ExitBootServices.patch
 git am ../patch/0001-efi_loader-AllocatePages-must-accept-addr-0.patch
 git am ../patch/0001-efi_loader-MetaiMatch-must-be-case-insensitive.patch
 git am ../patch/0001-efi_loader-legal-characters-in-StrToFat.patch
+git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
+git am ../patch/0001-efi_loader-parameter-checks-SetVariable.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
