@@ -63,6 +63,7 @@ git am ../patch/0001-efi_loader-loaded-images-cannot-be-started-twice.patch
 git am ../patch/0001-efi_loader-correct-ExitBootServices.patch
 git am ../patch/0001-efi_loader-AllocatePages-must-accept-addr-0.patch
 git am ../patch/0001-efi_loader-MetaiMatch-must-be-case-insensitive.patch
+git am ../patch/0001-efi_loader-legal-characters-in-StrToFat.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

@@ -1,0 +1,35 @@
+From 4f3ff86203fdaa2a97a820768078c38f3187a660 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 12 Jun 2019 21:06:28 +0200
+Subject: [PATCH 1/1] efi_loader: legal characters in StrToFat()
+
+The UEFI specification does not specify if the characters that have to be
+replaced by underscore in function StrToFat() of the Unicode collation
+protocol are those forbidden in FAT long names or those in FAT short names.
+EDK2 and UEFI SCT assume it is those forbidden in FAT 8.3 short names.
+
+Adjust the list of forbidden characters.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_unicode_collation.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
+index 4fe2362555..243c51a8db 100644
+--- a/lib/efi_loader/efi_unicode_collation.c
++++ b/lib/efi_loader/efi_unicode_collation.c
+@@ -11,8 +11,8 @@
+ #include <cp437.h>
+ #include <efi_loader.h>
+ 
+-/* Characters that may not be used in file names */
+-static const char illegal[] = "<>:\"/\\|?*\x7f";
++/* Characters that may not be used in FAT 8.3 file names */
++static const char illegal[] = "+,<=>:;\"/\\|?*[]\x7f";
+ 
+ /*
+  * EDK2 assumes codepage 1250 when creating FAT 8.3 file names.
+-- 
+2.20.1
+
