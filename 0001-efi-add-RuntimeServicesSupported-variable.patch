@@ -1,0 +1,119 @@
+From 1b458ae2148b0892a65244c90d3b6da24d691397 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 5 Jun 2019 13:21:38 +0900
+Subject: [PATCH] efi: add RuntimeServicesSupported variable
+
+This variable is defined in UEFI specification 2.8, section 8.1.
+Its value should be updated whenever we add any usable runtime services
+function.
+
+Currently we only support SetVirtualAddress() for all systems and
+ResetSystem() for some.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	Currently we only support SetVirtualAddress() for all systems and
+	ResetSystem() for some.
+---
+ include/efi_api.h            | 15 +++++++++++++++
+ include/efi_loader.h         |  3 +++
+ lib/efi_loader/efi_runtime.c | 24 ++++++++++++++++++++++++
+ lib/efi_loader/efi_setup.c   |  5 +++++
+ 4 files changed, 47 insertions(+)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 65584dd2d8..d7d95edd4d 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -213,6 +213,21 @@ struct efi_capsule_header {
+ 	u32 capsule_image_size;
+ };
+ 
++#define EFI_RT_SUPPORTED_GET_TIME			0x0001
++#define EFI_RT_SUPPORTED_SET_TIME			0x0002
++#define EFI_RT_SUPPORTED_GET_WAKEUP_TIME		0x0004
++#define EFI_RT_SUPPORTED_SET_WAKEUP_TIME		0x0008
++#define EFI_RT_SUPPORTED_GET_VARIABLE			0x0010
++#define EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME		0x0020
++#define EFI_RT_SUPPORTED_SET_VARIABLE			0x0040
++#define EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP	0x0080
++#define EFI_RT_SUPPORTED_CONVERT_POINTER		0x0100
++#define EFI_RT_SUPPORTED_GET_NEXT_HIGH_MONOTONIC_COUNT	0x0200
++#define EFI_RT_SUPPORTED_RESET_SYSTEM			0x0400
++#define EFI_RT_SUPPORTED_UPDATE_CAPSULE			0x0800
++#define EFI_RT_SUPPORTED_QUERY_CAPSULE_CAPABILITIES	0x1000
++#define EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO		0x2000
++
+ struct efi_runtime_services {
+ 	struct efi_table_hdr hdr;
+ 	efi_status_t (EFIAPI *get_time)(struct efi_time *time,
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index f0e1313f93..b07155cecb 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -573,6 +573,9 @@ static inline int guidcmp(const efi_guid_t *g1, const efi_guid_t *g2)
+ #define __efi_runtime_data __attribute__ ((section (".data.efi_runtime")))
+ #define __efi_runtime __attribute__ ((section (".text.efi_runtime")))
+ 
++/* Indicate supported runtime services */
++efi_status_t efi_init_runtime_supported(void);
++
+ /* Update CRC32 in table header */
+ void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
+ 
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 432551d0c8..6621b9eeae 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -89,6 +89,30 @@ struct elf_rela {
+  * handle a good number of runtime callbacks
+  */
+ 
++efi_status_t efi_init_runtime_supported(void)
++{
++	u16 efi_runtime_services_supported;
++
++	/*
++	 * This value must be synced with efi_runtime_detach_list
++	 * as well as efi_runtime_services.
++	 */
++#if CONFIG_IS_ENABLED(CONFIG_ARCH_BCM28X) || \
++    CONFIG_IS_ENABLED(CONFIG_FSL_LAYERSCAPE) || \
++    CONFIG_IS_ENABLED(CONFIG_SYSRESET_X86) || \
++    CONFIG_IS_ENABLED(CONFIG_PSCI_RESET)
++	efi_runtime_services_supported = EFI_RT_SUPPORTED_RESET_SYSTEM;
++#endif
++	efi_runtime_services_supported |=
++				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP;
++	return EFI_CALL(efi_set_variable(L"RuntimeServicesSupported",
++					 &efi_global_variable_guid,
++					 EFI_VARIABLE_BOOTSERVICE_ACCESS |
++					 EFI_VARIABLE_RUNTIME_ACCESS,
++					 sizeof(efi_runtime_services_supported),
++					 &efi_runtime_services_supported));
++}
++
+ /**
+  * efi_update_table_header_crc32() - Update crc32 in table header
+  *
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index 8691d686d2..bfb57836fa 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -117,6 +117,11 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
++	/* Indicate supported runtime services */
++	ret = efi_init_runtime_supported();
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ 	/* Initialize system table */
+ 	ret = efi_initialize_system_table();
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.20.1
+
