@@ -66,6 +66,7 @@ git am ../patch/0001-efi_loader-legal-characters-in-StrToFat.patch
 git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
 git am ../patch/0001-efi_loader-parameter-checks-SetVariable.patch
 git am ../patch/0001-efi-add-RuntimeServicesSupported-variable.patch
+git am ../patch/0001-efi_loader-GetTime-must-return-EFI_UNSUPPORTED.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
