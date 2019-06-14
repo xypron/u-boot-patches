@@ -44,6 +44,8 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-trace-undefined-reference-to-trace_early_init.patch
 git am ../patch/0001-trace-conserve-gd-register.patch
 git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
+git am ../patch/0001-trace-trace-buffer-may-exceed-2GiB.patch
+git am ../patch/0001-trace-do-not-limit-trace-buffer-to-2GiB.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch

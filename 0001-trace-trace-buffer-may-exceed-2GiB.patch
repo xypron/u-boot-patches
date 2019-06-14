@@ -1,0 +1,31 @@
+From aada4f0d6bf1afdca726a9a6dd9860b9ff20a807 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 Jun 2019 20:39:05 +0200
+Subject: [PATCH 1/1] trace: trace buffer may exceed 2GiB
+
+Correct the debug output for the trace buffer size to accommodate trace
+buffers exceeding 2GiB.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/board_f.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/common/board_f.c b/common/board_f.c
+index 0fc938dc87..4760d728f3 100644
+--- a/common/board_f.c
++++ b/common/board_f.c
+@@ -442,8 +442,8 @@ static int reserve_trace(void)
+ #ifdef CONFIG_TRACE
+ 	gd->relocaddr -= CONFIG_TRACE_BUFFER_SIZE;
+ 	gd->trace_buff = map_sysmem(gd->relocaddr, CONFIG_TRACE_BUFFER_SIZE);
+-	debug("Reserving %dk for trace data at: %08lx\n",
+-	      CONFIG_TRACE_BUFFER_SIZE >> 10, gd->relocaddr);
++	debug("Reserving %luk for trace data at: %08lx\n",
++	      (unsigned long)CONFIG_TRACE_BUFFER_SIZE >> 10, gd->relocaddr);
+ #endif
+ 
+ 	return 0;
+-- 
+2.20.1
+
