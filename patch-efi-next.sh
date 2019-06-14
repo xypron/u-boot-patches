@@ -67,6 +67,8 @@ git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
 git am ../patch/0001-efi_loader-parameter-checks-SetVariable.patch
 git am ../patch/0001-efi_loader-add-RuntimeServicesSupported-variable.patch
 git am ../patch/0001-efi_loader-GetTime-must-return-EFI_UNSUPPORTED.patch
+git am ../patch/0001-efi_loader-fix-SetMode.patch
+git am ../patch/0001-efi_loader-fix-SetAttribute.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
