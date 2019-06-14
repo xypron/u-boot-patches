@@ -1,7 +1,7 @@
-From 1b458ae2148b0892a65244c90d3b6da24d691397 Mon Sep 17 00:00:00 2001
+From 887184b280783a89ed720de59fa9b8a53e8f2b71 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Wed, 5 Jun 2019 13:21:38 +0900
-Subject: [PATCH v3 1/1] efi: add RuntimeServicesSupported variable
+Subject: [PATCH v4 1/1] efi_loader: add RuntimeServicesSupported variable
 
 This variable is defined in UEFI specification 2.8, section 8.1.
 Its value should be updated whenever we add any usable runtime services
@@ -13,6 +13,8 @@ ResetSystem() for some.
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v4
+	CONFIG_IS_ENABLED() wants Kconfig variables without CONFIG_ prefix.
 v3
 	Ensure that efi_runtime_services_supported is initialized.
 v2
@@ -66,7 +68,7 @@ index f0e1313f93..b07155cecb 100644
  void __efi_runtime efi_update_table_header_crc32(struct efi_table_hdr *table);
  
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 432551d0c8..6621b9eeae 100644
+index 432551d0c8..0c57d0abd7 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -89,6 +89,30 @@ struct elf_rela {
@@ -81,10 +83,10 @@ index 432551d0c8..6621b9eeae 100644
 +	 * This value must be synced with efi_runtime_detach_list
 +	 * as well as efi_runtime_services.
 +	 */
-+#if CONFIG_IS_ENABLED(CONFIG_ARCH_BCM283X) || \
-+    CONFIG_IS_ENABLED(CONFIG_FSL_LAYERSCAPE) || \
-+    CONFIG_IS_ENABLED(CONFIG_SYSRESET_X86) || \
-+    CONFIG_IS_ENABLED(CONFIG_PSCI_RESET)
++#if CONFIG_IS_ENABLED(ARCH_BCM283X) || \
++    CONFIG_IS_ENABLED(FSL_LAYERSCAPE) || \
++    CONFIG_IS_ENABLED(SYSRESET_X86) || \
++    CONFIG_IS_ENABLED(PSCI_RESET)
 +	efi_runtime_services_supported |= EFI_RT_SUPPORTED_RESET_SYSTEM;
 +#endif
 +	efi_runtime_services_supported |=
