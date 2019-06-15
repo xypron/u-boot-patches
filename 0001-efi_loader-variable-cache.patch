@@ -1,0 +1,83 @@
+From 6077695aeac787dff312996ed16476671f766edc Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Jun 2019 21:47:37 +0200
+Subject: [PATCH 1/1] efi_loader: variable cache
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable_cache.c | 63 +++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
+ create mode 100644 lib/efi_loader/efi_variable_cache.c
+
+diff --git a/lib/efi_loader/efi_variable_cache.c b/lib/efi_loader/efi_variable_cache.c
+new file mode 100644
+index 0000000000..354c56e28c
+--- /dev/null
++++ b/lib/efi_loader/efi_variable_cache.c
+@@ -0,0 +1,63 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  UEFI variable cache
++ *
++ *  Copyright (c) 2019 Heinrich Schuchardt
++ */
++
++#include <efi_loader.h>
++
++struct cache_entry {
++	u32 len;
++	u32 attributes;
++	efi_guid_t guid;
++	u16 data;
++}
++
++#ifndef EFI_VAR_CACHE_SIZE
++#define EFI_VAR_CACHE_SIZE 65536
++#endif
++
++static __runtime_data void *volatile_cache;
++static __runtime_data void *nonvolatile_cache;
++
++efi_status_t __weak efi_load_variable_cache(cache_entry *cache, size_t *size)
++{
++	cache->len = 0;
++	return EFI_SUCCESS;
++}
++
++efi_status_t __weak efi_write_variable_cache(cache_entry *cache, size_t size)
++{
++	return EFI_UNSUPPORTED;
++}
++
++efi_status_t efi_initialize_variable_cache(void)
++{
++	efi_status_t ret;
++
++	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
++				 EFI_RUNTIME_SERVICES_DATA,
++				 efi_size_in_pages(EFI_VAR_CACHE_SIZE),
++				 volatile_cache);
++	if (ret != EFI_SUCCESS)
++		return ret;
++	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
++				 EFI_RUNTIME_SERVICES_DATA,
++				 efi_size_in_pages(EFI_VAR_CACHE_SIZE),
++				 nonvolatile_cache);
++	if (ret != EFI_SUCCESS) {
++		efi_free_pages(volatile_cache);
++		return ret;
++	}
++	ret = efi_load_variable_cache(nonvolatile_cache, EFI_VAR_CACHE_SIZE);
++	printf("Could not load non-volatile variables");
++}
++
++efi_status_t __runtime efi_set_variable(u16 *variable_name,
++					const efi_guid_t *vendor,
++					u32 attributes,
++					efi_uintn_t data_size, const void *data)
++{
++	return EFI_SUCCESS;
++}
+-- 
+2.20.1
+

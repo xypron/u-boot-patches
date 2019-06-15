@@ -74,6 +74,7 @@ git am ../patch/0001-efi_loader-system-table-setup.patch
 git am ../patch/0001-efi_loader-SetMode-must-blank-screen.patch
 git am ../patch/0001-efi_loader-GOP-provide-accurate-mode-information.patch
 exit
+git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
