@@ -23,9 +23,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
-# git am ../patch/0001-usb-proper-error-handling-for-circular-buffer.patch
-# git am ../patch/0001-usb-kbd-allow-multibyte-sequences-to-be-put-into-rin.patch
-# git am ../patch/0001-usb-kbd-implement-special-keys.patch
+git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
