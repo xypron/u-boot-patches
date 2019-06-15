@@ -1,0 +1,42 @@
+From d0f43111390e0c0c2d3e4062be5f778cad930a26 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Jun 2019 12:52:35 +0200
+Subject: [PATCH 1/1] efi_loader: QueryMode() check parameters
+
+Check the parameters of EFI_GRAPHICS_OUTPUT_PROTOCOL.QueryMode().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_gop.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index 9428c3b83c..c44a1cfc47 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -41,14 +41,21 @@ static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
+ 					  struct efi_gop_mode_info **info)
+ {
+ 	struct efi_gop_obj *gopobj;
++	efi_status_t ret = EFI_SUCCESS;
+ 
+ 	EFI_ENTRY("%p, %x, %p, %p", this, mode_number, size_of_info, info);
+ 
++	if (!this || !size_of_info || !info || mode_number) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++
+ 	gopobj = container_of(this, struct efi_gop_obj, ops);
+ 	*size_of_info = sizeof(gopobj->info);
+ 	*info = &gopobj->info;
+ 
+-	return EFI_EXIT(EFI_SUCCESS);
++out:
++	return EFI_EXIT(ret);
+ }
+ 
+ static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
+-- 
+2.20.1
+

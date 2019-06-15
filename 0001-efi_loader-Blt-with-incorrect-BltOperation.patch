@@ -1,0 +1,29 @@
+From 292e654a697ed9bdc1a0f3f42985e7f98cd529c9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Jun 2019 12:42:46 +0200
+Subject: [PATCH 1/1] efi_loader: Blt() with incorrect BltOperation
+
+If EFI_GRAPHICS_OUTPUT_PROTOCOL.Blt() is called with an invalid value of
+BltOperation return EFI_INVALID_PARAMETER.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_gop.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index e003823b60..9428c3b83c 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -367,7 +367,7 @@ efi_status_t EFIAPI gop_blt(struct efi_gop *this, struct efi_gop_pixel *buffer,
+ 					 dy, width, height, delta, vid_bpp);
+ 		break;
+ 	default:
+-		ret = EFI_UNSUPPORTED;
++		ret = EFI_INVALID_PARAMETER;
+ 	}
+ 
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.20.1
+

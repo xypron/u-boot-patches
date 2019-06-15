@@ -63,6 +63,12 @@ git am ../patch/0001-efi_loader-add-RuntimeServicesSupported-variable.patch
 git am ../patch/0001-efi_loader-GetTime-must-return-EFI_UNSUPPORTED.patch
 git am ../patch/0001-efi_loader-fix-SetMode.patch
 git am ../patch/0001-efi_loader-fix-SetAttribute.patch
+
+# efi-2019-07-rc5-3
+git am ../patch/0001-efi_loader-Blt-with-incorrect-BltOperation.patch
+git am ../patch/0001-efi_loader-QueryMode-check-parameters.patch
+git am ../patch/0001-efi_loader-SetMode-parameters-check.patch
+git am ../patch/0001-efi_loader-QueryMode-must-allocate-buffer.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch

@@ -1,0 +1,53 @@
+From 3988d3c4640d8970757ba8de2ad4827ff4405f01 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Jun 2019 14:07:40 +0200
+Subject: [PATCH 1/1] efi_loader: QueryMode() must allocate buffer
+
+EFI_GRAPHICS_OUTPUT_PROTOCOL.QueryMode() must allocate a buffer for the
+mode information structure.
+
+Adjust the unit test to free the buffer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_gop.c            | 6 +++++-
+ lib/efi_selftest/efi_selftest_gop.c | 5 +++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index 676463f2de..2385c0f3b1 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -51,8 +51,12 @@ static efi_status_t EFIAPI gop_query_mode(struct efi_gop *this, u32 mode_number,
+ 	}
+ 
+ 	gopobj = container_of(this, struct efi_gop_obj, ops);
++	ret = efi_allocate_pool(EFI_BOOT_SERVICES_DATA, sizeof(gopobj->info),
++				(void **)info);
++	if (ret != EFI_SUCCESS)
++		goto out;
+ 	*size_of_info = sizeof(gopobj->info);
+-	*info = &gopobj->info;
++	memcpy(*info, &gopobj->info, sizeof(gopobj->info));
+ 
+ out:
+ 	return EFI_EXIT(ret);
+diff --git a/lib/efi_selftest/efi_selftest_gop.c b/lib/efi_selftest/efi_selftest_gop.c
+index 4ad043c597..d64294ac79 100644
+--- a/lib/efi_selftest/efi_selftest_gop.c
++++ b/lib/efi_selftest/efi_selftest_gop.c
+@@ -80,6 +80,11 @@ static int execute(void)
+ 		}
+ 		efi_st_printf("Mode %u: %u x %u\n",
+ 			      i, info->width, info->height);
++		ret = boottime->free_pool(info);
++		if (ret != EFI_SUCCESS) {
++			efi_st_printf("FreePool failed");
++			return EFI_ST_FAILURE;
++		}
+ 	}
+ 
+ 	return EFI_ST_SUCCESS;
+-- 
+2.20.1
+
