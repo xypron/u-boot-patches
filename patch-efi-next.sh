@@ -69,6 +69,7 @@ git am ../patch/0001-efi_loader-Blt-with-incorrect-BltOperation.patch
 git am ../patch/0001-efi_loader-QueryMode-check-parameters.patch
 git am ../patch/0001-efi_loader-SetMode-parameters-check.patch
 git am ../patch/0001-efi_loader-QueryMode-must-allocate-buffer.patch
+git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL-definitio.patch
 exit
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
