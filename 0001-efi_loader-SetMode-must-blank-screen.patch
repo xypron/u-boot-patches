@@ -1,0 +1,83 @@
+From 452d7367db14b681039aa40cf21f50ec3e3ac197 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Jun 2019 14:52:53 +0200
+Subject: [PATCH 1/1] efi_loader: SetMode() must blank screen
+
+EFI_GRAPHICS_OUTPUT_PROTOCOL.SetMode() must blank the screen.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_gop.c | 50 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 38 insertions(+), 12 deletions(-)
+
+diff --git a/lib/efi_loader/efi_gop.c b/lib/efi_loader/efi_gop.c
+index 2385c0f3b1..c1a814cd43 100644
+--- a/lib/efi_loader/efi_gop.c
++++ b/lib/efi_loader/efi_gop.c
+@@ -62,18 +62,6 @@ out:
+ 	return EFI_EXIT(ret);
+ }
+ 
+-static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
+-{
+-	efi_status_t ret = EFI_SUCCESS;
+-
+-	EFI_ENTRY("%p, %x", this, mode_number);
+-
+-	if (mode_number)
+-		ret = EFI_UNSUPPORTED;
+-
+-	return EFI_EXIT(ret);
+-}
+-
+ static __always_inline struct efi_gop_pixel efi_vid16_to_blt_col(u16 vid)
+ {
+ 	struct efi_gop_pixel blt = {
+@@ -322,6 +310,44 @@ static efi_status_t gop_blt_vid_to_buf(struct efi_gop *this,
+ 			   dx, dy, width, height, delta, vid_bpp);
+ }
+ 
++/**
++ * gop_set_mode() - set graphical output mode
++ *
++ * This function implements the SetMode() service.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * @this:		the graphical output protocol
++ * @model_number:	the mode to be set
++ * Return:		status code
++ */
++static efi_status_t EFIAPI gop_set_mode(struct efi_gop *this, u32 mode_number)
++{
++	struct efi_gop_obj *gopobj;
++	struct efi_gop_pixel buffer = {0, 0, 0, 0};
++	efi_uintn_t vid_bpp;
++	efi_status_t ret = EFI_SUCCESS;
++
++	EFI_ENTRY("%p, %x", this, mode_number);
++
++	if (!this) {
++		ret = EFI_INVALID_PARAMETER;
++		goto out;
++	}
++	if (mode_number) {
++		ret = EFI_UNSUPPORTED;
++		goto out;
++	}
++	gopobj = container_of(this, struct efi_gop_obj, ops);
++	vid_bpp = gop_get_bpp(this);
++	ret = gop_blt_video_fill(this, &buffer, EFI_BLT_VIDEO_FILL, 0, 0, 0, 0,
++				 gopobj->info.width, gopobj->info.height, 0,
++				 vid_bpp);
++out:
++	return EFI_EXIT(ret);
++}
++
+ /*
+  * Copy rectangle.
+  *
+-- 
+2.20.1
+
