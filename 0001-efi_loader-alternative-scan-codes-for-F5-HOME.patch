@@ -1,4 +1,4 @@
-From 22c8d317cbb76b16f789859789d4178e595dcd30 Mon Sep 17 00:00:00 2001
+From 325a249481ddf99e45a60767bea250c28eb91e18 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Jun 2019 21:41:13 +0200
 Subject: [PATCH 1/1] efi_loader: alternative scan codes for F5, HOME
@@ -7,11 +7,11 @@ Depending on the key board alternative scan codes are used for F5 and HOME.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ lib/efi_loader/efi_console.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 2fc25e118f..0ecc848e2e 100644
+index 2fc25e118f..009dbfc724 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -567,7 +567,10 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
@@ -26,7 +26,7 @@ index 2fc25e118f..0ecc848e2e 100644
  				set_shift_mask(ch - '0', &key->key_state);
  				ch = getc();
  			}
-@@ -591,8 +594,8 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
+@@ -591,17 +594,20 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
  				case '1'...'5': /* F1 - F5 */
  					pressed_key.scan_code = ch - '1' + 11;
  					break;
@@ -37,6 +37,22 @@ index 2fc25e118f..0ecc848e2e 100644
  					break;
  				case 'A'...'D': /* up, down right, left */
  					pressed_key.scan_code = ch - 'A' + 1;
+ 					break;
+-				case 'F':
+-					pressed_key.scan_code = 6; /* End */
++				case 'F': /* End */
++					pressed_key.scan_code = 6;
++					break;
++				case 'H': /* Home */
++					pressed_key.scan_code = 5;
+ 					break;
+-				case 'H':
+-					pressed_key.scan_code = 5; /* Home */
++				case '~': /* Home */
++					pressed_key.scan_code = 5;
+ 					break;
+ 				}
+ 				break;
 -- 
 2.20.1
 
