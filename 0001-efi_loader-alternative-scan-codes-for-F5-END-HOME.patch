@@ -1,26 +1,31 @@
-From 325a249481ddf99e45a60767bea250c28eb91e18 Mon Sep 17 00:00:00 2001
+From 9fe07b7a56c0475055ec838332821748e0461236 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Jun 2019 21:41:13 +0200
-Subject: [PATCH 1/1] efi_loader: alternative scan codes for F5, HOME
+Subject: [PATCH 1/1] efi_loader: alternative scan codes for F5, END, HOME
 
-Depending on the key board alternative scan codes are used for F5 and HOME.
+Depending on the key board alternative scan codes are used for F5, END, and
+HOME.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ lib/efi_loader/efi_console.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 2fc25e118f..009dbfc724 100644
+index 2fc25e118f..26c1a887f5 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
-@@ -567,7 +567,10 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
- 		case 'O': /* F1 - F4 */
+@@ -564,10 +564,13 @@ static efi_status_t efi_cin_read_key(struct efi_key_data *key)
+ 		case cESC: /* ESC */
+ 			pressed_key.scan_code = 23;
+ 			break;
+-		case 'O': /* F1 - F4 */
++		case 'O': /* F1 - F4, End */
  			ch = getc();
  			/* consider modifiers */
 -			if (ch < 'P') {
-+			if (ch == 'F') {
-+				pressed_key.scan_code = 5; /* Home */
++			if (ch == 'F') { /* End */
++				pressed_key.scan_code = 6;
 +				break;
 +			} else if (ch < 'P') {
  				set_shift_mask(ch - '0', &key->key_state);
