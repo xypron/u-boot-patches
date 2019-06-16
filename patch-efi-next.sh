@@ -74,7 +74,8 @@ git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL-definitio.patch
 git am ../patch/0001-efi_loader-system-table-setup.patch
 git am ../patch/0001-efi_loader-SetMode-must-blank-screen.patch
 git am ../patch/0001-efi_loader-GOP-provide-accurate-mode-information.patch
-git am ../patch/0001-efi_loader-alternative-scan-codes-for-F5-HOME.patch
+git am ../patch/0001-efi_loader-alternative-scan-codes-for-F5-END-HOME.patch
+git am ../patch/0001-efi_loader-console-incorrectly-advertised-left-logo-.patch
 exit
 git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
