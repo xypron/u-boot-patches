@@ -1,63 +1,26 @@
-From f220d96a65db9662088e087da2b365c68f2ff39c Mon Sep 17 00:00:00 2001
+From b5b8e21aba7f61cc5c5ad15484452740c2c027c8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 15 Jun 2019 12:17:08 +0200
+Date: Sun, 16 Jun 2019 21:09:09 +0200
 Subject: [PATCH 1/1] usb: kbd: implement special keys
 
 Provide support for F1-F12, Insert, Delete, Home, End, Page Up, Page Down.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- common/usb_kbd.c | 85 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 61 insertions(+), 24 deletions(-)
+ common/usb_kbd.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index cc99c6be07..938e2e505d 100644
+index 232d278e13..40d1718f03 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -74,15 +74,6 @@ static const unsigned char usb_kbd_num_keypad[] = {
- 	'.', 0, 0, 0, '='
- };
+@@ -232,6 +232,60 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+ 		debug("%c", keycode);
  
--/*
-- * map arrow keys to ^F/^B ^N/^P, can't really use the proper
-- * ANSI sequence for arrow keys because the queuing code breaks
-- * when a single keypress expands to 3 queue elements
-- */
--static const unsigned char usb_kbd_arrow[] = {
--	0x6, 0x2, 0xe, 0x10
--};
--
- /*
-  * NOTE: It's important for the NUM, CAPS, SCROLL-lock bits to be in this
-  *       order. See usb_kbd_setled() function!
-@@ -213,10 +204,6 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
- 			keycode = usb_kbd_numkey[scancode - 0x1e];
- 	}
- 
--	/* Arrow keys */
--	if ((scancode >= 0x4f) && (scancode <= 0x52))
--		keycode = usb_kbd_arrow[scancode - 0x4f];
--
- 	/* Numeric keypad */
- 	if ((scancode >= 0x54) && (scancode <= 0x67))
- 		keycode = usb_kbd_num_keypad[scancode - 0x54];
-@@ -240,23 +227,73 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
- 		}
- 	}
- 
--	/* Report keycode if any */
--	if (keycode)
--		debug("%c", keycode);
--
--	switch (keycode) {
--	case 0x0e:					/* Down arrow key */
--		usb_kbd_put_sequence(data, "\e[B");
-+	switch (scancode) {
+ 	switch (scancode) {
 +	case 0x3a:					/* F1 */
 +		usb_kbd_put_sequence(data, "\eOP");
- 		break;
--	case 0x10:					/* Up arrow key */
--		usb_kbd_put_sequence(data, "\e[A");
++		break;
 +	case 0x3b:					/* F2 */
 +		usb_kbd_put_sequence(data, "\eOQ");
 +		break;
@@ -68,7 +31,7 @@ index cc99c6be07..938e2e505d 100644
 +		usb_kbd_put_sequence(data, "\eOS");
 +		break;
 +	case 0x3e:					/* F5 */
-+		usb_kbd_put_sequence(data, "\e[15~");
++		usb_kbd_put_sequence(data, "\e[16~");
 +		break;
 +	case 0x3f:					/* F6 */
 +		usb_kbd_put_sequence(data, "\e[17~");
@@ -78,8 +41,7 @@ index cc99c6be07..938e2e505d 100644
 +		break;
 +	case 0x41:					/* F8 */
 +		usb_kbd_put_sequence(data, "\e[19~");
- 		break;
--	case 0x06:					/* Right arrow key */
++		break;
 +	case 0x42:					/* F9 */
 +		usb_kbd_put_sequence(data, "\e[20~");
 +		break;
@@ -110,21 +72,8 @@ index cc99c6be07..938e2e505d 100644
 +	case 0x4e:					/* PAGE DOWN */
 +		usb_kbd_put_sequence(data, "\e[6~");
 +		break;
-+	case 0x4f:					/* Right arrow key */
+ 	case 0x4f:					/* Right arrow key */
  		usb_kbd_put_sequence(data, "\e[C");
- 		break;
--	case 0x02:					/* Left arrow key */
-+	case 0x50:					/* Left arrow key */
- 		usb_kbd_put_sequence(data, "\e[D");
- 		break;
-+	case 0x51:					/* Down arrow key */
-+		usb_kbd_put_sequence(data, "\e[B");
-+		break;
-+	case 0x52:					/* Up arrow key */
-+		usb_kbd_put_sequence(data, "\e[A");
-+		break;
- 	default:
- 		usb_kbd_put_queue(data, keycode);
  		break;
 -- 
 2.20.1

@@ -23,6 +23,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
+git am ../patch/0001-usb-kbd-simplify-coding-for-arrow-keys.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch
 
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
