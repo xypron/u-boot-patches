@@ -1,4 +1,4 @@
-From b5b8e21aba7f61cc5c5ad15484452740c2c027c8 Mon Sep 17 00:00:00 2001
+From 37a0d2ef22b7daf6c424b35e2a5e5f0c642c6fc6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Jun 2019 21:09:09 +0200
 Subject: [PATCH 1/1] usb: kbd: implement special keys
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 54 insertions(+)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index 232d278e13..40d1718f03 100644
+index 232d278e13..c9ac7a9e4c 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
 @@ -232,6 +232,60 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
@@ -31,7 +31,7 @@ index 232d278e13..40d1718f03 100644
 +		usb_kbd_put_sequence(data, "\eOS");
 +		break;
 +	case 0x3e:					/* F5 */
-+		usb_kbd_put_sequence(data, "\e[16~");
++		usb_kbd_put_sequence(data, "\e[15~");
 +		break;
 +	case 0x3f:					/* F6 */
 +		usb_kbd_put_sequence(data, "\e[17~");
@@ -58,7 +58,7 @@ index 232d278e13..40d1718f03 100644
 +		usb_kbd_put_sequence(data, "\e[2~");
 +		break;
 +	case 0x4a:					/* HOME */
-+		usb_kbd_put_sequence(data, "\e[1~");
++		usb_kbd_put_sequence(data, "\e[H");
 +		break;
 +	case 0x4b:					/* PAGE UP */
 +		usb_kbd_put_sequence(data, "\e[5~");
