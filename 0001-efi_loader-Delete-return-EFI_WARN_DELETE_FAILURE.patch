@@ -1,0 +1,39 @@
+From 7367e064bb558eac42de4e6af016b2ed0c45e2a2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 17 Jun 2019 22:00:13 +0200
+Subject: [PATCH 1/1] efi_loader: Delete() return EFI_WARN_DELETE_FAILURE
+
+If EFI_FILE_PROTOCOL.Delete() fails, always close the handle and return
+EFI_WARN_DELETE_FAILURE.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 182d735e6b..36ca719a82 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -307,16 +307,10 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
+ 
+ 	EFI_ENTRY("%p", file);
+ 
+-	if (set_blk_dev(fh)) {
+-		ret = EFI_DEVICE_ERROR;
+-		goto error;
+-	}
++	if (set_blk_dev(fh) || fs_unlink(fh->path))
++		ret = EFI_WARN_DELETE_FAILURE;
+ 
+-	if (fs_unlink(fh->path))
+-		ret = EFI_DEVICE_ERROR;
+ 	file_close(fh);
+-
+-error:
+ 	return EFI_EXIT(ret);
+ }
+ 
+-- 
+2.20.1
+

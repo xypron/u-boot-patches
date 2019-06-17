@@ -62,6 +62,7 @@ git am ../patch/0001-efi_loader-GOP-provide-accurate-mode-information.patch
 git am ../patch/0001-efi_loader-alternative-scan-codes-for-F5-END-HOME.patch
 git am ../patch/0001-efi_loader-console-incorrectly-advertised-left-logo-.patch
 git am ../patch/0001-efi_loader-ListPackageLists-return-EFI_NOT_FOUND.patch
+git am ../patch/0001-efi_loader-Delete-return-EFI_WARN_DELETE_FAILURE.patch
 exit
 git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
