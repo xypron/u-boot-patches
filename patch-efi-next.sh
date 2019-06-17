@@ -50,21 +50,6 @@ git am ../patch/0001-trace-do-not-limit-trace-buffer-to-2GiB.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
-# efi-2019-07-rc5-2
-git am ../patch/0001-efi_loader-LoadImage-w-o-SourceBuffer-and-DevicePath.patch
-git am ../patch/0001-efi_loader-LoadImage-must-return-EFI_NOT_FOUND.patch
-git am ../patch/0001-efi_loader-loaded-images-cannot-be-started-twice.patch
-git am ../patch/0001-efi_loader-correct-ExitBootServices.patch
-git am ../patch/0001-efi_loader-AllocatePages-must-accept-addr-0.patch
-git am ../patch/0001-efi_loader-MetaiMatch-must-be-case-insensitive.patch
-git am ../patch/0001-efi_loader-legal-characters-in-StrToFat.patch
-git am ../patch/0001-disk-part-avoid-undefined-reference-to-__udivmoddi4.patch
-git am ../patch/0001-efi_loader-parameter-checks-SetVariable.patch
-git am ../patch/0001-efi_loader-add-RuntimeServicesSupported-variable.patch
-git am ../patch/0001-efi_loader-GetTime-must-return-EFI_UNSUPPORTED.patch
-git am ../patch/0001-efi_loader-fix-SetMode.patch
-git am ../patch/0001-efi_loader-fix-SetAttribute.patch
-
 # efi-2019-07-rc5-3
 git am ../patch/0001-efi_loader-Blt-with-incorrect-BltOperation.patch
 git am ../patch/0001-efi_loader-QueryMode-check-parameters.patch
