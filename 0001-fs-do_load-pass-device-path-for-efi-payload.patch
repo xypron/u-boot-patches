@@ -1,4 +1,4 @@
-From 5d04a91b98b30308ce76e24a435c08b267e924ce Mon Sep 17 00:00:00 2001
+From b3b9b5edf517212b05b16f3a0022d515d701e5de Mon Sep 17 00:00:00 2001
 From: Mian Yousaf Kaukab <ykaukab@suse.de>
 Date: Tue, 18 Jun 2019 15:03:44 +0200
 Subject: [PATCH 1/1] fs: do_load: pass device path for efi payload
