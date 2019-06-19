@@ -1,0 +1,100 @@
+From cb6142dad87eb41e2dfc225f67f26300a606645d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 19 Jun 2019 21:56:16 +0200
+Subject: [PATCH 1/1] efi_loader: implement reading volume label
+
+Implement calling EFI_FILE_PROTOCOL.GetInfo() for
+EFI_FILE_SYSTEM_VOLUME_LABEL_ID.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h         |  4 ++++
+ lib/efi_loader/efi_file.c | 36 ++++++++++++++++++++++++++++++++----
+ 2 files changed, 36 insertions(+), 4 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 4de5d208f5..3bef9bd708 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1388,6 +1388,10 @@ struct efi_simple_file_system_protocol {
+ 	EFI_GUID(0x09576e93, 0x6d3f, 0x11d2, \
+ 		 0x8e, 0x39, 0x00, 0xa0, 0xc9, 0x69, 0x72, 0x3b)
+ 
++#define EFI_FILE_SYSTEM_VOLUME_LABEL_ID \
++	EFI_GUID(0xdb47d7d3, 0xfe81, 0x11d3, \
++		 0x9a, 0x35, 0x00, 0x90, 0x27, 0x3f, 0xC1, 0x4d)
++
+ #define EFI_FILE_MODE_READ	0x0000000000000001
+ #define EFI_FILE_MODE_WRITE	0x0000000000000002
+ #define EFI_FILE_MODE_CREATE	0x8000000000000000
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 36ca719a82..778bf8ecd0 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -15,6 +15,10 @@
+ /* GUID for file system information */
+ const efi_guid_t efi_file_system_info_guid = EFI_FILE_SYSTEM_INFO_GUID;
+ 
++/* GUID for volume label */
++static const efi_guid_t efi_guid_file_system_volume_label =
++		EFI_FILE_SYSTEM_VOLUME_LABEL_ID;
++
+ struct file_system {
+ 	struct efi_simple_file_system_protocol base;
+ 	struct efi_device_path *dp;
+@@ -587,6 +591,7 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 		struct efi_file_system_info *info = buffer;
+ 		disk_partition_t part;
+ 		efi_uintn_t required_size;
++		u16 *pos;
+ 		int r;
+ 
+ 		if (fh->fs->part >= 1)
+@@ -597,8 +602,8 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 			ret = EFI_DEVICE_ERROR;
+ 			goto error;
+ 		}
+-		required_size = sizeof(info) + 2 *
+-				(strlen((const char *)part.name) + 1);
++		required_size = sizeof(info) + 2 + 2 *
++				utf8_utf16_strlen((const char *)part.name);
+ 		if (*buffer_size < required_size) {
+ 			*buffer_size = required_size;
+ 			ret = EFI_BUFFER_TOO_SMALL;
+@@ -616,8 +621,31 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 		 * TODO: The volume label is not available in U-Boot.
+ 		 * Use the partition name as substitute.
+ 		 */
+-		ascii2unicode((u16 *)info->volume_label,
+-			      (const char *)part.name);
++		pos = (u16 *)info->volume_label;
++		utf8_utf16_strcpy(&pos, (const char *)part.name);
++	} else if (!guidcmp(info_type, &efi_guid_file_system_volume_label)) {
++		disk_partition_t part;
++		efi_uintn_t required_size;
++		u16 *pos;
++		int r;
++
++		if (fh->fs->part >= 1)
++			r = part_get_info(fh->fs->desc, fh->fs->part, &part);
++		else
++			r = part_get_info_whole_disk(fh->fs->desc, &part);
++		if (r < 0) {
++			ret = EFI_DEVICE_ERROR;
++			goto error;
++		}
++		required_size =
++			2 + 2 * utf8_utf16_strlen((const char *)part.name);
++		if (*buffer_size < required_size) {
++			*buffer_size = required_size;
++			ret = EFI_BUFFER_TOO_SMALL;
++			goto error;
++		}
++		pos = (u16 *)buffer;
++		utf8_utf16_strcpy(&pos, (const char *)part.name);
+ 	} else {
+ 		ret = EFI_UNSUPPORTED;
+ 	}
+-- 
+2.20.1
+
