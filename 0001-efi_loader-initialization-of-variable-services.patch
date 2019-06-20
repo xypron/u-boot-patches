@@ -1,7 +1,7 @@
-From 0457aff24a432f1e900ecb90c1848c3e29d54632 Mon Sep 17 00:00:00 2001
+From 8cceadecbed301cf33c5ec83129184cabebb9758 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 13:52:16 +0200
-Subject: [PATCH 1/1] efi_loader: initalization of variable services
+Subject: [PATCH 1/1] efi_loader: initialization of variable services
 
 Provide an initialization routine for variable services.
 
