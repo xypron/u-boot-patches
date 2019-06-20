@@ -222,7 +222,7 @@ index 3bebd0f573..e63212e4ee 100644
  obj-$(CONFIG_EFI_GET_TIME) += efi_selftest_rtc.o
  
 +ifeq ($(CONFIG_EFI_VARIABLES_NULL),)
-+efi_selftest_variables.o
++obj-y += efi_selftest_variables.o
 +endif
 +
  ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
