@@ -1,0 +1,115 @@
+From 24d74f3db0be8f231908180c75614c1f99fb834c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Jun 2019 22:00:02 +0000
+Subject: [PATCH 1/1] efi_loader: clean up runtime detaching
+
+The detaching of the runtime will have to move to ExitBootServices() to
+encompass operating system that do not call SetVirtualAddressMap().
+
+This patch changes the logic for the relocation of the pointers in the
+runtime table such that the relocation becomes independent of the entries
+in the detach list.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 52 +++++++++++++++++++++++-------------
+ 1 file changed, 34 insertions(+), 18 deletions(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 40fdc0ea92..287b8e8640 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -436,29 +436,43 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
+ 	}
+ };
+ 
+-static bool efi_runtime_tobedetached(void *p)
++/**
++ * efi_is_runtime_service_pointer() - check if pointer points to runtime table
++ *
++ * @p:		pointer to check
++ * Return:	true if the pointer points to a service function pointer in the
++ *		runtime table
++ */
++static bool efi_is_runtime_service_pointer(void *p)
+ {
+-	int i;
+-
+-	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++)
+-		if (efi_runtime_detach_list[i].ptr == p)
+-			return true;
+-
+-	return false;
++	return p >= (void *)&efi_runtime_services.get_time &&
++	       p <= (void *)&efi_runtime_services.query_variable_info;
+ }
+ 
+ static void efi_runtime_detach(ulong offset)
+ {
+ 	int i;
+-	ulong patchoff = offset - (ulong)gd->relocaddr;
++	ulong patchoff;
++	void **pos;
+ 
++	/*
++	 * Replace boottime functions by runtime functions
++	 * TODO: move this step to ExitBootServices()
++	 */
+ 	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++) {
+ 		ulong patchto = (ulong)efi_runtime_detach_list[i].patchto;
+ 		ulong *p = efi_runtime_detach_list[i].ptr;
+-		ulong newaddr = patchto ? (patchto + patchoff) : 0;
+ 
+-		debug("%s: Setting %p to %lx\n", __func__, p, newaddr);
+-		*p = newaddr;
++		debug("%s: Setting %p to %lx\n", __func__, p, patchto);
++		*p = patchto;
++	}
++
++	/* Relocate the runtime services pointers */
++	patchoff = offset - gd->relocaddr;
++	for (pos = (void **)&efi_runtime_services.get_time;
++	     pos <= (void **)&efi_runtime_services.query_variable_info; ++pos) {
++		if (*pos)
++			*pos += patchoff;
+ 	}
+ 
+ 	/* Update CRC32 */
+@@ -483,6 +497,10 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
+ 
+ 		p = (void*)((ulong)rel->offset - base) + gd->relocaddr;
+ 
++		/* The runtime services are updated in efi_runtime_detach() */
++		if (map && efi_is_runtime_service_pointer(p))
++			continue;
++
+ 		debug("%s: rel->info=%#lx *p=%#lx rel->offset=%p\n", __func__,
+ 		      rel->info, *p, rel->offset);
+ 
+@@ -506,9 +524,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
+ 		}
+ #endif
+ 		default:
+-			if (!efi_runtime_tobedetached(p))
+-				printf("%s: Unknown relocation type %llx\n",
+-				       __func__, rel->info & R_MASK);
++			printf("%s: Unknown relocation type %llx\n",
++			       __func__, rel->info & R_MASK);
+ 			continue;
+ 		}
+ 
+@@ -516,9 +533,8 @@ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map)
+ 		if (map && ((newaddr < map->virtual_start) ||
+ 		    newaddr > (map->virtual_start +
+ 			      (map->num_pages << EFI_PAGE_SHIFT)))) {
+-			if (!efi_runtime_tobedetached(p))
+-				printf("%s: Relocation at %p is out of "
+-				       "range (%lx)\n", __func__, p, newaddr);
++			printf("%s: Relocation at %p is out of "
++			       "range (%lx)\n", __func__, p, newaddr);
+ 			continue;
+ 		}
+ 
+-- 
+2.20.1
+
