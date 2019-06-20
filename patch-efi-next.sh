@@ -64,6 +64,7 @@ git am ../patch/0001-efi_loader-console-incorrectly-advertised-left-logo-.patch
 git am ../patch/0001-efi_loader-ListPackageLists-return-EFI_NOT_FOUND.patch
 git am ../patch/0001-efi_loader-Delete-return-EFI_WARN_DELETE_FAILURE.patch
 git am ../patch/0001-fs-do_load-pass-device-path-for-efi-payload.patch
+git am ../patch/0001-efi_loader-fix-typo-in-efi_variable.c.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
