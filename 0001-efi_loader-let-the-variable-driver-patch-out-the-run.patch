@@ -1,0 +1,116 @@
+From 4652c7c311d67e97dca581c46483627b9901c87f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Jun 2019 15:25:48 +0200
+Subject: [PATCH 1/1] efi_loader: let the variable driver patch out the runtime
+
+Our variable services are only provided at boottime. Therefore when
+leaving boottime the variable function are replaced by dummy functions
+returning EFI_UNSUPPORTED. Move this patching of the runtime table to the
+variable services implementation. As not all operating systems call
+SetVirtualAddressMap() the correct moment for the patching is the
+EVT_SIGNAL_EXIT_BOOT_SERVICES event.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c  |  9 ------
+ lib/efi_loader/efi_variable.c | 59 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 58 insertions(+), 10 deletions(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index dd91880ad6..de25cbdbee 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -424,15 +424,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
+ 		/* Clean up system table */
+ 		.ptr = &systab.boottime,
+ 		.patchto = NULL,
+-	}, {
+-		.ptr = &efi_runtime_services.get_variable,
+-		.patchto = &efi_device_error,
+-	}, {
+-		.ptr = &efi_runtime_services.get_next_variable_name,
+-		.patchto = &efi_device_error,
+-	}, {
+-		.ptr = &efi_runtime_services.set_variable,
+-		.patchto = &efi_device_error,
+ 	}
+ };
+ 
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 6210425f5e..8d8b8b7e5d 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -548,6 +548,56 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+ 	return EFI_UNSUPPORTED;
+ }
+ 
++/**
++ * efi_get_variable_runtime() - runtime implementation of GetVariable()
++ */
++static efi_status_t __efi_runtime EFIAPI
++efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
++			 u32 *attributes, efi_uintn_t *data_size, void *data)
++{
++	return EFI_UNSUPPORTED;
++}
++
++/**
++ * efi_get_next_variable_name_runtime() - runtime implementation of
++ *					  GetNextVariable()
++ */
++static efi_status_t __efi_runtime EFIAPI
++efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
++				   u16 *variable_name, const efi_guid_t *vendor)
++{
++	return EFI_UNSUPPORTED;
++}
++
++/**
++ * efi_set_variable_runtime() - runtime implemenation of SetVariable()
++ */
++static efi_status_t __efi_runtime EFIAPI
++efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
++			 u32 attributes, efi_uintn_t data_size,
++			 const void *data)
++{
++	return EFI_UNSUPPORTED;
++}
++
++/**
++ * efi_variables_boot_exit_notify() - notify fucntion
++ *
++ * @event:	event which occurred
++ * @context:	event context
++ */
++static EFIAPI void efi_variables_boot_exit_notify(struct efi_event *event,
++						   void *context)
++{
++	efi_runtime_services.get_variable = efi_get_variable_runtime;
++	efi_runtime_services.get_next_variable_name =
++				efi_get_next_variable_name_runtime;
++	efi_runtime_services.set_variable = efi_set_variable_runtime;
++	efi_update_table_header_crc32(&efi_runtime_services.hdr);
++}
++
++static struct efi_event *variables_boot_exit_event;
++
+ /**
+  * efi_init_variables() - initialize variable services
+  *
+@@ -555,5 +605,12 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+  */
+ efi_status_t efi_init_variables(void)
+ {
+-	return EFI_SUCCESS;
++	efi_status_t ret;
++
++	ret = efi_create_event(EVT_SIGNAL_EXIT_BOOT_SERVICES, TPL_CALLBACK,
++			       efi_variables_boot_exit_notify, NULL, NULL,
++			       &variables_boot_exit_event);
++	if (ret != EFI_SUCCESS)
++		printf("ERROR: Failed to register boot exit event\n");
++	return ret;
+ }
+-- 
+2.20.1
+
