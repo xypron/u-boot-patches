@@ -72,6 +72,7 @@ git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
 git am ../patch/0001-efi_loader-let-the-variable-driver-patch-out-the-run.patch
 git am ../patch/0001-efi_loader-unimplemented-runtime-services.patch
+git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
