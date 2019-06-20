@@ -66,6 +66,9 @@ git am ../patch/0001-efi_loader-Delete-return-EFI_WARN_DELETE_FAILURE.patch
 git am ../patch/0001-fs-do_load-pass-device-path-for-efi-payload.patch
 git am ../patch/0001-efi_loader-fix-typo-in-efi_variable.c.patch
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
+git am ../patch/0001-efi_loader-consistent-types-in-efidebug.c.patch
+git am ../patch/0001-efi_loader-consistent-error-handling-in-efidebug.c.patch
+git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
