@@ -1,4 +1,4 @@
-From 24d74f3db0be8f231908180c75614c1f99fb834c Mon Sep 17 00:00:00 2001
+From ee018daf40a43f0ce956fc6884d5fd09b111da34 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 22:00:02 +0000
 Subject: [PATCH 1/1] efi_loader: clean up runtime detaching
@@ -12,11 +12,11 @@ in the detach list.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_runtime.c | 52 +++++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 18 deletions(-)
+ lib/efi_loader/efi_runtime.c | 56 +++++++++++++++++++++++-------------
+ 1 file changed, 36 insertions(+), 20 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 40fdc0ea92..287b8e8640 100644
+index dd91880ad6..e1937316f2 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -436,29 +436,43 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
@@ -44,7 +44,8 @@ index 40fdc0ea92..287b8e8640 100644
 +	       p <= (void *)&efi_runtime_services.query_variable_info;
  }
  
- static void efi_runtime_detach(ulong offset)
+-static void efi_runtime_detach(ulong offset)
++static __efi_runtime void efi_runtime_detach(ulong offset)
  {
  	int i;
 -	ulong patchoff = offset - (ulong)gd->relocaddr;
@@ -110,6 +111,18 @@ index 40fdc0ea92..287b8e8640 100644
  			continue;
  		}
  
+@@ -632,10 +648,10 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+ 			ulong new_offset = map->virtual_start -
+ 					   map->physical_start + gd->relocaddr;
+ 
+-			efi_runtime_relocate(new_offset, map);
+ 			/* Once we're virtual, we can no longer handle
+ 			   complex callbacks */
+ 			efi_runtime_detach(new_offset);
++			efi_runtime_relocate(new_offset, map);
+ 			return EFI_EXIT(EFI_SUCCESS);
+ 		}
+ 	}
 -- 
 2.20.1
 
