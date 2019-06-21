@@ -67,6 +67,8 @@ git am ../patch/0001-fs-do_load-pass-device-path-for-efi-payload.patch
 git am ../patch/0001-efi_loader-consistent-types-in-efidebug.c.patch
 git am ../patch/0001-efi_loader-consistent-error-handling-in-efidebug.c.patch
 git am ../patch/0001-efi_loader-fix-typo-in-efi_variable.c.patch
+
+# efi-2019-10
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
 git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
