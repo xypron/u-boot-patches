@@ -51,24 +51,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
-# efi-2019-07-rc5-3
-git am ../patch/0001-efi_loader-Blt-with-incorrect-BltOperation.patch
-git am ../patch/0001-efi_loader-QueryMode-check-parameters.patch
-git am ../patch/0001-efi_loader-SetMode-parameters-check.patch
-git am ../patch/0001-efi_loader-QueryMode-must-allocate-buffer.patch
-git am ../patch/0001-efi_loader-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL-definitio.patch
-git am ../patch/0001-efi_loader-system-table-setup.patch
-git am ../patch/0001-efi_loader-SetMode-must-blank-screen.patch
-git am ../patch/0001-efi_loader-GOP-provide-accurate-mode-information.patch
-git am ../patch/0001-efi_loader-alternative-scan-codes-for-F5-END-HOME.patch
-git am ../patch/0001-efi_loader-console-incorrectly-advertised-left-logo-.patch
-git am ../patch/0001-efi_loader-ListPackageLists-return-EFI_NOT_FOUND.patch
-git am ../patch/0001-efi_loader-Delete-return-EFI_WARN_DELETE_FAILURE.patch
-git am ../patch/0001-fs-do_load-pass-device-path-for-efi-payload.patch
-git am ../patch/0001-efi_loader-consistent-types-in-efidebug.c.patch
-git am ../patch/0001-efi_loader-consistent-error-handling-in-efidebug.c.patch
-git am ../patch/0001-efi_loader-fix-typo-in-efi_variable.c.patch
-
 # efi-2019-10
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
 git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
