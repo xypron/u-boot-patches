@@ -45,6 +45,7 @@ git am ../patch/0001-trace-conserve-gd-register.patch
 git am ../patch/0001-trace-make-call-depth-limit-customizable.patch
 git am ../patch/0001-trace-trace-buffer-may-exceed-2GiB.patch
 git am ../patch/0001-trace-do-not-limit-trace-buffer-to-2GiB.patch
+git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch

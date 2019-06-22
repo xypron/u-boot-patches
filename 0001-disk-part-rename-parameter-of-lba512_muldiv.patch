@@ -1,0 +1,46 @@
+From dec0a629fd481bfa71bf9ee8a4142271c30dabb0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 22 Jun 2019 21:18:47 +0200
+Subject: [PATCH 1/1] disk: part: rename parameter of lba512_muldiv()
+
+div_by is a misleading parameter name, when we are doing >> div_by.
+Rename it to right_shift.
+
+Reported-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ disk/part.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/disk/part.c b/disk/part.c
+index 862078f3e7..a3c36e1413 100644
+--- a/disk/part.c
++++ b/disk/part.c
+@@ -103,17 +103,18 @@ typedef lbaint_t lba512_t;
+ #endif
+ 
+ /*
+- * Overflowless variant of (block_count * mul_by / 2**div_by)
+- * when div_by > mul_by
++ * Overflowless variant of (block_count * mul_by / 2**right_shift)
++ * when 2**right_shift > mul_by
+  */
+-static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by, int div_by)
++static lba512_t lba512_muldiv(lba512_t block_count, lba512_t mul_by,
++			      int right_shift)
+ {
+ 	lba512_t bc_quot, bc_rem;
+ 
+ 	/* x * m / d == x / d * m + (x % d) * m / d */
+-	bc_quot = block_count >> div_by;
+-	bc_rem  = block_count - (bc_quot << div_by);
+-	return bc_quot * mul_by + ((bc_rem * mul_by) >> div_by);
++	bc_quot = block_count >> right_shift;
++	bc_rem  = block_count - (bc_quot << right_shift);
++	return bc_quot * mul_by + ((bc_rem * mul_by) >> right_shift);
+ }
+ 
+ void dev_print (struct blk_desc *dev_desc)
+-- 
+2.20.1
+
