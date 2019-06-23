@@ -47,6 +47,7 @@ git am ../patch/0001-trace-trace-buffer-may-exceed-2GiB.patch
 git am ../patch/0001-trace-do-not-limit-trace-buffer-to-2GiB.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-ARM-correct-detection-of-thumbs-mode.patch
+git am ../patch/0001-imx6-wandboard-allow-booting-from-MMC-2.patch
 
 # Raspberry
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
