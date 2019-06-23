@@ -1,18 +1,18 @@
-From 4b992f48772011f59887091a860eab11d6b0d7eb Mon Sep 17 00:00:00 2001
+From b2619d0c76c08c355f5a8cf3b1a82ccfb642a6e7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 23 Jun 2019 08:08:45 +0200
-Subject: [PATCH 1/1] ARM: correct detection of thumbs mode
+Subject: [PATCH v2 1/1] ARM: correct detection of thumb mode
 
-When a crash occurs in thumbs mode the crash dump is incorrect. This is due
+When a crash occurs in thumb mode the crash dump is incorrect. This is due
 to the usage of a non-existing configuration variable CONFIG_ARM_THUMB in
 the definition of macro thumb_mode(regs).
 
 Use CONFIG_IS_ENABLED(SYS_THUMB_BUILD) to detect that the code has been
-compiled for thumbs mode.
+compiled for thumb mode. Remove ARM_THUMB from config_whitelist.txt.
 
-With the patch crash dumps indicate thumbs mode correctly.
+With the patch crash dumps indicate thumb mode correctly.
 
-On a system with thumbs mode:
+On a system with thumb mode:
 
 => exception unaligned
 data abort
@@ -27,7 +27,7 @@ Code: 8f7e 466d f105 0501 (e9d5) 6700
 
 The Flags line has '(T)' and in the Code line the output is in u16 groups.
 
-On a system without thumbs mode:
+On a system without thumb mode:
 
 => exception breakpoint
 prefetch abort
@@ -46,8 +46,13 @@ u32 groups.
 Reported-by: Marek Vasut <marex@denx.de>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	remove ARM_THUMB from config_whitelist.txt
+	fix typos in commit message
+---
  arch/arm/include/asm/proc-armv/ptrace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/config_whitelist.txt            | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/arch/arm/include/asm/proc-armv/ptrace.h b/arch/arm/include/asm/proc-armv/ptrace.h
 index 183b00a087..e37ad8fd1f 100644
@@ -62,6 +67,18 @@ index 183b00a087..e37ad8fd1f 100644
  #define thumb_mode(regs) \
  	(((regs)->ARM_cpsr & T_BIT))
  #else
+diff --git a/scripts/config_whitelist.txt b/scripts/config_whitelist.txt
+index d252045d80..d6bef69a16 100644
+--- a/scripts/config_whitelist.txt
++++ b/scripts/config_whitelist.txt
+@@ -61,7 +61,6 @@ CONFIG_ARM_FREQ
+ CONFIG_ARM_GIC_BASE_ADDRESS
+ CONFIG_ARM_PL180_MMCI_BASE
+ CONFIG_ARM_PL180_MMCI_CLOCK_FREQ
+-CONFIG_ARM_THUMB
+ CONFIG_ARP_TIMEOUT
+ CONFIG_ASTRO_COFDMDUOS2
+ CONFIG_ASTRO_TWIN7S2
 -- 
 2.20.1
 
