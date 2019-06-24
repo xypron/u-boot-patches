@@ -1,4 +1,4 @@
-From 672f8128e96e1f12f9acc7fc8798b38b19d4d4b4 Mon Sep 17 00:00:00 2001
+From 498f37b6ea5dab49cd2cd3bffe8764199ac3d7cc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 12:13:05 +0200
 Subject: [PATCH 1/1] efi_loader: move efi_query_variable_info()

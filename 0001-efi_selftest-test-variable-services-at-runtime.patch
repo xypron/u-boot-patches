@@ -1,4 +1,4 @@
-From d14926bb8053540f8e0671790bed698878518cbe Mon Sep 17 00:00:00 2001
+From c822df406a3b0b64c2dbad18fd3aaefe4d0859f2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 16:18:48 +0200
 Subject: [PATCH 1/1] efi_selftest: test variable services at runtime

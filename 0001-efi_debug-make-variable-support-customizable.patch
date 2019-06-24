@@ -1,4 +1,4 @@
-From 8ad67d6702fdc11bc816ddbbff20022e32952cb1 Mon Sep 17 00:00:00 2001
+From d650222763cd971e620d6c1a4710ff5de6b36676 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 13:17:09 +0200
 Subject: [PATCH 1/1] efi_debug: make variable support customizable
@@ -13,10 +13,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/Kconfig             | 18 ++++++
  lib/efi_loader/Makefile            |  3 +-
- lib/efi_loader/efi_setup.c         | 11 +++-
+ lib/efi_loader/efi_setup.c         | 10 +++-
  lib/efi_loader/efi_variable_null.c | 96 ++++++++++++++++++++++++++++++
  lib/efi_selftest/Makefile          |  5 +-
- 5 files changed, 129 insertions(+), 4 deletions(-)
+ 5 files changed, 128 insertions(+), 4 deletions(-)
  create mode 100644 lib/efi_loader/efi_variable_null.c
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
@@ -63,7 +63,7 @@ index 01769ea58b..e244aee2f5 100644
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index bfb57836fa..59af470a54 100644
+index bfb57836fa..a3f59506d8 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
 @@ -22,6 +22,8 @@ void __weak allow_unaligned(void)
@@ -94,7 +94,7 @@ index bfb57836fa..59af470a54 100644
  	efi_status_t ret = EFI_SUCCESS;
  
  	/* Initialize once only */
-@@ -101,12 +107,13 @@ efi_status_t efi_init_obj_list(void)
+@@ -101,7 +107,7 @@ efi_status_t efi_init_obj_list(void)
  
  	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
  	switch_to_non_secure_mode();
@@ -103,13 +103,7 @@ index bfb57836fa..59af470a54 100644
  	/* Define supported languages */
  	ret = efi_init_platform_lang();
  	if (ret != EFI_SUCCESS)
- 		goto out;
- 
-+
- 	/* Indicate supported features */
- 	ret = EFI_CALL(efi_set_variable(L"OsIndicationsSupported",
- 					&efi_global_variable_guid,
-@@ -121,7 +128,7 @@ efi_status_t efi_init_obj_list(void)
+@@ -121,7 +127,7 @@ efi_status_t efi_init_obj_list(void)
  	ret = efi_init_runtime_supported();
  	if (ret != EFI_SUCCESS)
  		goto out;
