@@ -55,7 +55,7 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
 # efi-2019-10
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
-git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
+# git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
 git am ../patch/0001-efi_loader-clean-up-runtime-detaching.patch
 git am ../patch/0001-efi_loader-let-the-variable-driver-patch-out-the-run.patch
