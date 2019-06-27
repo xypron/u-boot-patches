@@ -53,6 +53,9 @@ git am ../patch/0001-imx6-wandboard-allow-booting-from-MMC-2.patch
 git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
 git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
+# Booting with ARM Trusted Firmware
+git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
+
 # efi-2019-10
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
 # git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
