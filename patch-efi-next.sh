@@ -64,6 +64,7 @@ git am ../patch/0001-efi_loader-clean-up-runtime-detaching.patch
 git am ../patch/0001-efi_loader-let-the-variable-driver-patch-out-the-run.patch
 git am ../patch/0001-efi_loader-unimplemented-runtime-services.patch
 git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
+git am ../patch/0001-efi_loader-bump-UEFI-specification-number-to-2.8.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
