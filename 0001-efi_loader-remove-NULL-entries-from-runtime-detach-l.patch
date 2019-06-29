@@ -1,0 +1,78 @@
+From 41274ba7762cc4009895a1b4a93083f9a7eac242 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 29 Jun 2019 02:00:16 +0200
+Subject: [PATCH 1/1] efi_loader: remove NULL entries from runtime detach list
+
+Some entries in the system table are set to NULL in ExitBootServices(). We
+had them in the runtime detach list to avoid relocation of NULL. Let's
+instead assign the pointers dynamically in efi_initialize_system_table() to
+avoid the relocation entry.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 13 +++++++++----
+ lib/efi_loader/efi_runtime.c  | 16 ----------------
+ 2 files changed, 9 insertions(+), 20 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index d104cc6b31..14ad404403 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -3620,11 +3620,7 @@ struct efi_system_table __efi_runtime_data systab = {
+ 	},
+ 	.fw_vendor = firmware_vendor,
+ 	.fw_revision = FW_VERSION << 16 | FW_PATCHLEVEL << 8,
+-	.con_in = &efi_con_in,
+-	.con_out = &efi_con_out,
+-	.std_err = &efi_con_out,
+ 	.runtime = &efi_runtime_services,
+-	.boottime = &efi_boot_services,
+ 	.nr_tables = 0,
+ 	.tables = NULL,
+ };
+@@ -3644,6 +3640,15 @@ efi_status_t efi_initialize_system_table(void)
+ 				sizeof(struct efi_configuration_table),
+ 				(void **)&systab.tables);
+ 
++	/*
++	 * These entries will be set to NULL in ExitBootServices(). To avoid
++	 * relocation in SetVirtualAddressMap(), set them dynamically.
++	 */
++	systab.con_in = &efi_con_in;
++	systab.con_out = &efi_con_out;
++	systab.std_err = &efi_con_out;
++	systab.boottime = &efi_boot_services;
++
+ 	/* Set CRC32 field in table headers */
+ 	efi_update_table_header_crc32(&systab.hdr);
+ 	efi_update_table_header_crc32(&efi_runtime_services.hdr);
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index dd91880ad6..c56230cad3 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -408,22 +408,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
+ 	}, {
+ 		.ptr = &efi_runtime_services.set_time,
+ 		.patchto = &efi_set_time,
+-	}, {
+-		/* Clean up system table */
+-		.ptr = &systab.con_in,
+-		.patchto = NULL,
+-	}, {
+-		/* Clean up system table */
+-		.ptr = &systab.con_out,
+-		.patchto = NULL,
+-	}, {
+-		/* Clean up system table */
+-		.ptr = &systab.std_err,
+-		.patchto = NULL,
+-	}, {
+-		/* Clean up system table */
+-		.ptr = &systab.boottime,
+-		.patchto = NULL,
+ 	}, {
+ 		.ptr = &efi_runtime_services.get_variable,
+ 		.patchto = &efi_device_error,
+-- 
+2.20.1
+

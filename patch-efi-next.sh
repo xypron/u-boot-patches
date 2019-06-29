@@ -60,6 +60,7 @@ git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
 # git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
+git am ../patch/0001-efi_loader-remove-NULL-entries-from-runtime-detach-l.patch
 git am ../patch/0001-efi_loader-clean-up-runtime-detaching.patch
 git am ../patch/0001-efi_loader-let-the-variable-driver-patch-out-the-run.patch
 git am ../patch/0001-efi_loader-unimplemented-runtime-services.patch

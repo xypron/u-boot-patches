@@ -1,4 +1,4 @@
-From f4048ccea1600727270a20e9a3eb2de0184517c6 Mon Sep 17 00:00:00 2001
+From d5a760ecafaa0d87c3f16b88783b6e1f263e9ae2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 20 Jun 2019 15:25:48 +0200
 Subject: [PATCH 1/1] efi_loader: let the variable driver patch out the runtime
@@ -30,7 +30,7 @@ index d30c4e8ef3..8d75dde569 100644
  efi_status_t efi_root_node_register(void);
  /* Called by bootefi to initialize runtime */
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index d104cc6b31..a929bbb671 100644
+index 14ad404403..e72d09c5fb 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -1968,7 +1968,8 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
@@ -44,13 +44,13 @@ index d104cc6b31..a929bbb671 100644
  	board_quiesce_devices();
  
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 1c8f9b8218..551470b9ac 100644
+index 702136ae0e..bc2a23afbb 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
-@@ -424,15 +424,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
- 		/* Clean up system table */
- 		.ptr = &systab.boottime,
- 		.patchto = NULL,
+@@ -408,15 +408,6 @@ static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
+ 	}, {
+ 		.ptr = &efi_runtime_services.set_time,
+ 		.patchto = &efi_set_time,
 -	}, {
 -		.ptr = &efi_runtime_services.get_variable,
 -		.patchto = &efi_device_error,
