@@ -1,0 +1,30 @@
+From 2931c4e5a99eecd2a6e6a1125f06d10ee33331d8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 29 Jun 2019 03:51:36 +0200
+Subject: [PATCH 1/1] efi_loader: correct signature of ConvertPointer()
+
+ConvertPointer() must be EFIAPI. The first parameter should be of type
+efi_uint_t. Use the same parameter name as the UEFI specification.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 1962bc9e4b..3faa6b9f23 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -242,7 +242,8 @@ struct efi_runtime_services {
+ 			unsigned long descriptor_size,
+ 			uint32_t descriptor_version,
+ 			struct efi_mem_desc *virtmap);
+-	efi_status_t (*convert_pointer)(unsigned long dbg, void **address);
++	efi_status_t (EFIAPI *convert_pointer)(
++			efi_uintn_t debug_disposition,void **address);
+ 	efi_status_t (EFIAPI *get_variable)(u16 *variable_name,
+ 					    const efi_guid_t *vendor,
+ 					    u32 *attributes,
+-- 
+2.20.1
+
