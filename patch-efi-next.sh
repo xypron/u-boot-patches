@@ -68,6 +68,7 @@ git am ../patch/0001-efi_loader-unimplemented-runtime-services.patch
 git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
 git am ../patch/0001-efi_loader-split-off-detaching-SetVirtualAddress.patch
 git am ../patch/0001-efi_loader-bump-UEFI-specification-number-to-2.8.patch
+git am ../patch/0001-efi_selftest-description-of-CMD_BOOTEFI_SELFTEST.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
