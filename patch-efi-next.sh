@@ -57,9 +57,7 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
 # efi-2019-10
-git am ../patch/0001-efi_loader-correct-signature-of-ConvertPointer.patch
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
-# git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
 git am ../patch/0001-efi_loader-remove-NULL-entries-from-runtime-detach-l.patch
 git am ../patch/0001-efi_loader-clean-up-runtime-detaching.patch
@@ -77,6 +75,7 @@ git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
 # Patches needing rework
+# git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
 # git am ../patch/0001-efi_loader-avoid-lost-network-packages.patch
 # git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
 # git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
