@@ -57,6 +57,7 @@ git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
 # efi-2019-10
+git am ../patch/0001-efi_loader-remove-superfluous-spaces-in-comments.patch
 git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
 git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
 git am ../patch/0001-efi_loader-remove-NULL-entries-from-runtime-detach-l.patch
@@ -67,6 +68,7 @@ git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
 git am ../patch/0001-efi_loader-split-off-detaching-SetVirtualAddress.patch
 git am ../patch/0001-efi_loader-bump-UEFI-specification-number-to-2.8.patch
 git am ../patch/0001-efi_selftest-description-of-CMD_BOOTEFI_SELFTEST.patch
+git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch

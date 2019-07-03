@@ -1,0 +1,70 @@
+From 86c67be709799fbe0aabc1a12d285175a559b104 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 3 Jul 2019 20:16:57 +0200
+Subject: [PATCH 1/1] efi_loader: protocol definitions for ConnectController()
+
+The following protocols are to be considered by ConnectController():
+
+* Platform Driver Override Protocol
+* Driver Family Override Protocol
+* Bus Specific Driver Override Protocol
+
+Add the protocol definitions. The changes to ConnectController() will be
+passed in a separate patch.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index d4f32dbdc8..b712e1a816 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1477,4 +1477,43 @@ struct efi_unicode_collation_protocol {
+ #define LOAD_OPTION_CATEGORY_BOOT	0x00000000
+ #define LOAD_OPTION_CATEGORY_APP	0x00000100
+ 
++#define EFI_PLATFORM_DRIVER_OVERRIDE_PROTOCOL_GUID \
++	EFI_GUID(0x6b30c738, 0xa391, 0x11d4, \
++		 0x9a, 0x3b, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
++
++struct efi_platform_driver_override_protocol {
++	efi_status_t (EFIAPI *get_driver)(
++			struct efi_platform_driver_override_protocol *this,
++			efi_handle_t controller_handle,
++			efi_handle_t *driver_image_handle);
++	efi_status_t (EFIAPI *get_driver_path)(
++			struct efi_platform_driver_override_protocol *this,
++			efi_handle_t controller_handle,
++			struct efi_device_path *driver_image_path);
++	efi_status_t (EFIAPI *driver_loader)(
++			struct efi_platform_driver_override_protocol *this,
++			efi_handle_t controller_handle,
++			struct efi_device_path *driver_image_path,
++			efi_handle_t driver_image_handle);
++};
++
++#define EFI_DRIVER_FAMILY_OVERRIDE_PROTOCOL_GUID \
++	EFI_GUID(0xb1ee129e, 0xda36, 0x4181,\
++		 0x91, 0xf8, 0x04, 0xa4, 0x92, 0x37, 0x66, 0xa7)
++
++struct efi_driver_family_override_protocol {
++	u32 (EFIAPI *get_version)(
++			struct efi_driver_family_override_protocol *this);
++};
++
++#define EFI_BUS_SPECIFIC_DRIVER_OVERRIDE_PROTOCOL_GUID \
++	EFI_GUID(0x3bc1b285, 0x8a15, 0x4a82,\
++		 0xaa, 0xbf, 0x4d, 0x7d, 0x13, 0xfb, 0x32, 0x65)
++
++struct efi_bus_specific_driver_override_protocol {
++	efi_status_t (EFIAPI *get_driver)(
++			struct efi_bus_specific_driver_override_protocol *this,
++			efi_handle_t *driver_image_handle);
++};
++
+ #endif
+-- 
+2.20.1
+
