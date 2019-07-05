@@ -1,4 +1,4 @@
-From 10e3b79f10fba3be99171bd470ffc6ec8b690360 Mon Sep 17 00:00:00 2001
+From c2309038eb18af9a2c558f70f451ef4c882a162c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 5 Jul 2019 17:43:13 +0200
 Subject: [PATCH 1/1] test/py: error message test_efi_selftest_device_tree
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/test/py/tests/test_efi_selftest.py b/test/py/tests/test_efi_selftest.py
-index 07e4db0452..db9842ce2e 100644
+index 07e4db0452..516e41cf51 100644
 --- a/test/py/tests/test_efi_selftest.py
 +++ b/test/py/tests/test_efi_selftest.py
 @@ -37,7 +37,7 @@ def test_efi_selftest_device_tree(u_boot_console):
@@ -19,7 +19,7 @@ index 07e4db0452..db9842ce2e 100644
  	m = u_boot_console.p.expect(['serial-number: Testing DT', 'U-Boot'])
  	if m != 0:
 -		raise Exception('Reset failed in \'device tree\' test')
-+		raise Exception('Serial number missing in device tree')
++		raise Exception('serial-number missing in device tree')
  	u_boot_console.restart_uboot();
  
  @pytest.mark.buildconfigspec('cmd_bootefi_selftest')

@@ -26,24 +26,6 @@ index da9e5d6a35..bf49f02ebf 100644
  	u_boot_console.restart_uboot();
  
  @pytest.mark.buildconfigspec('cmd_bootefi_selftest')
-@@ -62,7 +58,7 @@ def test_efi_selftest_text_input(u_boot_console):
- 	"""
- 	u_boot_console.run_command(cmd='setenv efi_selftest text input')
- 	output = u_boot_console.run_command(cmd='bootefi selftest',
--					    wait_for_prompt=False)
-+						wait_for_prompt=False)
- 	m = u_boot_console.p.expect(['To terminate type \'x\''])
- 	if m != 0:
- 		raise Exception('No prompt for \'text input\' test')
-@@ -132,7 +128,7 @@ def test_efi_selftest_text_input_ex(u_boot_console):
- 	"""
- 	u_boot_console.run_command(cmd='setenv efi_selftest extended text input')
- 	output = u_boot_console.run_command(cmd='bootefi selftest',
--					    wait_for_prompt=False)
-+						wait_for_prompt=False)
- 	m = u_boot_console.p.expect(['To terminate type \'CTRL\+x\''])
- 	if m != 0:
- 		raise Exception('No prompt for \'text input\' test')
 -- 
 2.20.1
 
