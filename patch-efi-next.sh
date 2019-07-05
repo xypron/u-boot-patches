@@ -68,6 +68,11 @@ git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
 git am ../patch/0001-efi_loader-split-off-detaching-SetVirtualAddress.patch
 git am ../patch/0001-efi_loader-bump-UEFI-specification-number-to-2.8.patch
 git am ../patch/0001-efi_selftest-description-of-CMD_BOOTEFI_SELFTEST.patch
+git am ../patch/0001-test-py-error-message-test_efi_selftest_device_tree.patch
+git am ../patch/0001-test-py-not-all-boards-support-UEFI-runtime-reset.patch
+git am ../patch/0001-efi_loader-decision-on-EFI_RT_SUPPORTED_RESET_SYSTEM.patch
+git am ../patch/0001-efi_loader-simplify-detaching.patch
+git am ../patch/0001-efi_loader-detach-runtime-in-ExitBootServices.patch
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch

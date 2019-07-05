@@ -1,0 +1,77 @@
+From 1ec42c3e881a08daf38f748292b0c03b718bfb0d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 5 Jul 2019 18:12:21 +0200
+Subject: [PATCH 1/1] efi_loader: simplify detaching
+
+We do not need any array typed detach list. Let's simply update the
+pointers directly.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 40 ++++++++----------------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 63d8a29146..6ccd07f36a 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -385,26 +385,6 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
+ 	return EFI_UNSUPPORTED;
+ }
+ 
+-struct efi_runtime_detach_list_struct {
+-	void *ptr;
+-	void *patchto;
+-};
+-
+-static const struct efi_runtime_detach_list_struct efi_runtime_detach_list[] = {
+-	{
+-		/* do_reset is gone */
+-		.ptr = &efi_runtime_services.reset_system,
+-		.patchto = efi_reset_system,
+-	}, {
+-		/* RTC accessors are gone */
+-		.ptr = &efi_runtime_services.get_time,
+-		.patchto = &efi_get_time,
+-	}, {
+-		.ptr = &efi_runtime_services.set_time,
+-		.patchto = &efi_set_time,
+-	}
+-};
+-
+ /**
+  * efi_is_runtime_service_pointer() - check if pointer points to runtime table
+  *
+@@ -418,21 +398,17 @@ static bool efi_is_runtime_service_pointer(void *p)
+ 	       p <= (void *)&efi_runtime_services.query_variable_info;
+ }
+ 
++/**
++ * efi_runtime_detach() - detach unimplemented runtime functions
++ */
+ static __efi_runtime void efi_runtime_detach(void)
+ {
+-	int i;
+-
+-	/*
+-	 * Replace boottime functions by runtime functions
+-	 * TODO: move this step to ExitBootServices()
+-	 */
+-	for (i = 0; i < ARRAY_SIZE(efi_runtime_detach_list); i++) {
+-		ulong patchto = (ulong)efi_runtime_detach_list[i].patchto;
+-		ulong *p = efi_runtime_detach_list[i].ptr;
++	efi_runtime_services.reset_system = efi_reset_system;
++	efi_runtime_services.get_time = efi_get_time;
++	efi_runtime_services.set_time = efi_set_time;
+ 
+-		debug("%s: Setting %p to %lx\n", __func__, p, patchto);
+-		*p = patchto;
+-	}
++	/* Update CRC32 */
++	efi_update_table_header_crc32(&efi_runtime_services.hdr);
+ }
+ 
+ /**
+-- 
+2.20.1
+
