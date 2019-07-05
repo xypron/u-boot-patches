@@ -9,6 +9,7 @@ specification 2.8. So let's also advertise this specification version in
 our system table.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <agraf@csgraf.de>
 ---
  include/efi_api.h | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
