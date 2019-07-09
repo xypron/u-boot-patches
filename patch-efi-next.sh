@@ -47,33 +47,11 @@ git am ../patch/0001-trace-trace-buffer-may-exceed-2GiB.patch
 git am ../patch/0001-trace-do-not-limit-trace-buffer-to-2GiB.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-ARM-correct-detection-of-thumb-mode.patch
-git am ../patch/0001-imx6-wandboard-allow-booting-from-MMC-2.patch
-
-# Raspberry
-git am ../patch/0001-fdt-update-bcm283x-device-tree-sources-to-Linux-5.1-.patch
-git am ../patch/0001-ARM-defconfig-add-Raspberry-Pi-3-Model-B.patch
 
 # Booting with ARM Trusted Firmware
 git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
-# efi-2019-10
-git am ../patch/0001-disk-efi-buffer-overflow-in-part_get_info_efi.patch
-git am ../patch/0001-efi_selftest-description-of-CMD_BOOTEFI_SELFTEST.patch
-git am ../patch/0001-test-py-error-message-test_efi_selftest_device_tree.patch
-git am ../patch/0001-efi_loader-remove-superfluous-spaces-in-comments.patch
-git am ../patch/0001-efi_loader-move-efi_query_variable_info.patch
-git am ../patch/0001-efi_loader-initialization-of-variable-services.patch
-git am ../patch/0001-efi_loader-remove-NULL-entries-from-runtime-detach-l.patch
-git am ../patch/0001-efi_loader-clean-up-runtime-detaching.patch
-git am ../patch/0001-efi_loader-let-the-variable-driver-patch-out-the-run.patch
-git am ../patch/0001-efi_loader-unimplemented-runtime-services.patch
-git am ../patch/0001-efi_selftest-test-variable-services-at-runtime.patch
-git am ../patch/0001-efi_loader-split-off-detaching-SetVirtualAddress.patch
-git am ../patch/0001-efi_loader-bump-UEFI-specification-number-to-2.8.patch
-git am ../patch/0001-test-py-not-all-boards-support-UEFI-runtime-reset.patch
-git am ../patch/0001-efi_loader-decision-on-EFI_RT_SUPPORTED_RESET_SYSTEM.patch
-git am ../patch/0001-efi_loader-simplify-detaching.patch
-git am ../patch/0001-efi_loader-detach-runtime-in-ExitBootServices.patch
+# efi-2019-10-rc1-2
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 exit
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
