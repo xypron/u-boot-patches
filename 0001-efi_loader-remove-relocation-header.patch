@@ -1,4 +1,4 @@
-From d319a07910151cd77d07a31919d7e2df76be030d Mon Sep 17 00:00:00 2001
+From 035c017d4efe5e8bc9d0914fe2ccf5bdad200ea8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 29 Mar 2019 18:32:21 +0100
 Subject: [PATCH 1/1] efi_loader: remove relocation header
@@ -8,14 +8,83 @@ is no reason to provide extra relocation code in the payload.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/arm/lib/crt0_aarch64_efi.S | 10 +---------
- arch/arm/lib/crt0_arm_efi.S     | 13 ++-----------
- arch/riscv/lib/crt0_riscv_efi.S |  2 --
- arch/x86/lib/crt0_ia32_efi.S    |  9 +--------
- arch/x86/lib/crt0_x86_64_efi.S  | 16 +---------------
- scripts/Makefile.lib            |  2 +-
- 6 files changed, 6 insertions(+), 46 deletions(-)
+ Makefile                         |  1 -
+ arch/arm/config.mk               |  1 -
+ arch/arm/cpu/armv8/config.mk     |  1 -
+ arch/arm/lib/Makefile            |  9 +--
+ arch/arm/lib/crt0_aarch64_efi.S  | 10 +---
+ arch/arm/lib/crt0_arm_efi.S      | 13 +----
+ arch/arm/lib/reloc_aarch64_efi.c | 86 ----------------------------
+ arch/arm/lib/reloc_arm_efi.c     | 64 ---------------------
+ arch/riscv/config.mk             |  1 -
+ arch/riscv/lib/Makefile          |  9 +--
+ arch/riscv/lib/crt0_riscv_efi.S  |  2 -
+ arch/riscv/lib/reloc_riscv_efi.c | 97 --------------------------------
+ arch/x86/config.mk               |  6 +-
+ arch/x86/lib/Makefile            | 16 ++----
+ arch/x86/lib/crt0_ia32_efi.S     |  9 +--
+ arch/x86/lib/crt0_x86_64_efi.S   | 16 +-----
+ arch/x86/lib/reloc_ia32_efi.c    | 69 -----------------------
+ arch/x86/lib/reloc_x86_64_efi.c  | 63 ---------------------
+ scripts/Makefile.lib             |  6 +-
+ 19 files changed, 18 insertions(+), 461 deletions(-)
+ delete mode 100644 arch/arm/lib/reloc_aarch64_efi.c
+ delete mode 100644 arch/arm/lib/reloc_arm_efi.c
+ delete mode 100644 arch/riscv/lib/reloc_riscv_efi.c
+ delete mode 100644 arch/x86/lib/reloc_ia32_efi.c
+ delete mode 100644 arch/x86/lib/reloc_x86_64_efi.c
 
+diff --git a/Makefile b/Makefile
+index 516260f46d..61e66d26e4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -579,7 +579,6 @@ endif
+ # so they can be used when building an EFI application.
+ export EFI_LDS		# Filename of EFI link script in arch/$(ARCH)/lib
+ export EFI_CRT0		# Filename of EFI CRT0 in arch/$(ARCH)/lib
+-export EFI_RELOC	# Filename of EFU relocation code in arch/$(ARCH)/lib
+ export CFLAGS_EFI	# Compiler flags to add when building EFI app
+ export CFLAGS_NON_EFI	# Compiler flags to remove when building EFI app
+ export EFI_TARGET	# binutils target if EFI is natively supported
+diff --git a/arch/arm/config.mk b/arch/arm/config.mk
+index f25603109e..cab04538db 100644
+--- a/arch/arm/config.mk
++++ b/arch/arm/config.mk
+@@ -170,4 +170,3 @@ endif
+ 
+ EFI_LDS := elf_arm_efi.lds
+ EFI_CRT0 := crt0_arm_efi.o
+-EFI_RELOC := reloc_arm_efi.o
+diff --git a/arch/arm/cpu/armv8/config.mk b/arch/arm/cpu/armv8/config.mk
+index 6f9093109f..cfa9e9f606 100644
+--- a/arch/arm/cpu/armv8/config.mk
++++ b/arch/arm/cpu/armv8/config.mk
+@@ -9,4 +9,3 @@ PLATFORM_CPPFLAGS += $(PF_NO_UNALIGNED)
+ 
+ EFI_LDS := elf_aarch64_efi.lds
+ EFI_CRT0 := crt0_aarch64_efi.o
+-EFI_RELOC := reloc_aarch64_efi.o
+diff --git a/arch/arm/lib/Makefile b/arch/arm/lib/Makefile
+index 48ee6c3c60..d57a2d0202 100644
+--- a/arch/arm/lib/Makefile
++++ b/arch/arm/lib/Makefile
+@@ -102,13 +102,10 @@ endif
+ CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
+ CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
+ 
+-CFLAGS_$(EFI_RELOC) := $(CFLAGS_EFI)
+-CFLAGS_REMOVE_$(EFI_RELOC) := $(CFLAGS_NON_EFI)
+-
+-extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0) $(EFI_RELOC)
++extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0)
+ # TODO: As of v2019.01 the relocation code for the EFI application cannot
+ # be built on ARMv7-M.
+ ifndef CONFIG_CPU_V7M
+-#extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0) $(EFI_RELOC)
++#extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0)
+ endif
+-extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
++extra-$(CONFIG_EFI) += $(EFI_CRT0)
 diff --git a/arch/arm/lib/crt0_aarch64_efi.S b/arch/arm/lib/crt0_aarch64_efi.S
 index cb205fa30a..f6015073d6 100644
 --- a/arch/arm/lib/crt0_aarch64_efi.S
@@ -64,6 +133,194 @@ index 5470e2ff0e..3f7fc51f1f 100644
  	ldr		pc, [sp], #4
  
  .L_DYNAMIC:
+diff --git a/arch/arm/lib/reloc_aarch64_efi.c b/arch/arm/lib/reloc_aarch64_efi.c
+deleted file mode 100644
+index 1aa57dbc80..0000000000
+--- a/arch/arm/lib/reloc_aarch64_efi.c
++++ /dev/null
+@@ -1,86 +0,0 @@
+-/* reloc_aarch64.c - position independent x86 ELF shared object relocator
+-   Copyright (C) 2014 Linaro Ltd. <ard.biesheuvel@linaro.org>
+-   Copyright (C) 1999 Hewlett-Packard Co.
+-	Contributed by David Mosberger <davidm@hpl.hp.com>.
+-
+-    All rights reserved.
+-
+-    Redistribution and use in source and binary forms, with or without
+-    modification, are permitted provided that the following conditions
+-    are met:
+-
+-    * Redistributions of source code must retain the above copyright
+-      notice, this list of conditions and the following disclaimer.
+-    * Redistributions in binary form must reproduce the above
+-      copyright notice, this list of conditions and the following
+-      disclaimer in the documentation and/or other materials
+-      provided with the distribution.
+-    * Neither the name of Hewlett-Packard Co. nor the names of its
+-      contributors may be used to endorse or promote products derived
+-      from this software without specific prior written permission.
+-
+-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+-    CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+-    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+-    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+-    BE LIABLE FOR ANYDIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+-    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+-    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+-    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+-    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-    SUCH DAMAGE.
+-*/
+-
+-#include <efi.h>
+-
+-#include <elf.h>
+-
+-efi_status_t EFIAPI _relocate(long ldbase, Elf64_Dyn *dyn)
+-{
+-	long relsz = 0, relent = 0;
+-	Elf64_Rela *rel = 0;
+-	unsigned long *addr;
+-	int i;
+-
+-	for (i = 0; dyn[i].d_tag != DT_NULL; ++i) {
+-		switch (dyn[i].d_tag) {
+-		case DT_RELA:
+-			rel = (Elf64_Rela *)((ulong)dyn[i].d_un.d_ptr + ldbase);
+-			break;
+-		case DT_RELASZ:
+-			relsz = dyn[i].d_un.d_val;
+-			break;
+-		case DT_RELAENT:
+-			relent = dyn[i].d_un.d_val;
+-			break;
+-		default:
+-			break;
+-		}
+-	}
+-
+-	if (!rel && relent == 0)
+-		return EFI_SUCCESS;
+-
+-	if (!rel || relent == 0)
+-		return EFI_LOAD_ERROR;
+-
+-	while (relsz > 0) {
+-		/* apply the relocs */
+-		switch (ELF64_R_TYPE(rel->r_info)) {
+-		case R_AARCH64_NONE:
+-			break;
+-		case R_AARCH64_RELATIVE:
+-			addr = (ulong *)(ldbase + rel->r_offset);
+-			*addr = ldbase + rel->r_addend;
+-			break;
+-		default:
+-			break;
+-		}
+-		rel = (Elf64_Rela *)((char *)rel + relent);
+-		relsz -= relent;
+-	}
+-	return EFI_SUCCESS;
+-}
+diff --git a/arch/arm/lib/reloc_arm_efi.c b/arch/arm/lib/reloc_arm_efi.c
+deleted file mode 100644
+index 9103c035c5..0000000000
+--- a/arch/arm/lib/reloc_arm_efi.c
++++ /dev/null
+@@ -1,64 +0,0 @@
+-// SPDX-License-Identifier: BSD-3-Clause
+-/*
+- * reloc_arm.c - position-independent ARM ELF shared object relocator
+- *
+- * Copyright (C) 2014 Linaro Ltd. <ard.biesheuvel@linaro.org>
+- * Copyright (C) 1999 Hewlett-Packard Co.
+- * Contributed by David Mosberger <davidm@hpl.hp.com>.
+- *
+- * All rights reserved.
+- *
+- * This file is taken and modified from the gnu-efi project.
+- */
+-
+-#include <efi.h>
+-#include <elf.h>
+-
+-efi_status_t EFIAPI _relocate(long ldbase, Elf32_Dyn *dyn)
+-{
+-	long relsz = 0, relent = 0;
+-	Elf32_Rel *rel = 0;
+-	ulong *addr;
+-	int i;
+-
+-	for (i = 0; dyn[i].d_tag != DT_NULL; ++i) {
+-		switch (dyn[i].d_tag) {
+-		case DT_REL:
+-			rel = (Elf32_Rel *)((ulong)dyn[i].d_un.d_ptr
+-					+ ldbase);
+-			break;
+-		case DT_RELSZ:
+-			relsz = dyn[i].d_un.d_val;
+-			break;
+-		case DT_RELENT:
+-			relent = dyn[i].d_un.d_val;
+-			break;
+-		default:
+-			break;
+-		}
+-	}
+-
+-	if (!rel && relent == 0)
+-		return EFI_SUCCESS;
+-
+-	if (!rel || relent == 0)
+-		return EFI_LOAD_ERROR;
+-
+-	while (relsz > 0) {
+-		/* apply the relocs */
+-		switch (ELF32_R_TYPE(rel->r_info)) {
+-		case R_ARM_NONE:
+-			break;
+-		case R_ARM_RELATIVE:
+-			addr = (ulong *)(ldbase + rel->r_offset);
+-			*addr += ldbase;
+-			break;
+-		default:
+-			break;
+-		}
+-		rel = (Elf32_Rel *)((char *)rel + relent);
+-		relsz -= relent;
+-	}
+-
+-	return EFI_SUCCESS;
+-}
+diff --git a/arch/riscv/config.mk b/arch/riscv/config.mk
+index 84654eb3ed..528cb7be90 100644
+--- a/arch/riscv/config.mk
++++ b/arch/riscv/config.mk
+@@ -31,4 +31,3 @@ PLATFORM_RELFLAGS	+= -fno-common -gdwarf-2 -ffunction-sections \
+ LDFLAGS_u-boot		+= --gc-sections -static -pie
+ 
+ EFI_CRT0		:= crt0_riscv_efi.o
+-EFI_RELOC		:= reloc_riscv_efi.o
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 6ae6ebbeaf..63efb3a70d 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -24,9 +24,6 @@ obj-$(CONFIG_SMP) += smp.o
+ CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
+ CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
+ 
+-CFLAGS_$(EFI_RELOC) := $(CFLAGS_EFI)
+-CFLAGS_REMOVE_$(EFI_RELOC) := $(CFLAGS_NON_EFI)
+-
+-extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0) $(EFI_RELOC)
+-extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0) $(EFI_RELOC)
+-extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
++extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0)
++extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0)
++extra-$(CONFIG_EFI) += $(EFI_CRT0)
 diff --git a/arch/riscv/lib/crt0_riscv_efi.S b/arch/riscv/lib/crt0_riscv_efi.S
 index b7b5329e1f..4397b02fe9 100644
 --- a/arch/riscv/lib/crt0_riscv_efi.S
@@ -77,6 +334,193 @@ index b7b5329e1f..4397b02fe9 100644
  
  	LOAD_LONG(a1, 1)
  	LOAD_LONG(a0, 0)
+diff --git a/arch/riscv/lib/reloc_riscv_efi.c b/arch/riscv/lib/reloc_riscv_efi.c
+deleted file mode 100644
+index c1039dd165..0000000000
+--- a/arch/riscv/lib/reloc_riscv_efi.c
++++ /dev/null
+@@ -1,97 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/* reloc_riscv.c - position independent ELF shared object relocator
+-   Copyright (C) 2018 Alexander Graf <agraf@suse.de>
+-   Copyright (C) 2014 Linaro Ltd. <ard.biesheuvel@linaro.org>
+-   Copyright (C) 1999 Hewlett-Packard Co.
+-	Contributed by David Mosberger <davidm@hpl.hp.com>.
+-
+-    All rights reserved.
+-
+-    Redistribution and use in source and binary forms, with or without
+-    modification, are permitted provided that the following conditions
+-    are met:
+-
+-    * Redistributions of source code must retain the above copyright
+-      notice, this list of conditions and the following disclaimer.
+-    * Redistributions in binary form must reproduce the above
+-      copyright notice, this list of conditions and the following
+-      disclaimer in the documentation and/or other materials
+-      provided with the distribution.
+-    * Neither the name of Hewlett-Packard Co. nor the names of its
+-      contributors may be used to endorse or promote products derived
+-      from this software without specific prior written permission.
+-
+-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+-    CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+-    INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+-    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+-    BE LIABLE FOR ANYDIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+-    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+-    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+-    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+-    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+-    SUCH DAMAGE.
+-*/
+-
+-#include <efi.h>
+-
+-#include <elf.h>
+-
+-#if __riscv_xlen == 64
+-#define Elf_Dyn		Elf64_Dyn
+-#define Elf_Rela	Elf64_Rela
+-#define ELF_R_TYPE	ELF64_R_TYPE
+-#else
+-#define Elf_Dyn		Elf32_Dyn
+-#define Elf_Rela	Elf32_Rela
+-#define ELF_R_TYPE	ELF32_R_TYPE
+-#endif
+-
+-efi_status_t EFIAPI _relocate(long ldbase, Elf_Dyn *dyn)
+-{
+-	long relsz = 0, relent = 0;
+-	Elf_Rela *rel = 0;
+-	unsigned long *addr;
+-	int i;
+-
+-	for (i = 0; dyn[i].d_tag != DT_NULL; ++i) {
+-		switch (dyn[i].d_tag) {
+-		case DT_RELA:
+-			rel = (Elf_Rela *)((ulong)dyn[i].d_un.d_ptr + ldbase);
+-			break;
+-		case DT_RELASZ:
+-			relsz = dyn[i].d_un.d_val;
+-			break;
+-		case DT_RELAENT:
+-			relent = dyn[i].d_un.d_val;
+-			break;
+-		default:
+-			break;
+-		}
+-	}
+-
+-	if (!rel && relent == 0)
+-		return EFI_SUCCESS;
+-
+-	if (!rel || relent == 0)
+-		return EFI_LOAD_ERROR;
+-
+-	while (relsz > 0) {
+-		/* apply the relocs */
+-		switch (ELF_R_TYPE(rel->r_info)) {
+-		case R_RISCV_RELATIVE:
+-			addr = (ulong *)(ldbase + rel->r_offset);
+-			*addr = ldbase + rel->r_addend;
+-			break;
+-		default:
+-			/* Panic */
+-			while (1) ;
+-		}
+-		rel = (Elf_Rela *)((char *)rel + relent);
+-		relsz -= relent;
+-	}
+-	return EFI_SUCCESS;
+-}
+diff --git a/arch/x86/config.mk b/arch/x86/config.mk
+index b5e8f46297..2192825303 100644
+--- a/arch/x86/config.mk
++++ b/arch/x86/config.mk
+@@ -56,7 +56,7 @@ endif
+ EFIPAYLOAD_BFDARCH = i386
+ 
+ LDSCRIPT_EFI := $(srctree)/arch/x86/lib/elf_$(EFIARCH)_efi.lds
+-EFISTUB := crt0_$(EFIARCH)_efi.o reloc_$(EFIARCH)_efi.o
++EFISTUB := crt0_$(EFIARCH)_efi.o
+ OBJCOPYFLAGS_EFI += --target=efi-app-$(EFIARCH)
+ 
+ CPPFLAGS_REMOVE_crt0-efi-$(EFIARCH).o += $(CFLAGS_NON_EFI)
+@@ -91,11 +91,9 @@ ifdef CONFIG_EFI_STUB
+ ifdef CONFIG_EFI_STUB_64BIT
+ EFI_LDS := elf_x86_64_efi.lds
+ EFI_CRT0 := crt0_x86_64_efi.o
+-EFI_RELOC := reloc_x86_64_efi.o
+ else
+ EFI_LDS := elf_ia32_efi.lds
+ EFI_CRT0 := crt0_ia32_efi.o
+-EFI_RELOC := reloc_ia32_efi.o
+ endif
+ 
+ else
+@@ -103,11 +101,9 @@ else
+ ifdef CONFIG_X86_64
+ EFI_LDS := elf_x86_64_efi.lds
+ EFI_CRT0 := crt0_x86_64_efi.o
+-EFI_RELOC := reloc_x86_64_efi.o
+ else
+ EFI_LDS := elf_ia32_efi.lds
+ EFI_CRT0 := crt0_ia32_efi.o
+-EFI_RELOC := reloc_ia32_efi.o
+ endif
+ 
+ endif
+diff --git a/arch/x86/lib/Makefile b/arch/x86/lib/Makefile
+index 436252dd83..e82f14f2dd 100644
+--- a/arch/x86/lib/Makefile
++++ b/arch/x86/lib/Makefile
+@@ -55,37 +55,31 @@ endif
+ lib-$(CONFIG_USE_PRIVATE_LIBGCC) += div64.o
+ 
+ ifeq ($(CONFIG_$(SPL_)X86_64),)
+-obj-$(CONFIG_EFI_APP) += crt0_ia32_efi.o reloc_ia32_efi.o
++obj-$(CONFIG_EFI_APP) += crt0_ia32_efi.o
+ endif
+ 
+ ifneq ($(CONFIG_EFI_STUB),)
+ 
+-CFLAGS_REMOVE_reloc_ia32_efi.o += -mregparm=3
+-CFLAGS_reloc_ia32_efi.o += -fpic -fshort-wchar
+-
+ # When building for 64-bit we must remove the i386-specific flags
+-CFLAGS_REMOVE_reloc_x86_64_efi.o += -mregparm=3 -march=i386 -m32
+-CFLAGS_reloc_x86_64_efi.o += -fpic -fshort-wchar -m64
+-
+ AFLAGS_REMOVE_crt0_x86_64_efi.o += -mregparm=3 -march=i386 -m32
+ AFLAGS_crt0_x86_64_efi.o += -fpic -fshort-wchar -m64
+ 
+-extra-$(CONFIG_EFI_STUB_32BIT) += crt0_ia32_efi.o reloc_ia32_efi.o
+-extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o reloc_x86_64_efi.o
++extra-$(CONFIG_EFI_STUB_32BIT) += crt0_ia32_efi.o
++extra-$(CONFIG_EFI_STUB_64BIT) += crt0_x86_64_efi.o
+ 
+ endif
+ 
+ ifdef CONFIG_EFI_STUB
+ 
+ ifeq ($(CONFIG_$(SPL_)X86_64),)
+-extra-y += $(EFI_CRT0) $(EFI_RELOC)
++extra-y += $(EFI_CRT0)
+ endif
+ 
+ else
+ 
+ ifndef CONFIG_SPL_BUILD
+ ifneq ($(CONFIG_CMD_BOOTEFI_SELFTEST)$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE),)
+-extra-y += $(EFI_CRT0) $(EFI_RELOC)
++extra-y += $(EFI_CRT0)
+ endif
+ endif
+ 
 diff --git a/arch/x86/lib/crt0_ia32_efi.S b/arch/x86/lib/crt0_ia32_efi.S
 index c0a4853eaa..6380ffc148 100644
 --- a/arch/x86/lib/crt0_ia32_efi.S
@@ -127,14 +571,162 @@ index 47ed5af972..8079e36ded 100644
  	addq $8, %rsp
  
  	ret
+diff --git a/arch/x86/lib/reloc_ia32_efi.c b/arch/x86/lib/reloc_ia32_efi.c
+deleted file mode 100644
+index d56cd50bd9..0000000000
+--- a/arch/x86/lib/reloc_ia32_efi.c
++++ /dev/null
+@@ -1,69 +0,0 @@
+-// SPDX-License-Identifier: BSD-3-Clause
+-/*
+- * reloc_ia32.c - position independent x86 ELF shared object relocator
+- * Copyright (C) 1999 Hewlett-Packard Co.
+- * Contributed by David Mosberger <davidm@hpl.hp.com>.
+- *
+- * All rights reserved.
+- */
+-
+-#include <common.h>
+-#include <efi.h>
+-#include <elf.h>
+-
+-efi_status_t EFIAPI _relocate(long ldbase, Elf32_Dyn *dyn)
+-{
+-	long relsz = 0, relent = 0;
+-	Elf32_Rel *rel = 0;
+-	unsigned long *addr;
+-	int i;
+-
+-	for (i = 0; dyn[i].d_tag != DT_NULL; ++i) {
+-		switch (dyn[i].d_tag) {
+-		case DT_REL:
+-			rel = (Elf32_Rel *)((unsigned long)dyn[i].d_un.d_ptr +
+-								ldbase);
+-			break;
+-
+-		case DT_RELSZ:
+-			relsz = dyn[i].d_un.d_val;
+-			break;
+-
+-		case DT_RELENT:
+-			relent = dyn[i].d_un.d_val;
+-			break;
+-
+-		case DT_RELA:
+-			break;
+-
+-		default:
+-			break;
+-		}
+-	}
+-
+-	if (!rel && relent == 0)
+-		return EFI_SUCCESS;
+-
+-	if (!rel || relent == 0)
+-		return EFI_LOAD_ERROR;
+-
+-	while (relsz > 0) {
+-		/* apply the relocs */
+-		switch (ELF32_R_TYPE(rel->r_info)) {
+-		case R_386_NONE:
+-			break;
+-
+-		case R_386_RELATIVE:
+-			addr = (unsigned long *)(ldbase + rel->r_offset);
+-			*addr += ldbase;
+-			break;
+-
+-		default:
+-			break;
+-		}
+-		rel = (Elf32_Rel *)((char *)rel + relent);
+-		relsz -= relent;
+-	}
+-
+-	return EFI_SUCCESS;
+-}
+diff --git a/arch/x86/lib/reloc_x86_64_efi.c b/arch/x86/lib/reloc_x86_64_efi.c
+deleted file mode 100644
+index 2694de7110..0000000000
+--- a/arch/x86/lib/reloc_x86_64_efi.c
++++ /dev/null
+@@ -1,63 +0,0 @@
+-// SPDX-License-Identifier: BSD-3-Clause
+-/*
+- * reloc_x86_64.c - position independent x86_64 ELF shared object relocator
+- * Copyright (C) 1999 Hewlett-Packard Co.
+- * Contributed by David Mosberger <davidm@hpl.hp.com>.
+- * Copyright (C) 2005 Intel Co.
+- * Contributed by Fenghua Yu <fenghua.yu@intel.com>.
+- *
+- * All rights reserved.
+- */
+-
+-#include <common.h>
+-#include <efi.h>
+-#include <elf.h>
+-
+-efi_status_t EFIAPI _relocate(long ldbase, Elf64_Dyn *dyn)
+-{
+-	long relsz = 0, relent = 0;
+-	Elf64_Rel *rel = 0;
+-	unsigned long *addr;
+-	int i;
+-
+-	for (i = 0; dyn[i].d_tag != DT_NULL; ++i) {
+-		switch (dyn[i].d_tag) {
+-		case DT_RELA:
+-			rel = (Elf64_Rel *)
+-				((unsigned long)dyn[i].d_un.d_ptr + ldbase);
+-			break;
+-		case DT_RELASZ:
+-			relsz = dyn[i].d_un.d_val;
+-			break;
+-		case DT_RELAENT:
+-			relent = dyn[i].d_un.d_val;
+-			break;
+-		default:
+-			break;
+-		}
+-	}
+-
+-	if (!rel && relent == 0)
+-		return EFI_SUCCESS;
+-
+-	if (!rel || relent == 0)
+-		return EFI_LOAD_ERROR;
+-
+-	while (relsz > 0) {
+-		/* apply the relocs */
+-		switch (ELF64_R_TYPE(rel->r_info)) {
+-		case R_X86_64_NONE:
+-			break;
+-		case R_X86_64_RELATIVE:
+-			addr = (unsigned long *)(ldbase + rel->r_offset);
+-			*addr += ldbase;
+-			break;
+-		default:
+-			break;
+-		}
+-		rel = (Elf64_Rel *)((char *)rel + relent);
+-		relsz -= relent;
+-	}
+-
+-	return EFI_SUCCESS;
+-}
 diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
-index 70de9bb13a..5e18065844 100644
+index de67677f61..3c0a5627cd 100644
 --- a/scripts/Makefile.lib
 +++ b/scripts/Makefile.lib
-@@ -390,7 +390,7 @@ $(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcoun
- 	$(call cmd,force_checksrc)
- 	$(call if_changed_rule,cc_o_c)
+@@ -386,11 +386,7 @@ EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
+ $(obj)/efi_crt0.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_CRT0:.o=.S)
+ 	$(call if_changed_dep,as_o_S)
  
+-$(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcount_source) FORCE
+-	$(call cmd,force_checksrc)
+-	$(call if_changed_rule,cc_o_c)
+-
 -$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_reloc.o $(obj)/efi_freestanding.o
 +$(obj)/%_efi.so: $(obj)/%.o $(obj)/efi_crt0.o $(obj)/efi_freestanding.o
  	$(call cmd,efi_ld)
