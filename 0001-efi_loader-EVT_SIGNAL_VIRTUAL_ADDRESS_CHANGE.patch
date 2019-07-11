@@ -1,0 +1,72 @@
+From dbf34b770dadbe07926cc6d350419a509f710edf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 11 Jul 2019 20:15:09 +0200
+Subject: [PATCH 1/1] efi_loader: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
+
+Implement the EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index c2f89805c7..dc050555f4 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -25,7 +25,7 @@ static efi_uintn_t efi_tpl = TPL_APPLICATION;
+ LIST_HEAD(efi_obj_list);
+ 
+ /* List of all events */
+-LIST_HEAD(efi_events);
++__efi_runtime LIST_HEAD(efi_events);
+ 
+ /* List of queued events */
+ LIST_HEAD(efi_event_queue);
+@@ -650,6 +650,8 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ 			      struct efi_event **event)
+ {
+ 	struct efi_event *evt;
++	efi_status_t ret;
++	int pool_type;
+ 
+ 	if (event == NULL)
+ 		return EFI_INVALID_PARAMETER;
+@@ -662,7 +664,10 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ 	case EVT_NOTIFY_WAIT:
+ 	case EVT_TIMER | EVT_NOTIFY_WAIT:
+ 	case EVT_SIGNAL_EXIT_BOOT_SERVICES:
++		pool_type = EFI_BOOT_SERVICES_DATA;
++		break;
+ 	case EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE:
++		pool_type = EFI_RUNTIME_SERVICES_DATA;
+ 		break;
+ 	default:
+ 		return EFI_INVALID_PARAMETER;
+@@ -672,9 +677,11 @@ efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+ 	    (!notify_function || is_valid_tpl(notify_tpl) != EFI_SUCCESS))
+ 		return EFI_INVALID_PARAMETER;
+ 
+-	evt = calloc(1, sizeof(struct efi_event));
+-	if (!evt)
+-		return EFI_OUT_OF_RESOURCES;
++	ret = efi_allocate_pool(pool_type, sizeof(struct efi_event),
++				(void **)&evt);
++	if (ret != EFI_SUCCESS)
++		return ret;
++	memset(evt, 0, sizeof(evt));
+ 	evt->type = type;
+ 	evt->notify_tpl = notify_tpl;
+ 	evt->notify_function = notify_function;
+@@ -982,7 +989,7 @@ static efi_status_t EFIAPI efi_close_event(struct efi_event *event)
+ 		list_del(&event->queue_link);
+ 
+ 	list_del(&event->link);
+-	free(event);
++	efi_free_pool(event);
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
+-- 
+2.20.1
+
