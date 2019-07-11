@@ -1,4 +1,4 @@
-From dbf34b770dadbe07926cc6d350419a509f710edf Mon Sep 17 00:00:00 2001
+From cd2659ff4ef0e74a632621054a0b6e65b1b662f4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Jul 2019 20:15:09 +0200
 Subject: [PATCH 1/1] efi_loader: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index c2f89805c7..dc050555f4 100644
+index c2f89805c7..30ec77e16c 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -25,7 +25,7 @@ static efi_uintn_t efi_tpl = TPL_APPLICATION;
@@ -54,7 +54,7 @@ index c2f89805c7..dc050555f4 100644
 +				(void **)&evt);
 +	if (ret != EFI_SUCCESS)
 +		return ret;
-+	memset(evt, 0, sizeof(evt));
++	memset(evt, 0, sizeof(struct efi_event));
  	evt->type = type;
  	evt->notify_tpl = notify_tpl;
  	evt->notify_function = notify_function;
