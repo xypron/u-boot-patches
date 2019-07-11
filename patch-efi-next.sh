@@ -53,8 +53,9 @@ git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
 # efi-2019-10-rc1-2
 git am ../patch/0001-efi_loader-duplicate-IMAGE_SUBSYSTEM_EFI_APPLICATION.patch
-git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
+git am ../patch/0001-efi_loader-use-predefined-constants-in-crt0_-_efi.S.patch
 exit
+git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
