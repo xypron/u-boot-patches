@@ -54,6 +54,7 @@ git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 # efi-2019-10-rc1-2
 git am ../patch/0001-efi_loader-duplicate-IMAGE_SUBSYSTEM_EFI_APPLICATION.patch
 git am ../patch/0001-efi_loader-use-predefined-constants-in-crt0_-_efi.S.patch
+git am ../patch/0001-efi_selftest-do-not-call-CloseEvent-after-ExitBootSe.patch
 git am ../patch/0001-efi_loader-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
 git am ../patch/0001-efi_selftest-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
 exit
