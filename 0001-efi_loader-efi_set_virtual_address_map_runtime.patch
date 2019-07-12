@@ -1,0 +1,29 @@
+From 6d9533111a1e850e4a20b4a122d86caaada0269d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 12 Jul 2019 22:41:43 +0200
+Subject: [PATCH 1/1] efi_loader: efi_set_virtual_address_map_runtime()
+
+efi_set_virtual_address_map_runtime() must be of type __efi_runtime.
+
+Fixes: ee8ebaaaaedc ("efi_loader: split off detaching SetVirtualAddress()")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 273da6f66d..2536e412e7 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -424,7 +424,7 @@ void efi_runtime_detach(void)
+  * @virtmap:		virtual address mapping information
+  * Return:		status code EFI_UNSUPPORTED
+  */
+-static efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
++static __efi_runtime efi_status_t EFIAPI efi_set_virtual_address_map_runtime(
+ 			unsigned long memory_map_size,
+ 			unsigned long descriptor_size,
+ 			uint32_t descriptor_version,
+-- 
+2.20.1
+
