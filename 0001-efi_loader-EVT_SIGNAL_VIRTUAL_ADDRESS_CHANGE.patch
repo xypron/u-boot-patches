@@ -1,4 +1,4 @@
-From 814cc3bad25ddb31679e16e107ccb7a7fff2c3ee Mon Sep 17 00:00:00 2001
+From 6406932a4766cf40fed0b7cf8b1e86f8b928e1d2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 11 Jul 2019 20:15:09 +0200
 Subject: [PATCH 1/1] efi_loader: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
@@ -10,8 +10,8 @@ This requires allocating the event and the event list from runtime data.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_boottime.c | 25 +++++++++++++++++++------
- lib/efi_loader/efi_runtime.c  |  8 ++++++++
- 2 files changed, 27 insertions(+), 6 deletions(-)
+ lib/efi_loader/efi_runtime.c  | 14 ++++++++++++--
+ 2 files changed, 31 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
 index c2f89805c7..62e4994671 100644
@@ -93,10 +93,23 @@ index c2f89805c7..62e4994671 100644
  
  	/* Patch out unsupported runtime function */
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 7a64dd42ca..273da6f66d 100644
+index 7a64dd42ca..8a0f497894 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
-@@ -577,6 +577,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+@@ -391,8 +391,10 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
+  */
+ static bool efi_is_runtime_service_pointer(void *p)
+ {
+-	return p >= (void *)&efi_runtime_services.get_time &&
+-	       p <= (void *)&efi_runtime_services.query_variable_info;
++	return (p >= (void *)&efi_runtime_services.get_time &&
++		p <= (void *)&efi_runtime_services.query_variable_info) ||
++	       p == (void *)&efi_events.prev ||
++	       p == (void *)&efi_events.next;
+ }
+ 
+ /**
+@@ -577,6 +579,7 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
  	int n = memory_map_size / descriptor_size;
  	int i;
  	int rt_code_sections = 0;
@@ -104,7 +117,7 @@ index 7a64dd42ca..273da6f66d 100644
  
  	EFI_ENTRY("%lx %lx %x %p", memory_map_size, descriptor_size,
  		  descriptor_version, virtmap);
-@@ -610,6 +611,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+@@ -610,6 +613,13 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
  		return EFI_EXIT(EFI_INVALID_PARAMETER);
  	}
  
