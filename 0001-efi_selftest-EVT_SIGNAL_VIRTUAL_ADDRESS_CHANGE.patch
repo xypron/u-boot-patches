@@ -1,4 +1,4 @@
-From ae47dde8fbbfb15e176ddcd18134788df8b6c44f Mon Sep 17 00:00:00 2001
+From 0ca9177fbeecb4107d3ba7f622f7bf234d92dd40 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Jul 2019 12:58:48 +0200
 Subject: [PATCH 1/1] efi_selftest: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
@@ -6,8 +6,8 @@ Subject: [PATCH 1/1] efi_selftest: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                     |   1 +
- .../efi_selftest_set_virtual_address_map.c    | 176 ++++++++++++++++++
- 2 files changed, 177 insertions(+)
+ .../efi_selftest_set_virtual_address_map.c    | 192 ++++++++++++++++++
+ 2 files changed, 193 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_set_virtual_address_map.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -24,10 +24,10 @@ index 88678755cc..5d7a1643ef 100644
  efi_selftest_textinputex.o \
 diff --git a/lib/efi_selftest/efi_selftest_set_virtual_address_map.c b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
 new file mode 100644
-index 0000000000..6df6bb3437
+index 0000000000..5ebcdd2428
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
-@@ -0,0 +1,176 @@
+@@ -0,0 +1,192 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_set_virtual_address_map.c
@@ -35,8 +35,7 @@ index 0000000000..6df6bb3437
 + * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
 + * This test checks the notification of EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
-+ * and the following services:
-+ * SetVirtualAddressMap, ConvertPointer.
++ * and the following services: SetVirtualAddressMap, ConvertPointer.
 + */
 +
 +#include <efi_selftest.h>
@@ -52,8 +51,11 @@ index 0000000000..6df6bb3437
 +static u64 page2;
 +static u32 notify_call_count;
 +
-+/*
-+ * Notification function.
++/**
++ * notify () - notification function
++ *
++ * This function is called when the EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event
++ * occurs. The correct output of ConvertPointer() is checked.
 + *
 + * @event	notified event
 + * @context	pointer to the notification count
@@ -80,8 +82,12 @@ index 0000000000..6df6bb3437
 +		efi_st_todo("ConvertPointer wrong address\n");
 +}
 +
-+/*
-+ * Setup unit test.
++/**
++ * setup() - setup unit test
++ *
++ * The memory map is read. Boottime only entries are deleted. Two entries for
++ * newly allocated pages are added. For these virtual addresses deviating from
++ * the physical addreses are set.
 + *
 + * @handle:	handle of the loaded image
 + * @systable:	system table
@@ -152,6 +158,12 @@ index 0000000000..6df6bb3437
 +		memcpy(pos1, pos2, desc_size);
 +		++pos1;
 +	}
++
++	/*
++	 * Add entries with virtual addresses deviating from the physical
++	 * addresses. By choosing virtual address ranges within the allocated
++	 * physical pages address space collisions are avoided.
++	 */
 +	pos1->type = EFI_RUNTIME_SERVICES_DATA;
 +	pos1->reserved = 0;
 +	pos1->physical_start = page1;
@@ -168,13 +180,18 @@ index 0000000000..6df6bb3437
 +	pos1->attribute = EFI_MEMORY_RUNTIME;
 +	++pos1;
 +
-+	desc_size = (u8 *)pos1 - (u8 *)memory_map;
++	map_size = (u8 *)pos1 - (u8 *)memory_map;
 +
 +	return EFI_ST_SUCCESS;
 +}
 +
-+/*
-+ * Execute unit test.
++/**
++ * execute() - execute unit test
++ *
++ * SetVirtualAddressMap() is called with the memory map prepared in setup().
++ *
++ * The triggering of the EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event is checked via
++ * the call count of the notification function.
 + *
 + * @return:	EFI_ST_SUCCESS for success
 + */
@@ -182,8 +199,7 @@ index 0000000000..6df6bb3437
 +{
 +	efi_status_t ret;
 +
-+	ret = runtime->set_virtual_address_map(desc_size,
-+					       sizeof(struct efi_mem_desc),
++	ret = runtime->set_virtual_address_map(map_size, desc_size,
 +					       desc_version, memory_map);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("SetVirtualAddressMap failed\n");
