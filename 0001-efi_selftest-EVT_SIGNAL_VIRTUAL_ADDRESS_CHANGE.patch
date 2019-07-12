@@ -1,0 +1,126 @@
+From eca2fc62db94288fff5044a47a7f0f58c8fa8631 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 12 Jul 2019 12:58:48 +0200
+Subject: [PATCH 1/1] efi_selftest: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile                     |  1 +
+ .../efi_selftest_set_virtual_address_map.c    | 93 +++++++++++++++++++
+ 2 files changed, 94 insertions(+)
+ create mode 100644 lib/efi_selftest/efi_selftest_set_virtual_address_map.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 88678755cc..5d7a1643ef 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -28,6 +28,7 @@ efi_selftest_manageprotocols.o \
+ efi_selftest_memory.o \
+ efi_selftest_open_protocol.o \
+ efi_selftest_register_notify.o \
++efi_selftest_set_virtual_address_map.o \
+ efi_selftest_snp.o \
+ efi_selftest_textinput.o \
+ efi_selftest_textinputex.o \
+diff --git a/lib/efi_selftest/efi_selftest_set_virtual_address_map.c b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
+new file mode 100644
+index 0000000000..e4585e996a
+--- /dev/null
++++ b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
+@@ -0,0 +1,93 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * efi_selftest_set_virtual_address_map.c
++ *
++ * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * This test checks the notification of EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
++ * and the following services:
++ * SetVirtualAddressMap, ConvertPointer.
++ */
++
++#include <efi_selftest.h>
++
++static struct efi_boot_services *boottime;
++static struct efi_event *event;
++struct efi_mem_desc *memory_map;
++
++/*
++ * Notification function.
++ *
++ * @event	notified event
++ * @context	pointer to the notification count
++ */
++static void EFIAPI notify(struct efi_event *event, void *context)
++{
++}
++
++/*
++ * Setup unit test.
++ *
++ * @handle:	handle of the loaded image
++ * @systable:	system table
++ * @return:	EFI_ST_SUCCESS for success
++ */
++static int setup(const efi_handle_t handle,
++		 const struct efi_system_table *systable)
++{
++	efi_uintn_t map_size = 0;
++	efi_uintn_t map_key;
++	efi_uintn_t desc_size;
++	u32 desc_version;
++	efi_status_t ret;
++
++	boottime = systable->boottime;
++
++	ret = boottime->create_event(EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE,
++				     TPL_CALLBACK, notify, NULL,
++				     &event);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("could not create event\n");
++		return EFI_ST_FAILURE;
++	}
++
++	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
++				       &desc_version);
++	if (ret != EFI_BUFFER_TOO_SMALL) {
++		efi_st_error(
++			"GetMemoryMap did not return EFI_BUFFER_TOO_SMALL\n");
++		return EFI_ST_FAILURE;
++	}
++	/* Allocate extra space for newly allocated memory */
++	map_size += sizeof(struct efi_mem_desc);
++	ret = boottime->allocate_pool(EFI_BOOT_SERVICES_DATA, map_size,
++				      (void **)&memory_map);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("AllocatePool did not return EFI_SUCCESS\n");
++		return EFI_ST_FAILURE;
++	}
++	ret = boottime->get_memory_map(&map_size, memory_map, &map_key,
++				       &desc_size, &desc_version);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("GetMemoryMap did not return EFI_SUCCESS\n");
++		return EFI_ST_FAILURE;
++	}
++	return EFI_ST_SUCCESS;
++}
++
++/*
++ * Execute unit test.
++ *
++ * @return:	EFI_ST_SUCCESS for success
++ */
++static int execute(void)
++{
++	return EFI_ST_SUCCESS;
++}
++
++EFI_UNIT_TEST(virtaddrmap) = {
++	.name = "virtual address map",
++	.phase = EFI_SETUP_BEFORE_BOOTTIME_EXIT,
++	.setup = setup,
++	.execute = execute,
++};
+-- 
+2.20.1
+
