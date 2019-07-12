@@ -8,6 +8,7 @@ Boot services are not available after calling ExitBootServices(). So we
 should not try to close an event here.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 ---
  .../efi_selftest_exitbootservices.c           | 23 -------------------
  1 file changed, 23 deletions(-)
