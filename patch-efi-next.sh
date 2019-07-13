@@ -58,6 +58,7 @@ git am ../patch/0001-efi_selftest-do-not-call-CloseEvent-after-ExitBootSe.patch
 git am ../patch/0001-efi_loader-efi_set_virtual_address_map_runtime.patch
 git am ../patch/0001-efi_loader-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
 git am ../patch/0001-efi_selftest-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
+git am ../patch/0001-efi_loader-allow-adding-mapped-memory-at-0x00000000.patch
 exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch

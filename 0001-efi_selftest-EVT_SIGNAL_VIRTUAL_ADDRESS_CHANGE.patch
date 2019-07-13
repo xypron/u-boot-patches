@@ -1,7 +1,11 @@
-From 0ca9177fbeecb4107d3ba7f622f7bf234d92dd40 Mon Sep 17 00:00:00 2001
+From d02ca8584a90308ab74a9712d6f24b3afbbc58a2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 12 Jul 2019 12:58:48 +0200
-Subject: [PATCH 1/1] efi_selftest: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
+Subject: [PATCH 2/2] efi_selftest: EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE
+
+Provide a unit test for SetVirtualAddressMap() and ConvertPointer().
+As ConvertPointer() is not implemented yet this will spit out some
+warnings.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -87,7 +91,7 @@ index 0000000000..5ebcdd2428
 + *
 + * The memory map is read. Boottime only entries are deleted. Two entries for
 + * newly allocated pages are added. For these virtual addresses deviating from
-+ * the physical addreses are set.
++ * the physical addresses are set.
 + *
 + * @handle:	handle of the loaded image
 + * @systable:	system table

@@ -1,0 +1,143 @@
+From c162e7a2a3d6ae2295c6bd8f714483af4854ec0d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 13 Jul 2019 21:27:33 +0200
+Subject: [PATCH 1/1] efi_loader: allow adding mapped memory at 0x00000000
+
+As efi_add_memory_map() signals an error by returning NULL and correct
+function by returning the requested address we cannot discern an error from
+correct functioning for address 0x00000000. This leads to unexpected
+warnings on the Raspberry 3.
+
+Use EFI_SUCCESS to signal success and return an error code otherwise.
+
+Reported-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c               |  4 ++--
+ include/efi_loader.h        |  4 ++--
+ lib/efi_loader/efi_memory.c | 28 ++++++++++++++++++----------
+ 3 files changed, 22 insertions(+), 14 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index c19256e00d..0e585a6ef0 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -169,8 +169,8 @@ static void efi_carve_out_dt_rsv(void *fdt)
+ 
+ 		pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+ 		addr &= ~EFI_PAGE_MASK;
+-		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+-					false))
++		if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
++				       false) != EFI_SUCCESS != EFI_SUCCESS)
+ 			printf("FDT memrsv map %d: Failed to add to map\n", i);
+ 	}
+ }
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index db4763fc9b..6cc6a3835c 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -476,8 +476,8 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 				efi_uintn_t *descriptor_size,
+ 				uint32_t *descriptor_version);
+ /* Adds a range into the EFI memory map */
+-uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+-			    bool overlap_only_ram);
++efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
++				bool overlap_only_ram);
+ /* Called by board init to initialize the EFI drivers */
+ efi_status_t efi_driver_init(void);
+ /* Called by board init to initialize the EFI memory map */
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 27379381e8..da253fa285 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -223,8 +223,17 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+ 	return EFI_CARVE_LOOP_AGAIN;
+ }
+ 
+-uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+-			    bool overlap_only_ram)
++/**
++ * efi_add_memory_map() - add memory area to the memory map
++ *
++ * @start:		start address, must be a multiple of EFI_PAGE_SIZE
++ * @pages:		number of pages to add
++ * @memory_type:	type of memory added
++ * @overlap_only_ram:	the memory area must overlap existing
++ * Return:		status code
++ */
++efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
++				bool overlap_only_ram)
+ {
+ 	struct list_head *lhandle;
+ 	struct efi_mem_list *newlist;
+@@ -239,7 +248,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	if (!pages)
+-		return start;
++		return EFI_SUCCESS;
+ 
+ 	++efi_memory_map_key;
+ 	newlist = calloc(1, sizeof(*newlist));
+@@ -277,7 +286,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 				 * The user requested to only have RAM overlaps,
+ 				 * but we hit a non-RAM region. Error out.
+ 				 */
+-				return 0;
++				return EFI_NO_MAPPING;
+ 			case EFI_CARVE_NO_OVERLAP:
+ 				/* Just ignore this list entry */
+ 				break;
+@@ -307,7 +316,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 		 * The payload wanted to have RAM overlaps, but we overlapped
+ 		 * with an unallocated region. Error out.
+ 		 */
+-		return 0;
++		return EFI_NO_MAPPING;
+ 	}
+ 
+ 	/* Add our new map */
+@@ -326,7 +335,7 @@ uint64_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 		}
+ 	}
+ 
+-	return start;
++	return EFI_SUCCESS;
+ }
+ 
+ /**
+@@ -455,7 +464,7 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
+ 	}
+ 
+ 	/* Reserve that map in our memory maps */
+-	if (efi_add_memory_map(addr, pages, memory_type, true) != addr)
++	if (efi_add_memory_map(addr, pages, memory_type, true) != EFI_SUCCESS)
+ 		/* Map would overlap, bail out */
+ 		return  EFI_OUT_OF_RESOURCES;
+ 
+@@ -487,7 +496,6 @@ void *efi_alloc(uint64_t len, int memory_type)
+  */
+ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+ {
+-	uint64_t r = 0;
+ 	efi_status_t ret;
+ 
+ 	ret = efi_check_allocated(memory, true);
+@@ -501,10 +509,10 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+ 		return EFI_INVALID_PARAMETER;
+ 	}
+ 
+-	r = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
++	ret = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
+ 	/* Merging of adjacent free regions is missing */
+ 
+-	if (r == memory)
++	if (ret == EFI_SUCCESS)
+ 		return EFI_SUCCESS;
+ 
+ 	return EFI_NOT_FOUND;
+-- 
+2.20.1
+
