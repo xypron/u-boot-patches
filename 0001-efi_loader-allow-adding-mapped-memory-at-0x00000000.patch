@@ -1,4 +1,4 @@
-From c162e7a2a3d6ae2295c6bd8f714483af4854ec0d Mon Sep 17 00:00:00 2001
+From f84c3ba56dedcf625f0a342d32ce62f5b0f110bd Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 13 Jul 2019 21:27:33 +0200
 Subject: [PATCH 1/1] efi_loader: allow adding mapped memory at 0x00000000
@@ -19,7 +19,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index c19256e00d..0e585a6ef0 100644
+index c19256e00d..04d3e3e4a7 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -169,8 +169,8 @@ static void efi_carve_out_dt_rsv(void *fdt)
@@ -29,7 +29,7 @@ index c19256e00d..0e585a6ef0 100644
 -		if (!efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
 -					false))
 +		if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
-+				       false) != EFI_SUCCESS != EFI_SUCCESS)
++				       false) != EFI_SUCCESS)
  			printf("FDT memrsv map %d: Failed to add to map\n", i);
  	}
  }
