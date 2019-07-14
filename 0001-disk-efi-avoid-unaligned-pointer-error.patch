@@ -1,7 +1,10 @@
-From 9874c9f829cfd5c069fdc8206aca87d4345bd13b Mon Sep 17 00:00:00 2001
+From 95edec08f24aea55af34ece3c3020742966da53a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 14 Jul 2019 18:12:32 +0200
-Subject: [PATCH] disk: efi: avoid unaligned pointer error
+Subject: [PATCH 1/1] disk: efi: avoid unaligned pointer error
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
 When building with GCC 9.1 an error occurs:
 
@@ -20,23 +23,9 @@ Adjust gpt_convert_efi_name_to_char() to accept unaligned strings.
 Reported-by: Ramon Fried <rfried.dev@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- Makefile        |  2 +-
  disk/part_efi.c | 13 +++++++++++--
- 2 files changed, 12 insertions(+), 3 deletions(-)
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 73fdf70cdd..a0e521363e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -665,7 +665,7 @@ endif
- endif
- 
- # Prohibit date/time macros, which would make the build non-deterministic
--KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
-+KBUILD_CFLAGS   += $(call cc-option,-Werror)
- 
- include scripts/Makefile.extrawarn
- 
 diff --git a/disk/part_efi.c b/disk/part_efi.c
 index 3e026697db..359b55a818 100644
 --- a/disk/part_efi.c
