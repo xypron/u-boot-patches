@@ -1,4 +1,4 @@
-From f84c3ba56dedcf625f0a342d32ce62f5b0f110bd Mon Sep 17 00:00:00 2001
+From e8423d10b49a172f059af4c3d594afff7de11253 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 13 Jul 2019 21:27:33 +0200
 Subject: [PATCH 1/1] efi_loader: allow adding mapped memory at 0x00000000
@@ -14,10 +14,11 @@ Reported-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
- cmd/bootefi.c               |  4 ++--
- include/efi_loader.h        |  4 ++--
- lib/efi_loader/efi_memory.c | 28 ++++++++++++++++++----------
- 3 files changed, 22 insertions(+), 14 deletions(-)
+ cmd/bootefi.c                |  4 ++--
+ include/efi_loader.h         |  4 ++--
+ lib/efi_loader/efi_memory.c  | 28 ++++++++++++++++++----------
+ lib/efi_loader/efi_runtime.c |  6 +++---
+ 4 files changed, 25 insertions(+), 17 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index c19256e00d..04d3e3e4a7 100644
@@ -139,6 +140,24 @@ index 27379381e8..da253fa285 100644
  		return EFI_SUCCESS;
  
  	return EFI_NOT_FOUND;
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 9f4ba2f977..8b56ab0207 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -694,10 +694,10 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+ 	struct efi_runtime_mmio_list *newmmio;
+ 	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+ 	uint64_t addr = *(uintptr_t *)mmio_ptr;
+-	uint64_t retaddr;
++	efi_status_t ret;
+ 
+-	retaddr = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
+-	if (retaddr != addr)
++	ret = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
++	if (ret != EFI_SUCCESS)
+ 		return EFI_OUT_OF_RESOURCES;
+ 
+ 	newmmio = calloc(1, sizeof(*newmmio));
 -- 
 2.20.1
 
