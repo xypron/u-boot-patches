@@ -12,6 +12,7 @@ Use EFI_SUCCESS to signal success and return an error code otherwise.
 
 Reported-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  cmd/bootefi.c               |  4 ++--
  include/efi_loader.h        |  4 ++--
