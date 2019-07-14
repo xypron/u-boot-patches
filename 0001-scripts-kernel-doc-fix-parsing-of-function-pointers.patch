@@ -1,0 +1,40 @@
+From 16faf47b953a5ffac3f38317d744e25186e6a317 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Jul 2019 11:16:31 +0200
+Subject: [PATCH 2/2] scripts/kernel-doc: fix parsing of function pointers
+
+kernel-doc fails to parse function definitions like the one below
+
+efi_status_t efi_create_event(uint32_t type, efi_uintn_t notify_tpl,
+			      void (EFIAPI *notify_function) (
+					struct efi_event *event,
+					void *context),
+			      void *notify_context, efi_guid_t *group,
+			      struct efi_event **event)
+{
+
+due to the "EFIAPI" attribute preceding the function name.
+
+cf. https://lkml.org/lkml/2018/9/3/1185
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ scripts/kernel-doc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/kernel-doc b/scripts/kernel-doc
+index 3350e498b4..516cf1db32 100755
+--- a/scripts/kernel-doc
++++ b/scripts/kernel-doc
+@@ -1382,7 +1382,7 @@ sub create_parameterlist($$$$) {
+ 	} elsif ($arg =~ m/\(.+\)\s*\(/) {
+ 	    # pointer-to-function
+ 	    $arg =~ tr/#/,/;
+-	    $arg =~ m/[^\(]+\(\*?\s*([\w\.]*)\s*\)/;
++	    $arg =~ m/[^\(]+\([\w\s]*\*?\s*([\w\.]*)\s*\)/;
+ 	    $param = $1;
+ 	    $type = $arg;
+ 	    $type =~ s/([^\(]+\(\*?)\s*$param/$1/;
+-- 
+2.20.1
+
