@@ -1,0 +1,67 @@
+From 9874c9f829cfd5c069fdc8206aca87d4345bd13b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Jul 2019 18:12:32 +0200
+Subject: [PATCH] disk: efi: avoid unaligned pointer error
+
+When building with GCC 9.1 an error occurs:
+
+disk/part_efi.c: In function ‘gpt_verify_partitions’:
+disk/part_efi.c:737:49: error: taking address of packed member of
+‘struct _gpt_entry’ may result in an unaligned pointer value
+[-Werror=address-of-packed-member]
+  737 |   gpt_convert_efi_name_to_char(efi_str, gpt_e[i].partition_name,
+      |                                         ~~~~~~~~^~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+make[1]: *** [scripts/Makefile.build:279: disk/part_efi.o] Error 1
+make: *** [Makefile:1594: disk] Error 2
+
+Adjust gpt_convert_efi_name_to_char() to accept unaligned strings.
+
+Reported-by: Ramon Fried <rfried.dev@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile        |  2 +-
+ disk/part_efi.c | 13 +++++++++++--
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 73fdf70cdd..a0e521363e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -665,7 +665,7 @@ endif
+ endif
+ 
+ # Prohibit date/time macros, which would make the build non-deterministic
+-KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
++KBUILD_CFLAGS   += $(call cc-option,-Werror)
+ 
+ include scripts/Makefile.extrawarn
+ 
+diff --git a/disk/part_efi.c b/disk/part_efi.c
+index 3e026697db..359b55a818 100644
+--- a/disk/part_efi.c
++++ b/disk/part_efi.c
+@@ -670,9 +670,18 @@ err:
+ 	return ret;
+ }
+ 
+-static void gpt_convert_efi_name_to_char(char *s, efi_char16_t *es, int n)
++/**
++ * gpt_convert_efi_name_to_char() - convert u16 string to char string
++ *
++ * TODO: this conversion only supports ANSI characters
++ *
++ * @s:	target buffer
++ * @es:	u16 string to be converted
++ * @n:	size of target buffer
++ */
++static void gpt_convert_efi_name_to_char(char *s, void *es, int n)
+ {
+-	char *ess = (char *)es;
++	char *ess = es;
+ 	int i, j;
+ 
+ 	memset(s, '\0', n);
+-- 
+2.22.0
+
