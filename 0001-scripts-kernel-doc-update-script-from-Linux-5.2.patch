@@ -1,17 +1,17 @@
-From 0a4262c2de744b7fe766ad942f7b85ffe8b225b1 Mon Sep 17 00:00:00 2001
+From 61af9aadfa532ea4533961731203fb34dcd9ac41 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 14 Jul 2019 11:20:39 +0200
-Subject: [PATCH 1/2] scripts/kernel-doc: update script from Linux 5.2
+Subject: [PATCH 1/1] scripts/kernel-doc: update script from Linux 5.2
 
 Update the script from Linux 5.2 to avoid some warnings.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- scripts/kernel-doc | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ scripts/kernel-doc | 39 ++++++++++++++++++++-------------------
+ 1 file changed, 20 insertions(+), 19 deletions(-)
 
 diff --git a/scripts/kernel-doc b/scripts/kernel-doc
-index 3cb6259182..3350e498b4 100755
+index 0047f17c52..3350e498b4 100755
 --- a/scripts/kernel-doc
 +++ b/scripts/kernel-doc
 @@ -212,7 +212,7 @@ my $anon_struct_union = 0;
@@ -94,6 +94,15 @@ index 3cb6259182..3350e498b4 100755
  	$declaration_name = $1;
  	my $members = $2;
  	my %_members;
+@@ -1381,7 +1382,7 @@ sub create_parameterlist($$$$) {
+ 	} elsif ($arg =~ m/\(.+\)\s*\(/) {
+ 	    # pointer-to-function
+ 	    $arg =~ tr/#/,/;
+-	    $arg =~ m/[^\(]+\([\w\s]*\*?\s*([\w\.]*)\s*\)/;
++	    $arg =~ m/[^\(]+\(\*?\s*([\w\.]*)\s*\)/;
+ 	    $param = $1;
+ 	    $type = $arg;
+ 	    $type =~ s/([^\(]+\(\*?)\s*$param/$1/;
 @@ -1473,7 +1474,7 @@ sub push_parameter($$$$) {
  	if (!defined $parameterdescs{$param} && $param !~ /^#/) {
  		$parameterdescs{$param} = $undescribed;
