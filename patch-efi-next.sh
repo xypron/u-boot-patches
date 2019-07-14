@@ -25,6 +25,7 @@ git am ../patch/0001-doc-Cope-with-Sphinx-logging-deprecations.patch
 git am ../patch/0001-scripts-kernel-doc-fix-parsing-of-function-pointers.patch
 git am ../patch/0001-net-assign-maintainer-for-include-net.h.patch
 git am ../patch/0001-net-unaligned-copying-of-u32.patch
+git am ../patch/0001-lib-uuid-alignment-error-in-gen_rand_uuid.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
