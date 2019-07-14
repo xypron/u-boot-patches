@@ -69,6 +69,7 @@ git am ../patch/0001-efi_loader-fix-comments-for-variable-services.patch
 git am ../patch/0001-efi_loader-fix-comment-for-struct-efi_pool_allocatio.patch
 git am ../patch/0001-efi_loader-fix-function-comments-in-cmd-bootefi.c.patch
 git am ../patch/0001-efi_loader-function-comments-efi_bootmgr.c.patch
+git am ../patch/0001-efi_loader-function-comments-cmd-efi_debug.c.patch
 exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
