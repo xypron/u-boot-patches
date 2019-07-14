@@ -20,8 +20,8 @@ git am ../patch/0001-x86-qemu-x86-requires-CONFIG_SYS_HZ-2000.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-doc-Cope-with-Sphinx-logging-deprecations.patch
 git am ../patch/0001-scripts-kernel-doc-update-script-from-Linux-5.2.patch
+git am ../patch/0001-doc-Cope-with-Sphinx-logging-deprecations.patch
 git am ../patch/0001-scripts-kernel-doc-fix-parsing-of-function-pointers.patch
 
 # USB keyboard
