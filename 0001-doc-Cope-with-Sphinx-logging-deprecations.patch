@@ -72,7 +72,7 @@ new file mode 100644
 index 0000000000..af924f51a7
 --- /dev/null
 +++ b/doc/sphinx/kernellog.py
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,26 @@
 +# SPDX-License-Identifier: GPL-2.0
 +#
 +# Sphinx has deprecated its older logging interface, but the replacement
@@ -99,8 +99,6 @@ index 0000000000..af924f51a7
 +        logger.verbose(message)
 +    else:
 +        app.verbose(message)
-+
-+
 diff --git a/doc/sphinx/kfigure.py b/doc/sphinx/kfigure.py
 index b97228d2cc..fbfe6693bb 100644
 --- a/doc/sphinx/kfigure.py
