@@ -1,0 +1,87 @@
+From 898d2609a6f350d694932b57358caaa8c7e2ef04 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Jul 2019 17:28:49 +0200
+Subject: [PATCH 1/1] efi_loader: support unaligned u16 strings
+
+Allow unaligned u16 strings as arguments to u16_strdup() and u16_strlen().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h |  4 ++--
+ lib/charset.c     | 23 ++++++++++++++---------
+ 2 files changed, 16 insertions(+), 11 deletions(-)
+
+diff --git a/include/charset.h b/include/charset.h
+index 4f7ae8fafd..020f8a90df 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -178,7 +178,7 @@ s32 utf_to_upper(const s32 code);
+  * ReturnValue:		number of non-zero words.
+  *			This is not the number of utf-16 letters!
+  */
+-size_t u16_strlen(const u16 *in);
++size_t u16_strlen(const void *in);
+ 
+ /**
+  * u16_strlen - count non-zero words
+@@ -214,7 +214,7 @@ u16 *u16_strcpy(u16 *dest, const u16 *src);
+  * @src:		source buffer (null terminated)
+  * Return:		allocated new buffer on success, NULL on failure
+  */
+-u16 *u16_strdup(const u16 *src);
++u16 *u16_strdup(const void *src);
+ 
+ /**
+  * utf16_to_utf8() - Convert an utf16 string to utf8
+diff --git a/lib/charset.c b/lib/charset.c
+index 5e349ed5ee..4119af22ff 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -335,11 +335,16 @@ s32 utf_to_upper(const s32 code)
+ 	return ret;
+ }
+ 
+-size_t u16_strlen(const u16 *in)
++size_t u16_strlen(const void *in)
+ {
+-	size_t i;
+-	for (i = 0; in[i]; i++);
+-	return i;
++	char *pos = in;
++	size_t ret;
++
++	for (; pos[0] || pos[1]; pos += 2)
++		;
++	ret = pos - (char *)in;
++	ret >>= 1;
++	return ret;
+ }
+ 
+ size_t u16_strnlen(const u16 *in, size_t count)
+@@ -362,18 +367,18 @@ u16 *u16_strcpy(u16 *dest, const u16 *src)
+ 	return tmp;
+ }
+ 
+-u16 *u16_strdup(const u16 *src)
++u16 *u16_strdup(const void *src)
+ {
+ 	u16 *new;
++	size_t len;
+ 
+ 	if (!src)
+ 		return NULL;
+-
+-	new = malloc((u16_strlen(src) + 1) * sizeof(u16));
++	len = (u16_strlen(src) + 1) * sizeof(u16);
++	new = malloc(len);
+ 	if (!new)
+ 		return NULL;
+-
+-	u16_strcpy(new, src);
++	memcpy(new,src, len);
+ 
+ 	return new;
+ }
+-- 
+2.22.0
+

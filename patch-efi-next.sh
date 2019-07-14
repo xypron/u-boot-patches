@@ -66,6 +66,8 @@ git am ../patch/0001-efi_loader-fix-function-comments-in-cmd-bootefi.c.patch
 git am ../patch/0001-efi_loader-function-comments-efi_bootmgr.c.patch
 git am ../patch/0001-efi_loader-function-comments-cmd-efi_debug.c.patch
 git am ../patch/0001-efi_loader-add-more-sources-to-Sphinx-documentation.patch
+git am ../patch/0001-efi_loader-support-unaligned-u16-strings.patch
+git am ../patch/0001-test-unit-test-for-u16_strlen.patch
 exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
