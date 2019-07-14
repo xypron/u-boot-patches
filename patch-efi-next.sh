@@ -64,6 +64,8 @@ git am ../patch/0001-efi_selftest-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
 git am ../patch/0001-efi_loader-allow-adding-mapped-memory-at-0x00000000.patch
 git am ../patch/0001-efi_loader-fix-function-comments-in-efi_boottime.c.patch
 git am ../patch/0001-efi_loader-fix-comments-for-efi_update_exit_data.patch
+git am ../patch/0001-efi_driver-use-Sphinx-style-comments.patch
+git am ../patch/0001-efi_loader-fix-comments-for-variable-services.patch
 exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch

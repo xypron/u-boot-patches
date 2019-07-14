@@ -1,0 +1,94 @@
+From 1020c8d05e0f1d6a7d4f731422a2a0778563fce4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Jul 2019 11:52:33 +0200
+Subject: [PATCH 1/1] efi_driver: use Sphinx style comments
+
+Use Sphinx style comments for describing function parameters.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_driver/efi_block_device.c | 39 ++++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 19 deletions(-)
+
+diff --git a/lib/efi_driver/efi_block_device.c b/lib/efi_driver/efi_block_device.c
+index 3f147cf608..cf02341931 100644
+--- a/lib/efi_driver/efi_block_device.c
++++ b/lib/efi_driver/efi_block_device.c
+@@ -43,14 +43,14 @@ struct efi_blk_platdata {
+ 	struct efi_block_io	*io;
+ };
+ 
+-/*
++/**
+  * Read from block device
+  *
+- * @dev		device
+- * @blknr	first block to be read
+- * @blkcnt	number of blocks to read
+- * @buffer	output buffer
+- * @return	number of blocks transferred
++ * @dev:	device
++ * @blknr:	first block to be read
++ * @blkcnt:	number of blocks to read
++ * @buffer:	output buffer
++ * Return:	number of blocks transferred
+  */
+ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+ 			 void *buffer)
+@@ -72,14 +72,14 @@ static ulong efi_bl_read(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+ 	return blkcnt;
+ }
+ 
+-/*
++/**
+  * Write to block device
+  *
+- * @dev		device
+- * @blknr	first block to be write
+- * @blkcnt	number of blocks to write
+- * @buffer	input buffer
+- * @return	number of blocks transferred
++ * @dev:	device
++ * @blknr:	first block to be write
++ * @blkcnt:	number of blocks to write
++ * @buffer:	input buffer
++ * Return:	number of blocks transferred
+  */
+ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+ 			  const void *buffer)
+@@ -102,11 +102,12 @@ static ulong efi_bl_write(struct udevice *dev, lbaint_t blknr, lbaint_t blkcnt,
+ 	return blkcnt;
+ }
+ 
+-/*
++/**
+  * Create partions for the block device.
+  *
+- * @handle	EFI handle of the block device
+- * @dev		udevice of the block device
++ * @handle:	EFI handle of the block device
++ * @dev:	udevice of the block device
++ * Return:	number of partitions created
+  */
+ static int efi_bl_bind_partitions(efi_handle_t handle, struct udevice *dev)
+ {
+@@ -120,12 +121,12 @@ static int efi_bl_bind_partitions(efi_handle_t handle, struct udevice *dev)
+ 					  desc->devnum, dev->name);
+ }
+ 
+-/*
++/**
+  * Create a block device for a handle
+  *
+- * @handle	handle
+- * @interface	block io protocol
+- * @return	0 = success
++ * @handle:	handle
++ * @interface:	block io protocol
++ * Return:	0 = success
+  */
+ static int efi_bl_bind(efi_handle_t handle, void *interface)
+ {
+-- 
+2.20.1
+
