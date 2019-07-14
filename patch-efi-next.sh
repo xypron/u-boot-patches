@@ -23,6 +23,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-scripts-kernel-doc-update-script-from-Linux-5.2.patch
 git am ../patch/0001-doc-Cope-with-Sphinx-logging-deprecations.patch
 git am ../patch/0001-scripts-kernel-doc-fix-parsing-of-function-pointers.patch
+git am ../patch/0001-net-assign-maintainer-for-include-net.h.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
