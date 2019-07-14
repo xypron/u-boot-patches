@@ -1,0 +1,53 @@
+From 0a2368e22b09621f3e3c6c0dd66499bf1aaa0450 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 14 Jul 2019 21:40:03 +0200
+Subject: [PATCH 1/1] net: unaligned copying of u32
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The inline functions net_read_u32() and net_copy_u32() have been created to
+copy unaligned u32. But this is not obvious to the compiler. GCC 9.1
+introduces a check -Werror=address-of-packed-member which leads to a build
+error on Travis CI:
+
+net/bootp.c: In function ‘dhcp_send_request_packet’:
+net/bootp.c:1011:27: error: taking address of packed member of
+‘struct bootp_hdr’ may result in an unaligned pointer value
+[-Werror=address-of-packed-member]
+ 1011 |  net_copy_u32(&bp->bp_id, &bp_offer->bp_id);
+
+Change the type of the function parameters to void * to avoid the build
+error.
+
+Reported-by: Ramon Fried <rfried.dev@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/net.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/net.h b/include/net.h
+index 44b32385c4..7684076af6 100644
+--- a/include/net.h
++++ b/include/net.h
+@@ -728,7 +728,7 @@ static inline struct in_addr net_read_ip(void *from)
+ }
+ 
+ /* return ulong *in network byteorder* */
+-static inline u32 net_read_u32(u32 *from)
++static inline u32 net_read_u32(void *from)
+ {
+ 	u32 l;
+ 
+@@ -749,7 +749,7 @@ static inline void net_copy_ip(void *to, void *from)
+ }
+ 
+ /* copy ulong */
+-static inline void net_copy_u32(u32 *to, u32 *from)
++static inline void net_copy_u32(void *to, void *from)
+ {
+ 	memcpy((void *)to, (void *)from, sizeof(u32));
+ }
+-- 
+2.22.0
+
