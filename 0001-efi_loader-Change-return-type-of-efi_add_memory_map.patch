@@ -1,24 +1,35 @@
-From e8423d10b49a172f059af4c3d594afff7de11253 Mon Sep 17 00:00:00 2001
-From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 13 Jul 2019 21:27:33 +0200
-Subject: [PATCH 1/1] efi_loader: allow adding mapped memory at 0x00000000
+From 092a3167cac67d0e4b69baf17750a5fb12577d27 Mon Sep 17 00:00:00 2001
+From: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Date: Mon, 15 Jul 2019 12:00:39 +0100
+Subject: [PATCH 1/1] efi_loader: Change return type of efi_add_memory_map()
 
-As efi_add_memory_map() signals an error by returning NULL and correct
-function by returning the requested address we cannot discern an error from
-correct functioning for address 0x00000000. This leads to unexpected
-warnings on the Raspberry 3.
+We currently have some inconsistent use of efi_add_memory_map()
+throughout the code. In particular the return value of efi_add_memory_map()
+is not interpreted the same way by various users in the codebase.
 
-Use EFI_SUCCESS to signal success and return an error code otherwise.
+This patch does the following:
 
-Reported-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+- Changes efi_add_memory_map() to return efi_status_t.
+- Adds a method description to efi_add_memory_map().
+- Changes efi_add_memory_map() to return EFI_SUCCESS
+- Returns non-zero for error in efi_add_memory_map()
+- Updates efi_allocate_pages() to new efi_add_memory_map()
+- Updates efi_free_pages() to new efi_add_memory_map()
+- Updates efi_carve_out_dt_rsv() to new efi_add_memory_map()
+- Updates efi_add_runtime_mmio()  to new efi_add_memory_map()
+
+Fixes: 5d00995c361c ("efi_loader: Implement memory allocation and map")
+Fixes: 74c16acce30b ("efi_loader: Don't allocate from memory holes")
+Suggested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc: Alexander Graf <agraf@csgraf.de>
+Signed-off-by: Bryan O'Donoghue <pure.logic@nexus-software.ie>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/bootefi.c                |  4 ++--
  include/efi_loader.h         |  4 ++--
- lib/efi_loader/efi_memory.c  | 28 ++++++++++++++++++----------
+ lib/efi_loader/efi_memory.c  | 32 ++++++++++++++++++++------------
  lib/efi_loader/efi_runtime.c |  6 +++---
- 4 files changed, 25 insertions(+), 17 deletions(-)
+ 4 files changed, 27 insertions(+), 19 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index c19256e00d..04d3e3e4a7 100644
@@ -51,7 +62,7 @@ index db4763fc9b..6cc6a3835c 100644
  efi_status_t efi_driver_init(void);
  /* Called by board init to initialize the EFI memory map */
 diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
-index 27379381e8..da253fa285 100644
+index 27379381e8..4c0216b1d2 100644
 --- a/lib/efi_loader/efi_memory.c
 +++ b/lib/efi_loader/efi_memory.c
 @@ -223,8 +223,17 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
@@ -127,7 +138,7 @@ index 27379381e8..da253fa285 100644
  	efi_status_t ret;
  
  	ret = efi_check_allocated(memory, true);
-@@ -501,10 +509,10 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+@@ -501,13 +509,13 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
  		return EFI_INVALID_PARAMETER;
  	}
  
@@ -136,15 +147,20 @@ index 27379381e8..da253fa285 100644
  	/* Merging of adjacent free regions is missing */
  
 -	if (r == memory)
-+	if (ret == EFI_SUCCESS)
- 		return EFI_SUCCESS;
+-		return EFI_SUCCESS;
++	if (ret != EFI_SUCCESS)
++		return EFI_NOT_FOUND;
  
- 	return EFI_NOT_FOUND;
+-	return EFI_NOT_FOUND;
++	return ret;
+ }
+ 
+ /**
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 9f4ba2f977..8b56ab0207 100644
+index 7a64dd42ca..04ef528b89 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
-@@ -694,10 +694,10 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+@@ -684,10 +684,10 @@ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
  	struct efi_runtime_mmio_list *newmmio;
  	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
  	uint64_t addr = *(uintptr_t *)mmio_ptr;

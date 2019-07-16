@@ -59,7 +59,7 @@ git am ../patch/0001-efi_selftest-do-not-call-CloseEvent-after-ExitBootSe.patch
 git am ../patch/0001-efi_loader-efi_set_virtual_address_map_runtime.patch
 git am ../patch/0001-efi_loader-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
 git am ../patch/0001-efi_selftest-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
-git am ../patch/0001-efi_loader-allow-adding-mapped-memory-at-0x00000000.patch
+git am ../patch/0001-efi_loader-Change-return-type-of-efi_add_memory_map.patch
 git am ../patch/0001-efi_loader-fix-function-comments-in-efi_boottime.c.patch
 git am ../patch/0001-efi_loader-fix-comments-for-efi_update_exit_data.patch
 git am ../patch/0001-efi_driver-use-Sphinx-style-comments.patch
