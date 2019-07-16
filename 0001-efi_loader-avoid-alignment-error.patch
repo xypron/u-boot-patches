@@ -1,10 +1,10 @@
-From bced335f11943409951d55d631a19355806506f8 Mon Sep 17 00:00:00 2001
+From 3f2fb84f40a96fd4372d12be7b42274382aa3851 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 14 Jul 2019 18:51:00 +0200
-Subject: [PATCH 1/1] efi_loader: avoid alignment error
+Subject: [PATCH 1/5] efi_loader: avoid alignment error
 
-In packed structures GUIDs are no aligned. Avoid a build error with GCC 9.1
-by using const void * as argument for guidcmp().
+In packed structures GUIDs are not aligned. Avoid a build error with
+GCC 9.1 by using const void * as argument for guidcmp().
 
 Reported-by: Ramon Fried <rfried.dev@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -26,5 +26,5 @@ index 6cc6a3835c..5298ea7997 100644
  	return memcmp(g1, g2, sizeof(efi_guid_t));
  }
 -- 
-2.22.0
+2.20.1
 
