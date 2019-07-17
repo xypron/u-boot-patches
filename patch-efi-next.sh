@@ -52,6 +52,10 @@ git am ../patch/0001-ARM-correct-detection-of-thumb-mode.patch
 # Booting with ARM Trusted Firmware
 git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
+# RISC-V
+git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
+git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
+
 # efi-2019-10-rc1-2
 git am ../patch/0001-efi_loader-duplicate-IMAGE_SUBSYSTEM_EFI_APPLICATION.patch
 git am ../patch/0001-efi_loader-use-predefined-constants-in-crt0_-_efi.S.patch
