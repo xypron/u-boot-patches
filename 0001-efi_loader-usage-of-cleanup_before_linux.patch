@@ -1,0 +1,53 @@
+From 8821d296cd29f07b66d9982a064b345d398df9be Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 18 Jul 2019 19:27:51 +0200
+Subject: [PATCH 1/1] efi_loader: usage of cleanup_before_linux()
+
+Always call cleanup_before_linux() on ARM32 during ExitBootServices().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 4f6e8d1679..171f485f6b 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -39,14 +39,6 @@ LIST_HEAD(efi_register_notify_events);
+ /* Handle of the currently executing image */
+ static efi_handle_t current_image;
+ 
+-/*
+- * If we're running on nasty systems (32bit ARM booting into non-EFI Linux)
+- * we need to do trickery with caches. Since we don't want to break the EFI
+- * aware boot path, only apply hacks when loading exiting directly (breaking
+- * direct Linux EFI booting along the way - oh well).
+- */
+-static bool efi_is_direct_boot = true;
+-
+ #ifdef CONFIG_ARM
+ /*
+  * The "gd" pointer lives in a register on ARM and AArch64 that we declare
+@@ -1916,8 +1908,7 @@ static void efi_exit_caches(void)
+ 	 * Grub on 32bit ARM needs to have caches disabled before jumping into
+ 	 * a zImage, but does not know of all cache layers. Give it a hand.
+ 	 */
+-	if (efi_is_direct_boot)
+-		cleanup_before_linux();
++	cleanup_before_linux();
+ #endif
+ }
+ 
+@@ -2893,8 +2884,6 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 	if (ret != EFI_SUCCESS)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 
+-	efi_is_direct_boot = false;
+-
+ 	image_obj->exit_data_size = exit_data_size;
+ 	image_obj->exit_data = exit_data;
+ 
+-- 
+2.20.1
+

@@ -79,6 +79,9 @@ git am ../patch/0001-efi_loader-support-unaligned-u16-strings.patch
 git am ../patch/0001-test-unit-test-for-u16_strlen.patch
 git am ../patch/0001-efi_loader-efi_dp_from_file-expect-UTF-8-path.patch
 git am ../patch/0001-efi_loader-unaligned-access-in-efi_file_from_path.patch
+
+# efi-2019-10-rc1-3
+git am ../patch/0001-efi_loader-usage-of-cleanup_before_linux.patch
 exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
