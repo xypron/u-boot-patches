@@ -5,7 +5,12 @@ Subject: [PATCH 1/1] travis.yml: run Python tests on qemu-riscv64_defconfig
 
 Run the Python tests on the RISC-V architecture too.
 
+https://github.com/swarren/uboot-test-hooks has already been updated.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Tested on Travis CI:
+https://travis-ci.org/xypron2/u-boot/builds/560095689
 ---
  .travis.yml | 7 +++++++
  1 file changed, 7 insertions(+)
