@@ -47,10 +47,6 @@ git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
-git am ../patch/0001-ARM-correct-detection-of-thumb-mode.patch
-
-# Booting with ARM Trusted Firmware
-git am ../patch/0001-arm-qemu-fix-failure-in-flash-initialization-if-boot.patch
 
 # RISC-V
 git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
