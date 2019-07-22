@@ -1,0 +1,93 @@
+From e315d7e7a1cfacbe63e8a17198e09ae717c22987 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 22 Jul 2019 22:04:36 +0200
+Subject: [PATCH 1/1] efi_loader: reenable GRUB workaround on 32bit ARM
+
+GRUB prior to GRUB 2.04 on ARM 32bit lacks proper handling of caches.
+In U-Boot v2019.04 a workaround for this was inadvertently removed.
+Reenable the workaround and make it customizable.
+
+Fixes f69d63fae281 ("efi_loader: use efi_start_image() for bootefi")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile                      | 7 +++++++
+ lib/efi_loader/Kconfig        | 9 +++++++++
+ lib/efi_loader/efi_boottime.c | 8 ++++----
+ 3 files changed, 20 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 73fdf70cdd..4c8ef72b69 100644
+--- a/Makefile
++++ b/Makefile
+@@ -936,6 +936,13 @@ ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
+ endif
+ endif
+ endif
++ifeq ($(CONFIG_EFI_GRUB_ARM32_WORKAROUND),y)
++	@echo >&2 "================================================="
++	@echo >&2 "CONFIG_EFI_GRUB_ARM32_WORKAROUND is enabled. This"
++	@echo >&2 "workaround is only needed for GRUB versions prior"
++	@echo >&2 "to GRUB 2.04 and hence deprecated."
++	@echo >&2 "================================================="
++endif
+ ifeq ($(CONFIG_DM_I2C_COMPAT)$(CONFIG_SANDBOX),y)
+ 	@echo >&2 "===================== WARNING ======================"
+ 	@echo >&2 "This board uses CONFIG_DM_I2C_COMPAT. Please remove"
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index a7f2c68fa9..295198f568 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -107,4 +107,13 @@ config EFI_HAVE_RUNTIME_RESET
+ 	default y
+ 	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || SYSRESET_X86
+ 
++config EFI_GRUB_ARM32_WORKAROUND
++	bool "Deprecated workaround for GRUB on 32bit ARM"
++	default y
++	depends on ARM && !ARM64
++	help
++	  GRUB prior to GRUB 2.04 requires U-Boot to disable caches after GRUB
++	  has loaded the operating system kernel. With the hack enabled direct
++	  booting into the Linux EFI stub fails.
++
+ endif
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index c2f89805c7..cb0dca2fa4 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -45,7 +45,7 @@ static efi_handle_t current_image;
+  * aware boot path, only apply hacks when loading exiting directly (breaking
+  * direct Linux EFI booting along the way - oh well).
+  */
+-static bool efi_is_direct_boot = true;
++static u32 efi_start_image_count;
+ 
+ #ifdef CONFIG_ARM
+ /*
+@@ -1903,12 +1903,12 @@ error:
+  */
+ static void efi_exit_caches(void)
+ {
+-#if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
++#if defined(CONFIG_EFI_GRUB_ARM32_WORKAROUND)
+ 	/*
+ 	 * Grub on 32bit ARM needs to have caches disabled before jumping into
+ 	 * a zImage, but does not know of all cache layers. Give it a hand.
+ 	 */
+-	if (efi_is_direct_boot)
++	if (efi_start_image_count == 1)
+ 		cleanup_before_linux();
+ #endif
+ }
+@@ -2879,7 +2879,7 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 	if (ret != EFI_SUCCESS)
+ 		return EFI_EXIT(EFI_INVALID_PARAMETER);
+ 
+-	efi_is_direct_boot = false;
++	++efi_start_image_count;
+ 
+ 	image_obj->exit_data_size = exit_data_size;
+ 	image_obj->exit_data = exit_data;
+-- 
+2.20.1
+

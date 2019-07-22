@@ -77,10 +77,11 @@ git am ../patch/0001-efi_loader-efi_dp_from_file-expect-UTF-8-path.patch
 git am ../patch/0001-efi_loader-unaligned-access-in-efi_file_from_path.patch
 
 # efi-2019-10-rc1-3
-git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
+git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
 git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
 exit
 
+git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 git am ../patch/0001-efi_loader-implement-reading-volume-label.patch
 
