@@ -1,0 +1,33 @@
+From ec24fbda90a34826d3877836a1f9702eef5b13ca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 22 Jul 2019 07:59:23 +0200
+Subject: [PATCH 1/1] efi_loader: always rebuild efi_crt0.o
+
+When changing the architecture without calling 'make clean' a subsequent
+make fails with
+lib/efi_loader/efi_crt0.o: file not recognized: File format not recognized
+
+Force efi_crt0.o to be always rebuild.
+
+Reported-by: Kever Yang <kever.yang@rock-chips.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ scripts/Makefile.lib | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index de67677f61..2f5e28cac3 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -383,7 +383,7 @@ cmd_efi_ld = $(LD) -nostdlib -znocombreloc -T $(EFI_LDS_PATH) -shared \
+ 
+ EFI_LDS_PATH = $(srctree)/arch/$(ARCH)/lib/$(EFI_LDS)
+ 
+-$(obj)/efi_crt0.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_CRT0:.o=.S)
++$(obj)/efi_crt0.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_CRT0:.o=.S) FORCE
+ 	$(call if_changed_dep,as_o_S)
+ 
+ $(obj)/efi_reloc.o: $(srctree)/arch/$(ARCH)/lib/$(EFI_RELOC:.o=.c) $(recordmcount_source) FORCE
+-- 
+2.20.1
+
