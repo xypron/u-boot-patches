@@ -50,30 +50,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
-# efi-2019-10-rc1-2
-git am ../patch/0001-efi_loader-duplicate-IMAGE_SUBSYSTEM_EFI_APPLICATION.patch
-git am ../patch/0001-efi_loader-use-predefined-constants-in-crt0_-_efi.S.patch
-git am ../patch/0001-efi_selftest-do-not-call-CloseEvent-after-ExitBootSe.patch
-git am ../patch/0001-efi_loader-efi_set_virtual_address_map_runtime.patch
-git am ../patch/0001-efi_loader-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
-git am ../patch/0001-efi_selftest-EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE.patch
-git am ../patch/0001-efi_loader-Change-return-type-of-efi_add_memory_map.patch
-git am ../patch/0001-efi_loader-fix-function-comments-in-efi_boottime.c.patch
-git am ../patch/0001-efi_loader-fix-comments-for-efi_update_exit_data.patch
-git am ../patch/0001-efi_driver-use-Sphinx-style-comments.patch
-git am ../patch/0001-efi_loader-fix-comments-for-variable-services.patch
-git am ../patch/0001-efi_loader-fix-comment-for-struct-efi_pool_allocatio.patch
-git am ../patch/0001-efi_loader-fix-function-comments-in-cmd-bootefi.c.patch
-git am ../patch/0001-efi_loader-function-comments-efi_bootmgr.c.patch
-git am ../patch/0001-efi_loader-function-comments-cmd-efi_debug.c.patch
-git am ../patch/0001-efi_loader-add-more-sources-to-Sphinx-documentation.patch
-git am ../patch/0001-disk-efi-avoid-unaligned-pointer-error.patch
-git am ../patch/0001-efi_loader-avoid-alignment-error.patch
-git am ../patch/0001-efi_loader-support-unaligned-u16-strings.patch
-git am ../patch/0001-test-unit-test-for-u16_strlen.patch
-git am ../patch/0001-efi_loader-efi_dp_from_file-expect-UTF-8-path.patch
-git am ../patch/0001-efi_loader-unaligned-access-in-efi_file_from_path.patch
-
 # efi-2019-10-rc1-3
 git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
 git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
