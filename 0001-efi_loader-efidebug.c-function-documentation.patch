@@ -5,7 +5,7 @@ Subject: [PATCH 1/1] efi_loader: efidebug.c function documentation
 
 make htmldocs produces a warning:
 ./cmd/efidebug.c:733: WARNING: Unexpected indentation.
-Correct then indentation.
+Correct the indentation.
 
 Remove 'See above for details of sub-commands.' which is not helpful in the
 Sphinx generated documentation.
