@@ -1,7 +1,7 @@
-From 6de133e5a262579172863aa811ab07a6b90bbc96 Mon Sep 17 00:00:00 2001
+From d3b3fd80bd4b9b4d6333f21bbc6dd970cd049e2c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 26 Jul 2019 06:46:08 +0200
-Subject: [PATCH 1/1] doc: integrate UEFI documentation into Sphinx toctree
+Subject: [PATCH v2 1/1] doc: integrate UEFI documentation into Sphinx toctree
 
 Change the UEFI documentation to Sphinx style and integrate it into the
 rest of the Sphinx generated documentation.
@@ -10,16 +10,19 @@ Remove the inaccurate TODO list in doc/uefi/uefi.rst.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2
+	correct formatting issues, thanks to Bin
+---
  MAINTAINERS                |   4 +-
  doc/README.iscsi           | 170 ------------------
  doc/README.u-boot_on_efi   | 252 --------------------------
  doc/README.uefi            | 352 -------------------------------------
  doc/index.rst              |  13 ++
  doc/uefi/index.rst         |  11 ++
- doc/uefi/iscsi.rst         | 180 +++++++++++++++++++
+ doc/uefi/iscsi.rst         | 184 +++++++++++++++++++
  doc/uefi/u-boot_on_efi.rst | 235 +++++++++++++++++++++++++
  doc/uefi/uefi.rst          | 334 +++++++++++++++++++++++++++++++++++
- 9 files changed, 774 insertions(+), 777 deletions(-)
+ 9 files changed, 778 insertions(+), 777 deletions(-)
  delete mode 100644 doc/README.iscsi
  delete mode 100644 doc/README.u-boot_on_efi
  delete mode 100644 doc/README.uefi
@@ -880,10 +883,10 @@ index 0000000000..b790a91f17
 +   iscsi.rst
 diff --git a/doc/uefi/iscsi.rst b/doc/uefi/iscsi.rst
 new file mode 100644
-index 0000000000..aa844a7cc3
+index 0000000000..51d38cde24
 --- /dev/null
 +++ b/doc/uefi/iscsi.rst
-@@ -0,0 +1,180 @@
+@@ -0,0 +1,184 @@
 +.. SPDX-License-Identifier: GPL-2.0+
 +.. Copyright (c) 2018 Heinrich Schuchardt
 +
@@ -1025,7 +1028,9 @@ index 0000000000..aa844a7cc3
 +
 +iPXE by default will put the CPU to rest when waiting for input. U-Boot does
 +not wake it up due to missing interrupt support. To avoid this behavior create
-+file src/config/local/nap.h::
++file src/config/local/nap.h:
++
++.. code-block:: c
 +
 +    /* nap.h */
 +    #undef NAP_EFIX86
@@ -1033,7 +1038,9 @@ index 0000000000..aa844a7cc3
 +    #define NAP_NULL
 +
 +The supported commands in iPXE are controlled by an include, too. Putting the
-+following into src/config/local/general.h is sufficient for most use cases::
++following into src/config/local/general.h is sufficient for most use cases:
++
++.. code-block:: c
 +
 +    /* general.h */
 +    #define NSLOOKUP_CMD            /* Name resolution command */
@@ -1050,7 +1057,7 @@ index 0000000000..aa844a7cc3
 +~~~~~~~~~~
 +
 +When the root file system is on an iSCSI drive you should disable pings and set
-+the replacement timer to a high value [3]:
++the replacement timer to a high value in the configuration file [3]::
 +
 +    node.conn[0].timeo.noop_out_interval = 0
 +    node.conn[0].timeo.noop_out_timeout = 0
@@ -1066,7 +1073,7 @@ index 0000000000..aa844a7cc3
 +  Open-iSCSI README
 diff --git a/doc/uefi/u-boot_on_efi.rst b/doc/uefi/u-boot_on_efi.rst
 new file mode 100644
-index 0000000000..139173bc7a
+index 0000000000..c9a41bc919
 --- /dev/null
 +++ b/doc/uefi/u-boot_on_efi.rst
 @@ -0,0 +1,235 @@
@@ -1121,7 +1128,7 @@ index 0000000000..139173bc7a
 +
 +To build U-Boot as an EFI application (32-bit EFI required), enable CONFIG_EFI
 +and CONFIG_EFI_APP. The efi-x86_app config (efi-x86_app_defconfig) is set up
-+for this. Just build U-Boot as normal, e.g.
++for this. Just build U-Boot as normal, e.g.::
 +
 +   make efi-x86_app_defconfig
 +   make
@@ -1130,22 +1137,22 @@ index 0000000000..139173bc7a
 +CONFIG_EFI, CONFIG_EFI_STUB, and select either CONFIG_EFI_STUB_32BIT or
 +CONFIG_EFI_STUB_64BIT. The efi-x86_payload configs (efi-x86_payload32_defconfig
 +and efi-x86_payload32_defconfig) are set up for this. Then build U-Boot as
-+normal, e.g.
++normal, e.g.::
 +
 +   make efi-x86_payload32_defconfig (or efi-x86_payload64_defconfig)
 +   make
 +
 +You will end up with one of these files depending on what you build for:
 +
-+   u-boot-app.efi      - U-Boot EFI application
-+   u-boot-payload.efi  - U-Boot EFI payload application
++* u-boot-app.efi - U-Boot EFI application
++* u-boot-payload.efi  - U-Boot EFI payload application
 +
 +
 +Trying it out
 +-------------
 +QEMU is an emulator and it can emulate an x86 machine. Please make sure your
 +QEMU version is 2.3.0 or above to test this. You can run the payload with
-+something like this:
++something like this::
 +
 +   mkdir /tmp/efi
 +   cp /path/to/u-boot*.efi /tmp/efi
@@ -1157,7 +1164,7 @@ index 0000000000..139173bc7a
 +prebuilt EFI BIOS for QEMU or you can build one from source as well.
 +
 +To try it on real hardware, put u-boot-app.efi on a suitable boot medium,
-+such as a USB stick. Then you can type something like this to start it:
++such as a USB stick. Then you can type something like this to start it::
 +
 +   fs0:u-boot-payload.efi
 +
@@ -1303,11 +1310,11 @@ index 0000000000..139173bc7a
 +Google, Inc
 +July 2015
 +
-+[1] http://www.qemu.org
-+[2] http://www.tianocore.org/ovmf/
++* [1] http://www.qemu.org
++* [2] http://www.tianocore.org/ovmf/
 diff --git a/doc/uefi/uefi.rst b/doc/uefi/uefi.rst
 new file mode 100644
-index 0000000000..476117bfc5
+index 0000000000..db942df694
 --- /dev/null
 +++ b/doc/uefi/uefi.rst
 @@ -0,0 +1,334 @@
@@ -1328,7 +1335,7 @@ index 0000000000..476117bfc5
 +
 +The implementation of UEFI in U-Boot strives to reach the requirements described
 +in the "Embedded Base Boot Requirements (EBBR) Specification - Release v1.0"
-+[4]. The "Server Base Boot Requirements System Software on ARM Platforms" [5]
++[2]. The "Server Base Boot Requirements System Software on ARM Platforms" [3]
 +describes a superset of the EBBR specification and may be used as further
 +reference.
 +
@@ -1347,7 +1354,7 @@ index 0000000000..476117bfc5
 +in the .config file.
 +
 +Support for attaching virtual block devices, e.g. iSCSI drives connected by the
-+loaded UEFI application [3], requires::
++loaded UEFI application [4], requires::
 +
 +    CONFIG_BLK=y
 +    CONFIG_PARTITIONS=y
@@ -1456,15 +1463,15 @@ index 0000000000..476117bfc5
 +-------------------
 +
 +After the U-Boot platform has been initialized the UEFI API provides two kinds
-+of services
++of services:
 +
-+* boot services and
-+* runtime services.
++* boot services
++* runtime services
 +
-+The API can be extended by loading UEFI drivers which come in two variants
++The API can be extended by loading UEFI drivers which come in two variants:
 +
-+* boot drivers and
-+* runtime drivers.
++* boot drivers
++* runtime drivers
 +
 +UEFI drivers are installed with U-Boot's bootefi command. With the same command
 +UEFI applications can be executed.
@@ -1568,8 +1575,8 @@ index 0000000000..476117bfc5
 +As of U-Boot 2018.03 the logic for doing this is hard coded.
 +
 +The development target is to integrate the setup of these UEFI devices with the
-+U-Boot driver model. So when a U-Boot device is discovered a handle should be
-+created and the device path protocol and the relevant IO protocol should be
++U-Boot driver model [5]. So when a U-Boot device is discovered a handle should
++be created and the device path protocol and the relevant IO protocol should be
 +installed. The UEFI driver then would be attached by calling ConnectController.
 +When a U-Boot device is removed DisconnectController should be called.
 +
@@ -1628,9 +1635,9 @@ index 0000000000..476117bfc5
 +When connected it creates a new U-Boot block IO device with interface type
 +IF_TYPE_EFI, adds child controllers mapping the partitions, and installs the
 +EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on these. This can be used together with the
-+software iPXE to boot from iSCSI network drives [3].
++software iPXE to boot from iSCSI network drives [4].
 +
-+This driver is only available if U-Boot is configured with
++This driver is only available if U-Boot is configured with::
 +
 +    CONFIG_BLK=y
 +    CONFIG_PARTITIONS=y
@@ -1639,12 +1646,12 @@ index 0000000000..476117bfc5
 +-----
 +
 +* [1] http://uefi.org/specifications - UEFI specifications
-+* [2] :doc:`../driver-model/index`
-+* [3] :doc:`iscsi`
-+* [4] https://github.com/ARM-software/ebbr/releases/download/v1.0/ebbr-v1.0.pdf -
++* [2] https://github.com/ARM-software/ebbr/releases/download/v1.0/ebbr-v1.0.pdf -
 +  Embedded Base Boot Requirements (EBBR) Specification - Release v1.0
-+* [5] https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11 -
++* [3] https://developer.arm.com/docs/den0044/latest/server-base-boot-requirements-system-software-on-arm-platforms-version-11 -
 +  Server Base Boot Requirements System Software on ARM Platforms - Version 1.1
++* [4] :doc:`iscsi`
++* [5] :doc:`../driver-model/index`
 -- 
 2.20.1
 
