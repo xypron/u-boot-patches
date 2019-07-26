@@ -11,7 +11,7 @@ Remove the inaccurate TODO list in doc/uefi/uefi.rst.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v2
-	correct formatting issues, thanks to Bin
+	correct formatting, thanks to Bin
 ---
  MAINTAINERS                |   4 +-
  doc/README.iscsi           | 170 ------------------
