@@ -50,6 +50,7 @@ git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
 git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
 git am ../patch/0001-efi_loader-efidebug.c-function-documentation.patch
+git am ../patch/0001-doc-integrate-UEFI-documentation-into-Sphinx-toctree.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
