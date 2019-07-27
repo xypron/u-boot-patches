@@ -55,6 +55,7 @@ git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
 git am ../patch/0001-efi_loader-efidebug.c-function-documentation.patch
 git am ../patch/0001-doc-integrate-UEFI-documentation-into-Sphinx-toctree.patch
 git am ../patch/0001-efi_selftest-fix-SetVirtualAddressMap-unit-test.patch
+git am ../patch/0001-efi_loader-definition-of-efi_virtual_address_map.patch
 git am ../patch/0001-efi_selftest-sharpen-ConvertPointer-test.patch
 exit
 
