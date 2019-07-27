@@ -1,17 +1,17 @@
 From 595710d120e1053e68c6853b228818526485a3e4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 22 Jul 2019 22:04:36 +0200
-Subject: [PATCH 1/1] efi_loader: reenable GRUB workaround on 32bit ARM
+Subject: [PATCH 1/1] efi_loader: re-enable GRUB workaround on 32bit ARM
 
-GRUB prior to GRUB 2.04 on ARM 32bit lacks proper handling of caches.
+GRUB on ARM 32bit prior to version 2.04 lacks proper handling of caches.
 In U-Boot v2019.04 a workaround for this was inadvertently removed.
 
 The workaround is currently also needed for booting on systems with caches
 that cannot be managed via CP15 (e.g. with an i.MX6 CPU).
 
-Reenable the workaround and make it customizable.
+Re-enable the workaround and make it customizable.
 
-Fixes f69d63fae281 ("efi_loader: use efi_start_image() for bootefi")
+Fixes: f69d63fae281 ("efi_loader: use efi_start_image() for bootefi")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/Kconfig        |  8 ++++++++
