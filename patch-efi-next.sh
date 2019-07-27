@@ -46,6 +46,8 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
+git am ../patch/0001-doc-board-Add-missing-board-index.rst-files.patch
+
 # efi-2019-10-rc1-3
 git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
 git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
