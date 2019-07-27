@@ -1,4 +1,4 @@
-From ad78a0a69268f172a816c8c450a5adb546a07b71 Mon Sep 17 00:00:00 2001
+From 479cf4f429739ceb945035c2f9cc1e10eda30a10 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 27 Jul 2019 20:35:24 +0200
 Subject: [PATCH 1/1] efi_loader: implement ConvertPointer()
@@ -7,11 +7,11 @@ Implement the ConvertPointer() runtime service.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_runtime.c | 74 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 70 insertions(+), 4 deletions(-)
+ lib/efi_loader/efi_runtime.c | 75 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 71 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index a8f0b5eae3..5db7625df5 100644
+index a8f0b5eae3..ff37567a06 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -81,6 +81,10 @@ struct elf_rela {
@@ -46,7 +46,7 @@ index a8f0b5eae3..5db7625df5 100644
  	return EFI_CALL(efi_set_variable(L"RuntimeServicesSupported",
  					 &efi_global_variable_guid,
  					 EFI_VARIABLE_BOOTSERVICE_ACCESS |
-@@ -454,6 +459,57 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
+@@ -454,6 +459,58 @@ static __efi_runtime efi_status_t EFIAPI efi_convert_pointer_runtime(
  	return EFI_UNSUPPORTED;
  }
  
@@ -83,14 +83,15 @@ index a8f0b5eae3..5db7625df5 100644
 +	}
 +
 +	for (i = 0; i < efi_descriptor_count; i++) {
-+		struct efi_mem_desc *map = (void*)efi_virtmap +
++		struct efi_mem_desc *map = (void *)efi_virtmap +
 +					   (efi_descriptor_size * i);
 +
 +		if (addr >= map->physical_start &&
 +		    (addr < map->physical_start
 +			    + (map->num_pages << EFI_PAGE_SHIFT))) {
-+			*address = (void *)(addr + map->virtual_start -
-+					    map->physical_start);
++			*address = (void *)(uint_ptr_t)
++				   (addr + map->virtual_start -
++				    map->physical_start);
 +
 +			ret = EFI_SUCCESS;
 +			break;
@@ -104,7 +105,7 @@ index a8f0b5eae3..5db7625df5 100644
  static __efi_runtime void efi_relocate_runtime_table(ulong offset)
  {
  	ulong patchoff;
-@@ -480,6 +536,12 @@ static __efi_runtime void efi_relocate_runtime_table(ulong offset)
+@@ -480,6 +537,12 @@ static __efi_runtime void efi_relocate_runtime_table(ulong offset)
  	 */
  	efi_runtime_services.convert_pointer = &efi_convert_pointer_runtime;
  
@@ -117,18 +118,18 @@ index a8f0b5eae3..5db7625df5 100644
  	/* Update CRC32 */
  	efi_update_table_header_crc32(&efi_runtime_services.hdr);
  }
-@@ -584,6 +646,10 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
+@@ -584,6 +647,10 @@ static efi_status_t EFIAPI efi_set_virtual_address_map(
  	EFI_ENTRY("%zx %zx %x %p", memory_map_size, descriptor_size,
  		  descriptor_version, virtmap);
  
 +	efi_virtmap = virtmap;
-+	efi_descriptor_size= descriptor_size;
++	efi_descriptor_size = descriptor_size;
 +	efi_descriptor_count = n;
 +
  	/*
  	 * TODO:
  	 * Further down we are cheating. While really we should implement
-@@ -800,7 +866,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
+@@ -800,7 +867,7 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
  	.get_wakeup_time = (void *)&efi_unimplemented,
  	.set_wakeup_time = (void *)&efi_unimplemented,
  	.set_virtual_address_map = &efi_set_virtual_address_map,
