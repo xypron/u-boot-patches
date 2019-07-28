@@ -89,7 +89,7 @@ index a8f0b5eae3..ff37567a06 100644
 +		if (addr >= map->physical_start &&
 +		    (addr < map->physical_start
 +			    + (map->num_pages << EFI_PAGE_SHIFT))) {
-+			*address = (void *)(uint_ptr_t)
++			*address = (void *)(uintptr_t)
 +				   (addr + map->virtual_start -
 +				    map->physical_start);
 +
