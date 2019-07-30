@@ -1,0 +1,38 @@
+From 0a723f360f477fef225cac96caae64e615a9c674 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 30 Jul 2019 23:57:35 +0200
+Subject: [PATCH 1/1] drivers: net: pfe_eth: undefined return value
+
+Do not use random value from stack as return value of pfe_phy_write().
+
+Indicated by cppcheck.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/net/pfe_eth/pfe_mdio.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/net/pfe_eth/pfe_mdio.c b/drivers/net/pfe_eth/pfe_mdio.c
+index 2dde9e7ac8..62309670fa 100644
+--- a/drivers/net/pfe_eth/pfe_mdio.c
++++ b/drivers/net/pfe_eth/pfe_mdio.c
+@@ -110,7 +110,6 @@ static int pfe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
+ 	u32 phy;
+ 	u32 reg_data;
+ 	int timeout = MDIO_TIMEOUT;
+-	int val;
+ 
+ 	if (dev_addr == MDIO_DEVAD_NONE) {
+ 		reg = ((reg_addr & EMAC_MII_DATA_RA_MASK) <<
+@@ -150,7 +149,7 @@ static int pfe_phy_write(struct mii_dev *bus, int phy_addr, int dev_addr,
+ 	debug("%s: phy: %02x reg:%02x val:%#x\n", __func__, phy_addr,
+ 	      reg_addr, data);
+ 
+-	return val;
++	return 0;
+ }
+ 
+ static void pfe_configure_serdes(struct pfe_eth_dev *priv)
+-- 
+2.20.1
+
