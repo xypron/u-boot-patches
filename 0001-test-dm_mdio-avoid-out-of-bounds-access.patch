@@ -1,0 +1,44 @@
+From 1cf63d135f6d18d18091f8a2939055c7c0f5dabf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 30 Jul 2019 23:35:30 +0200
+Subject: [PATCH v2 1/1] test: dm_mdio: avoid out of bounds access
+
+SANDBOX_PHY_REG_CNT is not an allowable index for the array
+u16 reg[SANDBOX_PHY_REG_CNT].
+
+Identified by cppcheck.
+
+Fixes: b47edf8069cc ("test: dm_mdio: add a 2nd register to the emulated PHY")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	the same error occurs twice
+---
+ drivers/net/mdio_sandbox.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/mdio_sandbox.c b/drivers/net/mdio_sandbox.c
+index df053f5381..b731f60a98 100644
+--- a/drivers/net/mdio_sandbox.c
++++ b/drivers/net/mdio_sandbox.c
+@@ -27,7 +27,7 @@ static int mdio_sandbox_read(struct udevice *dev, int addr, int devad, int reg)
+ 		return -ENODEV;
+ 	if (devad != MDIO_DEVAD_NONE)
+ 		return -ENODEV;
+-	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
++	if (reg < 0 || reg >= SANDBOX_PHY_REG_CNT)
+ 		return -ENODEV;
+ 
+ 	return priv->reg[reg];
+@@ -45,7 +45,7 @@ static int mdio_sandbox_write(struct udevice *dev, int addr, int devad, int reg,
+ 		return -ENODEV;
+ 	if (devad != MDIO_DEVAD_NONE)
+ 		return -ENODEV;
+-	if (reg < 0 || reg > SANDBOX_PHY_REG_CNT)
++	if (reg < 0 || reg >= SANDBOX_PHY_REG_CNT)
+ 		return -ENODEV;
+ 
+ 	priv->reg[reg] = val;
+-- 
+2.20.1
+
