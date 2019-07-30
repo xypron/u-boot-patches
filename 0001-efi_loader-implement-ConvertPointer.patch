@@ -1,11 +1,15 @@
-From d4e3bc829107684637fa92a15996a03c23c4088c Mon Sep 17 00:00:00 2001
+From e09bb0fabdfee26444e86fca8c8d7c566d9aab59 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 27 Jul 2019 20:35:24 +0200
-Subject: [PATCH 1/1] efi_loader: implement ConvertPointer()
+Subject: [PATCH v2 3/4] efi_loader: implement ConvertPointer()
 
 Implement the ConvertPointer() runtime service.
 
+Suggested-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v3
+	replace || by | when setting RuntimeServicesSupported variable
 ---
  lib/efi_loader/efi_runtime.c | 75 ++++++++++++++++++++++++++++++++++--
  1 file changed, 71 insertions(+), 4 deletions(-)
@@ -31,7 +35,7 @@ index a8f0b5eae3..2286e847a7 100644
  {
 -	u16 efi_runtime_services_supported = 0;
 +	u16 efi_runtime_services_supported =
-+				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP ||
++				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
 +				EFI_RT_SUPPORTED_CONVERT_POINTER;
  
  	/*
