@@ -1,4 +1,4 @@
-From 479cf4f429739ceb945035c2f9cc1e10eda30a10 Mon Sep 17 00:00:00 2001
+From d4e3bc829107684637fa92a15996a03c23c4088c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 27 Jul 2019 20:35:24 +0200
 Subject: [PATCH 1/1] efi_loader: implement ConvertPointer()
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 71 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index a8f0b5eae3..ff37567a06 100644
+index a8f0b5eae3..2286e847a7 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -81,6 +81,10 @@ struct elf_rela {
