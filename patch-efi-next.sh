@@ -18,8 +18,6 @@ git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-lib-uuid-alignment-error-in-gen_rand_uuid.patch
-git am ../patch/0001-tools-logos-remove-black-background-of-U-Boot-logo.patch
 git am ../patch/0001-log-document-the-assign-macro.patch
 
 # USB keyboard
@@ -46,8 +44,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 # RISC-V
 git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
-
-git am ../patch/0001-doc-board-Add-missing-board-index.rst-files.patch
 
 # efi-2019-10-rc1-3
 git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
