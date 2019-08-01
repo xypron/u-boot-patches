@@ -21,6 +21,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-log-document-the-assign-macro.patch
 git am ../patch/0001-test-dm_mdio-avoid-out-of-bounds-access.patch
 git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
+git am ../patch/0001-bios_emulator-remove-stray-break.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

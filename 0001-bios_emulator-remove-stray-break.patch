@@ -1,0 +1,32 @@
+From 6faa06e48da86cffd19d13f4f4b3e477c8eed658 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 1 Aug 2019 19:31:34 +0200
+Subject: [PATCH 1/1] bios_emulator: remove stray break
+
+Remove a stray break which suppresses some debug messages.
+
+Indicated by cppcheck.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+@Simon:
+Please, test on an x86 Chromebook. I have no access to a test device.
+---
+ drivers/bios_emulator/atibios.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/bios_emulator/atibios.c b/drivers/bios_emulator/atibios.c
+index 4f362d1453..fb806b53d4 100644
+--- a/drivers/bios_emulator/atibios.c
++++ b/drivers/bios_emulator/atibios.c
+@@ -136,7 +136,6 @@ static int atibios_debug_mode(BE_VGAInfo *vga_info, RMREGS *regs,
+ 		bool linear_ok;
+ 		int attr;
+ 
+-		break;
+ 		debug("Mode %x: ", mode);
+ 		memset(buffer, '\0', sizeof(struct vbe_mode_info));
+ 		regs->e.eax = VESA_GET_MODE_INFO;
+-- 
+2.20.1
+
