@@ -45,7 +45,6 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # RISC-V
-git am ../patch/0001-travis.yml-run-Python-tests-on-qemu-riscv64_defconfi.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2019-10-rc1-3
