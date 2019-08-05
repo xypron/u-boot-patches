@@ -47,15 +47,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 # RISC-V
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
-# efi-2019-10-rc1-3
-git am ../patch/0001-efi_loader-reenable-GRUB-workaround-on-32bit-ARM.patch
-git am ../patch/0001-efi_loader-always-rebuild-efi_crt0.o.patch
-git am ../patch/0001-efi_loader-efidebug.c-function-documentation.patch
-git am ../patch/0001-doc-integrate-UEFI-documentation-into-Sphinx-toctree.patch
-git am ../patch/0001-efi_selftest-fix-SetVirtualAddressMap-unit-test.patch
-git am ../patch/0001-efi_loader-definition-of-efi_virtual_address_map.patch
-git am ../patch/0001-efi_loader-implement-ConvertPointer.patch
-git am ../patch/0001-efi_selftest-sharpen-ConvertPointer-test.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
