@@ -48,7 +48,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2019-10-rc2-2
-0001-efi_loader-EFI_PXE_BASE_CODE_PROTOCOL-stub.patch
+git am ../patch/0001-efi_loader-EFI_PXE_BASE_CODE_PROTOCOL-stub.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
