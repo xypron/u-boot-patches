@@ -1,0 +1,70 @@
+From ccd9a226a50a2774fcbca305a459384f2c768661 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 6 Aug 2019 08:13:33 +0200
+Subject: [PATCH 1/1] efi_loader: EFI_PXE_BASE_CODE_PROTOCOL stub
+
+Complete the EFI_PXE_BASE_CODE_PROTOCOL stub
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h        | 10 ++++++----
+ lib/efi_loader/efi_net.c |  7 ++++---
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index e5634dc6a0..add0e469e8 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1321,11 +1321,13 @@ struct efi_pxe_mode {
+ 	struct efi_pxe_packet pxe_reply;
+ };
+ 
+-struct efi_pxe {
++struct efi_pxe_base_code_protocol {
+ 	u64 rev;
+-	void (EFIAPI *start)(void);
+-	void (EFIAPI *stop)(void);
+-	void (EFIAPI *dhcp)(void);
++	void (EFIAPI *start)(struct efi_pxe_base_code_protocol *this,
++			     u8 use_ipv6);
++	void (EFIAPI *stop)(struct efi_pxe_base_code_protocol *this);
++	void (EFIAPI *dhcp)(struct efi_pxe_base_code_protocol *this,
++			    u8 sort_offers);
+ 	void (EFIAPI *discover)(void);
+ 	void (EFIAPI *mftp)(void);
+ 	void (EFIAPI *udpwrite)(void);
+diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
+index d71c663068..9381bb36da 100644
+--- a/lib/efi_loader/efi_net.c
++++ b/lib/efi_loader/efi_net.c
+@@ -10,7 +10,8 @@
+ #include <malloc.h>
+ 
+ static const efi_guid_t efi_net_guid = EFI_SIMPLE_NETWORK_PROTOCOL_GUID;
+-static const efi_guid_t efi_pxe_guid = EFI_PXE_BASE_CODE_PROTOCOL_GUID;
++static const efi_guid_t efi_pxe_base_code_protocol_guid =
++					EFI_PXE_BASE_CODE_PROTOCOL_GUID;
+ static struct efi_pxe_packet *dhcp_ack;
+ static bool new_rx_packet;
+ static void *new_tx_packet;
+@@ -39,7 +40,7 @@ struct efi_net_obj {
+ 	struct efi_object header;
+ 	struct efi_simple_network net;
+ 	struct efi_simple_network_mode net_mode;
+-	struct efi_pxe pxe;
++	struct efi_pxe_base_code_protocol pxe;
+ 	struct efi_pxe_mode pxe_mode;
+ };
+ 
+@@ -619,7 +620,7 @@ efi_status_t efi_net_register(void)
+ 			     efi_dp_from_eth());
+ 	if (r != EFI_SUCCESS)
+ 		goto failure_to_add_protocol;
+-	r = efi_add_protocol(&netobj->header, &efi_pxe_guid,
++	r = efi_add_protocol(&netobj->header, &efi_pxe_base_code_protocol_guid,
+ 			     &netobj->pxe);
+ 	if (r != EFI_SUCCESS)
+ 		goto failure_to_add_protocol;
+-- 
+2.20.1
+
