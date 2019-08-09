@@ -27,6 +27,7 @@ git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
 git am ../patch/0001-usb-kbd-simplify-coding-for-arrow-keys.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch
+git am ../patch/0001-usb-kbd-move-USB_KBD_BOOT_REPORT_SIZE-to-usb.h.patch
 
 # git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
