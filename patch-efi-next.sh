@@ -22,6 +22,7 @@ git am ../patch/0001-test-dm_mdio-avoid-out-of-bounds-access.patch
 git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
 git am ../patch/0001-bios_emulator-remove-stray-break.patch
 git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
+git am ../patch/0001-mailmap-provide-usage-instruction.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
