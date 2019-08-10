@@ -1,4 +1,4 @@
-From f6f02a5aca5d448b21e5aa472d7dbd7edd8c712c Mon Sep 17 00:00:00 2001
+From 2c9d21cf09182addd38dac831a88772b873ae1a0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Aug 2019 02:44:41 +0200
 Subject: [PATCH 1/1] dm: test: usb: rework keyboard test
@@ -24,8 +24,8 @@ driver and therefore not tested:
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  drivers/usb/emul/sandbox_keyb.c |  27 +--
- test/dm/usb.c                   | 285 +++++++++++++++++++++++++++++++-
- 2 files changed, 293 insertions(+), 19 deletions(-)
+ test/dm/usb.c                   | 283 +++++++++++++++++++++++++++++++-
+ 2 files changed, 292 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/usb/emul/sandbox_keyb.c b/drivers/usb/emul/sandbox_keyb.c
 index 635945179e..2e7fb3b97c 100644
@@ -85,7 +85,7 @@ index 635945179e..2e7fb3b97c 100644
  
  static const struct dm_usb_ops sandbox_usb_keyb_ops = {
 diff --git a/test/dm/usb.c b/test/dm/usb.c
-index ef454b0ae5..bb2f43afa2 100644
+index ef454b0ae5..6420b6efdc 100644
 --- a/test/dm/usb.c
 +++ b/test/dm/usb.c
 @@ -15,6 +15,12 @@
@@ -364,12 +364,8 @@ index ef454b0ae5..bb2f43afa2 100644
  
  	state_set_skip_delays(true);
  	ut_assertok(usb_init());
-@@ -126,19 +385,27 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
- 	ut_asserteq(0, tstc());
- 
- 	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "keyb@3",
--					      &dev));
-+	                                      &dev));
+@@ -129,16 +388,24 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
+ 					      &dev));
  
  	/*
 -	 * Add a string to the USB keyboard buffer - it should appear in
