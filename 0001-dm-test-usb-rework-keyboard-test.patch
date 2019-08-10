@@ -1,0 +1,146 @@
+From 9eb5b17af911c139ba11a440662d564593b4cf1c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Aug 2019 02:44:41 +0200
+Subject: [PATCH 1/1] dm: test: usb: rework keyboard test
+
+Allow the unit test to pass full 8 byte scan code sequences and parse
+multi-byte escape sequences.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/usb/emul/sandbox_keyb.c | 27 +++++++++++-------
+ test/dm/usb.c                   | 50 +++++++++++++++++++++++++++++----
+ 2 files changed, 61 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/usb/emul/sandbox_keyb.c b/drivers/usb/emul/sandbox_keyb.c
+index 635945179e..2e7fb3b97c 100644
+--- a/drivers/usb/emul/sandbox_keyb.c
++++ b/drivers/usb/emul/sandbox_keyb.c
+@@ -155,14 +155,20 @@ static void *keyb_desc_list[] = {
+ 	NULL,
+ };
+ 
+-int sandbox_usb_keyb_add_string(struct udevice *dev, const char *str)
++/**
++ * sandbox_usb_keyb_add_string() - provide a USB scancode buffer
++ *
++ * @dev:	the keyboard emulation device
++ * @scancode:	scancode buffer with USB_KBD_BOOT_REPORT_SIZE bytes
++ */
++int sandbox_usb_keyb_add_string(struct udevice *dev,
++				const char scancode[USB_KBD_BOOT_REPORT_SIZE])
+ {
+ 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
+-	int len, ret;
++	int ret;
+ 
+-	len = strlen(str);
+-	ret = membuff_put(&priv->in, str, len);
+-	if (ret != len)
++	ret = membuff_put(&priv->in, scancode, USB_KBD_BOOT_REPORT_SIZE);
++	if (ret != USB_KBD_BOOT_REPORT_SIZE)
+ 		return -ENOSPC;
+ 
+ 	return 0;
+@@ -182,12 +188,12 @@ static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
+ {
+ 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
+ 	uint8_t *data = buffer;
+-	int ch;
+ 
+ 	memset(data, '\0', length);
+-	ch = membuff_getbyte(&priv->in);
+-	if (ch != -1)
+-		data[2] = 4 + ch - 'a';
++	if (length < USB_KBD_BOOT_REPORT_SIZE)
++		return 0;
++
++	membuff_get(&priv->in, buffer, USB_KBD_BOOT_REPORT_SIZE);
+ 
+ 	return 0;
+ }
+@@ -212,7 +218,8 @@ static int sandbox_keyb_probe(struct udevice *dev)
+ {
+ 	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
+ 
+-	return membuff_new(&priv->in, 256);
++	/* Provide an 80 character keyboard buffer */
++	return membuff_new(&priv->in, 80 * USB_KBD_BOOT_REPORT_SIZE);
+ }
+ 
+ static const struct dm_usb_ops sandbox_usb_keyb_ops = {
+diff --git a/test/dm/usb.c b/test/dm/usb.c
+index ef454b0ae5..441d0a76be 100644
+--- a/test/dm/usb.c
++++ b/test/dm/usb.c
+@@ -115,9 +115,44 @@ static int dm_test_usb_stop(struct unit_test_state *uts)
+ }
+ DM_TEST(dm_test_usb_stop, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+ 
++struct keyboard_test_data {
++	const char scancodes[USB_KBD_BOOT_REPORT_SIZE];
++	const char result[8];
++};
++
++static const struct keyboard_test_data kbd_test_data[] = {
++	/* <A> */
++	{{0x00, 0x00, 0x04}, "a"},
++	/* <B> */
++	{{0x00, 0x00, 0x05}, "b"},
++	/* <LEFT-SHIFT><A> */
++	{{0x02, 0x00, 0x04}, "A"},
++	/* <RIGHT-SHIFT><B> */
++	{{0x20, 0x00, 0x05}, "B"},
++	/* <ENTER> */
++	{{0x00, 0x00, 0x28}, "\x0d"},
++	/* <ESC> */
++	{{0x00, 0x00, 0x29}, "\x1b"},
++	/* <BACKSPACE> */
++	{{0x00, 0x00, 0x2a}, "\x08"},
++	/* <TAB> */
++	{{0x00, 0x00, 0x2b}, "\x09"},
++	/* <SPACE> */
++	{{0x00, 0x00, 0x2c}, " "},
++	/* <MINUS> */
++	{{0x00, 0x00, 0x2d}, "-"},
++	/* <LEFT-SHIFT><MINUS> */
++	{{0x02, 0x00, 0x2d}, "_"},
++	/* <RIGHT-SHIFT><MINUS> */
++	{{0x20, 0x00, 0x2d}, "_"},
++	/* End */
++	{{0x00, 0x00, 0x00}, {0}},
++};
++
+ static int dm_test_usb_keyb(struct unit_test_state *uts)
+ {
+ 	struct udevice *dev;
++	const struct keyboard_test_data *pos;
+ 
+ 	state_set_skip_delays(true);
+ 	ut_assertok(usb_init());
+@@ -132,13 +167,16 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
+ 	 * Add a string to the USB keyboard buffer - it should appear in
+ 	 * stdin
+ 	 */
+-	ut_assertok(sandbox_usb_keyb_add_string(dev, "ab"));
+-	ut_asserteq(1, tstc());
+-	ut_asserteq('a', getc());
+-	ut_asserteq(1, tstc());
+-	ut_asserteq('b', getc());
+-	ut_asserteq(0, tstc());
++	for (pos = kbd_test_data; pos->scancodes[2]; ++pos) {
++		const char *c;
++		ut_assertok(sandbox_usb_keyb_add_string(dev, pos->scancodes));
+ 
++		for (c = pos->result; *c; ++c) {
++			ut_asserteq(1, tstc());
++			ut_asserteq(*c, getc());
++		}
++		ut_asserteq(0, tstc());
++	}
+ 	ut_assertok(usb_stop());
+ 
+ 	return 0;
+-- 
+2.20.1
+
