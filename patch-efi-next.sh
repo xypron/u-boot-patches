@@ -53,6 +53,7 @@ git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 # efi-2019-10-rc2-2
 git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.SetKeyboardLayo.patch
 git am ../patch/0001-efi_loader-EFI_PXE_BASE_CODE_PROTOCOL-stub.patch
+git am ../patch/0001-efi_loader-parameter-check-in-SetVirtualAddressMap.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
