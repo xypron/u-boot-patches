@@ -1,0 +1,40 @@
+From 995dea45545eb459e0a783e70aeca03aeaa01571 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 15 Aug 2019 23:34:08 +0200
+Subject: [PATCH 1/1] easylogo: avoid buffer overrun
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Building easylogo with `HOST_TOOLS_ALL=y make tools` results in a build
+warning due to a possible buffer overrun:
+
+tools/easylogo/easylogo.c:453:4: note: ‘sprintf’ output between 7 and
+262 bytes into a destination of size 256
+    sprintf (str, "%s, 0x%02x", app, *dataptr++);
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Truncate the output to fit into the destination buffer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ tools/easylogo/easylogo.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tools/easylogo/easylogo.c b/tools/easylogo/easylogo.c
+index 4ba86bf760..ed4bf203dd 100644
+--- a/tools/easylogo/easylogo.c
++++ b/tools/easylogo/easylogo.c
+@@ -450,7 +450,8 @@ int image_save_header (image_t * image, char *filename, char *varname)
+ 
+ 		default:
+ 			strcpy (app, str);
+-			sprintf (str, "%s, 0x%02x", app, *dataptr++);
++			sprintf(str, "%.*s, 0x%02x", (int)sizeof(str) - 7, app,
++				*dataptr++);
+ 			col++;
+ 			count--;
+ 			break;
+-- 
+2.20.1
+

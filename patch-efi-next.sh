@@ -24,6 +24,7 @@ git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
 git am ../patch/0001-mailmap-provide-usage-instruction.patch
 git am ../patch/0001-doc-formatting-slimbootloader.rst.patch
 git am ../patch/0001-doc-arch-correct-links-in-x86.rst.patch
+git am ../patch/0001-easylogo-avoid-buffer-overrun.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
