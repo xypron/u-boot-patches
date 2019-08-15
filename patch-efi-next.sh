@@ -22,6 +22,8 @@ git am ../patch/0001-test-dm_mdio-avoid-out-of-bounds-access.patch
 git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
 git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
 git am ../patch/0001-mailmap-provide-usage-instruction.patch
+git am ../patch/0001-doc-formatting-slimbootloader.rst.patch
+git am ../patch/0001-doc-arch-correct-links-in-x86.rst.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -51,7 +53,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2019-10-rc3
-git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.SetKeyboardLayo.patch
 git am ../patch/0001-efi_loader-EFI_PXE_BASE_CODE_PROTOCOL-stub.patch
 git am ../patch/0001-efi_loader-parameter-check-in-SetVirtualAddressMap.patch
 git am ../patch/0001-efi_loader-do-not-call-efi_runtime_detach-twice.patch
@@ -65,6 +66,8 @@ git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-use-upper-case-for-GUIDs.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
+
+git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.SetKeyboardLayo.patch
 
 # Patches needing rework
 # git am ../patch/0001-efi_debug-make-variable-support-customizable.patch

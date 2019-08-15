@@ -1,0 +1,29 @@
+From 343cef96780db45f301eb0f710303ba7df71b8d3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 15 Aug 2019 21:16:56 +0200
+Subject: [PATCH 1/1] doc: arch: correct links in x86.rst
+
+Correctly reference uefi/uefi.rst and uefi/u-boot_on_efi.rst.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/arch/x86.rst | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/doc/arch/x86.rst b/doc/arch/x86.rst
+index 2eb524cc8f..a441738ad1 100644
+--- a/doc/arch/x86.rst
++++ b/doc/arch/x86.rst
+@@ -709,7 +709,8 @@ to load a 'u-boot-payload.efi', see below test logs on QEMU.
+   No controllers found
+   Hit any key to stop autoboot:  0
+ 
+-See README.u-boot_on_efi and README.uefi for details of EFI support in U-Boot.
++See :doc:`../uefi/u-boot_on_efi` and :doc:`../uefi/uefi` for details of
++EFI support in U-Boot.
+ 
+ TODO List
+ ---------
+-- 
+2.20.1
+
