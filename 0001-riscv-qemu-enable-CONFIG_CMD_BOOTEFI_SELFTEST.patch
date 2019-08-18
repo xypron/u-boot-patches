@@ -5,6 +5,9 @@ Subject: [PATCH 1/1] riscv: qemu: enable CONFIG_CMD_BOOTEFI_SELFTEST
 
 Enable CONFIG_CMD_BOOTEFI_SELFTEST for the QEMU RISC-V boards.
 
+Travis CI QEMU testing has been enabled for qemu-riscv64_defconfig. With
+this patch we will test the UEFI sub-system on the board.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  configs/qemu-riscv32_defconfig       | 1 +

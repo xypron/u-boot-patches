@@ -50,10 +50,8 @@ git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
-# RISC-V
-git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
-
 # efi-2019-10-rc3-2
+git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
