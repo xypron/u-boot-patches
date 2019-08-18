@@ -9,6 +9,7 @@ Travis CI QEMU testing has been enabled for qemu-riscv64_defconfig. With
 this patch we will test the UEFI sub-system on the board.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  configs/qemu-riscv32_defconfig       | 1 +
  configs/qemu-riscv32_smode_defconfig | 1 +
