@@ -49,6 +49,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # efi-2019-10-rc3-2
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
+git am ../patch/0001-efi_selftest-enable-Exit-unit-test-on-x86_64.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
