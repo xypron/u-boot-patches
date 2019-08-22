@@ -11,6 +11,9 @@ Delete the include and the tool,
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+Travis CI showed no problem:
+https://travis-ci.org/xypron2/u-boot/builds/574992788
+---
  include/video_logo.h              | 1951 -----------------------------
  tools/Makefile                    |    1 -
  tools/easylogo/Makefile           |    5 -
