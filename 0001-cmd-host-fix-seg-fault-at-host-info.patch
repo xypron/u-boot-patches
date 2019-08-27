@@ -1,0 +1,33 @@
+From fd08c67981ffab48cddd2db136b411e14dfa1f83 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Thu, 22 Aug 2019 16:47:39 +0900
+Subject: [PATCH 1/1] cmd: host: fix seg fault at "host info"
+
+With the patch below applied, host_block_dev structure was switched
+to be placed in platdata rather than priv. The command "host info"
+must be aligned with this change. Otherwise, we will see "Segmentation
+Fault."
+
+Fixes: 8f994c860d91 ("sandbox: blk: Switch to use platdata_auto_alloc_size for the driver data")
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/host.c b/cmd/host.c
+index f7d3eae5b1..98c4d2a099 100644
+--- a/cmd/host.c
++++ b/cmd/host.c
+@@ -89,7 +89,7 @@ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
+ 		struct host_block_dev *host_dev;
+ 
+ #ifdef CONFIG_BLK
+-		host_dev = dev_get_priv(blk_dev->bdev);
++		host_dev = dev_get_platdata(blk_dev->bdev);
+ #else
+ 		host_dev = blk_dev->priv;
+ #endif
+-- 
+2.20.1
+
