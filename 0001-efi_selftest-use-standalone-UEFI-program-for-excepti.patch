@@ -1,4 +1,4 @@
-From 06dfdd6140c053f4834f2bda8506d4662690030d Mon Sep 17 00:00:00 2001
+From b0d1cd9d6cd7cc24a5d0409496c34fb3dd833c70 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 27 Aug 2019 08:16:08 +0200
 Subject: [PATCH 1/1] efi_selftest: use standalone UEFI program for exception
@@ -12,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_selftest/efi_selftest_miniapp_exception.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 5d7a1643ef..4c039f2b50 100644
+index f326ead56d..f520726a1f 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -20,7 +20,6 @@ efi_selftest_crc32.o \
@@ -24,7 +24,7 @@ index 5d7a1643ef..4c039f2b50 100644
  efi_selftest_gop.o \
  efi_selftest_loaded_image.o \
 @@ -60,16 +59,23 @@ endif
- ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M)$(CONFIG_X86_64),)
+ ifeq ($(CONFIG_SANDBOX)$(CONFIG_CPU_V7M),)
  
  obj-y += \
 +efi_selftest_exception.o \
