@@ -52,6 +52,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-efi_selftest-enable-Exit-unit-test-on-x86_64.patch
 git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
+git am ../patch/0001-efi_selftest-use-standalone-UEFI-program-for-excepti.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
