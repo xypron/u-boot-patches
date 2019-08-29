@@ -1,14 +1,17 @@
-From 8070e8b38507a2611a2d3f56ed65863eadd5d289 Mon Sep 17 00:00:00 2001
+From 099d02b9349552299733a4c701d4a85fb8eb0ea1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 27 Aug 2019 08:16:08 +0200
 Subject: [PATCH 1/1] efi_selftest: use standalone UEFI program for exception
 
+To fully demonstrate crash outputs for UEFI images provide a standalone
+UEFI application that tries to invoke an illegal opcode.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                     |  10 +-
- lib/efi_selftest/efi_selftest_exception.c     | 133 +++++++++++++++---
- .../efi_selftest_miniapp_exception.c          |  42 ++++++
- 3 files changed, 161 insertions(+), 24 deletions(-)
+ lib/efi_selftest/efi_selftest_exception.c     | 141 +++++++++++++++---
+ .../efi_selftest_miniapp_exception.c          |  41 +++++
+ 3 files changed, 169 insertions(+), 23 deletions(-)
  create mode 100644 lib/efi_selftest/efi_selftest_miniapp_exception.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -57,10 +60,10 @@ index f326ead56d..8348014077 100644
  
  $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 diff --git a/lib/efi_selftest/efi_selftest_exception.c b/lib/efi_selftest/efi_selftest_exception.c
-index 76cfb88d7c..f62ca4b7d8 100644
+index 76cfb88d7c..6e900a35dc 100644
 --- a/lib/efi_selftest/efi_selftest_exception.c
 +++ b/lib/efi_selftest/efi_selftest_exception.c
-@@ -2,42 +2,129 @@
+@@ -2,42 +2,138 @@
  /*
   * efi_selftest_exception
   *
@@ -85,14 +88,23 @@ index 76cfb88d7c..f62ca4b7d8 100644
 +/* Binary logarithm of the block size */
 +#define LB_BLOCK_SIZE 9
 +
++/* File device path for LoadImage() */
 +static struct {
 +	struct efi_device_path dp;
-+	u16 str[8];
++	u16 filename[8];
 +	struct efi_device_path end;
 +} dp = {
-+	{0x04, 0x04, 0x14},
++	{
++		DEVICE_PATH_TYPE_MEDIA_DEVICE,
++		DEVICE_PATH_SUB_TYPE_FILE_PATH,
++		sizeof(dp.dp) + sizeof(dp.filename),
++	},
 +	L"bug.efi",
-+	{ 0x7f, 0x01, 0x04}
++	{
++		DEVICE_PATH_TYPE_END,
++		DEVICE_PATH_SUB_TYPE_END,
++		sizeof(dp.end),
++	}
 +};
 +
 +static efi_handle_t image_handle;
@@ -212,20 +224,20 @@ index 76cfb88d7c..f62ca4b7d8 100644
  
  	return EFI_ST_FAILURE;
  }
-@@ -45,6 +132,6 @@ static int execute(void)
+@@ -45,6 +141,7 @@ static int execute(void)
  EFI_UNIT_TEST(exception) = {
  	.name = "exception",
  	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
 +	.setup = setup,
  	.execute = execute,
--	.on_request = true,
+ 	.on_request = true,
  };
 diff --git a/lib/efi_selftest/efi_selftest_miniapp_exception.c b/lib/efi_selftest/efi_selftest_miniapp_exception.c
 new file mode 100644
-index 0000000000..f3b82ab04c
+index 0000000000..63c63d75f1
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_miniapp_exception.c
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,41 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_miniapp_return
@@ -264,8 +276,7 @@ index 0000000000..f3b82ab04c
 +#elif defined(CONFIG_X86)
 +	asm volatile (".word 0xffff\n");
 +#endif
-+	con_out->output_string(con_out,
-+			       L"Error not triggered.\n");
++	con_out->output_string(con_out, L"Exception not triggered.\n");
 +	return EFI_ABORTED;
 +}
 -- 
