@@ -48,10 +48,7 @@ git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
-# efi-2019-10-rc4
-git am ../patch/0001-efi_selftest-enable-Exit-unit-test-on-x86_64.patch
-git am ../patch/0001-efi_selftest-use-standalone-UEFI-program-for-excepti.patch
-exit
+# efi-2019-10-rc4-2
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
 exit
