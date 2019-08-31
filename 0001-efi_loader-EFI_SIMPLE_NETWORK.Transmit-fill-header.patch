@@ -1,4 +1,4 @@
-From 3b6621bd8b69fbc39054255e8cbc307755054bd2 Mon Sep 17 00:00:00 2001
+From 9560f3fcbf3fc6d11c4fff57afa47a175c19fbc6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Aug 2019 10:55:29 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_NETWORK.Transmit() fill header
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 16 insertions(+), 7 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
-index bf6d5ab0b3..145ff8d5f5 100644
+index bf6d5ab0b3..e9c7cabc88 100644
 --- a/lib/efi_loader/efi_net.c
 +++ b/lib/efi_loader/efi_net.c
 @@ -404,18 +404,26 @@ static efi_status_t EFIAPI efi_net_transmit
@@ -44,7 +44,7 @@ index bf6d5ab0b3..145ff8d5f5 100644
 +
 +		memcpy(header->et_dest, dest_addr, ARP_HLEN);
 +		memcpy(header->et_src, src_addr, ARP_HLEN);
-+		header->et_protlen = *protocol;
++		header->et_protlen = htons(*protocol);
  	}
  
  	switch (this->mode->state) {
