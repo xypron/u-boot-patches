@@ -54,6 +54,7 @@ git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-efi_loader-interrupts-in-simple-network-protocol.patch
 git am ../patch/0001-efi_selftest-check-EFI_SIMPLE_NETWORK_RECEIVE_INTERR.patch
+git am ../patch/0001-efi_loader-EFI_SIMPLE_NETWORK.Transmit-fill-header.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch

@@ -1,0 +1,61 @@
+From 3b6621bd8b69fbc39054255e8cbc307755054bd2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 31 Aug 2019 10:55:29 +0200
+Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_NETWORK.Transmit() fill header
+
+Fill the media header in EFI_SIMPLE_NETWORK.Transmit().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_net.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
+index bf6d5ab0b3..145ff8d5f5 100644
+--- a/lib/efi_loader/efi_net.c
++++ b/lib/efi_loader/efi_net.c
+@@ -404,18 +404,26 @@ static efi_status_t EFIAPI efi_net_transmit
+ 	}
+ 
+ 	/* We do not support jumbo packets */
+-	if (buffer_size > PKTSIZE_ALIGN) {
++	if (buffer_size > PKTSIZE_ALIGN ||
++	    buffer_size < this->mode->media_header_size) {
+ 		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
+ 	}
+ 
+ 	if (header_size) {
+-		/*
+-		 * TODO: We would need to create the header
+-		 * if header_size != 0
+-		 */
+-		ret = EFI_UNSUPPORTED;
+-		goto out;
++		struct ethernet_hdr *header = buffer;
++
++		if (!dest_addr || !protocol ||
++		    header_size != this->mode->media_header_size) {
++			ret = EFI_INVALID_PARAMETER;
++			goto out;
++		}
++		if (src_addr == NULL)
++			src_addr = &this->mode->current_address;
++
++		memcpy(header->et_dest, dest_addr, ARP_HLEN);
++		memcpy(header->et_src, src_addr, ARP_HLEN);
++		header->et_protlen = *protocol;
+ 	}
+ 
+ 	switch (this->mode->state) {
+@@ -764,6 +772,7 @@ efi_status_t efi_net_register(void)
+ 	netobj->net_mode.state = EFI_NETWORK_STARTED;
+ 	memcpy(netobj->net_mode.current_address.mac_addr, eth_get_ethaddr(), 6);
+ 	netobj->net_mode.hwaddr_size = ARP_HLEN;
++	netobj->net_mode.media_header_size = ETHER_HDR_SIZE;
+ 	netobj->net_mode.max_packet_size = PKTSIZE;
+ 	netobj->net_mode.if_type = ARP_ETHER;
+ 
+-- 
+2.20.1
+
