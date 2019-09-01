@@ -57,6 +57,7 @@ git am ../patch/0001-efi_loader-interrupts-in-simple-network-protocol.patch
 git am ../patch/0001-efi_selftest-check-EFI_SIMPLE_NETWORK_RECEIVE_INTERR.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_NETWORK.Transmit-fill-header.patch
 git am ../patch/0001-efi_loader-fix-status-management-in-network-stack.patch
+git am ../patch/0001-efi_loader-implement-MCastIPtoMAC.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
