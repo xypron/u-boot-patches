@@ -1,7 +1,7 @@
-From 4cfd5e439a8866dc1f2496f6ec83d3a83c2c572f Mon Sep 17 00:00:00 2001
+From 70a4e85baa7616198bc6ef9029c524035a30f674 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 31 Aug 2019 10:55:29 +0200
-Subject: [PATCH 1/1] efi_loader: EFI_SIMPLE_NETWORK.Transmit() fill header
+Subject: [PATCH 3/5] efi_loader: EFI_SIMPLE_NETWORK.Transmit() fill header
 
 Fill the media header in EFI_SIMPLE_NETWORK.Transmit().
 Check that the buffer size is large enough for the header.
@@ -44,7 +44,7 @@ index bf6d5ab0b3..646540ac08 100644
 +			ret = EFI_INVALID_PARAMETER;
 +			goto out;
 +		}
-+		if (src_addr == NULL)
++		if (!src_addr)
 +			src_addr = &this->mode->current_address;
 +
 +		memcpy(header->et_dest, dest_addr, ARP_HLEN);
