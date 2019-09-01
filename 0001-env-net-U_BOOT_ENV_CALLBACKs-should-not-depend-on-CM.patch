@@ -1,0 +1,52 @@
+From dfcddd8a0528dfb546fbf281c03bfcc37baf3e78 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 1 Sep 2019 15:57:58 +0200
+Subject: [PATCH 1/1] env: net: U_BOOT_ENV_CALLBACKs should not depend on
+ CMD_NET
+
+Some environment variables are relevant for networking. For these
+U_BOOT_ENV_CALLBACKs have been defined. When the corresponding environment
+variable is updated the callback updates the state of the network
+sub-system.
+
+In the UEFI subsystem we can use the network even if CONFIG_CMD_NET is not
+defined.
+
+Let the usage of the U_BOOT_ENV_CALLBACKs depend on CONFIG_NET and not on
+CONFIG_CMD_NET.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/env_callback.h | 2 +-
+ include/env_flags.h    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/env_callback.h b/include/env_callback.h
+index 982c07854d..74da20eec3 100644
+--- a/include/env_callback.h
++++ b/include/env_callback.h
+@@ -42,7 +42,7 @@
+ #define DNS_CALLBACK
+ #endif
+ 
+-#ifdef CONFIG_CMD_NET
++#ifdef CONFIG_NET
+ #define NET_CALLBACKS \
+ 	"bootfile:bootfile," \
+ 	"ipaddr:ipaddr," \
+diff --git a/include/env_flags.h b/include/env_flags.h
+index e5380f2948..725841a891 100644
+--- a/include/env_flags.h
++++ b/include/env_flags.h
+@@ -36,7 +36,7 @@ enum env_flags_varaccess {
+ #define CONFIG_ENV_FLAGS_LIST_STATIC ""
+ #endif
+ 
+-#ifdef CONFIG_CMD_NET
++#ifdef CONFIG_NET
+ #ifdef CONFIG_REGEX
+ #define ETHADDR_WILDCARD "\\d*"
+ #else
+-- 
+2.20.1
+
