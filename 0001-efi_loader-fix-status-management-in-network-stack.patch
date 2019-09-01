@@ -1,4 +1,4 @@
-From 9cba40e76c71fe8967eb64fa9cd7bd01d44a0e47 Mon Sep 17 00:00:00 2001
+From 89c8c8d61a80a15ea73d785b94b8550a038f0116 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 1 Sep 2019 15:24:47 +0200
 Subject: [PATCH 1/1] efi_loader: fix status management in network stack
@@ -8,17 +8,17 @@ The network should start in status EfiSimpleNetworkStopped.
 Add and correct status checks in the simple network protocol.
 
 Correct the unit test:
-* Shutdown() and Stop() before testing if needed
+* Shutdown() and Stop() during setup if needed
 * invoke Shutdown() before Stop() when tearing down
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_net.c            | 69 ++++++++++++++++++++++++++---
- lib/efi_selftest/efi_selftest_snp.c | 40 ++++++++++++++---
- 2 files changed, 96 insertions(+), 13 deletions(-)
+ lib/efi_selftest/efi_selftest_snp.c | 48 +++++++++++++++++---
+ 2 files changed, 104 insertions(+), 13 deletions(-)
 
 diff --git a/lib/efi_loader/efi_net.c b/lib/efi_loader/efi_net.c
-index e9c7cabc88..bd4fe99544 100644
+index e9c7cabc88..cccc01130c 100644
 --- a/lib/efi_loader/efi_net.c
 +++ b/lib/efi_loader/efi_net.c
 @@ -1,8 +1,18 @@
@@ -67,7 +67,7 @@ index e9c7cabc88..bd4fe99544 100644
 +	case EFI_NETWORK_STARTED:
 +		break;
 +	default:
-+		ret = EFI_NOT_STARTED;
++		r = EFI_NOT_STARTED;
 +		goto out;
 +	}
 +
@@ -140,7 +140,7 @@ index e9c7cabc88..bd4fe99544 100644
  	netobj->net_mode.hwaddr_size = ARP_HLEN;
  	netobj->net_mode.media_header_size = ETHER_HDR_SIZE;
 diff --git a/lib/efi_selftest/efi_selftest_snp.c b/lib/efi_selftest/efi_selftest_snp.c
-index 807b8657b9..29d40233d8 100644
+index 807b8657b9..9797ecaf42 100644
 --- a/lib/efi_selftest/efi_selftest_snp.c
 +++ b/lib/efi_selftest/efi_selftest_snp.c
 @@ -228,6 +228,26 @@ static int setup(const efi_handle_t handle,
@@ -192,7 +192,7 @@ index 807b8657b9..29d40233d8 100644
  	return EFI_ST_SUCCESS;
  }
  
-@@ -412,19 +440,19 @@ static int teardown(void)
+@@ -412,21 +440,29 @@ static int teardown(void)
  	}
  	if (net) {
  		/*
@@ -206,6 +206,10 @@ index 807b8657b9..29d40233d8 100644
 +			efi_st_error("Failed to shut down network adapter\n");
  			exit_status = EFI_ST_FAILURE;
  		}
++		if (net->mode->state != EFI_NETWORK_STARTED) {
++			efi_st_error("Failed to shutdown network adapter\n");
++			return EFI_ST_FAILURE;
++		}
  		/*
 -		 * Shut down network adapter.
 +		 * Stop network adapter.
@@ -217,7 +221,13 @@ index 807b8657b9..29d40233d8 100644
 +			efi_st_error("Failed to stop network adapter\n");
  			exit_status = EFI_ST_FAILURE;
  		}
++		if (net->mode->state != EFI_NETWORK_STOPPED) {
++			efi_st_error("Failed to stop network adapter\n");
++			return EFI_ST_FAILURE;
++		}
  	}
+ 
+ 	return exit_status;
 -- 
 2.20.1
 
