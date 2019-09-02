@@ -23,6 +23,7 @@ git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
 git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
 git am ../patch/0001-cmd-host-fix-seg-fault-at-host-info.patch
 git am ../patch/0001-net-nfs-remove-superfluous-conversions.patch
+git am ../patch/0001-net-nfs-remove-superfluous-packed-attribute.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
