@@ -21,7 +21,6 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-test-dm_mdio-avoid-out-of-bounds-access.patch
 git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
 git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
-git am ../patch/0001-siemens-avoid-out-of-bound-access.patch
 git am ../patch/0001-cmd-host-fix-seg-fault-at-host-info.patch
 
 # USB keyboard
