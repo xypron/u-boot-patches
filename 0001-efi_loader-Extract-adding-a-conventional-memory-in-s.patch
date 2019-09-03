@@ -1,0 +1,140 @@
+From 252a1fe430b7a3144be7a21df2ee591391a0f104 Mon Sep 17 00:00:00 2001
+From: "Park, Aiden" <aiden.park@intel.com>
+Date: Tue, 3 Sep 2019 17:43:43 +0000
+Subject: [PATCH] efi_loader: Extract adding a conventional memory in separate
+ routine
+
+Adding a conventional memory region to the memory map may require ram_top
+limitation and it can be also commonly used. Extract adding a conventional
+memory to the memory map in a separate routine for generic use.
+
+Signed-off-by: Aiden Park <aiden.park@intel.com>
+Tested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h        |  4 ++
+ lib/efi_loader/efi_memory.c | 82 ++++++++++++++++++++++---------------
+ 2 files changed, 54 insertions(+), 32 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 5298ea7997..00eba8afa4 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -478,6 +478,10 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ /* Adds a range into the EFI memory map */
+ efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 				bool overlap_only_ram);
++/* Adds a conventional range into the EFI memory map */
++efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
++					     u64 ram_top);
++
+ /* Called by board init to initialize the EFI drivers */
+ efi_status_t efi_driver_init(void);
+ /* Called by board init to initialize the EFI memory map */
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index b5775e0399..83cbc9154f 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -655,6 +655,54 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 	return EFI_SUCCESS;
+ }
+ 
++/**
++ * efi_add_conventional_memory_map() - add a RAM memory area to the map
++ *
++ * @ram_start:		start address of a RAM memory area
++ * @ram_end:		end address of a RAM memory area
++ * @ram_top:		max address to be used as conventional memory
++ * Return:		status code
++ */
++efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
++					     u64 ram_top)
++{
++	u64 pages;
++
++	/* Remove partial pages */
++	ram_end &= ~EFI_PAGE_MASK;
++	ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
++
++	if (ram_end <= ram_start) {
++		/* Invalid mapping */
++		return EFI_INVALID_PARAMETER;
++	}
++
++	pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
++
++	efi_add_memory_map(ram_start, pages,
++			   EFI_CONVENTIONAL_MEMORY, false);
++
++	/*
++	 * Boards may indicate to the U-Boot memory core that they
++	 * can not support memory above ram_top. Let's honor this
++	 * in the efi_loader subsystem too by declaring any memory
++	 * above ram_top as "already occupied by firmware".
++	 */
++	if (ram_top < ram_start) {
++		/* ram_top is before this region, reserve all */
++		efi_add_memory_map(ram_start, pages,
++				   EFI_BOOT_SERVICES_DATA, true);
++	} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
++		/* ram_top is inside this region, reserve parts */
++		pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
++
++		efi_add_memory_map(ram_top, pages,
++				   EFI_BOOT_SERVICES_DATA, true);
++	}
++
++	return EFI_SUCCESS;
++}
++
+ __weak void efi_add_known_memory(void)
+ {
+ 	u64 ram_top = board_get_usable_ram_top(0) & ~EFI_PAGE_MASK;
+@@ -672,42 +720,12 @@ __weak void efi_add_known_memory(void)
+ 
+ 	/* Add RAM */
+ 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+-		u64 ram_end, ram_start, pages;
++		u64 ram_end, ram_start;
+ 
+ 		ram_start = (uintptr_t)map_sysmem(gd->bd->bi_dram[i].start, 0);
+ 		ram_end = ram_start + gd->bd->bi_dram[i].size;
+ 
+-		/* Remove partial pages */
+-		ram_end &= ~EFI_PAGE_MASK;
+-		ram_start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+-
+-		if (ram_end <= ram_start) {
+-			/* Invalid mapping, keep going. */
+-			continue;
+-		}
+-
+-		pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+-
+-		efi_add_memory_map(ram_start, pages,
+-				   EFI_CONVENTIONAL_MEMORY, false);
+-
+-		/*
+-		 * Boards may indicate to the U-Boot memory core that they
+-		 * can not support memory above ram_top. Let's honor this
+-		 * in the efi_loader subsystem too by declaring any memory
+-		 * above ram_top as "already occupied by firmware".
+-		 */
+-		if (ram_top < ram_start) {
+-			/* ram_top is before this region, reserve all */
+-			efi_add_memory_map(ram_start, pages,
+-					   EFI_BOOT_SERVICES_DATA, true);
+-		} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
+-			/* ram_top is inside this region, reserve parts */
+-			pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
+-
+-			efi_add_memory_map(ram_top, pages,
+-					   EFI_BOOT_SERVICES_DATA, true);
+-		}
++		efi_add_conventional_memory_map(ram_start, ram_end, ram_top);
+ 	}
+ }
+ 
+-- 
+2.23.0.rc1
+

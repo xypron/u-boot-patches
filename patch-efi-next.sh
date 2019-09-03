@@ -59,6 +59,9 @@ git am ../patch/0001-efi_selftest-check-EFI_SIMPLE_NETWORK_RECEIVE_INTERR.patch
 git am ../patch/0001-efi_loader-EFI_SIMPLE_NETWORK.Transmit-fill-header.patch
 git am ../patch/0001-efi_loader-fix-status-management-in-network-stack.patch
 git am ../patch/0001-efi_loader-implement-MCastIPtoMAC.patch
+
+# efi-2019-10-rc4-3
+git am ../patch/0001-efi_loader-Extract-adding-a-conventional-memory-in-s.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
