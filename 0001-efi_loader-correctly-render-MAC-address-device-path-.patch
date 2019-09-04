@@ -1,11 +1,10 @@
-From 9c7120c1467f4fdd2f4b141d95c878463352066b Mon Sep 17 00:00:00 2001
+From beca396b6f255d1a848a630b683e2317faa003dc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 4 Sep 2019 13:32:05 +0200
 Subject: [PATCH 1/1] efi_loader: correctly render MAC address device path
  nodes
 
-If the interface type is greater than 1, render all 32 bytes of the MAC
-address.
+If the interface type is greater 1 render all 32 bytes of the MAC address.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -13,7 +12,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 7 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
-index 133542ad40..2617694a8b 100644
+index 133542ad40..892f5c4d33 100644
 --- a/lib/efi_loader/efi_device_path_to_text.c
 +++ b/lib/efi_loader/efi_device_path_to_text.c
 @@ -124,17 +124,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
