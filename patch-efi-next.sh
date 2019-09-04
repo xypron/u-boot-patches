@@ -62,6 +62,7 @@ git am ../patch/0001-efi_loader-implement-MCastIPtoMAC.patch
 
 # efi-2019-10-rc4-3
 git am ../patch/0001-efi_loader-Extract-adding-a-conventional-memory-in-s.patch
+git am ../patch/0001-efi_loader-correctly-render-CD-ROM-device-path-nodes.patch
 git am ../patch/0001-efi_loader-correctly-render-UsbClass-DP-nodes-as-tex.patch
 exit
 
