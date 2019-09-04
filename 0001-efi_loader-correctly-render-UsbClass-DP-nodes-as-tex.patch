@@ -1,0 +1,28 @@
+From 2884144bfa4ed7bc1caffa1fd308a5f76af312a2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 4 Sep 2019 14:30:41 +0200
+Subject: [PATCH 1/1] efi_loader: correctly render UsbClass DP nodes as text
+
+Correct the text representation of UsbClass device path nodes.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path_to_text.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index 6e27508fba..b20b7c097c 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -141,7 +141,7 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
+ 		struct efi_device_path_usb_class *ucdp =
+ 			(struct efi_device_path_usb_class *)dp;
+ 
+-		s += sprintf(s, "USBClass(%x,%x,%x,%x,%x)",
++		s += sprintf(s, "UsbClass(0x%x,0x%x,0x%x,0x%x,0x%x)",
+ 			ucdp->vendor_id, ucdp->product_id,
+ 			ucdp->device_class, ucdp->device_subclass,
+ 			ucdp->device_protocol);
+-- 
+2.23.0.rc1
+
