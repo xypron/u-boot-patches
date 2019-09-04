@@ -66,6 +66,7 @@ git am ../patch/0001-efi_loader-correct-text-conversion-for-vendor-DP.patch
 git am ../patch/0001-efi_loader-correctly-render-MAC-address-device-path-.patch
 git am ../patch/0001-efi_loader-correctly-render-CD-ROM-device-path-nodes.patch
 git am ../patch/0001-efi_loader-correctly-render-UsbClass-DP-nodes-as-tex.patch
+git am ../patch/0001-efi_loader-cursor-positioning.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
