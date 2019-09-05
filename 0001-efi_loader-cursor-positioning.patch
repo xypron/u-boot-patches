@@ -1,4 +1,4 @@
-From 22af9f2aeadbb447f67aaff3e1ac56ddbf85edea Mon Sep 17 00:00:00 2001
+From 4cf43c3581aa3529000fba0074757b8240471743 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 4 Sep 2019 21:13:45 +0200
 Subject: [PATCH 1/1] efi_loader: cursor positioning
@@ -11,11 +11,15 @@ column.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+v2
+	add comments
+	remove a superfluous line
+---
+ lib/efi_loader/efi_console.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index d4765afb98..d5222c46b4 100644
+index d4765afb98..5560fc8dea 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -156,13 +156,14 @@ static efi_status_t EFIAPI efi_cout_output_string(
@@ -36,12 +40,13 @@ index d4765afb98..d5222c46b4 100644
  			break;
  		case '\n':	/* U+000A, newline */
  			con->cursor_column = 0;
-@@ -178,13 +179,16 @@ static efi_status_t EFIAPI efi_cout_output_string(
+@@ -178,14 +179,21 @@ static efi_status_t EFIAPI efi_cout_output_string(
  			 */
  			break;
  		default:
 -			con->cursor_column++;
-+			if (*p > 0x1f) /* Exclude control codes */
++			/* Exclude control codes */
++			if (*p > 0x1f)
 +				con->cursor_column++;
  			break;
  		}
@@ -49,11 +54,16 @@ index d4765afb98..d5222c46b4 100644
  			con->cursor_column = 0;
  			con->cursor_row++;
  		}
+-		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
++		/*
++		 * When we exceed the row count the terminal will scroll up one
++		 * line. We have to adjust the cursor position.
++		 */
 +		if (con->cursor_row >= mode->rows && con->cursor_row)
 +			con->cursor_row--;
- 		con->cursor_row = min(con->cursor_row, (s32)mode->rows - 1);
  	}
  
+ out:
 -- 
 2.23.0.rc1
 
