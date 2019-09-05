@@ -71,6 +71,7 @@ git am ../patch/0001-efi_loader-do-not-set-invalid-screen-mode.patch
 git am ../patch/0001-efi_loader-parameter-checks-BLOCK_IO_PROTOCOL.patch
 git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 git am ../patch/0001-efi_loader-EFI_BLOCK_IO_PROTOCOL.Reset.patch
+git am ../patch/0001-doc-UEFI-API-documentation.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
