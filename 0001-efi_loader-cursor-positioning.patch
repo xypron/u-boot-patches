@@ -41,7 +41,7 @@ index d4765afb98..d5222c46b4 100644
  			break;
  		default:
 -			con->cursor_column++;
-+			if (*p > 0x1f)
++			if (*p > 0x1f) /* Exclude control codes */
 +				con->cursor_column++;
  			break;
  		}
