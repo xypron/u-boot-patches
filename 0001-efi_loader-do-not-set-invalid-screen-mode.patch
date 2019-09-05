@@ -7,6 +7,7 @@ EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.SetMode() should return EFI_UNDEFINED if a
 screen mode is not available.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Alexander Graf <agraf@csgraf.de>
 ---
  lib/efi_loader/efi_console.c | 4 ++++
  1 file changed, 4 insertions(+)
