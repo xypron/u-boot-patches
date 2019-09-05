@@ -18,12 +18,7 @@ git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-test-dm_mdio-avoid-out-of-bounds-access.patch
-git am ../patch/0001-drivers-net-pfe_eth-undefined-return-value.patch
-git am ../patch/0001-cmd-bdinfo-sandbox-print-the-relocation-offset.patch
 git am ../patch/0001-cmd-host-fix-seg-fault-at-host-info.patch
-git am ../patch/0001-net-nfs-remove-superfluous-conversions.patch
-git am ../patch/0001-net-nfs-remove-superfluous-packed-attribute.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -32,8 +27,6 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-usb-kbd-fix-typo.patch
 git am ../patch/0001-usb-kbd-move-USB_KBD_BOOT_REPORT_SIZE-to-usb.h.patch
 git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
-
-# git am ../patch/0001-efi_selftest-test-handling-of-undefined-instruction.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -50,7 +43,6 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
-git am ../patch/0001-env-net-U_BOOT_ENV_CALLBACKs-should-not-depend-on-CM.patch
 
 # efi-2019-10-rc4-2
 git am ../patch/0001-riscv-qemu-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
