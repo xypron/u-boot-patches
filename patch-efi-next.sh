@@ -69,6 +69,7 @@ git am ../patch/0001-efi_loader-correctly-render-UsbClass-DP-nodes-as-tex.patch
 git am ../patch/0001-efi_loader-cursor-positioning.patch
 git am ../patch/0001-efi_loader-do-not-set-invalid-screen-mode.patch
 git am ../patch/0001-efi_loader-parameter-checks-BLOCK_IO_PROTOCOL.patch
+git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch

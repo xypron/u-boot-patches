@@ -1,0 +1,40 @@
+From ac7e9af44d8a650d87fbf85a7c3d85129089fd80 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 5 Sep 2019 19:43:17 +0200
+Subject: [PATCH 1/1] efi_loader: use EFI_PRINT() instead of debug()
+
+EFI_PRINT() offers indention of debug messages. Adjust the debug messages
+of the BLOCK_IO_PROTOCOL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_disk.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index bbc57adaa6..dc94100c89 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -69,8 +69,8 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
+ 	blocks = buffer_size / blksz;
+ 	lba += diskobj->offset;
+ 
+-	debug("EFI: %s:%d blocks=%x lba=%llx blksz=%x dir=%d\n", __func__,
+-	      __LINE__, blocks, lba, blksz, direction);
++	EFI_PRINT("blocks=%x lba=%llx blksz=%x dir=%d\n",
++		  blocks, lba, blksz, direction);
+ 
+ 	/* We only support full block access */
+ 	if (buffer_size & (blksz - 1))
+@@ -84,7 +84,7 @@ static efi_status_t efi_disk_rw_blocks(struct efi_block_io *this,
+ 	/* We don't do interrupts, so check for timers cooperatively */
+ 	efi_timer_check();
+ 
+-	debug("EFI: %s:%d n=%lx blocks=%x\n", __func__, __LINE__, n, blocks);
++	EFI_PRINT("n=%lx blocks=%x\n", n, blocks);
+ 
+ 	if (n != blocks)
+ 		return EFI_DEVICE_ERROR;
+-- 
+2.23.0.rc1
+
