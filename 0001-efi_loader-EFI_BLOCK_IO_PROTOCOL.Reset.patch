@@ -41,7 +41,7 @@ index dc94100c89..18bb820249 100644
  {
  	EFI_ENTRY("%p, %x", this, extended_verification);
 -	return EFI_EXIT(EFI_DEVICE_ERROR);
-+	return EFI_EXIT(EFI_SUCESS);
++	return EFI_EXIT(EFI_SUCCESS);
  }
  
  enum efi_disk_direction {
