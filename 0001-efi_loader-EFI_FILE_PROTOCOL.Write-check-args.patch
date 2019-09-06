@@ -1,4 +1,4 @@
-From 62e1049e109a1bc8afafb88850369d4b55aa81d2 Mon Sep 17 00:00:00 2001
+From 0edd82d2de15fd3f3ea3b0f1d7c315339f8fc7da Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Sep 2019 21:37:21 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_FILE_PROTOCOL.Write() check args
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 36 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index f4ca5694ee..d75d671006 100644
+index f4ca5694ee..8a6c39a6ff 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -28,6 +28,7 @@ struct file_handle {
@@ -88,7 +88,7 @@ index f4ca5694ee..d75d671006 100644
 +		goto out;
 +	}
 +	if (!(fh->open_mode & EFI_FILE_MODE_WRITE)) {
-+		ret = EFI_WRITE_PROTECTED;
++		ret = EFI_ACCESS_DENIED;
 +		goto out;
 +	}
  	if (set_blk_dev(fh)) {
