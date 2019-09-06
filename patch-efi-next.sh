@@ -64,6 +64,9 @@ git am ../patch/0001-efi_loader-parameter-checks-BLOCK_IO_PROTOCOL.patch
 git am ../patch/0001-efi_loader-use-EFI_PRINT-instead-of-debug.patch
 git am ../patch/0001-efi_loader-EFI_BLOCK_IO_PROTOCOL.Reset.patch
 git am ../patch/0001-doc-UEFI-API-documentation.patch
+
+# efi-2019-10-rc5
+git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
