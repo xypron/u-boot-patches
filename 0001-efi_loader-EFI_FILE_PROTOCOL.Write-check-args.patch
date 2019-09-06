@@ -1,4 +1,4 @@
-From 6bd4b7dcf835a146b48e06d310022189a3116a68 Mon Sep 17 00:00:00 2001
+From 62e1049e109a1bc8afafb88850369d4b55aa81d2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 6 Sep 2019 21:37:21 +0200
 Subject: [PATCH 1/1] efi_loader: EFI_FILE_PROTOCOL.Write() check args
@@ -10,11 +10,11 @@ Check the parameters passed to Write():
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_file.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
+ lib/efi_loader/efi_file.c | 41 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 36 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index f4ca5694ee..fbd8a9d623 100644
+index f4ca5694ee..d75d671006 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -28,6 +28,7 @@ struct file_handle {
@@ -42,7 +42,7 @@ index f4ca5694ee..fbd8a9d623 100644
  	fh->base = efi_file_handle_protocol;
  	fh->fs = fs;
  
-@@ -218,7 +220,7 @@ static struct efi_file_handle *file_open(struct file_system *fs,
+@@ -218,9 +220,11 @@ static struct efi_file_handle *file_open(struct file_system *fs,
  			goto error;
  
  		if (!exists) {
@@ -50,8 +50,12 @@ index f4ca5694ee..fbd8a9d623 100644
 +			if (!(open_mode & EFI_FILE_MODE_CREATE) ||
  			    efi_create_file(fh, attributes))
  				goto error;
++			if (set_blk_dev(fh))
++				goto error;
  		}
-@@ -434,6 +436,19 @@ error:
+ 
+ 		/* figure out if file is a directory: */
+@@ -434,6 +438,19 @@ error:
  	return EFI_EXIT(ret);
  }
  
@@ -71,7 +75,7 @@ index f4ca5694ee..fbd8a9d623 100644
  static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
  					  efi_uintn_t *buffer_size,
  					  void *buffer)
-@@ -444,21 +459,35 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
+@@ -444,21 +461,35 @@ static efi_status_t EFIAPI efi_file_write(struct efi_file_handle *file,
  
  	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
  
