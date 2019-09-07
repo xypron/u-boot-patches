@@ -1,24 +1,28 @@
-From e98455bcf2d04bd8d86a3d05321db22740cfbad8 Mon Sep 17 00:00:00 2001
+From 4bdcb07c922bfcb89bfb6d6d0e7e2f64fca6a2e9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 7 Sep 2019 22:34:07 +0200
-Subject: [PATCH 1/1] efi_loader: on end of directory always return 0
+Subject: [PATCH 1/1] efi_loader: correct reading of directories
 
-When reaching the end of a directory we always have to return 0
-irrespective of the incoming buffer_size.
+EFI_FILE_PROTOCOL.Read() is used both to read files and directories.
 
-The described scenario for a Shim quirk cannot arise because every
-directory has at least '.' and '..' as entries.
+When reaching the end of a directory we always have to return buffer size
+zero irrespective of the incoming buffer size. (The described scenario for
+a Shim quirk cannot arise because every directory has at least '.' and '..'
+as entries.)
 
-When the buffer_size is too small multiple times we have to keep our
-directory entry.
+Even when the buffer_size is too small multiple times we have to keep a
+reference to our last read directory entry.
+
+When we return to the start of the directory via SetPosition() we must
+remove the reference to a previously kept directory entry.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_file.c | 22 ++++------------------
- 1 file changed, 4 insertions(+), 18 deletions(-)
+ lib/efi_loader/efi_file.c | 23 +++++------------------
+ 1 file changed, 5 insertions(+), 18 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 9f78b82241..671eec3c28 100644
+index 9f78b82241..74ad878217 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -338,7 +338,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
@@ -30,7 +34,15 @@ index 9f78b82241..671eec3c28 100644
  	u16 *dst;
  
  	if (!fh->dirs) {
-@@ -356,28 +356,13 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+@@ -346,6 +346,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+ 		fh->dirs = fs_opendir(fh->path);
+ 		if (!fh->dirs)
+ 			return EFI_DEVICE_ERROR;
++		fh->dent = NULL;
+ 	}
+ 
+ 	/*
+@@ -356,28 +357,13 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
  	 */
  	if (fh->dent) {
  		dent = fh->dent;
@@ -61,7 +73,7 @@ index 9f78b82241..671eec3c28 100644
  		return EFI_SUCCESS;
  	}
  
-@@ -389,6 +374,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+@@ -389,6 +375,7 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
  		fh->dent = dent;
  		return EFI_BUFFER_TOO_SMALL;
  	}
