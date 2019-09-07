@@ -1,0 +1,75 @@
+From 2e08b2ba143e5881481dbc131e4400f419c44adf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 7 Sep 2019 23:28:04 +0200
+Subject: [PATCH 1/1] efi_loader: file size checks
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 74ad878217..7dac577e07 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -395,12 +395,24 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+ 	return EFI_SUCCESS;
+ }
+ 
++static efi_status_t efi_get_file_size(struct file_handle *fh,
++				      loff_t *file_size) {
++	if (set_blk_dev(fh))
++		return EFI_DEVICE_ERROR;
++
++	if (fs_size(fh->path, &file_size))
++		return EFI_DEVICE_ERROR;
++	
++	return EFI_SUCCESS;
++}
++
+ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
+ 					 efi_uintn_t *buffer_size, void *buffer)
+ {
+ 	struct file_handle *fh = to_fh(file);
+ 	efi_status_t ret = EFI_SUCCESS;
+ 	u64 bs;
++	loff_t file_size;
+ 
+ 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
+ 
+@@ -409,6 +421,14 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
+ 		goto error;
+ 	}
+ 
++	ret = efi_get_file_size(fh, &file_size);
++	if (ret != EFI_SUCESS)
++		goto error;
++	if (file_size <= fh->offset) {
++		ret = EFI_DEVICE_ERROR;
++		goto error;
++	}
++
+ 	if (set_blk_dev(fh)) {
+ 		ret = EFI_DEVICE_ERROR;
+ 		goto error;
+@@ -586,15 +606,9 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 			goto error;
+ 		}
+ 
+-		if (set_blk_dev(fh)) {
+-			ret = EFI_DEVICE_ERROR;
++		ret = efi_get_file_size(fh, &file_size);
++		if (ret != EFI_SUCESS)
+ 			goto error;
+-		}
+-
+-		if (fs_size(fh->path, &file_size)) {
+-			ret = EFI_DEVICE_ERROR;
+-			goto error;
+-		}
+ 
+ 		memset(info, 0, required_size);
+ 
+-- 
+2.23.0
+
