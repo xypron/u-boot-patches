@@ -1,4 +1,4 @@
-From 6588dad1217fa2c46eed585bad1c0da9758ea25e Mon Sep 17 00:00:00 2001
+From d74410e4004810118a2dfb3bf21939fb2aa712b8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 7 Sep 2019 23:28:04 +0200
 Subject: [PATCH 1/1] efi_loader: file size checks
@@ -11,14 +11,14 @@ the end of the file, return EFI_DEVICE_ERROR.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_file.c | 68 ++++++++++++++++++++++-----------------
- 1 file changed, 39 insertions(+), 29 deletions(-)
+ lib/efi_loader/efi_file.c | 69 +++++++++++++++++++++++----------------
+ 1 file changed, 40 insertions(+), 29 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 74ad878217..ca9235cea1 100644
+index 74ad878217..504b1d1755 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
-@@ -318,11 +318,41 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
+@@ -318,11 +318,42 @@ static efi_status_t EFIAPI efi_file_delete(struct efi_file_handle *file)
  	return EFI_EXIT(ret);
  }
  
@@ -30,7 +30,8 @@ index 74ad878217..ca9235cea1 100644
 + * Return:	status code
 + */
 +static efi_status_t efi_get_file_size(struct file_handle *fh,
-+				      loff_t *file_size) {
++				      loff_t *file_size)
++{
 +	if (set_blk_dev(fh))
 +		return EFI_DEVICE_ERROR;
 +
@@ -60,7 +61,7 @@ index 74ad878217..ca9235cea1 100644
  	if (fs_read(fh->path, map_to_sysmem(buffer), fh->offset,
  		    *buffer_size, &actread))
  		return EFI_DEVICE_ERROR;
-@@ -341,6 +371,9 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+@@ -341,6 +372,9 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
  	u64 required_size;
  	u16 *dst;
  
@@ -70,7 +71,7 @@ index 74ad878217..ca9235cea1 100644
  	if (!fh->dirs) {
  		assert(fh->offset == 0);
  		fh->dirs = fs_opendir(fh->path);
-@@ -409,11 +442,6 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
+@@ -409,11 +443,6 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
  		goto error;
  	}
  
@@ -82,7 +83,7 @@ index 74ad878217..ca9235cea1 100644
  	bs = *buffer_size;
  	if (fh->isdir)
  		ret = dir_read(fh, &bs, buffer);
-@@ -541,16 +569,9 @@ static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
+@@ -541,16 +570,9 @@ static efi_status_t EFIAPI efi_file_setpos(struct efi_file_handle *file,
  	if (pos == ~0ULL) {
  		loff_t file_size;
  
@@ -101,7 +102,7 @@ index 74ad878217..ca9235cea1 100644
  		pos = file_size;
  	}
  
-@@ -586,15 +607,9 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+@@ -586,15 +608,9 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
  			goto error;
  		}
  
@@ -119,7 +120,7 @@ index 74ad878217..ca9235cea1 100644
  
  		memset(info, 0, required_size);
  
-@@ -693,14 +708,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
+@@ -693,14 +709,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
  		}
  		free(new_file_name);
  		/* Check for truncation */
