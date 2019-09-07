@@ -1,7 +1,7 @@
-From 6d42c1644fa3c7fa99402f5445e786499fc1e9b1 Mon Sep 17 00:00:00 2001
+From 7d66db0b7c271c6f4fa0082a5892d78aef0dd6bb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 30 Jan 2019 19:30:10 +0100
-Subject: [PATCH v3 1/1] configs: qemu: enable CONFIG_UNIT_TEST
+Subject: [PATCH 1/1] configs: qemu: enable CONFIG_UNIT_TEST
 
 Some library functions are implemented in a architecture dependent way,
 e.g. the memory functions memset(), memcopy(), memmove.
@@ -10,9 +10,6 @@ So let's enable unit tests for QEMU targets. Later we should ensure they
 are actually called on Travis CI.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
-v3
-	use the correct CONFIG option
 ---
  configs/qemu-ppce500_defconfig       | 1 +
  configs/qemu-riscv32_defconfig       | 1 +
@@ -30,7 +27,7 @@ v3
  13 files changed, 13 insertions(+)
 
 diff --git a/configs/qemu-ppce500_defconfig b/configs/qemu-ppce500_defconfig
-index fd276f2d04..40629a2a5d 100644
+index fd276f2d04..0e59ce2d01 100644
 --- a/configs/qemu-ppce500_defconfig
 +++ b/configs/qemu-ppce500_defconfig
 @@ -28,3 +28,4 @@ CONFIG_E1000=y
@@ -39,79 +36,79 @@ index fd276f2d04..40629a2a5d 100644
  CONFIG_OF_LIBFDT=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-riscv32_defconfig b/configs/qemu-riscv32_defconfig
-index 6334d8c0fc..ce247bd44a 100644
+index fe09a0da88..0434891f78 100644
 --- a/configs/qemu-riscv32_defconfig
 +++ b/configs/qemu-riscv32_defconfig
-@@ -7,3 +7,4 @@ CONFIG_DISPLAY_CPUINFO=y
- CONFIG_DISPLAY_BOARDINFO=y
+@@ -8,3 +8,4 @@ CONFIG_DISPLAY_BOARDINFO=y
+ CONFIG_CMD_BOOTEFI_SELFTEST=y
  # CONFIG_CMD_MII is not set
  CONFIG_OF_PRIOR_STAGE=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-riscv32_smode_defconfig b/configs/qemu-riscv32_smode_defconfig
-index 0a84ec1874..fb581504ea 100644
+index 7103324421..ffadb41c70 100644
 --- a/configs/qemu-riscv32_smode_defconfig
 +++ b/configs/qemu-riscv32_smode_defconfig
-@@ -8,3 +8,4 @@ CONFIG_DISPLAY_CPUINFO=y
- CONFIG_DISPLAY_BOARDINFO=y
+@@ -9,3 +9,4 @@ CONFIG_DISPLAY_BOARDINFO=y
+ CONFIG_CMD_BOOTEFI_SELFTEST=y
  # CONFIG_CMD_MII is not set
  CONFIG_OF_PRIOR_STAGE=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-riscv64_defconfig b/configs/qemu-riscv64_defconfig
-index 2d9ead93a2..ee0b7e9c23 100644
+index ef84dfded2..2df47ca742 100644
 --- a/configs/qemu-riscv64_defconfig
 +++ b/configs/qemu-riscv64_defconfig
-@@ -8,3 +8,4 @@ CONFIG_DISPLAY_CPUINFO=y
- CONFIG_DISPLAY_BOARDINFO=y
+@@ -9,3 +9,4 @@ CONFIG_DISPLAY_BOARDINFO=y
+ CONFIG_CMD_BOOTEFI_SELFTEST=y
  # CONFIG_CMD_MII is not set
  CONFIG_OF_PRIOR_STAGE=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-riscv64_smode_defconfig b/configs/qemu-riscv64_smode_defconfig
-index b012443370..3b255afaa7 100644
+index 1c7a2d150c..a9ae532ad5 100644
 --- a/configs/qemu-riscv64_smode_defconfig
 +++ b/configs/qemu-riscv64_smode_defconfig
-@@ -9,3 +9,4 @@ CONFIG_DISPLAY_CPUINFO=y
- CONFIG_DISPLAY_BOARDINFO=y
+@@ -10,3 +10,4 @@ CONFIG_DISPLAY_BOARDINFO=y
+ CONFIG_CMD_BOOTEFI_SELFTEST=y
  # CONFIG_CMD_MII is not set
  CONFIG_OF_PRIOR_STAGE=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-x86_64_defconfig b/configs/qemu-x86_64_defconfig
-index 8d43acd480..0ecfa3129f 100644
+index e735ba8675..22a03748d2 100644
 --- a/configs/qemu-x86_64_defconfig
 +++ b/configs/qemu-x86_64_defconfig
-@@ -72,3 +72,4 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
+@@ -56,3 +56,4 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
  CONFIG_FRAMEBUFFER_VESA_MODE_USER=y
  CONFIG_FRAMEBUFFER_VESA_MODE=0x144
  CONFIG_CONSOLE_SCROLL_LINES=5
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu-x86_defconfig b/configs/qemu-x86_defconfig
-index 12ea72f562..e58d48575f 100644
+index e71b8a0ee1..6cc6aad5b8 100644
 --- a/configs/qemu-x86_defconfig
 +++ b/configs/qemu-x86_defconfig
-@@ -51,3 +51,4 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
+@@ -41,3 +41,4 @@ CONFIG_FRAMEBUFFER_SET_VESA_MODE=y
  CONFIG_FRAMEBUFFER_VESA_MODE_USER=y
  CONFIG_FRAMEBUFFER_VESA_MODE=0x144
  CONFIG_CONSOLE_SCROLL_LINES=5
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_arm64_defconfig b/configs/qemu_arm64_defconfig
-index f2e759cee9..74fa6bfc65 100644
+index 7237819909..cb4914a55f 100644
 --- a/configs/qemu_arm64_defconfig
 +++ b/configs/qemu_arm64_defconfig
-@@ -35,3 +35,4 @@ CONFIG_USB=y
+@@ -37,3 +37,4 @@ CONFIG_USB=y
  CONFIG_DM_USB=y
  CONFIG_USB_EHCI_HCD=y
  CONFIG_USB_EHCI_PCI=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_arm_defconfig b/configs/qemu_arm_defconfig
-index 27c427dd82..0843c57690 100644
+index 7c95892d98..ad1ebd0823 100644
 --- a/configs/qemu_arm_defconfig
 +++ b/configs/qemu_arm_defconfig
-@@ -36,3 +36,4 @@ CONFIG_USB=y
+@@ -38,3 +38,4 @@ CONFIG_USB=y
  CONFIG_DM_USB=y
  CONFIG_USB_EHCI_HCD=y
  CONFIG_USB_EHCI_PCI=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_mips64_defconfig b/configs/qemu_mips64_defconfig
-index aff109512e..c305d43b7b 100644
+index aff109512e..4b761b45bb 100644
 --- a/configs/qemu_mips64_defconfig
 +++ b/configs/qemu_mips64_defconfig
 @@ -23,3 +23,4 @@ CONFIG_SYS_FLASH_USE_BUFFER_WRITE=y
@@ -120,7 +117,7 @@ index aff109512e..c305d43b7b 100644
  CONFIG_LZMA=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_mips64el_defconfig b/configs/qemu_mips64el_defconfig
-index 63cbd44c0d..59729e7719 100644
+index 63cbd44c0d..96513a078f 100644
 --- a/configs/qemu_mips64el_defconfig
 +++ b/configs/qemu_mips64el_defconfig
 @@ -24,3 +24,4 @@ CONFIG_SYS_FLASH_USE_BUFFER_WRITE=y
@@ -129,7 +126,7 @@ index 63cbd44c0d..59729e7719 100644
  CONFIG_LZMA=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_mips_defconfig b/configs/qemu_mips_defconfig
-index 37bf69f9e8..92007e9fe5 100644
+index 37bf69f9e8..7cceeca759 100644
 --- a/configs/qemu_mips_defconfig
 +++ b/configs/qemu_mips_defconfig
 @@ -21,3 +21,4 @@ CONFIG_SYS_FLASH_USE_BUFFER_WRITE=y
@@ -138,7 +135,7 @@ index 37bf69f9e8..92007e9fe5 100644
  CONFIG_LZMA=y
 +CONFIG_UNIT_TEST=y
 diff --git a/configs/qemu_mipsel_defconfig b/configs/qemu_mipsel_defconfig
-index 82091b97df..96532058de 100644
+index 82091b97df..b2be5d83e6 100644
 --- a/configs/qemu_mipsel_defconfig
 +++ b/configs/qemu_mipsel_defconfig
 @@ -22,3 +22,4 @@ CONFIG_SYS_FLASH_USE_BUFFER_WRITE=y
@@ -147,5 +144,5 @@ index 82091b97df..96532058de 100644
  CONFIG_LZMA=y
 +CONFIG_UNIT_TEST=y
 -- 
-2.20.1
+2.23.0.rc1
 
