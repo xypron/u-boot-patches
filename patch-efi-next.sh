@@ -47,6 +47,7 @@ git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
 # efi-2019-10-rc5
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
+git am ../patch/0001-efi_loader-on-end-of-directory-always-return-0.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
