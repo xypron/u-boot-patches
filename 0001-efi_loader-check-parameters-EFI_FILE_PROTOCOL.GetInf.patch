@@ -1,4 +1,4 @@
-From dc44fc6804796af847a6020498d92e9177e8ccdd Mon Sep 17 00:00:00 2001
+From 58f2837b7a7f3bff74a984be7bc019e4fd86d886 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 8 Sep 2019 10:45:31 +0200
 Subject: [PATCH 1/1] efi_loader: check parameters EFI_FILE_PROTOCOL.GetInfo()
@@ -6,20 +6,23 @@ Subject: [PATCH 1/1] efi_loader: check parameters EFI_FILE_PROTOCOL.GetInfo()
 Check the parameters of EFI_FILE_PROTOCOL.GetInfo() to avoid possible NULL
 dereference.
 
+Check the buffer size for EFI_FILE_SYSTEM_INFO.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_file.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ lib/efi_loader/efi_file.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 0048955a70..fe410aa5ce 100644
+index 3a108c6bf7..71582e5149 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
-@@ -596,6 +596,11 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+@@ -596,6 +596,12 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
  
  	EFI_ENTRY("%p, %pUl, %p, %p", file, info_type, buffer_size, buffer);
  
-+	if (!file || !info_type || !buffer_size || !buffer) {
++	if (!file || !info_type || !buffer_size ||
++	    (*buffer_size && !buffer)) {
 +		ret = EFI_INVALID_PARAMETER;
 +		goto error;
 +	}
