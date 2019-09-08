@@ -1,4 +1,4 @@
-From 2991d0670bdae496787d23160979482a292ac86a Mon Sep 17 00:00:00 2001
+From 0acb0de5a81ff94ff3f8c976492da4f7bdc8997c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 8 Sep 2019 11:37:07 +0200
 Subject: [PATCH 1/1] efi_loader parameter checks EFI_FILE_PROTOCOL.SetInfo()
@@ -15,7 +15,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 71582e5149..c6190026c1 100644
+index 71582e5149..6d3f680e56 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -695,7 +695,9 @@ static efi_status_t EFIAPI efi_file_setinfo(struct efi_file_handle *file,
@@ -24,7 +24,7 @@ index 71582e5149..c6190026c1 100644
  
 -		if (buffer_size < sizeof(struct efi_file_info)) {
 +		/* The buffer will always contain a file name. */
-+		if (buffer_size < sizeof(struct efi_file_info + 2) ||
++		if (buffer_size < sizeof(struct efi_file_info) + 2 ||
 +		    buffer_size < info->size) {
  			ret = EFI_BAD_BUFFER_SIZE;
  			goto out;
