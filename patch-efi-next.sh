@@ -49,6 +49,7 @@ git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
 git am ../patch/0001-efi_loader-correct-reading-of-directories.patch
 git am ../patch/0001-efi_loader-file-size-checks.patch
+git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
