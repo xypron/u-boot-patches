@@ -51,6 +51,7 @@ git am ../patch/0001-efi_loader-correct-reading-of-directories.patch
 git am ../patch/0001-efi_loader-file-size-checks.patch
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 git am ../patch/0001-efi_loader-volume-name-in-EFI_FILE_PROTOCOL.GetInfo.patch
+git am ../patch/0001-efi_loader-check-parameters-EFI_FILE_PROTOCOL.GetInf.patch
 exit
 
 git am ../patch/0001-efi_loader-remove-efi_exit_caches.patch
