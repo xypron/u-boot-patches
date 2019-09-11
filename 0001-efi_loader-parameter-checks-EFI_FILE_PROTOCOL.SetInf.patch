@@ -1,7 +1,7 @@
-From 0acb0de5a81ff94ff3f8c976492da4f7bdc8997c Mon Sep 17 00:00:00 2001
+From 8262578535f18cdab95318828e6fd6464721ac54 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 8 Sep 2019 11:37:07 +0200
-Subject: [PATCH 1/1] efi_loader parameter checks EFI_FILE_PROTOCOL.SetInfo()
+Subject: [PATCH 1/1] efi_loader: parameter checks EFI_FILE_PROTOCOL.SetInfo()
 
 We do not support volume label changes. No parameter checks are needed
 here.
