@@ -49,11 +49,12 @@ git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
 git am ../patch/0001-efi_loader-correct-reading-of-directories.patch
 git am ../patch/0001-efi_loader-file-size-checks.patch
-git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 git am ../patch/0001-efi_loader-volume-name-in-EFI_FILE_PROTOCOL.GetInfo.patch
 git am ../patch/0001-efi_loader-check-parameters-EFI_FILE_PROTOCOL.GetInf.patch
 git am ../patch/0001-efi_loader-parameter-checks-EFI_FILE_PROTOCOL.SetInf.patch
 exit
+
+git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 
