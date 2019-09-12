@@ -44,7 +44,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 git am ../patch/0001-x86-show-UEFI-images-involved-in-crash.patch
 
-# efi-2019-10-rc5
+# efi-2019-10-rc4-4
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
 git am ../patch/0001-efi_loader-correct-reading-of-directories.patch
@@ -52,6 +52,9 @@ git am ../patch/0001-efi_loader-file-size-checks.patch
 git am ../patch/0001-efi_loader-volume-name-in-EFI_FILE_PROTOCOL.GetInfo.patch
 git am ../patch/0001-efi_loader-check-parameters-EFI_FILE_PROTOCOL.GetInf.patch
 git am ../patch/0001-efi_loader-parameter-checks-EFI_FILE_PROTOCOL.SetInf.patch
+
+# efi-2019-10-rc5
+git am ../patch0001-efi_loader-device_path-support-Sandbox-s-host-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
