@@ -8,9 +8,6 @@ git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
 
-# Support EFI block device on BananaPi
-git am ../patch/0001-configs-sunxi-enable-BLK-DM_MMC-for-Bananapi.patch
-
 # Various fixes
 # git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
