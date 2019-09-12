@@ -43,6 +43,9 @@ git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
+git am ../patch/0001-fs-fat-treat-invalid-FAT-clusters-as-errors.patch
+git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
+
 # efi-2019-10-rc4-4
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
 git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
