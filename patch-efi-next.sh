@@ -38,8 +38,6 @@ git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
 # efishell
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
-git am ../patch/0001-hush-provide-help-for-if-for-and-while.patch
-
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
