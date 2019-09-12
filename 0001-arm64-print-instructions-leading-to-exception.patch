@@ -1,0 +1,74 @@
+From 0581aecddf36444dd76bbe0782c19f5b641a1cdf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 12 Sep 2019 18:30:01 +0200
+Subject: [PATCH 1/1] arm64: print instructions leading to exception
+
+If an exception occurs in a loaded image and the relocation offset is
+unknown, it is helpful to know the instructions pointed to by the
+program counter. This patch adds the missing output.
+
+A possible output is:
+    Code: 910c4021 aa1303e0 f9400662 d63f0040 (e7f7defb)
+
+The parentheses indicate the instruction causing the exception.
+
+The output can be disassembled using scripts/decodecode:
+
+echo 'Code: 90000360 9100b800 94002782 17ffff8f (e7f7defb)' | \
+  ARCH=arm64 scripts/decodecode
+
+Code: 90000360 9100b800 94002782 17ffff8f (e7f7defb)
+All code
+========
+   0:   90000360    adrp    x0, 0x6c000
+   4:   9100b800    add     x0, x0, #0x2e
+   8:   94002782    bl      0x9e10
+   c:   17ffff8f    b       0xfffffffffffffe48
+  10:*  e7f7defb    .inst   0xe7f7defb ; undefined <-- trapping instruction
+
+Code starting with the faulting instruction
+===========================================
+   0:   e7f7defb    .inst   0xe7f7defb ; undefined
+
+We already have implemented the same for armv7.
+
+For testing command 'exception undefined' can be used.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/lib/interrupts_64.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/arch/arm/lib/interrupts_64.c b/arch/arm/lib/interrupts_64.c
+index 0bfdb8d93d..a32a4b6868 100644
+--- a/arch/arm/lib/interrupts_64.c
++++ b/arch/arm/lib/interrupts_64.c
+@@ -30,6 +30,17 @@ static void show_efi_loaded_images(struct pt_regs *regs)
+ 	efi_print_image_infos((void *)regs->elr);
+ }
+ 
++static void dump_instr(struct pt_regs *regs)
++{
++	u32 *addr = (u32 *)(regs->elr & ~3UL);
++	int i;
++
++	printf("Code: ");
++	for (i = -4; i < 1; i++)
++		printf(i == 0 ? "(%08x) " : "%08x ", addr[i]);
++	printf("\n");
++}
++
+ void show_regs(struct pt_regs *regs)
+ {
+ 	int i;
+@@ -44,6 +55,7 @@ void show_regs(struct pt_regs *regs)
+ 		printf("x%-2d: %016lx x%-2d: %016lx\n",
+ 		       i, regs->regs[i], i+1, regs->regs[i+1]);
+ 	printf("\n");
++	dump_instr(regs);
+ }
+ 
+ /*
+-- 
+2.23.0
+
