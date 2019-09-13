@@ -41,15 +41,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-fs-fat-treat-invalid-FAT-clusters-as-errors.patch
 git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
-# efi-2019-10-rc4-4
-git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL.Write-check-args.patch
-git am ../patch/0001-efi_loader-eliminate-inline-function-ascii2unicode.patch
-git am ../patch/0001-efi_loader-correct-reading-of-directories.patch
-git am ../patch/0001-efi_loader-file-size-checks.patch
-git am ../patch/0001-efi_loader-volume-name-in-EFI_FILE_PROTOCOL.GetInfo.patch
-git am ../patch/0001-efi_loader-check-parameters-EFI_FILE_PROTOCOL.GetInf.patch
-git am ../patch/0001-efi_loader-parameter-checks-EFI_FILE_PROTOCOL.SetInf.patch
-
 # efi-2019-10-rc5
 git am ../patch/0001-efi_loader-device_path-support-Sandbox-s-host-device.patch
 git am ../patch/0001-efi_loader-incorrect-return-value-form-DisconnectCon.patch
