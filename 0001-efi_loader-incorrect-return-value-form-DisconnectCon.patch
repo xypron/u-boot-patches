@@ -1,0 +1,79 @@
+From 90155fbd16a95944593f9675c566aebd6d8a4478 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 13 Sep 2019 18:20:40 +0200
+Subject: [PATCH 1/1] efi_loader: incorrect return value form
+ DisconnectController
+
+DisconnectController() should never return EFI_NOT_FOUND.
+If EFI_DRIVER_BINDING_PROTOCOL.Stop() fails, return EFI_DEVICE_ERROR.
+
+If the driver handle does not expose the EFI_DRIVER_BINDING_PROTOCOL
+return EFI_INVALID_PARAMETER.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index b9bff894cb..493d906c64 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -3499,7 +3499,6 @@ static efi_status_t EFIAPI efi_disconnect_controller(
+ 	efi_handle_t *child_handle_buffer = NULL;
+ 	size_t number_of_children = 0;
+ 	efi_status_t r;
+-	size_t stop_count = 0;
+ 	struct efi_object *efiobj;
+ 
+ 	EFI_ENTRY("%p, %p, %p", controller_handle, driver_image_handle,
+@@ -3539,32 +3538,35 @@ static efi_status_t EFIAPI efi_disconnect_controller(
+ 				       (void **)&binding_protocol,
+ 				       driver_image_handle, NULL,
+ 				       EFI_OPEN_PROTOCOL_GET_PROTOCOL));
+-	if (r != EFI_SUCCESS)
++	if (r != EFI_SUCCESS) {
++		r = EFI_INVALID_PARAMETER;
+ 		goto out;
++	}
+ 	/* Remove the children */
+ 	if (number_of_children) {
+ 		r = EFI_CALL(binding_protocol->stop(binding_protocol,
+ 						    controller_handle,
+ 						    number_of_children,
+ 						    child_handle_buffer));
+-		if (r == EFI_SUCCESS)
+-			++stop_count;
++		if (r != EFI_SUCCESS) {
++			r = EFI_DEVICE_ERROR;
++			goto out;
++		}
+ 	}
+ 	/* Remove the driver */
+-	if (!child_handle)
++	if (!child_handle) {
+ 		r = EFI_CALL(binding_protocol->stop(binding_protocol,
+ 						    controller_handle,
+ 						    0, NULL));
+-	if (r == EFI_SUCCESS)
+-		++stop_count;
++		if (r != EFI_SUCCESS) {
++			r = EFI_DEVICE_ERROR;
++			goto out;
++		}
++	}
+ 	EFI_CALL(efi_close_protocol(driver_image_handle,
+ 				    &efi_guid_driver_binding_protocol,
+ 				    driver_image_handle, NULL));
+-
+-	if (stop_count)
+-		r = EFI_SUCCESS;
+-	else
+-		r = EFI_NOT_FOUND;
++	r = EFI_SUCCESS;
+ out:
+ 	if (!child_handle)
+ 		free(child_handle_buffer);
+-- 
+2.20.1
+

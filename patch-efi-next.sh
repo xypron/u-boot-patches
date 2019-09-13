@@ -52,6 +52,7 @@ git am ../patch/0001-efi_loader-parameter-checks-EFI_FILE_PROTOCOL.SetInf.patch
 
 # efi-2019-10-rc5
 git am ../patch/0001-efi_loader-device_path-support-Sandbox-s-host-device.patch
+git am ../patch/0001-efi_loader-incorrect-return-value-form-DisconnectCon.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
