@@ -1,0 +1,64 @@
+From 3881bb22ff4e0c27e78d52966b71b13dbc239dbb Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 14 Sep 2019 09:58:18 +0200
+Subject: [PATCH v2 1/1] dm: MIGRATION: Add migration plan for CONFIG_DM
+
+For many sub-systems we already require the driver model to be used. Yet
+there is still a handful of boards that do not have CONFIG_DM enabled.
+
+We should make CONFIG_DM compulsory with release v2020.01
+
+Conversion dates for CONFIG_DM_SPL and CONFIG_DM_TPL are yet to be defined.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2
+	CONFIG_DM_SPL and CONFIG_DM_TPL are not concerned.
+---
+ Makefile                       |  8 ++++++++
+ doc/driver-model/migration.rst | 10 ++++++++++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 57d0700227..ffc2c4b3e4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -940,6 +940,14 @@ ifneq ($(CONFIG_DM_SPI)$(CONFIG_OF_CONTROL),yy)
+ endif
+ endif
+ endif
++ifneq ($(CONFIG_DM),y)
++	@echo >&2 "===================== WARNING ======================"
++	@echo >&2 "This board does not use CONFIG_DM. CONFIG_DM will be"
++	@echo >&2 "compulsory starting with the v2020.01 release."
++	@echo >&2 "Failure to update may result in board removal."
++	@echo >&2 "See doc/driver-model/migration.rst for more info."
++	@echo >&2 "===================================================="
++endif
+ ifeq ($(CONFIG_MMC),y)
+ ifneq ($(CONFIG_DM_MMC)$(CONFIG_OF_CONTROL)$(CONFIG_BLK),yyy)
+ 	@echo >&2 "===================== WARNING ======================"
+diff --git a/doc/driver-model/migration.rst b/doc/driver-model/migration.rst
+index 75b85235ef..0b0ee44ca2 100644
+--- a/doc/driver-model/migration.rst
++++ b/doc/driver-model/migration.rst
+@@ -7,6 +7,16 @@ U-Boot has been migrating to a new driver model since its introduction in
+ 2014. This file describes the schedule for deprecation of pre-driver-model
+ features.
+ 
++CONFIG_DM
++---------
++
++* Status: In progress
++* Deadline: 2020.01
++
++Starting with the 2010.01 release CONFIG_DM will be enabled for all boards.
++This does not concern CONFIG_DM_SPL and CONFIG_DM_TPL. The conversion date for
++these configuration items still needs to be defined.
++
+ CONFIG_DM_MMC
+ -------------
+ 
+-- 
+2.20.1
+
