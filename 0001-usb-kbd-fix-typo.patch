@@ -20,9 +20,9 @@ index 31f6e9776a..2e2436cece 100644
  
 -	/* Submit a interrupt transfer request */
 +	/* Submit an interrupt transfer request */
- 	usb_submit_int_msg(dev, data->intpipe, &data->new[0], data->intpktsize,
- 			   data->intinterval);
- 
+ 	if (usb_int_msg(dev, data->intpipe, &data->new[0],
+ 			data->intpktsize, data->intinterval, true) >= 0)
+ 		usb_kbd_irq_worker(dev);
 -- 
 2.20.1
 
