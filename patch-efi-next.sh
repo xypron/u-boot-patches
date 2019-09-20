@@ -46,6 +46,8 @@ git am ../patch/0001-efi_loader-device_path-support-Sandbox-s-host-device.patch
 git am ../patch/0001-efi_loader-incorrect-return-value-form-DisconnectCon.patch
 git am ../patch/0001-efi_loader-variable-support-APPEND_WRITE.patch
 git am ../patch/0001-efi_loader-selftest-enable-APPEND_WRITE-tests.patch
+git am ../patch/0001-lib-charset-add-u16_str-n-cmp.patch
+git am ../patch/0001-test-add-tests-for-u16_str-n-cmp.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
