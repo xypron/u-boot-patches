@@ -1,0 +1,32 @@
+From ad55ebc54b509673d334729f6cacc52619092349 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 21 Sep 2019 06:38:11 +0200
+Subject: [PATCH 1/1] efi_loader: description efi_stri_coll()
+
+Remove outdated TODO for efi_stri_coll(). efi_stri_coll() is already using
+the Unicode capitalization table.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_unicode_collation.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
+index 243c51a8db..c700be8756 100644
+--- a/lib/efi_loader/efi_unicode_collation.c
++++ b/lib/efi_loader/efi_unicode_collation.c
+@@ -43,11 +43,6 @@ const efi_guid_t efi_guid_unicode_collation_protocol2 =
+  * See the Unified Extensible Firmware Interface (UEFI) specification for
+  * details.
+  *
+- * TODO:
+- * The implementation does not follow the Unicode collation algorithm.
+- * For ASCII characters it results in the same sort order as EDK2.
+- * We could use table UNICODE_CAPITALIZATION_TABLE for better results.
+- *
+  * Return:	0: s1 == s2, > 0: s1 > s2, < 0: s1 < s2
+  */
+ static efi_intn_t EFIAPI efi_stri_coll(
+-- 
+2.20.1
+
