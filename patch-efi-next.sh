@@ -41,14 +41,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-fs-fat-treat-invalid-FAT-clusters-as-errors.patch
 git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
-# efi-2019-10-rc4-5
-git am ../patch/0001-efi_loader-device_path-support-Sandbox-s-host-device.patch
-git am ../patch/0001-efi_loader-incorrect-return-value-form-DisconnectCon.patch
-git am ../patch/0001-efi_loader-variable-support-APPEND_WRITE.patch
-git am ../patch/0001-efi_loader-selftest-enable-APPEND_WRITE-tests.patch
-git am ../patch/0001-lib-charset-add-u16_str-n-cmp.patch
-git am ../patch/0001-test-add-tests-for-u16_str-n-cmp.patch
-
 # efi-2019-10-rc5
 git am ../patch/0001-efi_loader-description-efi_stri_coll.patch
 exit
