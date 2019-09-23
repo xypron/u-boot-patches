@@ -43,6 +43,8 @@ git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
 # efi-2019-10-rc5
 git am ../patch/0001-efi_loader-description-efi_stri_coll.patch
+git am ../patch/0001-efi_loader-SetVariable-fix-illegal-return.patch
+git am ../patch/0001-efi_loader-SetVariable-deleting-variables.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
