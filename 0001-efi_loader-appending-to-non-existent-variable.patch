@@ -1,0 +1,38 @@
+From 46638b4ff6307c3844dc8e12cee23bb580aecbb0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 26 Sep 2019 21:40:18 +0200
+Subject: [PATCH 1/1] efi_loader: appending to non-existent variable
+
+Appending to a non-existent variable must result in an error of type
+EFI_NOT_FOUND.
+
+Fixes: 09c76b79a9db ("efi_loader: SetVariable() deleting variables")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 4c554c546b..30d8aa40bb 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -478,10 +478,12 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 			old_size = 0;
+ 		}
+ 	} else {
+-		if ((data_size == 0 &&
+-		     !(attributes & EFI_VARIABLE_APPEND_WRITE)) ||
+-		    !attributes) {
+-			/* delete, but nothing to do */
++		if (data_size == 0 || !attributes ||
++		    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
++			/*
++			 * Trying to delete or to update a non-existent
++			 * variable.
++			 */
+ 			ret = EFI_NOT_FOUND;
+ 			goto out;
+ 		}
+-- 
+2.23.0
+
