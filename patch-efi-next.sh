@@ -49,6 +49,7 @@ git am ../patch/0001-efi_loader-SetVariable-deleting-variables.patch
 # efi-2019-10-rc5-2
 git am ../patch/0001-efi_loader-appending-to-non-existent-variable.patch
 git am ../patch/0001-efi_selftest-correct-SetVariable-test.patch
+git am ../patch/0001-efi_selftest-testing-read-only-variables.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
