@@ -41,11 +41,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-fs-fat-treat-invalid-FAT-clusters-as-errors.patch
 git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
-# efi-2019-10-rc5
-git am ../patch/0001-efi_loader-description-efi_stri_coll.patch
-git am ../patch/0001-efi_loader-SetVariable-fix-illegal-return.patch
-git am ../patch/0001-efi_loader-SetVariable-deleting-variables.patch
-
 # efi-2019-10-rc5-2
 git am ../patch/0001-efi_loader-appending-to-non-existent-variable.patch
 git am ../patch/0001-efi_selftest-correct-SetVariable-test.patch
