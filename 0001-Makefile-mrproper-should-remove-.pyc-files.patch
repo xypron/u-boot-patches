@@ -1,0 +1,32 @@
+From fa6e3d1531a4766f497d194fb5b0d823ec6adc93 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 3 Oct 2019 16:38:03 +0000
+Subject: [PATCH 1/1] Makefile: mrproper should remove *.pyc files
+
+*.pyc files contain compiled Python bytecode. 'make mrproper' should remove
+them.
+
+Removing *.pyc files helps for instance sometimes when running into an
+error "binman: Unknown entry type 'blob' in node '/binman/blob'".
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 1d9ade948b..60b44d1650 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1875,7 +1875,7 @@ clean: $(clean-dirs)
+ 	$(call cmd,rmfiles)
+ 	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
+ 		\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
+-		-o -name '*.ko.*' -o -name '*.su' \
++		-o -name '*.ko.*' -o -name '*.su' -o -name '*.pyc' \
+ 		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
+ 		-o -name '*.lex.c' -o -name '*.tab.[ch]' \
+ 		-o -name '*.symtypes' -o -name 'modules.order' \
+-- 
+2.20.1
+
