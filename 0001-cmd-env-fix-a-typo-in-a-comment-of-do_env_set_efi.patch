@@ -1,0 +1,29 @@
+From b81a16c82a7d42ce1552037dd1afc2612c590bd1 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 4 Oct 2019 13:46:25 +0900
+Subject: [PATCH 1/1] cmd: env: fix a typo in a comment of do_env_set_efi()
+
+A wrong function name is referred to in a comment of do_env_set_efi().
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit_efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index ed6d09a530..ede4cd5235 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -330,7 +330,7 @@ out:
+ }
+ 
+ /**
+- * do_env_print_efi() - set UEFI variable
++ * do_env_set_efi() - set UEFI variable
+  *
+  * @cmdtp:	Command table
+  * @flag:	Command flag
+-- 
+2.23.0
+
