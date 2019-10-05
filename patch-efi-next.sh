@@ -51,6 +51,8 @@ git am ../patch/0001-efi_selftest-correct-SetVariable-test.patch
 git am ../patch/0001-efi_selftest-testing-read-only-variables.patch
 git am ../patch/0001-Revert-ARM-tegra-reserve-unmapped-RAM-so-EFI-doesn-t.patch
 git am ../patch/0001-cmd-env-fix-a-typo-in-a-comment-of-do_env_set_efi.patch
+git am ../patch/0001-nvme-add-accessor-to-namespace-id-and-eui64.patch
+git am ../patch/0001-efi-device-path-for-nvme.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
