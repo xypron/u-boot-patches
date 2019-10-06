@@ -21,6 +21,7 @@ git am ../patch/0001-lib-errno-sync-error-codes.patch
 git am ../patch/0001-lib-errno-avoid-error-format-overflow.patch
 git am ../patch/0001-lib-errno-check-for-unsupported-error-number.patch
 git am ../patch/0001-test-provide-test-for-errno_str.patch
+gti am ../patch/0001-configs-sheevaplug-disable-EFI_UNICODE_CAPITALIZATIO.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
