@@ -15,14 +15,12 @@ git am ../patch/0001-dm-sysreset-x86-missing-build-dependency.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-cmd-host-fix-seg-fault-at-host-info.patch
 git am ../patch/0001-arm64-print-instructions-leading-to-exception.patch
 git am ../patch/0001-lib-errno-sync-error-codes.patch
 git am ../patch/0001-lib-errno-avoid-error-format-overflow.patch
 git am ../patch/0001-lib-errno-check-for-unsupported-error-number.patch
 git am ../patch/0001-test-provide-test-for-errno_str.patch
 git am ../patch/0001-configs-sheevaplug-disable-EFI_UNICODE_CAPITALIZATIO.patch
-git am ../patch/0001-tools-provide-cbfstool.patch
 git am ../patch/0001-cbfs-do-not-pack-struct-cbfs_cachenode.patch
 
 # USB keyboard
