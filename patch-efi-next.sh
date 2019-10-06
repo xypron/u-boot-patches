@@ -23,6 +23,7 @@ git am ../patch/0001-lib-errno-check-for-unsupported-error-number.patch
 git am ../patch/0001-test-provide-test-for-errno_str.patch
 git am ../patch/0001-configs-sheevaplug-disable-EFI_UNICODE_CAPITALIZATIO.patch
 git am ../patch/0001-tools-provide-cbfstool.patch
+git am ../patch/0001-cbfs-do-not-pack-struct-cbfs_cachenode.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
