@@ -18,6 +18,7 @@ git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-cmd-host-fix-seg-fault-at-host-info.patch
 git am ../patch/0001-arm64-print-instructions-leading-to-exception.patch
 git am ../patch/0001-lib-errno-sync-error-codes.patch
+git am ../patch/0001-lib-errno-avoid-error-format-overflow.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch

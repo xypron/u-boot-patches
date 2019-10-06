@@ -1,0 +1,61 @@
+From 0998546e8a0ffe743b2f8513977389080bddb88a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Oct 2019 13:42:18 +0200
+Subject: [PATCH 1/1] lib: errno: avoid error format-overflow
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+In cmd/regulator.c an error occurs with GCC 9.2.1 if CONFIG_ERRNO_STR is
+not defined:
+
+cmd/regulator.c: In function ‘failure’:
+cmd/regulator.c:20:2: error: ‘%s’ directive argument is null
+[-Werror=format-overflow=]
+   20 |  printf("Error: %d (%s)\n", ret, errno_str(ret));
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In function ‘constraint’,
+    inlined from ‘constraint’ at cmd/regulator.c:111:12:
+cmd/regulator.c:115:3: error: ‘%s’ directive argument is null
+[-Werror=format-overflow=]
+  115 |   printf(" %s (err: %d)\n", errno_str(val), val);
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+errno_str() should return a valid string instead of NULL if
+CONFIG_ERRNO_STR is not defined.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/errno.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/include/errno.h b/include/errno.h
+index ccb7869e17..3af539b9e9 100644
+--- a/include/errno.h
++++ b/include/errno.h
+@@ -12,12 +12,21 @@ extern int errno;
+ 
+ #define __set_errno(val) do { errno = val; } while (0)
+ 
++/**
++ * errno_str() - get description for error number
++ *
++ * @errno:	error number (negative in case of error)
++ * Return:	string describing the error. If CONFIG_ERRNO_STR is not
++ *		defined an empty string is returned.
++ */
+ #ifdef CONFIG_ERRNO_STR
+ const char *errno_str(int errno);
+ #else
++static const char error_message[] = "";
++
+ static inline const char *errno_str(int errno)
+ {
+-	return 0;
++	return error_message;
+ }
+ #endif
+ #endif /* _ERRNO_H */
+-- 
+2.23.0
+
