@@ -48,7 +48,10 @@ git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
 git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 
-# efi-2019-10-rc5-2
+# enforce DM
+git am ../patch/0001-arm-remove-the-H2200-board.patch
+
+# efi-2020-01-rc1
 git am ../patch/0001-efi_loader-appending-to-non-existent-variable.patch
 git am ../patch/0001-efi_selftest-correct-SetVariable-test.patch
 git am ../patch/0001-efi_selftest-testing-read-only-variables.patch
