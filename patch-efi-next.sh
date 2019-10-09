@@ -50,15 +50,7 @@ git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 # enforce DM
 git am ../patch/0001-arm-remove-the-H2200-board.patch
 
-# efi-2020-01-rc1
-git am ../patch/0001-efi_loader-appending-to-non-existent-variable.patch
-git am ../patch/0001-efi_selftest-correct-SetVariable-test.patch
-git am ../patch/0001-efi_selftest-testing-read-only-variables.patch
-git am ../patch/0001-Revert-ARM-tegra-reserve-unmapped-RAM-so-EFI-doesn-t.patch
-git am ../patch/0001-cmd-env-fix-a-typo-in-a-comment-of-do_env_set_efi.patch
-git am ../patch/0001-nvme-add-accessor-to-namespace-id-and-eui64.patch
-git am ../patch/0001-efi-device-path-for-nvme.patch
-git am ../patch/0001-cmd-disable-CMD_NVEDIT_EFI-by-default.patch
+# efi-2020-01-rc1-2
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
