@@ -51,6 +51,7 @@ git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 git am ../patch/0001-arm-remove-the-H2200-board.patch
 
 # efi-2020-01-rc1-2
+git am ../patch/0001-efi_loader-device_path-check-against-file-path-lengt.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
