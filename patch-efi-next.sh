@@ -14,7 +14,6 @@ git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-arm64-print-instructions-leading-to-exception.patch
 git am ../patch/0001-lib-errno-sync-error-codes.patch
 git am ../patch/0001-lib-errno-avoid-error-format-overflow.patch
 git am ../patch/0001-lib-errno-check-for-unsupported-error-number.patch
@@ -40,9 +39,6 @@ git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
 
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
-
-git am ../patch/0001-fs-fat-treat-invalid-FAT-clusters-as-errors.patch
-git am ../patch/0001-fs-fat-get_contents-always-returns-1-for-errors.patch
 
 git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 
