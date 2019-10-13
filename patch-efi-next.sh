@@ -52,6 +52,7 @@ git am ../patch/0001-fs-update-fs_close-description.patch
 git am ../patch/0001-fs-clean-up-around-fs_type.patch
 git am ../patch/0001-fs-add-fs_get_type-for-current-filesystem-type.patch
 git am ../patch/0001-efi_loader-disk-install-FILE_SYSTEM_PROTOCOL-only-if.patch
+git am ../patch/0001-efi_loader-enable-CONFIG_CMD_NVEDIT_EFI-on-QEMU.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
