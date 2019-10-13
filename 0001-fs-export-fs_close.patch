@@ -1,0 +1,53 @@
+From 18c2ffa1e909540e462e0bd6f219203542855c43 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 7 Oct 2019 14:59:35 +0900
+Subject: [PATCH 1/1] fs: export fs_close()
+
+fs_close() closes the connection to a file system which opened with
+either fs_set_blk_dev() or fs_set_dev_with_part(). Many file system
+functions implicitly call fs_close(), e.g. fs_closedir(), fs_exist(),
+fs_ln(), fs_ls(), fs_mkdir(), fs_read(), fs_size(), fs_write()
+and fs_unlink().
+So just export it.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fs.c      | 2 +-
+ include/fs.h | 7 +++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/fs/fs.c b/fs/fs.c
+index d8a4ced469..64ba25fea8 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -389,7 +389,7 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part)
+ 	return -1;
+ }
+ 
+-static void fs_close(void)
++void fs_close(void)
+ {
+ 	struct fstype_info *info = fs_get_info(fs_type);
+ 
+diff --git a/include/fs.h b/include/fs.h
+index 7601b0343b..5a1244d57f 100644
+--- a/include/fs.h
++++ b/include/fs.h
+@@ -37,6 +37,13 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
+  */
+ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
+ 
++/**
++ * fs_close() - Unset current block device and partition
++ *
++ * Should be paired with either fs_set_blk_dev() or fs_set_dev_with_part()
++ */
++void fs_close(void);
++
+ /**
+  * fs_get_type_name() - Get type of current filesystem
+  *
+-- 
+2.23.0
+
