@@ -1,0 +1,65 @@
+From 623cfd2f0c0691dfa9bd3955e9e5bc58e0bc88aa Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 7 Oct 2019 14:59:37 +0900
+Subject: [PATCH 1/1] fs: add fs_get_type() for current filesystem type
+
+This function is a variant of fs_get_type_name() and returns a filesystem
+type with which the current device is associated.
+We don't want to export fs_type variable directly because we have to take
+care of it consistently within fs.c.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fs.c      | 13 +++++++++++++
+ include/fs.h | 10 ++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/fs/fs.c b/fs/fs.c
+index b17b76a46a..0c66d60477 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -307,6 +307,19 @@ static struct fstype_info *fs_get_info(int fstype)
+ 	return info;
+ }
+ 
++/**
++ * fs_get_type() - Get type of current filesystem
++ *
++ * Return: filesystem type
++ *
++ * Returns filesystem type representing the current filesystem, or
++ * FS_TYPE_ANY for any unrecognised filesystem.
++ */
++int fs_get_type(void)
++{
++	return fs_type;
++}
++
+ /**
+  * fs_get_type_name() - Get type of current filesystem
+  *
+diff --git a/include/fs.h b/include/fs.h
+index 247e954053..742a535b5f 100644
+--- a/include/fs.h
++++ b/include/fs.h
+@@ -49,6 +49,16 @@ int fs_set_blk_dev_with_part(struct blk_desc *desc, int part);
+  */
+ void fs_close(void);
+ 
++/**
++ * fs_get_type() - Get type of current filesystem
++ *
++ * Return: filesystem type
++ *
++ * Returns filesystem type representing the current filesystem, or
++ * FS_TYPE_ANY for any unrecognised filesystem.
++ */
++int fs_get_type(void);
++
+ /**
+  * fs_get_type_name() - Get type of current filesystem
+  *
+-- 
+2.23.0
+

@@ -11,7 +11,7 @@ and fs_unlink().
 So just export it.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  fs/fs.c      | 2 +-
  include/fs.h | 7 +++++++

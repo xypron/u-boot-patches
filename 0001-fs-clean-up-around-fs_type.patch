@@ -1,0 +1,46 @@
+From c48cff6ffb7a345dec8c361123adbaf241015e8a Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 7 Oct 2019 14:59:36 +0900
+Subject: [PATCH 1/1] fs: clean up around fs_type
+
+fs_ls(), fs_mkdir() and fs_unlink() sets fs_type to FS_TYPE_ANY
+explicitly, but it is redundant as they call fs_close().
+So just remove those lines.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fs.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/fs/fs.c b/fs/fs.c
+index 64ba25fea8..b17b76a46a 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -413,7 +413,6 @@ int fs_ls(const char *dirname)
+ 
+ 	ret = info->ls(dirname);
+ 
+-	fs_type = FS_TYPE_ANY;
+ 	fs_close();
+ 
+ 	return ret;
+@@ -597,7 +596,6 @@ int fs_unlink(const char *filename)
+ 
+ 	ret = info->unlink(filename);
+ 
+-	fs_type = FS_TYPE_ANY;
+ 	fs_close();
+ 
+ 	return ret;
+@@ -611,7 +609,6 @@ int fs_mkdir(const char *dirname)
+ 
+ 	ret = info->mkdir(dirname);
+ 
+-	fs_type = FS_TYPE_ANY;
+ 	fs_close();
+ 
+ 	return ret;
+-- 
+2.23.0
+
