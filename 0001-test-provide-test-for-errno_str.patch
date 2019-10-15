@@ -1,6 +1,6 @@
-From e698027d2ad21842373cf1213cb684cf1106bf27 Mon Sep 17 00:00:00 2001
+From cbdfe8944a6ef5408529cfe69587fe31ef24c516 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sun, 6 Oct 2019 14:24:57 +0200
+Date: Sun, 6 Oct 2019 14:33:39 +0200
 Subject: [PATCH 1/1] test: provide test for errno_str()
 
 Provide a unit test for errno_str(). Test that known and unknown error
@@ -9,8 +9,8 @@ numbers are handled correctly.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/lib/Makefile         |  1 +
- test/lib/test_errno_str.c | 50 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 51 insertions(+)
+ test/lib/test_errno_str.c | 46 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 47 insertions(+)
  create mode 100644 test/lib/test_errno_str.c
 
 diff --git a/test/lib/Makefile b/test/lib/Makefile
@@ -24,10 +24,10 @@ index 308c61708e..b13aaca7ce 100644
 +obj-$(CONFIG_ERRNO_STR) += test_errno_str.o
 diff --git a/test/lib/test_errno_str.c b/test/lib/test_errno_str.c
 new file mode 100644
-index 0000000000..77072d04f9
+index 0000000000..8a9f1fd980
 --- /dev/null
 +++ b/test/lib/test_errno_str.c
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,46 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (c) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -46,10 +46,6 @@ index 0000000000..77072d04f9
 +#include <test/test.h>
 +#include <test/ut.h>
 +
-+static const char errno_str_ok[] = "Success";
-+static const char errno_str_enomem[] = "Out of memory";
-+static const char errno_str_unknown[] = "Unknown error";
-+
 +/**
 + * lib_errno_str() - unit test for errno_str()
 + *
@@ -63,16 +59,16 @@ index 0000000000..77072d04f9
 +	const char *msg;
 +
 +	msg = errno_str(1);
-+	ut_asserteq_str(errno_str_ok, msg);
++	ut_asserteq_str("Success", msg);
 +
 +	msg = errno_str(0);
-+	ut_asserteq_str(errno_str_ok, msg);
++	ut_asserteq_str("Success", msg);
 +
 +	msg = errno_str(-ENOMEM);
-+	ut_asserteq_str(errno_str_enomem, msg);
++	ut_asserteq_str("Out of memory", msg);
 +
 +	msg = errno_str(-99999);
-+	ut_asserteq_str(errno_str_unknown, msg);
++	ut_asserteq_str("Unknown error", msg);
 +
 +	return 0;
 +}

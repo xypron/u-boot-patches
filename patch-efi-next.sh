@@ -21,6 +21,7 @@ git am ../patch/0001-test-provide-test-for-errno_str.patch
 git am ../patch/0001-cbfs-do-not-pack-struct-cbfs_cachenode.patch
 git am ../patch/0001-disk-part_dos-correctly-detect-DOS-PBR.patch
 git am ../patch/0001-lib-errno-check-for-unsupported-error-number.patch
+git am ../patch/0001-test-provide-test-for-errno_str.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
