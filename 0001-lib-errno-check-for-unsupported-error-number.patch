@@ -1,18 +1,19 @@
-From 9ce13cd6bc78dd9c6b1573255e5073c979ab4900 Mon Sep 17 00:00:00 2001
+From 7674f890719903ead1be95c223940423aefefbfc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sun, 6 Oct 2019 14:22:13 +0200
-Subject: [PATCH 1/2] lib: errno: check for unsupported error number
+Date: Sun, 6 Oct 2019 14:33:37 +0200
+Subject: [PATCH 1/1] lib: errno: check for unsupported error number
 
 If errno_str() is called with an unsupported error number, do not return a
 random pointer but a reasonable text.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  lib/errno_str.c | 8 +++++++-
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/lib/errno_str.c b/lib/errno_str.c
-index fbe56395d1..2e5f4a887d 100644
+index 0ba950e970..bb8f9fbeb3 100644
 --- a/lib/errno_str.c
 +++ b/lib/errno_str.c
 @@ -136,6 +136,8 @@ static const char * const errno_message[] = {
