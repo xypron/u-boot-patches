@@ -1,6 +1,7 @@
 git am --abort || true
 
-git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
+# Needs rebase
+# git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
 # Xypron specific patches
 # git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
@@ -43,14 +44,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 
-# efi-2020-01-rc1-2
-git am ../patch/0001-efi_loader-device_path-check-against-file-path-lengt.patch
-git am ../patch/0001-fs-export-fs_close.patch
-git am ../patch/0001-fs-update-fs_close-description.patch
-git am ../patch/0001-fs-clean-up-around-fs_type.patch
-git am ../patch/0001-fs-add-fs_get_type-for-current-filesystem-type.patch
-git am ../patch/0001-efi_loader-disk-install-FILE_SYSTEM_PROTOCOL-only-if.patch
-git am ../patch/0001-efi_loader-enable-CONFIG_CMD_NVEDIT_EFI-on-QEMU.patch
+# efi-2020-01-rc1-3
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
