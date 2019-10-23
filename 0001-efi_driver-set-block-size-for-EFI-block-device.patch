@@ -1,0 +1,40 @@
+From 7328fc712b77424ef91baacb14394da084335632 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 23 Oct 2019 18:06:59 +0200
+Subject: [PATCH 1/1] efi_driver: set block size for EFI block device
+
+Copy the block size from the block IO protocol to the U-Boot block device
+descriptor.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_driver/efi_block_device.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/lib/efi_driver/efi_block_device.c b/lib/efi_driver/efi_block_device.c
+index cf02341931..9de526a95b 100644
+--- a/lib/efi_driver/efi_block_device.c
++++ b/lib/efi_driver/efi_block_device.c
+@@ -137,6 +137,7 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
+ 	struct efi_block_io *io = interface;
+ 	int disks;
+ 	struct efi_blk_platdata *platdata;
++	struct blk_desc *desc;
+ 
+ 	EFI_PRINT("%s: handle %p, interface %p\n", __func__, handle, io);
+ 
+@@ -174,6 +175,11 @@ static int efi_bl_bind(efi_handle_t handle, void *interface)
+ 		return ret;
+ 	EFI_PRINT("%s: block device '%s' created\n", __func__, bdev->name);
+ 
++	/* Set block size */
++	desc = dev_get_uclass_platdata(bdev);
++	desc->blksz = io->media->block_size;
++	desc->log2blksz = LOG2(desc->blksz);
++
+ 	/* Create handles for the partions of the block device */
+ 	disks = efi_bl_bind_partitions(handle, bdev);
+ 	EFI_PRINT("Found %d partitions\n", disks);
+-- 
+2.20.1
+

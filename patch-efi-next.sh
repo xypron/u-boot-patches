@@ -45,6 +45,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 
 # efi-2020-01-rc1-3
+git am ../patch/0001-efi_driver-set-block-size-for-EFI-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
