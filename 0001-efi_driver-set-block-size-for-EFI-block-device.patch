@@ -4,7 +4,7 @@ Date: Wed, 23 Oct 2019 18:06:59 +0200
 Subject: [PATCH 1/1] efi_driver: set block size for EFI block device
 
 Copy the block size from the block IO protocol to the U-Boot block device
-descriptor.
+descriptor. This information is used by the ext4 file system driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
