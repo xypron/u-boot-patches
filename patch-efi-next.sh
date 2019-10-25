@@ -45,6 +45,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 
 # efi-2020-01-rc1-3
+git am ../patch/0001-blk-set-log2blksz-in-blk_create_device.patch
 git am ../patch/0001-cmd-env-extend-env-set-print-e-to-manage-UEFI-variab.patch
 exit
 
