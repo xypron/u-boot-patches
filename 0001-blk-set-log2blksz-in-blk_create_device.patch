@@ -1,0 +1,31 @@
+From ca1ecd3d073fd6ea2fa8b4e40ff80c30f38a6cf7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 25 Oct 2019 12:15:31 +0200
+Subject: [PATCH 1/1] blk: set log2blksz in blk_create_device()
+
+The ext4 file system requires log2blksz to be set. So when setting the
+block size on the block descriptor we should fill this field too.
+
+This fixes a problem with EFI block devices providing ext4 partitions, cf.
+https://lists.denx.de/pipermail/u-boot/2019-October/387702.html.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/block/blk-uclass.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/block/blk-uclass.c b/drivers/block/blk-uclass.c
+index e8f58b3f5e..ca8978f0e1 100644
+--- a/drivers/block/blk-uclass.c
++++ b/drivers/block/blk-uclass.c
+@@ -580,6 +580,7 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
+ 	desc = dev_get_uclass_platdata(dev);
+ 	desc->if_type = if_type;
+ 	desc->blksz = blksz;
++	desc->log2blksz = LOG2(desc->blksz);
+ 	desc->lba = lba;
+ 	desc->part_type = PART_TYPE_UNKNOWN;
+ 	desc->bdev = dev;
+-- 
+2.23.0
+
