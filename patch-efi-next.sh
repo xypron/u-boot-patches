@@ -51,6 +51,7 @@ git am ../patch/0001-hush-re-sequence-includes.patch
 # efi-2020-01-rc1-3
 git am ../patch/0001-blk-set-log2blksz-in-blk_create_device.patch
 git am ../patch/0001-cmd-env-extend-env-set-print-e-to-manage-UEFI-variab.patch
+git am ../patch/0001-efi_loader-correct-includes-in-efi_variable.c.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch

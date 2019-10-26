@@ -1,0 +1,66 @@
+From 59053d33a6252dc50d1daeb356e27578a672cdf9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 26 Oct 2019 23:53:48 +0200
+Subject: [PATCH 1/1] efi_loader: correct includes in efi_variable.c
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+'make tests' on an 32bit ARM system leads to
+
+In file included from ../lib/efi_loader/efi_variable.c:9:
+../include/malloc.h:364:7: error: conflicting types for ‘memset’
+ void* memset(void*, int, size_t);
+       ^~~~~~
+In file included from ../include/compiler.h:126,
+                 from ../include/env.h:12,
+                 from ../lib/efi_loader/efi_variable.c:8:
+../include/linux/string.h:103:15:
+note: previous declaration of ‘memset’ was here
+ extern void * memset(void *,int,__kernel_size_t);
+               ^~~~~~
+In file included from ../lib/efi_loader/efi_variable.c:9:
+../include/malloc.h:365:7: error: conflicting types for ‘memcpy’
+ void* memcpy(void*, const void*, size_t);
+       ^~~~~~
+In file included from ../include/compiler.h:126,
+                 from ../include/env.h:12,
+                 from ../lib/efi_loader/efi_variable.c:8:
+../include/linux/string.h:106:15:
+note: previous declaration of ‘memcpy’ was here
+ extern void * memcpy(void *,const void *,__kernel_size_t);
+               ^~~~~~
+
+Use common.h as first include as recommended by the U-Boot coding style
+guide.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index d0daf7bdeb..46f35bc60b 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -5,14 +5,12 @@
+  *  Copyright (c) 2017 Rob Clark
+  */
+ 
+-#include <env.h>
+-#include <malloc.h>
+-#include <charset.h>
++#include <common.h>
+ #include <efi_loader.h>
+-#include <hexdump.h>
+ #include <env_internal.h>
++#include <hexdump.h>
++#include <malloc.h>
+ #include <search.h>
+-#include <uuid.h>
+ 
+ #define READ_ONLY BIT(31)
+ 
+-- 
+2.23.0
+
