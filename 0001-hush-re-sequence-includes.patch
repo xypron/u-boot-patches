@@ -1,4 +1,4 @@
-From ad2896da2617fe516bc7caba47491773f450081d Mon Sep 17 00:00:00 2001
+From f9591bf51609cdacda5b3bbb0c8bd921d3763758 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 26 Oct 2019 23:32:13 +0200
 Subject: [PATCH 1/1] hush: re-sequence includes
@@ -6,7 +6,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-make tests on a 32 ARM system leads to
+'make tests' on a 32bit ARM system leads to
 
 In file included from ../common/cli_hush.c:79:
 ../include/malloc.h:364:7: error: conflicting types for ‘memset’
@@ -40,14 +40,14 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/common/cli_hush.c b/common/cli_hush.c
-index 8f86e4aa4a..2e38e41afc 100644
+index 8f86e4aa4a..cf1e273485 100644
 --- a/common/cli_hush.c
 +++ b/common/cli_hush.c
 @@ -75,10 +75,10 @@
  
  #define __U_BOOT__
  #ifdef __U_BOOT__
-+#include <common.h>          /* readline */
++#include <common.h>         /* readline */
  #include <env.h>
  #include <malloc.h>         /* malloc, free, realloc*/
  #include <linux/ctype.h>    /* isalpha, isdigit */
