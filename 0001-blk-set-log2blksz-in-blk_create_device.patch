@@ -10,6 +10,7 @@ This fixes a problem with EFI block devices providing ext4 partitions, cf.
 https://lists.denx.de/pipermail/u-boot/2019-October/387702.html.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  drivers/block/blk-uclass.c | 1 +
  1 file changed, 1 insertion(+)
