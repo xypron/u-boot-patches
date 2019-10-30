@@ -1,0 +1,54 @@
+From e000a3b52aa5d8271b93ef17bcc6a0adcd2ead49 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 30 Oct 2019 20:13:24 +0100
+Subject: [PATCH 1/1] efi_loader: fix efi_dp_from_name()
+
+Correctly check the return value of efi_dp_from_file().
+If we can determine device path for the file, should not depend on the
+device path for the device being requested.
+Provide a function description for efi_dp_from_name().
+
+Reported-by: Coverity CID 273159, CID 273158
+Fixes: 08c51fff30cc ("efi_loader: device_path: check against file path length")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index ac5e6f7e14..17a0c5bb45 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -1032,6 +1032,16 @@ out:
+ 	return EFI_SUCCESS;
+ }
+ 
++/**
++ * efi_dp_from_name() - convert U-Boot device and file path to device path
++ *
++ * @dev:	U-Boot device, e.g. 'mmc'
++ * @devnr:	U-Boot device number, e.g. 1 for 'mmc:1'
++ * @path:	file path relative to U-Boot device, may be NULL
++ * @device:	pointer to receive device path of the device
++ * @file:	pointer to receive device path for the file
++ * Return:	status code
++ */
+ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+ 			      const char *path,
+ 			      struct efi_device_path **device,
+@@ -1071,10 +1081,9 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+ 	s = filename;
+ 	while ((s = strchr(s, '/')))
+ 		*s++ = '\\';
+-	*file = efi_dp_from_file(((!is_net && device) ? desc : NULL),
+-				 part, filename);
++	*file = efi_dp_from_file(is_net ? NULL : desc, part, filename);
+ 
+-	if (!file)
++	if (!*file)
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	return EFI_SUCCESS;
+-- 
+2.23.0
+
