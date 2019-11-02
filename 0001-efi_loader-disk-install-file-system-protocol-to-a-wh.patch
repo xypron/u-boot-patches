@@ -1,0 +1,42 @@
+From 2156a152f546592ba68cedc3260c63ad12afff9c Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 7 Oct 2019 14:59:39 +0900
+Subject: [PATCH v5 1/1] efi_loader: disk: install file system protocol to a whole
+ disk
+
+Currently, a whole disk without any partitions is not associated
+with EFI_SIMPLE_FILE_SYSTEM_PROTOCOL. So even if it houses some
+file system, there is a chance that we may not be able to access
+it, particularly, when accesses are to be attempted after searching
+that protocol against a device handle.
+
+With this patch, EFI_SIMPLE_FILE_SYSTEM_PROTOCOL is installed
+to such a disk if part_get_info() shows there is no partition
+table installed on it.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Only if no partition table exists, check for a file system on disk level.
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_disk.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index 861fcaf374..ed7fb3f7d3 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -337,7 +337,9 @@ static efi_status_t efi_disk_add_dev(
+ 			       diskobj->dp);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+-	if (part >= 1 && efi_fs_exists(desc, part)) {
++	/* partitions or whole disk without partitions */
++	if ((part || desc->part_type == PART_TYPE_UNKNOWN) &&
++	    efi_fs_exists(desc, part)) {
+ 		diskobj->volume = efi_simple_file_system(desc, part,
+ 							 diskobj->dp);
+ 		ret = efi_add_protocol(&diskobj->header,
+-- 
+2.24.0.rc1
+
