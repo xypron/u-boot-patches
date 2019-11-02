@@ -43,13 +43,8 @@ git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
 git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
 git am ../patch/0001-hush-re-sequence-includes.patch
 
-# efi-2020-01-rc2
-git am ../patch/0001-blk-set-log2blksz-in-blk_create_device.patch
-git am ../patch/0001-cmd-env-extend-env-set-print-e-to-manage-UEFI-variab.patch
-git am ../patch/0001-efi_loader-correct-includes-in-efi_variable.c.patch
-exit
 # efi-2020-01-rc2-2
-0001-efi_loader-fix-efi_dp_from_name.patch
+git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
