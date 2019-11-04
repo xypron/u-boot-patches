@@ -1,4 +1,4 @@
-From ea12132907bd94f28c5b6473c770f55d6925cc17 Mon Sep 17 00:00:00 2001
+From e1c556f38b6d7d5b9cebba00dda168f66e476763 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 4 Nov 2019 20:08:07 +0100
 Subject: [PATCH 1/1] net: avoid address-of-packed-member error
@@ -27,7 +27,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/net/net.c b/net/net.c
-index ded86e7456..62893bf8f4 100644
+index ded86e7456..e6f6d2cb45 100644
 --- a/net/net.c
 +++ b/net/net.c
 @@ -1274,7 +1274,7 @@ void net_process_received_packet(uchar *in_packet, int len)
@@ -44,7 +44,7 @@ index ded86e7456..62893bf8f4 100644
  
  			sumlen = ntohs(ip->udp_len);
 -			sumptr = (ushort *)&(ip->udp_src);
-+			sumptr = (uchar *)&(ip->udp_src);
++			sumptr = (uchar *)&ip->udp_src;
  
  			while (sumlen > 1) {
 -				ushort sumdata;
