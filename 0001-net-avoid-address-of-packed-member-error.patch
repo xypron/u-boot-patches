@@ -1,14 +1,12 @@
-From e1c556f38b6d7d5b9cebba00dda168f66e476763 Mon Sep 17 00:00:00 2001
+From a176dd4252ee9e0951110ec63f5e051bdf5d9a92 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 4 Nov 2019 20:08:07 +0100
-Subject: [PATCH 1/1] net: avoid address-of-packed-member error
+Subject: [PATCH v2 1/1] net: avoid address-of-packed-member error
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-struct ip_udp_hdr is naturally packed. There is no point in adding a
-__packed attribute. With the attribute the network stack does not compile
-using GCC 9.2.1:
+sandbox_defconfig does not compile using GCC 9.2.1:
 
 net/net.c: In function ‘net_process_received_packet’:
 net/net.c:1288:23: error: taking address of packed member of ‘struct
@@ -17,17 +15,23 @@ ip_udp_hdr’ may result in an unaligned pointer value
  1288 |    sumptr = (ushort *)&(ip->udp_src);
       |                       ^~~~~~~~~~~~~~
 
-Unfortunately there was a bug in GCC 7.1 which required __packed here.
-So let's avoid the error by using a uchar pointer instead of an u16
-pointer.
+Avoid the error by using a u8 pointer instead of an u16 pointer and
+in-lining ntohs().
+
+Simplify the checksumming of the last message byte.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- net/net.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+v2:
+	reword commit message
+	add a comment
+	simplify checksumming of last byte
+---
+ net/net.c | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
 diff --git a/net/net.c b/net/net.c
-index ded86e7456..e6f6d2cb45 100644
+index ded86e7456..bcb9d5f07e 100644
 --- a/net/net.c
 +++ b/net/net.c
 @@ -1274,7 +1274,7 @@ void net_process_received_packet(uchar *in_packet, int len)
@@ -35,27 +39,39 @@ index ded86e7456..e6f6d2cb45 100644
  		if (ip->udp_xsum != 0) {
  			ulong   xsum;
 -			ushort *sumptr;
-+			uchar *sumptr;
++			u8 *sumptr;
  			ushort  sumlen;
  
  			xsum  = ip->ip_p;
-@@ -1285,13 +1285,11 @@ void net_process_received_packet(uchar *in_packet, int len)
+@@ -1285,22 +1285,16 @@ void net_process_received_packet(uchar *in_packet, int len)
  			xsum += (ntohl(ip->ip_dst.s_addr) >>  0) & 0x0000ffff;
  
  			sumlen = ntohs(ip->udp_len);
 -			sumptr = (ushort *)&(ip->udp_src);
-+			sumptr = (uchar *)&ip->udp_src;
++			sumptr = (u8 *)&ip->udp_src;
  
  			while (sumlen > 1) {
 -				ushort sumdata;
 -
 -				sumdata = *sumptr++;
 -				xsum += ntohs(sumdata);
++				/* inlined ntohs() to avoid alignment errors */
 +				xsum += (sumptr[0] << 8) + sumptr[1];
 +				sumptr += 2;
  				sumlen -= 2;
  			}
- 			if (sumlen > 0) {
+-			if (sumlen > 0) {
+-				ushort sumdata;
+-
+-				sumdata = *(unsigned char *)sumptr;
+-				sumdata = (sumdata << 8) & 0xff00;
+-				xsum += sumdata;
+-			}
++			if (sumlen > 0)
++				xsum += (sumptr[0] << 8) + sumptr[0];
+ 			while ((xsum >> 16) != 0) {
+ 				xsum = (xsum & 0x0000ffff) +
+ 				       ((xsum >> 16) & 0x0000ffff);
 -- 
 2.24.0.rc1
 
