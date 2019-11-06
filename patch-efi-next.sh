@@ -37,8 +37,6 @@ git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
-git am ../patch/0001-net-remove-superfluous-__packed-attribute.patch
-
 # Sandbox
 git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
 git am ../patch/0001-hush-re-sequence-includes.patch
