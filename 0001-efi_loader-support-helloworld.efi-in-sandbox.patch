@@ -1,4 +1,4 @@
-From a699b90a1d62f7db0b1a9290a9759e540163b588 Mon Sep 17 00:00:00 2001
+From 8616cdc556d71ce0ad72b840e6a2381f80c00f7d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 7 Nov 2019 08:05:17 +0100
 Subject: [PATCH 1/1] efi_loader: support helloworld.efi in sandbox
@@ -52,7 +52,7 @@ index a94b538e4a..376ac3fd50 100644
  unexport LC_ALL
  LC_COLLATE=C
 diff --git a/arch/sandbox/config.mk b/arch/sandbox/config.mk
-index 05fbbd7bcc..43f0013937 100644
+index 05fbbd7bcc..a225c9cbfa 100644
 --- a/arch/sandbox/config.mk
 +++ b/arch/sandbox/config.mk
 @@ -27,3 +27,31 @@ cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
@@ -67,7 +67,7 @@ index 05fbbd7bcc..43f0013937 100644
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_ia32_efi.lds
 +EFI_TARGET := --target=efi-app-ia32
 +else ifeq ($(HOST_ARCH),$(HOST_ARCH_AARCH64))
-+EFI_LDS := ${SRCDIR}/../../../arch/arm/lib/elf_arch64_efi.lds
++EFI_LDS := ${SRCDIR}/../../../arch/arm/lib/elf_aarch64_efi.lds
 +OBJCOPYFLAGS += -j .text -j .secure_text -j .secure_data -j .rodata -j .data \
 +		-j .u_boot_list -j .rela.dyn -j .got -j .got.plt \
 +		-j .binman_sym_table -j .text_rest \
@@ -79,9 +79,9 @@ index 05fbbd7bcc..43f0013937 100644
 +		-j .binman_sym_table -j .text_rest \
 +		-j .efi_runtime -j .efi_runtime_rel
 +else ifeq ($(HOST_ARCH),$(HOST_ARCH_RISCV32))
-+EFI_LDS := ${SRCDIR}/../../../arch/riscv/lib/elf_risc32_efi.lds
++EFI_LDS := ${SRCDIR}/../../../arch/riscv/lib/elf_riscv32_efi.lds
 +else ifeq ($(HOST_ARCH),$(HOST_ARCH_RISCV64))
-+EFI_LDS := ${SRCDIR}/../../../arch/riscv/lib/elf_risc64_efi.lds
++EFI_LDS := ${SRCDIR}/../../../arch/riscv/lib/elf_riscv64_efi.lds
 +endif
 +EFI_CRT0 := crt0_sandbox_efi.o
 +EFI_RELOC := reloc_sandbox_efi.o
