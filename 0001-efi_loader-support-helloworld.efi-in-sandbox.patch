@@ -1,42 +1,50 @@
-From 378f05ac9b56c67746fea7bcd4c08e010e93c15c Mon Sep 17 00:00:00 2001
+From 85db6c4aa3d2362fa2eedaa8a3a052bdd9d47066 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 7 Nov 2019 08:05:17 +0100
 Subject: [PATCH 1/1] efi_loader: support helloworld.efi in sandbox
 
+On the sandbox the UEFI binaries must match the host architectures.
+
+Adjust the Makefiles. Provide the PE/COFF header and relocation files.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- Makefile                             | 18 ++++++++++++++++++
- arch/sandbox/config.mk               | 18 ++++++++++++++++++
- arch/sandbox/lib/crt0_sandbox_efi.S  | 12 ++++++++++++
- arch/sandbox/lib/reloc_sandbox_efi.c | 12 ++++++++++++
+ Makefile                             | 19 +++++++++++++++++
+ arch/sandbox/config.mk               | 20 +++++++++++++++++
+ arch/sandbox/lib/Makefile            |  1 +
+ arch/sandbox/lib/crt0_sandbox_efi.S  | 32 ++++++++++++++++++++++++++++
+ arch/sandbox/lib/reloc_sandbox_efi.c | 32 ++++++++++++++++++++++++++++
  cmd/Kconfig                          |  2 +-
- 5 files changed, 61 insertions(+), 1 deletion(-)
+ include/host_arch.h                  | 24 +++++++++++++++++++++
+ 7 files changed, 129 insertions(+), 1 deletion(-)
  create mode 100644 arch/sandbox/lib/crt0_sandbox_efi.S
  create mode 100644 arch/sandbox/lib/reloc_sandbox_efi.c
+ create mode 100644 include/host_arch.h
 
 diff --git a/Makefile b/Makefile
-index 3000d30be2..86a5c1ca30 100644
+index 3000d30be2..f598edf611 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -17,6 +17,24 @@ NAME =
+@@ -17,6 +17,25 @@ NAME =
  # o Look for make include files relative to root of kernel src
  MAKEFLAGS += -rR --include-dir=$(CURDIR)
  
 +# Determine host architecture
++include include/host_arch.h
 +MK_ARCH="${shell uname -m}"
 +unexport HOST_ARCH
 +ifeq ("x86_64", $(MK_ARCH))
-+  export HOST_ARCH="X86_64"
++  export HOST_ARCH=$(HOST_ARCH_X86_64)
 +else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
-+  export HOST_ARCH="X86"
++  export HOST_ARCH=$(HOST_ARCH_X64)
 +else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
-+  export HOST_ARCH="ARM64"
++  export HOST_ARCH=$(HOST_ARCH_AARCH64)
 +else ifeq ("armv7l", $(MK_ARCH))
-+  export HOST_ARCH="ARM"
++  export HOST_ARCH=$(HOST_ARCH_ARM)
 +else ifeq ("riscv32", $(MK_ARCH))
-+  export HOST_ARCH="RISCV32"
++  export HOST_ARCH=$(HOST_ARCH_RISCV32)
 +else ifeq ("riscv64", $(MK_ARCH))
-+  export HOST_ARCH="RISCV64"
++  export HOST_ARCH=$(HOST_ARCH_RISCV64)
 +endif
 +undefine MK_ARCH
 +
@@ -44,66 +52,117 @@ index 3000d30be2..86a5c1ca30 100644
  unexport LC_ALL
  LC_COLLATE=C
 diff --git a/arch/sandbox/config.mk b/arch/sandbox/config.mk
-index 05fbbd7bcc..fb6f927202 100644
+index 05fbbd7bcc..af9b857f52 100644
 --- a/arch/sandbox/config.mk
 +++ b/arch/sandbox/config.mk
-@@ -27,3 +27,21 @@ cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
+@@ -27,3 +27,23 @@ cmd_u-boot-spl = (cd $(obj) && $(CC) -o $(SPL_BIN) -Wl,-T u-boot-spl.lds \
  	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot-spl.map -Wl,--gc-sections)
  
  CONFIG_ARCH_DEVICE_TREE := sandbox
 +
-+ifeq ($(HOST_ARCH), "X86_64")
++ifeq ($(HOST_ARCH),$(HOST_ARCH_X86_64))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_x86_64_efi.lds
 +EFI_TARGET := --target=efi-app-x86_64
-+else ifeq ($(HOST_ARCH), "X86")
++else ifeq ($(HOST_ARCH),$(HOST_ARCH_X86))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_ia32_efi.lds
 +EFI_TARGET := --target=efi-app-ia32
-+else ifeq ($(HOST_ARCH), "ARM64")
++else ifeq ($(HOST_ARCH),$(HOST_ARCH_AARCH64))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_arch64_efi.lds
-+else ifeq ($(HOST_ARCH), "ARM")
++else ifeq ($(HOST_ARCH),$(HOST_ARCH_ARM))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_arm_efi.lds
-+else ifeq ($(HOST_ARCH), "RISCV32")
++else ifeq ($(HOST_ARCH),$(HOST_ARCH_RISCV32))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_risc32_efi.lds
-+else ifeq ($(HOST_ARCH), "RISCV64")
++else ifeq ($(HOST_ARCH),$(HOST_ARCH_RISCV64))
 +EFI_LDS := ${SRCDIR}/../../../arch/x86/lib/elf_risc64_efi.lds
 +endif
 +EFI_CRT0 := crt0_sandbox_efi.o
 +EFI_RELOC := reloc_sandbox_efi.o
++CFLAGS_crt0_sandbox_efi.o += -DHOST_ARCH="$(HOST_ARCH)"
++CFLAGS_reloc_sandbox_efi.o += -DHOST_ARCH="$(HOST_ARCH)"
+diff --git a/arch/sandbox/lib/Makefile b/arch/sandbox/lib/Makefile
+index b4ff717e78..8c4250ebfd 100644
+--- a/arch/sandbox/lib/Makefile
++++ b/arch/sandbox/lib/Makefile
+@@ -9,3 +9,4 @@ obj-y	+= interrupts.o sections.o
+ obj-$(CONFIG_PCI)	+= pci_io.o
+ obj-$(CONFIG_CMD_BOOTM) += bootm.o
+ obj-$(CONFIG_CMD_BOOTZ) += bootm.o
++obj-y	+= $(EFI_CRT0) $(EFI_RELOC)
 diff --git a/arch/sandbox/lib/crt0_sandbox_efi.S b/arch/sandbox/lib/crt0_sandbox_efi.S
 new file mode 100644
-index 0000000000..e69a630c30
+index 0000000000..b15766c514
 --- /dev/null
 +++ b/arch/sandbox/lib/crt0_sandbox_efi.S
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * PE/COFF header for EFI applications
++ *
++ * Copyright (c) 2019 Heinrich Schuchardt
++ */
 +
-+#ifdef CONFIG_X86_64
-+#include ../../../arch/x86/lib/crt0_x86_64_efi.S
-+#elif defined CONFIG_X86
-+#include ../../../arch/x86/lib/crt0_ia32_efi.S
-+#elif defined CONFIG_ARM64
-+#include ../../../arch/arm/lib/crt0_aarch64_efi.S
-+#elif defined CONFIG_ARM
-+#include ../../../arch/arm/lib/crt0_arm_efi.S
-+#elif defined CONFIG_RISCV
-+#include ../../../arch/riscv/lib/crt0_riscv_efi.S
++#include <host_arch.h>
++
++#if HOST_ARCH == HOST_ARCH_X86_64
++#include "../../../arch/x86/lib/crt0_x86_64_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_X86
++#include "../../../arch/x86/lib/crt0_ia32_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_AARCH64
++#include "../../../arch/arm/lib/crt0_aarch64_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_ARM
++#include "../../../arch/arm/lib/crt0_arm_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_RISCV32
++#include "../../../arch/riscv/lib/crt0_riscv_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_RISCV64
++#include "../../../arch/riscv/lib/crt0_riscv_efi.S"
 +#endif
 diff --git a/arch/sandbox/lib/reloc_sandbox_efi.c b/arch/sandbox/lib/reloc_sandbox_efi.c
 new file mode 100644
-index 0000000000..97e72bd2ba
+index 0000000000..8526c90494
 --- /dev/null
 +++ b/arch/sandbox/lib/reloc_sandbox_efi.c
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * position independent shared object relocator
++ *
++ * Copyright (c) 2019 Heinrich Schuchardt
++ */
 +
-+#ifdef CONFIG_X86_64
-+#include ../../../arch/x86/lib/reloc_x86_64_efi.c
-+#elif defined CONFIG_X86
-+#include ../../../arch/x86/lib/reloc_ia32_efi.c
-+#elif defined CONFIG_ARM64
-+#include ../../../arch/arm/lib/reloc_aarch64_efi.c
-+#elif defined CONFIG_ARM
-+#include ../../../arch/arm/lib/reloc_arm_efi.c
-+#elif defined CONFIG_RISCV
-+#include ../../../arch/riscv/lib/reloc_riscv_efi.c
++#include <host_arch.h>
++
++#if HOST_ARCH == HOST_ARCH_X86_64
++#include "../../../arch/x86/lib/crt0_x86_64_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_X86
++#include "../../../arch/x86/lib/crt0_ia32_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_AARCH64
++#include "../../../arch/arm/lib/crt0_aarch64_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_ARM
++#include "../../../arch/arm/lib/crt0_arm_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_RISCV32
++#include "../../../arch/riscv/lib/crt0_riscv_efi.S"
++#endif
++
++#if HOST_ARCH == HOST_ARCH_RISCV64
++#include "../../../arch/riscv/lib/crt0_riscv_efi.S"
 +#endif
 diff --git a/cmd/Kconfig b/cmd/Kconfig
 index b08a709857..0d6836c451 100644
@@ -118,6 +177,36 @@ index b08a709857..0d6836c451 100644
  	default y
  	help
  	  This compiles a standard EFI hello world application with U-Boot so
+diff --git a/include/host_arch.h b/include/host_arch.h
+new file mode 100644
+index 0000000000..169d494513
+--- /dev/null
++++ b/include/host_arch.h
+@@ -0,0 +1,24 @@
++#if 0
++# SPDX SPDX-License-Identifier: GPL-2.0+
++#
++# Constants defining the host architecture in assembler, C, and make files.
++# The values are arbitrary.
++#
++# Copyright 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
++#endif
++
++#if 0
++export HOST_ARCH_AARCH64=0xaa64
++export HOST_ARCH_ARM=0x00a7
++export HOST_ARCH_RISCV32=0x5032
++export HOST_ARCH_RISCV64=0x5064
++export HOST_ARCH_X86=0x0386
++export HOST_ARCH_X86_64=0x8664
++#endif
++
++#define HOST_ARCH_AARCH64 0xaa64
++#define HOST_ARCH_ARM 0x00a7
++#define HOST_ARCH_RISCV32 0x5032
++#define HOST_ARCH_RISCV64 0x5064
++#define HOST_ARCH_X86 0x0386
++#define HOST_ARCH_X86_64 0x8664
 -- 
 2.24.0.rc1
 
