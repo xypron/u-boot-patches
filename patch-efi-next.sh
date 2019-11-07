@@ -45,6 +45,7 @@ git am ../patch/0001-hush-re-sequence-includes.patch
 git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
 git am ../patch/0001-efi_loader-disk-install-file-system-protocol-to-a-wh.patch
 exit
+git am ../patch/0001-efi_loader-support-helloworld.efi-in-sandbox.patch
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
