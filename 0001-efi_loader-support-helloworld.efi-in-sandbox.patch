@@ -1,4 +1,4 @@
-From 8616cdc556d71ce0ad72b840e6a2381f80c00f7d Mon Sep 17 00:00:00 2001
+From 52e3f758dc43242e21c8f6c4b35aa6102ce24698 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 7 Nov 2019 08:05:17 +0100
 Subject: [PATCH 1/1] efi_loader: support helloworld.efi in sandbox
@@ -22,7 +22,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 include/host_arch.h
 
 diff --git a/Makefile b/Makefile
-index a94b538e4a..376ac3fd50 100644
+index a94b538e4a..41fdbfdfce 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -17,6 +17,25 @@ NAME =
@@ -36,7 +36,7 @@ index a94b538e4a..376ac3fd50 100644
 +ifeq ("x86_64", $(MK_ARCH))
 +  export HOST_ARCH=$(HOST_ARCH_X86_64)
 +else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
-+  export HOST_ARCH=$(HOST_ARCH_X64)
++  export HOST_ARCH=$(HOST_ARCH_X86)
 +else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
 +  export HOST_ARCH=$(HOST_ARCH_AARCH64)
 +else ifeq ("armv7l", $(MK_ARCH))
