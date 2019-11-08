@@ -39,7 +39,6 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # Sandbox
 git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
-git am ../patch/0001-hush-re-sequence-includes.patch
 
 # efi-2020-01-rc2-2
 git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
