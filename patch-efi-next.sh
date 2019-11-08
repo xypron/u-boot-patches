@@ -43,6 +43,7 @@ git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
 # efi-2020-01-rc2-2
 git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
 git am ../patch/0001-efi_loader-disk-install-file-system-protocol-to-a-wh.patch
+git am ../patch/0001-efi_loader-call-add_u_boot_and_runtime-on-sandbox.patch
 git am ../patch/0001-efi_loader-support-building-UEFI-binaries-on-sandbox.patch
 exit
 
