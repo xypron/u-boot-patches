@@ -19,6 +19,7 @@ The size of void* differs from that of unsigned long long on 32bit
 systems.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  arch/sandbox/cpu/os.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
