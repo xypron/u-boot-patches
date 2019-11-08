@@ -45,6 +45,7 @@ git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
 git am ../patch/0001-efi_loader-disk-install-file-system-protocol-to-a-wh.patch
 git am ../patch/0001-efi_loader-call-add_u_boot_and_runtime-on-sandbox.patch
 git am ../patch/0001-efi_loader-support-building-UEFI-binaries-on-sandbox.patch
+git am ../patch/0001-efi_selftest-enable-all-UEFI-unit-tests-on-the-sandb.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
