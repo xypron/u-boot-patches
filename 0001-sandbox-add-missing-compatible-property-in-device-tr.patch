@@ -1,0 +1,43 @@
+From b37ccc494cd166ae7bd3280fd0712edce825fa1b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 Nov 2019 09:00:12 +0100
+Subject: [PATCH 1/1] sandbox: add missing compatible property in device tree
+
+In the device tree UEFI unit test the compatible property of the device is
+read.
+
+Provide the missing property.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/dts/sandbox.dts   | 1 +
+ arch/sandbox/dts/sandbox64.dts | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/arch/sandbox/dts/sandbox.dts b/arch/sandbox/dts/sandbox.dts
+index f1637c80f6..4dd82f6a32 100644
+--- a/arch/sandbox/dts/sandbox.dts
++++ b/arch/sandbox/dts/sandbox.dts
+@@ -6,6 +6,7 @@
+ 	#address-cells = <1>;
+ 	#size-cells = <1>;
+ 	model = "sandbox";
++	compatible = "sandbox";
+ 
+ 	aliases {
+ 		i2c0 = &i2c_0;
+diff --git a/arch/sandbox/dts/sandbox64.dts b/arch/sandbox/dts/sandbox64.dts
+index 37a5539ff4..5c95cee9d7 100644
+--- a/arch/sandbox/dts/sandbox64.dts
++++ b/arch/sandbox/dts/sandbox64.dts
+@@ -6,6 +6,7 @@
+ 	#address-cells = <2>;
+ 	#size-cells = <2>;
+ 	model = "sandbox";
++	compatible = "sandbox";
+ 
+ 	aliases {
+ 		i2c0 = &i2c_0;
+-- 
+2.24.0.rc1
+

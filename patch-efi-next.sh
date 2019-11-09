@@ -15,7 +15,6 @@ git am --abort || true
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-net-avoid-address-of-packed-member-error.patch
 
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
@@ -38,7 +37,9 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # Sandbox
+git am ../patch/0001-net-avoid-address-of-packed-member-error.patch
 git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
+git am ../patch/0001-sandbox-add-missing-compatible-property-in-device-tr.patch
 
 # efi-2020-01-rc2-2
 git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
