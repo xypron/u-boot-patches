@@ -40,6 +40,8 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-net-avoid-address-of-packed-member-error.patch
 git am ../patch/0001-sandbox-use-correct-type-reading-proc-self-maps.patch
 git am ../patch/0001-sandbox-add-missing-compatible-property-in-device-tr.patch
+git am ../patch/0001-serial-sandbox-support-Unicode.patch
+git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-01-rc2-2
 git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
@@ -47,6 +49,7 @@ git am ../patch/0001-efi_loader-disk-install-file-system-protocol-to-a-wh.patch
 git am ../patch/0001-efi_loader-call-add_u_boot_and_runtime-on-sandbox.patch
 git am ../patch/0001-efi_loader-support-building-UEFI-binaries-on-sandbox.patch
 git am ../patch/0001-efi_selftest-enable-all-UEFI-unit-tests-on-the-sandb.patch
+git am ../patch/0001-efi_loader-remove-unused-function-efi_dp_from_dev.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
