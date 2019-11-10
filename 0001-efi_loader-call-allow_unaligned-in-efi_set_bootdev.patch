@@ -46,9 +46,9 @@ index 70333eab8f..afef4e8450 100644
  #include <part.h>
  #include <sandboxblockdev.h>
 -#include <asm-generic/unaligned.h>
+ #include <linux/compat.h> /* U16_MAX */
  
  #ifdef CONFIG_SANDBOX
- const efi_guid_t efi_guid_host_dev = U_BOOT_HOST_DEV_GUID;
 @@ -826,13 +825,6 @@ static void path_to_uefi(void *uefi, const char *src)
  {
  	u16 *pos = uefi;

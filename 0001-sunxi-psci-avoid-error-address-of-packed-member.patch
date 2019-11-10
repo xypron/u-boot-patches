@@ -1,0 +1,87 @@
+From 4296ca927f9bc04f1c809ed5927129fbb6e7d4c3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 10 Nov 2019 03:57:49 +0100
+Subject: [PATCH 1/1] sunxi: psci: avoid error address-of-packed-member
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Compiling with GCC 9.2.1 leads to build errors:
+
+arch/arm/cpu/armv7/sunxi/psci.c: In function ‘sunxi_cpu_set_power’:
+arch/arm/cpu/armv7/sunxi/psci.c:144:21: error: taking address of packed
+member of ‘struct sunxi_cpucfg_reg’ may result in an unaligned pointer
+value [-Werror=address-of-packed-member]
+  144 |  sunxi_power_switch(&cpucfg->cpu1_pwr_clamp, &cpucfg->cpu1_pwroff,
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~
+arch/arm/cpu/armv7/sunxi/psci.c:144:46: error: taking address of packed
+member of ‘struct sunxi_cpucfg_reg’ may result in an unaligned pointer
+value [-Werror=address-of-packed-member]
+  144 |  sunxi_power_switch(&cpucfg->cpu1_pwr_clamp, &cpucfg->cpu1_pwroff,
+      |                                              ^~~~~~~~~~~~~~~~~~~~
+
+Use memcpy() and void* pointers to resolve the problem caused by packing
+the struct sunxi_cpucfg_reg.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/cpu/armv7/sunxi/psci.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/cpu/armv7/sunxi/psci.c b/arch/arm/cpu/armv7/sunxi/psci.c
+index 2c5d99e9ac..5b689004e8 100644
+--- a/arch/arm/cpu/armv7/sunxi/psci.c
++++ b/arch/arm/cpu/armv7/sunxi/psci.c
+@@ -75,7 +75,7 @@ static void __secure __mdelay(u32 ms)
+ 	isb();
+ }
+ 
+-static void __secure clamp_release(u32 __maybe_unused *clamp)
++static void __secure clamp_release(void __maybe_unused *clamp)
+ {
+ #if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
+ 	defined(CONFIG_MACH_SUN8I_H3) || \
+@@ -90,7 +90,7 @@ static void __secure clamp_release(u32 __maybe_unused *clamp)
+ #endif
+ }
+ 
+-static void __secure clamp_set(u32 __maybe_unused *clamp)
++static void __secure clamp_set(void __maybe_unused *clamp)
+ {
+ #if defined(CONFIG_MACH_SUN6I) || defined(CONFIG_MACH_SUN7I) || \
+ 	defined(CONFIG_MACH_SUN8I_H3) || \
+@@ -99,22 +99,28 @@ static void __secure clamp_set(u32 __maybe_unused *clamp)
+ #endif
+ }
+ 
+-static void __secure sunxi_power_switch(u32 *clamp, u32 *pwroff, bool on,
++static void __secure sunxi_power_switch(void *clamp, void *pwroff_ptr, bool on,
+ 					int cpu)
+ {
++	u32 pwroff;
++
++	memcpy(&pwroff, pwroff_ptr, sizeof(u32));
++
+ 	if (on) {
+ 		/* Release power clamp */
+ 		clamp_release(clamp);
+ 
+ 		/* Clear power gating */
+-		clrbits_le32(pwroff, BIT(cpu));
++		clrbits_le32(&pwroff, BIT(cpu));
+ 	} else {
+ 		/* Set power gating */
+-		setbits_le32(pwroff, BIT(cpu));
++		setbits_le32(&pwroff, BIT(cpu));
+ 
+ 		/* Activate power clamp */
+ 		clamp_set(clamp);
+ 	}
++
++	memcpy(pwroff_ptr, &pwroff, sizeof(u32));
+ }
+ 
+ #ifdef CONFIG_MACH_SUN8I_R40
+-- 
+2.24.0
+
