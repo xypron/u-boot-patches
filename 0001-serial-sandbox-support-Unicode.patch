@@ -10,6 +10,7 @@ support.
 Use unsigned char for the serial buffer.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
  drivers/serial/sandbox.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
