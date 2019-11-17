@@ -1,0 +1,49 @@
+From 77caae5a8bfd5de649bdfc6639ed2de3e4ddb5dc Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 17 Nov 2019 10:44:16 +0100
+Subject: [PATCH 1/1] efi_loader: restrict EFI_LOADER to armv7 and armv8 on ARM
+
+fatload USB was reported to fail on the Sheevaplug. Debugging showed that
+this was caused by an incorrect unaligned write to memory in
+path_to_uefi().
+
+UEFI on ARM requires that unaligned memory access is enabled.
+
+* ARMv5 does not support unaligned access at all.
+* ARMv6 supports unaligned access when we clear the A flag and set the
+  U flag.
+* On ARMv7 unaligned access is possible when clearing the aligned flag,
+  which we do in function allow_unaligned() (arch/arm/cpu/armv7/sctlr.S).
+  For none of the other cpus in arch/arm/cpu/ we have implemented a
+  similar function.
+* ARMv8 allows unaligned access.
+
+Let EFI_LOADER on ARM depend on SYS_CPU=armv7 or SYS_CPU=armv8.
+
+Once we have implemented allow_unaligned() for other ARM CPUs we can add
+these to Kconfig.
+
+Reported-by: Gray Remlin <gryrmln@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index c7027a9676..2f40e485ef 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -1,6 +1,9 @@
+ config EFI_LOADER
+ 	bool "Support running UEFI applications"
+-	depends on (ARM || X86 || RISCV || SANDBOX) && OF_LIBFDT
++	depends on OF_LIBFDT && ( \
++		ARM && (SYS_CPU = armv7 || \
++			SYS_CPU = armv8) || \
++		X86 || RISCV || SANDBOX)
+ 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
+ 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
+ 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
+-- 
+2.24.0
+
