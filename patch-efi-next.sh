@@ -45,11 +45,6 @@ git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-01-rc3
-git am ../patch/0001-efi_loader-fix-efi_dp_from_name.patch
-git am ../patch/0001-efi_loader-disk-install-file-system-protocol-to-a-wh.patch
-git am ../patch/0001-efi_loader-call-add_u_boot_and_runtime-on-sandbox.patch
-git am ../patch/0001-efi_loader-support-building-UEFI-binaries-on-sandbox.patch
-git am ../patch/0001-efi_selftest-enable-all-UEFI-unit-tests-on-the-sandb.patch
 git am ../patch/0001-efi_loader-remove-unused-function-efi_dp_from_dev.patch
 git am ../patch/0001-efi_loader-restrict-EFI_LOADER-to-armv7-and-armv8-on.patch
 exit
