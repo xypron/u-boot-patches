@@ -32,7 +32,7 @@ index 86297bb7c1..622980ae55 100644
   * up to the root device.
   */
 -static unsigned dp_size(struct udevice *dev)
-+__maybe_unused static unsigned dp_size(struct udevice *dev)
++__maybe_unused static unsigned int dp_size(struct udevice *dev)
  {
  	if (!dev || !dev->driver)
  		return sizeof(ROOT);
