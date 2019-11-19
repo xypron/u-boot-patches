@@ -1,7 +1,7 @@
-From 56b1a9efea932b7f178994950f059496d20a04f0 Mon Sep 17 00:00:00 2001
+From b0609e266d7460948f32f0f4f4152d0668b505ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 19 Nov 2019 04:02:10 +0100
-Subject: [PATCH 1/1] arm: arm11: allow unaligned memory access
+Subject: [PATCH 1/2] arm: arm11: allow unaligned memory access
 
 The UEFI spec mandates that unaligned memory access should be enabled if
 supported by the CPU architecture.
@@ -11,6 +11,7 @@ unaligned data support flag and to clear the aligned flag in the system
 control register (SCTLR). It is called when UEFI related commands like
 bootefi are invoked.
 
+Reported-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/arm/cpu/arm11/Makefile |  4 ++++
