@@ -43,6 +43,8 @@ git am ../patch/0001-sandbox-add-missing-compatible-property-in-device-tr.patch
 git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
+git am ../patch/0001-arm-fix-march-for-ARM11.patch
+
 # efi-2020-01-rc3
 git am ../patch/0001-efi_loader-remove-unused-function-efi_dp_from_dev.patch
 git am ../patch/0001-efi_loader-restrict-EFI_LOADER-to-armv7-and-armv8-on.patch
