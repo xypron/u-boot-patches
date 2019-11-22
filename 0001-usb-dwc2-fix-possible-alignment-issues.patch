@@ -1,7 +1,7 @@
-From f8e21e48c33957a373cf3ba14df02d73498ea407 Mon Sep 17 00:00:00 2001
+From 3045f8afb0ceb1f7b5e95f0191fa562a3490a469 Mon Sep 17 00:00:00 2001
 From: Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
-Date: Tue, 12 Nov 2019 22:26:43 +0100
-Subject: [PATCH 1/1] usb: dwc2: fix possible alignment issues
+Date: Thu, 21 Nov 2019 22:15:23 +0100
+Subject: [PATCH] usb: dwc2: fix possible alignment issues
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

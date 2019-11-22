@@ -1,7 +1,7 @@
-From 7cc6a9030b814cf3c97f5ca46fd1612ef59622d2 Mon Sep 17 00:00:00 2001
+From 199c6cb89102d5fa7e1e2e32a1ebe9e6529ab18d Mon Sep 17 00:00:00 2001
 From: Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
-Date: Tue, 12 Nov 2019 22:26:42 +0100
-Subject: [PATCH 1/1] usb: composite: fix possible alignment issues
+Date: Thu, 21 Nov 2019 22:15:22 +0100
+Subject: [PATCH] usb: composite: fix possible alignment issues
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -15,11 +15,11 @@ structures may be on an unaligned address, depending on USB hardware.
 
 Signed-off-by: Simon Goldschmidt <simon.k.r.goldschmidt@gmail.com>
 ---
- drivers/usb/gadget/composite.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/composite.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 618a7d5016..cfc9512caa 100644
+index 618a7d5016..c98a444245 100644
 --- a/drivers/usb/gadget/composite.c
 +++ b/drivers/usb/gadget/composite.c
 @@ -12,8 +12,16 @@
@@ -39,7 +39,7 @@ index 618a7d5016..cfc9512caa 100644
  /**
   * usb_add_function() - add a function to a configuration
   * @config: the configuration
-@@ -480,20 +488,20 @@ done:
+@@ -480,20 +488,21 @@ done:
   * the host side.
   */
  
@@ -50,13 +50,14 @@ index 618a7d5016..cfc9512caa 100644
  	u16				language;
 -	__le16				*tmp;
 +	__le16_packed			*tmp;
++	__le16_packed			*end = (buf + 252);
  
  	while (*sp) {
  		s = *sp;
  		language = cpu_to_le16(s->language);
 -		for (tmp = buf; *tmp && tmp < &buf[126]; tmp++) {
 -			if (*tmp == language)
-+		for (tmp = buf; tmp->val && tmp < &buf[126]; tmp++) {
++		for (tmp = buf; tmp->val && tmp < end; tmp++) {
 +			if (tmp->val == language)
  				goto repeat;
  		}
@@ -65,7 +66,7 @@ index 618a7d5016..cfc9512caa 100644
  repeat:
  		sp++;
  	}
-@@ -705,7 +713,8 @@ static int bos_desc(struct usb_composite_dev *cdev)
+@@ -705,7 +714,8 @@ static int bos_desc(struct usb_composite_dev *cdev)
  	 */
  	usb_ext = cdev->req->buf + le16_to_cpu(bos->wTotalLength);
  	bos->bNumDeviceCaps++;
@@ -75,7 +76,7 @@ index 618a7d5016..cfc9512caa 100644
  	usb_ext->bLength = USB_DT_USB_EXT_CAP_SIZE;
  	usb_ext->bDescriptorType = USB_DT_DEVICE_CAPABILITY;
  	usb_ext->bDevCapabilityType = USB_CAP_TYPE_EXT;
-@@ -721,7 +730,8 @@ static int bos_desc(struct usb_composite_dev *cdev)
+@@ -721,7 +731,8 @@ static int bos_desc(struct usb_composite_dev *cdev)
  
  		ss_cap = cdev->req->buf + le16_to_cpu(bos->wTotalLength);
  		bos->bNumDeviceCaps++;
