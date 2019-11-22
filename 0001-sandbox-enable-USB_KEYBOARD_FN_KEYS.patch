@@ -1,0 +1,67 @@
+From cca538e53a17714024cb94c70d67557a2719db4d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 22 Nov 2019 19:31:18 +0100
+Subject: [PATCH 1/1] sandbox: enable USB_KEYBOARD_FN_KEYS
+
+Enable the support of function keys on the USB keyboard. This is necessary
+to test the USB keyboard driver.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/sandbox64_defconfig        | 1 +
+ configs/sandbox_defconfig          | 1 +
+ configs/sandbox_flattree_defconfig | 1 +
+ configs/sandbox_spl_defconfig      | 1 +
+ 4 files changed, 4 insertions(+)
+
+diff --git a/configs/sandbox64_defconfig b/configs/sandbox64_defconfig
+index 716096abc5..be1e103cf4 100644
+--- a/configs/sandbox64_defconfig
++++ b/configs/sandbox64_defconfig
+@@ -181,6 +181,7 @@ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_EMUL=y
+ CONFIG_USB_KEYBOARD=y
++CONFIG_USB_KEYBOARD_FN_KEYS=y
+ CONFIG_DM_VIDEO=y
+ CONFIG_CONSOLE_ROTATION=y
+ CONFIG_CONSOLE_TRUETYPE=y
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index a8144436eb..eda595fca9 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -203,6 +203,7 @@ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_EMUL=y
+ CONFIG_USB_KEYBOARD=y
++CONFIG_USB_KEYBOARD_FN_KEYS=y
+ CONFIG_DM_VIDEO=y
+ CONFIG_CONSOLE_ROTATION=y
+ CONFIG_CONSOLE_TRUETYPE=y
+diff --git a/configs/sandbox_flattree_defconfig b/configs/sandbox_flattree_defconfig
+index 774c278bce..02969f95f1 100644
+--- a/configs/sandbox_flattree_defconfig
++++ b/configs/sandbox_flattree_defconfig
+@@ -163,6 +163,7 @@ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_EMUL=y
+ CONFIG_USB_KEYBOARD=y
++CONFIG_USB_KEYBOARD_FN_KEYS=y
+ CONFIG_DM_VIDEO=y
+ CONFIG_CONSOLE_ROTATION=y
+ CONFIG_CONSOLE_TRUETYPE=y
+diff --git a/configs/sandbox_spl_defconfig b/configs/sandbox_spl_defconfig
+index 02702fa7a5..3b0f15de88 100644
+--- a/configs/sandbox_spl_defconfig
++++ b/configs/sandbox_spl_defconfig
+@@ -183,6 +183,7 @@ CONFIG_USB=y
+ CONFIG_DM_USB=y
+ CONFIG_USB_EMUL=y
+ CONFIG_USB_KEYBOARD=y
++CONFIG_USB_KEYBOARD_FN_KEYS=y
+ CONFIG_DM_VIDEO=y
+ CONFIG_CONSOLE_ROTATION=y
+ CONFIG_CONSOLE_TRUETYPE=y
+-- 
+2.24.0
+

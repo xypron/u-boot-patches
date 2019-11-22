@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] usb: kbd: simplify coding for arrow keys
 Avoid duplicate translation of arrow key codes.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/usb_kbd.c | 31 +++++++++----------------------
  1 file changed, 9 insertions(+), 22 deletions(-)

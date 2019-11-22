@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] usb: kbd: move USB_KBD_BOOT_REPORT_SIZE to usb.h
 Move constant USB_KBD_BOOT_REPORT_SIZE. This allows us to reuse it.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/usb_kbd.c | 6 ------
  include/usb.h    | 6 ++++++

@@ -1,7 +1,7 @@
-From 2c9d21cf09182addd38dac831a88772b873ae1a0 Mon Sep 17 00:00:00 2001
+From 7c4a4785ba27e2631e41bec2785d2887a1943b77 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Aug 2019 02:44:41 +0200
-Subject: [PATCH v2 5/5] dm: test: usb: rework keyboard test
+Subject: [PATCH 1/1] dm: test: usb: rework keyboard test
 
 Allow the unit test to pass full 8 byte scan code sequences to the USB
 keyboard emulation driver and to parse multi-byte escape sequences.
@@ -23,15 +23,12 @@ driver and therefore not tested:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2
-	new patch
----
  drivers/usb/emul/sandbox_keyb.c |  27 +--
- test/dm/usb.c                   | 283 +++++++++++++++++++++++++++++++-
- 2 files changed, 292 insertions(+), 18 deletions(-)
+ test/dm/usb.c                   | 284 +++++++++++++++++++++++++++++++-
+ 2 files changed, 293 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/usb/emul/sandbox_keyb.c b/drivers/usb/emul/sandbox_keyb.c
-index 635945179e..2e7fb3b97c 100644
+index dc43880d27..32bc9a1698 100644
 --- a/drivers/usb/emul/sandbox_keyb.c
 +++ b/drivers/usb/emul/sandbox_keyb.c
 @@ -155,14 +155,20 @@ static void *keyb_desc_list[] = {
@@ -60,7 +57,7 @@ index 635945179e..2e7fb3b97c 100644
  		return -ENOSPC;
  
  	return 0;
-@@ -182,12 +188,12 @@ static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
+@@ -183,12 +189,12 @@ static int sandbox_keyb_interrupt(struct udevice *dev, struct usb_device *udev,
  {
  	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
  	uint8_t *data = buffer;
@@ -77,7 +74,7 @@ index 635945179e..2e7fb3b97c 100644
  
  	return 0;
  }
-@@ -212,7 +218,8 @@ static int sandbox_keyb_probe(struct udevice *dev)
+@@ -213,7 +219,8 @@ static int sandbox_keyb_probe(struct udevice *dev)
  {
  	struct sandbox_keyb_priv *priv = dev_get_priv(dev);
  
@@ -88,7 +85,7 @@ index 635945179e..2e7fb3b97c 100644
  
  static const struct dm_usb_ops sandbox_usb_keyb_ops = {
 diff --git a/test/dm/usb.c b/test/dm/usb.c
-index ef454b0ae5..6420b6efdc 100644
+index ef454b0ae5..e396c2a0ea 100644
 --- a/test/dm/usb.c
 +++ b/test/dm/usb.c
 @@ -15,6 +15,12 @@
@@ -104,7 +101,7 @@ index ef454b0ae5..6420b6efdc 100644
  /* Test that sandbox USB works correctly */
  static int dm_test_usb_base(struct unit_test_state *uts)
  {
-@@ -115,9 +121,262 @@ static int dm_test_usb_stop(struct unit_test_state *uts)
+@@ -115,9 +121,263 @@ static int dm_test_usb_stop(struct unit_test_state *uts)
  }
  DM_TEST(dm_test_usb_stop, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
  
@@ -314,7 +311,7 @@ index ef454b0ae5..6420b6efdc 100644
 +		{0x20, 0x37, ">"},
 +		/* <LEFT-SHIFT><SLASH> */
 +		{0x02, 0x38, "?"},
-+
++#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
 +		/* <F1> */
 +		{0x00, 0x3a, "\x1bOP"},
 +		/* <F2> */
@@ -359,6 +356,7 @@ index ef454b0ae5..6420b6efdc 100644
 +		{0x00, 0x51, "\x1b[B"},
 +		/* <UP> */
 +		{0x00, 0x52, "\x1b[A"},
++#endif /* CONFIG_USB_KEYBOARD_FN_KEYS */
 +
 +		/* End of list */
 +		{0x00, 0x00, "\0"}
@@ -367,7 +365,7 @@ index ef454b0ae5..6420b6efdc 100644
  
  	state_set_skip_delays(true);
  	ut_assertok(usb_init());
-@@ -129,16 +388,24 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
+@@ -129,16 +389,24 @@ static int dm_test_usb_keyb(struct unit_test_state *uts)
  					      &dev));
  
  	/*
@@ -385,10 +383,10 @@ index ef454b0ae5..6420b6efdc 100644
 +	for (pos = kbd_test_data; pos->scancode; ++pos) {
 +		const char *c;
 +		char scancodes[USB_KBD_BOOT_REPORT_SIZE] = {0};
- 
++
 +		scancodes[0] = pos->modifiers;
 +		scancodes[2] = pos->scancode;
-+
+ 
 +		ut_assertok(sandbox_usb_keyb_add_string(dev, scancodes));
 +
 +		for (c = pos->result; *c; ++c) {
@@ -401,5 +399,5 @@ index ef454b0ae5..6420b6efdc 100644
  
  	return 0;
 -- 
-2.20.1
+2.24.0
 

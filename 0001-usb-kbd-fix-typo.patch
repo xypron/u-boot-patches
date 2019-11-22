@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] usb: kbd: fix typo
 %s/a interrupt/an interrupt/
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/usb_kbd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

@@ -26,6 +26,7 @@ git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-usb-kbd-fix-typo.patch
 git am ../patch/0001-usb-kbd-move-USB_KBD_BOOT_REPORT_SIZE-to-usb.h.patch
 git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
+git am ../patch/0001-sandbox-enable-USB_KEYBOARD_FN_KEYS.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
