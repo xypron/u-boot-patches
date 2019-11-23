@@ -1,7 +1,7 @@
-From 04fb7929f2361bce946e1591563d89632bac60db Mon Sep 17 00:00:00 2001
+From a5e2d27fb217b3bb1eac9941083815937a813aed Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 23 Nov 2019 08:15:24 +0100
-Subject: [PATCH 1/1] usb: kbd: reduce code size
+Subject: [PATCH v4 3/8] usb: kbd: reduce code size
 
 Passing escape sequences as pointers to strings produces larger binary
 images than passing an u32 with the escape sequence.
@@ -11,29 +11,45 @@ With this patch u-boot.bin on tbs2910_defconfig is reduced from
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- common/usb_kbd.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+v4:
+	new patch
+---
+ common/usb_kbd.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index 7510a210be..ecbe45e775 100644
+index f4bb84cc86..a510458de0 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -137,10 +137,11 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
+@@ -137,10 +137,24 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, u8 c)
  	data->usb_kbd_buffer[data->usb_in_pointer] = c;
  }
  
 -static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, char *s)
-+static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, u32 s)
++/**
++ * usb_kbd_put_sequence() - add an escape sequence to the keyboard buffer
++ *
++ * The byte sequence is passed as u32 with the first byte being at the low
++ * end. The escape character is implied and not passed in the parameter.
++ * A zero byte marks the end of the escape sequence.
++ *
++ * * seq = 0x0000435b adds "\e[C" to the keyboard buffer
++ * * seq = 0x7e31325b adds "\e[21~"
++ *
++ * @data:	private data of the driver
++ * @seq:	escape sequence
++ */
++static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, u32 seq)
  {
 -	for (; *s; s++)
 -		usb_kbd_put_queue(data, *s);
 +	usb_kbd_put_queue(data, 0x1b);
-+	for (; s; s >>= 8)
-+		usb_kbd_put_queue(data, (u8)s);
++	for (; seq; seq >>= 8)
++		usb_kbd_put_queue(data, (u8)seq);
  }
  
  /*
-@@ -234,16 +235,16 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+@@ -234,16 +248,16 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
  
  	switch (scancode) {
  	case 0x4f:					/* Right arrow key */
