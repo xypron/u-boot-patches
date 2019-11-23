@@ -1,4 +1,4 @@
-From dd4a7b0bdd018b944cba5f34b5b7f66b112c77ba Mon Sep 17 00:00:00 2001
+From f8fe617563c1e0a4c7ef24e68294f54c4fe4050c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 10 Aug 2019 00:43:05 +0200
 Subject: [PATCH 1/1] usb: kbd: move USB_KBD_BOOT_REPORT_SIZE to usb.h
@@ -13,10 +13,10 @@ Reviewed-by: Simon Glass <sjg@chromium.org>
  2 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index cc99c6be07..31f6e9776a 100644
+index 3cb38c767a..ea62e32cd6 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -95,12 +95,6 @@ static const unsigned char usb_kbd_arrow[] = {
+@@ -95,12 +95,6 @@ static const u8 usb_special_keys[] = {
  #define USB_KBD_LEDMASK		\
  	(USB_KBD_NUMLOCK | USB_KBD_CAPSLOCK | USB_KBD_SCROLLLOCK)
  
@@ -30,7 +30,7 @@ index cc99c6be07..31f6e9776a 100644
  	unsigned long	intpipe;
  	int		intpktsize;
 diff --git a/include/usb.h b/include/usb.h
-index 420a30e49f..db52736295 100644
+index bcad552f85..efb67ea33f 100644
 --- a/include/usb.h
 +++ b/include/usb.h
 @@ -242,6 +242,12 @@ int usb_host_eth_scan(int mode);
@@ -47,5 +47,5 @@ index 420a30e49f..db52736295 100644
  int usb_kbd_deregister(int force);
  
 -- 
-2.20.1
+2.24.0
 
