@@ -72,7 +72,7 @@ index 09b6a5de21..a223350afe 100644
 +	return 0;
 +#else
  	/* Left, Right, Up, Down */
- 	if (scancode > 0x39 && scancode < 0x3e) {
+ 	if (scancode > 0x4e && scancode < 0x52) {
  		usb_kbd_put_queue(data, 0x1b);
 @@ -241,6 +282,7 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
  		return 0;
