@@ -1,4 +1,4 @@
-From 63f179e301857eb373fa42239926fdea22a1ef6b Mon Sep 17 00:00:00 2001
+From 0472d2488b008b68e2b4a6e27369b0e4a3347faf Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 Jun 2019 12:17:08 +0200
 Subject: [PATCH 1/1] usb: kbd: simplify coding for arrow keys
@@ -6,16 +6,15 @@ Subject: [PATCH 1/1] usb: kbd: simplify coding for arrow keys
 Avoid duplicate translation of arrow key codes.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- common/usb_kbd.c | 31 +++++++++----------------------
- 1 file changed, 9 insertions(+), 22 deletions(-)
+ common/usb_kbd.c | 47 ++++++++++++-----------------------------------
+ 1 file changed, 12 insertions(+), 35 deletions(-)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index cc99c6be07..232d278e13 100644
+index d178af248a..c78e6c018a 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -74,15 +74,6 @@ static const unsigned char usb_kbd_num_keypad[] = {
+@@ -75,13 +75,8 @@ static const unsigned char usb_kbd_num_keypad[] = {
  	'.', 0, 0, 0, '='
  };
  
@@ -26,12 +25,25 @@ index cc99c6be07..232d278e13 100644
 - */
 -static const unsigned char usb_kbd_arrow[] = {
 -	0x6, 0x2, 0xe, 0x10
--};
++static const u8 usb_special_keys[] = {
++	'C', 'D', 'B', 'A'
+ };
+ 
+ /*
+@@ -146,12 +141,6 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
+ 	data->usb_kbd_buffer[data->usb_in_pointer] = c;
+ }
+ 
+-static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, char *s)
+-{
+-	for (; *s; s++)
+-		usb_kbd_put_queue(data, *s);
+-}
 -
  /*
-  * NOTE: It's important for the NUM, CAPS, SCROLL-lock bits to be in this
-  *       order. See usb_kbd_setled() function!
-@@ -213,10 +204,6 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+  * Set the LEDs. Since this is used in the irq routine, the control job is
+  * issued with a timeout of 0. This means, that the job is queued without
+@@ -214,10 +203,6 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
  			keycode = usb_kbd_numkey[scancode - 0x1e];
  	}
  
@@ -42,10 +54,14 @@ index cc99c6be07..232d278e13 100644
  	/* Numeric keypad */
  	if ((scancode >= 0x54) && (scancode <= 0x67))
  		keycode = usb_kbd_num_keypad[scancode - 0x54];
-@@ -244,19 +231,19 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
- 	if (keycode)
- 		debug("%c", keycode);
+@@ -242,28 +227,20 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+ 	}
  
+ 	/* Report keycode if any */
+-	if (keycode)
++	if (keycode) {
+ 		debug("%c", keycode);
+-
 -	switch (keycode) {
 -	case 0x0e:					/* Down arrow key */
 -		usb_kbd_put_sequence(data, "\e[B");
@@ -54,23 +70,29 @@ index cc99c6be07..232d278e13 100644
 -		usb_kbd_put_sequence(data, "\e[A");
 -		break;
 -	case 0x06:					/* Right arrow key */
-+	switch (scancode) {
-+	case 0x4f:					/* Right arrow key */
- 		usb_kbd_put_sequence(data, "\e[C");
- 		break;
+-		usb_kbd_put_sequence(data, "\e[C");
+-		break;
 -	case 0x02:					/* Left arrow key */
-+	case 0x50:					/* Left arrow key */
- 		usb_kbd_put_sequence(data, "\e[D");
- 		break;
-+	case 0x51:					/* Down arrow key */
-+		usb_kbd_put_sequence(data, "\e[B");
-+		break;
-+	case 0x52:					/* Up arrow key */
-+		usb_kbd_put_sequence(data, "\e[A");
-+		break;
- 	default:
+-		usb_kbd_put_sequence(data, "\e[D");
+-		break;
+-	default:
  		usb_kbd_put_queue(data, keycode);
- 		break;
+-		break;
++		return 0;
+ 	}
+ 
+-	return 0;
++	/* Left, Right, Up, Down */
++	if (scancode > 0x39 && scancode < 0x3e) {
++		usb_kbd_put_queue(data, 0x1b);
++		usb_kbd_put_queue(data, '[');
++		usb_kbd_put_queue(data, usb_special_keys[scancode - 0x3a]);
++		return 0;
++	}
++	return 1;
+ }
+ 
+ static uint32_t usb_kbd_service_key(struct usb_device *dev, int i, int up)
 -- 
-2.20.1
+2.24.0
 
