@@ -1,0 +1,59 @@
+From 04fb7929f2361bce946e1591563d89632bac60db Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 23 Nov 2019 08:15:24 +0100
+Subject: [PATCH 1/1] usb: kbd: reduce code size
+
+Passing escape sequences as pointers to strings produces larger binary
+images than passing an u32 with the escape sequence.
+
+With this patch u-boot.bin on tbs2910_defconfig is reduced from
+390024 to 389960 bytes (compiled with GCC 9.2.1).
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/usb_kbd.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/common/usb_kbd.c b/common/usb_kbd.c
+index 7510a210be..ecbe45e775 100644
+--- a/common/usb_kbd.c
++++ b/common/usb_kbd.c
+@@ -137,10 +137,11 @@ static void usb_kbd_put_queue(struct usb_kbd_pdata *data, char c)
+ 	data->usb_kbd_buffer[data->usb_in_pointer] = c;
+ }
+ 
+-static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, char *s)
++static void usb_kbd_put_sequence(struct usb_kbd_pdata *data, u32 s)
+ {
+-	for (; *s; s++)
+-		usb_kbd_put_queue(data, *s);
++	usb_kbd_put_queue(data, 0x1b);
++	for (; s; s >>= 8)
++		usb_kbd_put_queue(data, (u8)s);
+ }
+ 
+ /*
+@@ -234,16 +235,16 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+ 
+ 	switch (scancode) {
+ 	case 0x4f:					/* Right arrow key */
+-		usb_kbd_put_sequence(data, "\e[C");
++		usb_kbd_put_sequence(data, 0x0000435b); /* "[C" */
+ 		break;
+ 	case 0x50:					/* Left arrow key */
+-		usb_kbd_put_sequence(data, "\e[D");
++		usb_kbd_put_sequence(data, 0x0000445b); /* "[D" */
+ 		break;
+ 	case 0x51:					/* Down arrow key */
+-		usb_kbd_put_sequence(data, "\e[B");
++		usb_kbd_put_sequence(data, 0x0000425b); /* "[B" */
+ 		break;
+ 	case 0x52:					/* Up arrow key */
+-		usb_kbd_put_sequence(data, "\e[A");
++		usb_kbd_put_sequence(data, 0x0000415b); /* "[A" */
+ 		break;
+ 	default:
+ 		usb_kbd_put_queue(data, keycode);
+-- 
+2.24.0
+

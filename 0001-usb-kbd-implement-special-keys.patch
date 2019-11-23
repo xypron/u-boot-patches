@@ -1,4 +1,4 @@
-From a0f44c1b7457c7ad695fa33a54414ef4e848eb13 Mon Sep 17 00:00:00 2001
+From 784830dce4260b432c0871717a1fe540065111bc Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Jun 2019 21:09:09 +0200
 Subject: [PATCH 1/1] usb: kbd: implement special keys
@@ -12,71 +12,71 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 62 insertions(+)
 
 diff --git a/common/usb_kbd.c b/common/usb_kbd.c
-index 7510a210be..707c591d94 100644
+index f52ad90625..45cfe63a6e 100644
 --- a/common/usb_kbd.c
 +++ b/common/usb_kbd.c
-@@ -233,6 +233,62 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
+@@ -234,6 +234,62 @@ static int usb_kbd_translate(struct usb_kbd_pdata *data, unsigned char scancode,
  		debug("%c", keycode);
  
  	switch (scancode) {
 +#ifdef CONFIG_USB_KEYBOARD_FN_KEYS
 +	case 0x3a:					/* F1 */
-+		usb_kbd_put_sequence(data, "\eOP");
++		usb_kbd_put_sequence(data, 0x0000504f); /* "OP" */
 +		break;
 +	case 0x3b:					/* F2 */
-+		usb_kbd_put_sequence(data, "\eOQ");
++		usb_kbd_put_sequence(data, 0x0000514f); /* "OQ" */
 +		break;
 +	case 0x3c:					/* F3 */
-+		usb_kbd_put_sequence(data, "\eOR");
++		usb_kbd_put_sequence(data, 0x0000524f); /* "OR" */
 +		break;
 +	case 0x3d:					/* F4 */
-+		usb_kbd_put_sequence(data, "\eOS");
++		usb_kbd_put_sequence(data, 0x0000534f); /* "OS" */
 +		break;
 +	case 0x3e:					/* F5 */
-+		usb_kbd_put_sequence(data, "\e[15~");
++		usb_kbd_put_sequence(data, 0x7e35315b); /* "[15~" */
 +		break;
 +	case 0x3f:					/* F6 */
-+		usb_kbd_put_sequence(data, "\e[17~");
++		usb_kbd_put_sequence(data, 0x7e37315b); /* "[17~" */
 +		break;
 +	case 0x40:					/* F7 */
-+		usb_kbd_put_sequence(data, "\e[18~");
++		usb_kbd_put_sequence(data, 0x7e38315b); /* "[18~" */
 +		break;
 +	case 0x41:					/* F8 */
-+		usb_kbd_put_sequence(data, "\e[19~");
++		usb_kbd_put_sequence(data, 0x7e39315b); /* "[19~" */
 +		break;
 +	case 0x42:					/* F9 */
-+		usb_kbd_put_sequence(data, "\e[20~");
++		usb_kbd_put_sequence(data, 0x7e30325b); /* "[20~" */
 +		break;
 +	case 0x43:					/* F10 */
-+		usb_kbd_put_sequence(data, "\e[21~");
++		usb_kbd_put_sequence(data, 0x7e31325b); /* "[21~" */
 +		break;
 +	case 0x44:					/* F11 */
-+		usb_kbd_put_sequence(data, "\e[23~");
++		usb_kbd_put_sequence(data, 0x7e33325b); /* "[23~" */
 +		break;
 +	case 0x45:					/* F12 */
-+		usb_kbd_put_sequence(data, "\e[24~");
++		usb_kbd_put_sequence(data, 0x7e34325b); /* "[24~" */
 +		break;
 +	case 0x49:					/* INSERT */
-+		usb_kbd_put_sequence(data, "\e[2~");
++		usb_kbd_put_sequence(data, 0x007e325b); /* "[2~" */
 +		break;
 +	case 0x4a:					/* HOME */
-+		usb_kbd_put_sequence(data, "\e[H");
++		usb_kbd_put_sequence(data, 0x0000485b); /* "[H" */
 +		break;
 +	case 0x4b:					/* PAGE UP */
-+		usb_kbd_put_sequence(data, "\e[5~");
++		usb_kbd_put_sequence(data, 0x007e355b); /* "[5~" */
 +		break;
 +	case 0x4c:					/* DELETE */
-+		usb_kbd_put_sequence(data, "\e[3~");
++		usb_kbd_put_sequence(data, 0x007e335b); /* "[3~" */
 +		break;
 +	case 0x4d:					/* END */
-+		usb_kbd_put_sequence(data, "\e[F");
++		usb_kbd_put_sequence(data, 0x0000465b); /* "[F" */
 +		break;
 +	case 0x4e:					/* PAGE DOWN */
-+		usb_kbd_put_sequence(data, "\e[6~");
++		usb_kbd_put_sequence(data, 0x007e365b); /* "[6~" */
 +		break;
 +#endif /* CONFIG_USB_KEYBOARD_FN_KEYS */
  	case 0x4f:					/* Right arrow key */
- 		usb_kbd_put_sequence(data, "\e[C");
+ 		usb_kbd_put_sequence(data, 0x0000435b); /* "[C" */
  		break;
 diff --git a/drivers/usb/Kconfig b/drivers/usb/Kconfig
 index 9af78e8822..bea4a92b61 100644
