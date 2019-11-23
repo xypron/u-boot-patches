@@ -83,10 +83,10 @@ index d178af248a..c78e6c018a 100644
  
 -	return 0;
 +	/* Left, Right, Up, Down */
-+	if (scancode > 0x39 && scancode < 0x3e) {
++	if (scancode > 0x4e && scancode < 0x52) {
 +		usb_kbd_put_queue(data, 0x1b);
 +		usb_kbd_put_queue(data, '[');
-+		usb_kbd_put_queue(data, usb_special_keys[scancode - 0x3a]);
++		usb_kbd_put_queue(data, usb_special_keys[scancode - 0x4f]);
 +		return 0;
 +	}
 +	return 1;
