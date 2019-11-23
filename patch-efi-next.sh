@@ -22,6 +22,7 @@ git am ../patch/0001-usb-dwc2-fix-possible-alignment-issues.patch
 # USB keyboard
 # git am ../patch/0001-input-add-PS-2-keyboard-support.patch
 git am ../patch/0001-usb-kbd-simplify-coding-for-arrow-keys.patch
+git am ../patch/0001-usb-kbd-signature-of-usb_kbd_put_queue.patch
 git am ../patch/0001-usb-kbd-implement-special-keys.patch
 git am ../patch/0001-usb-kbd-fix-typo.patch
 git am ../patch/0001-usb-kbd-move-USB_KBD_BOOT_REPORT_SIZE-to-usb.h.patch
