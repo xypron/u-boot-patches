@@ -1,14 +1,20 @@
-From 0fb0b6a6f19e3069f9e326253b05d3e0b35d27c5 Mon Sep 17 00:00:00 2001
+From 1330efa9c2a2b032faf900042ccad64a38daa4f4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 19 Nov 2019 22:51:59 +0100
-Subject: [PATCH 1/1] arm: fix -march for ARM11
+Subject: [PATCH v2 1/1] arm: fix -march for ARM11
 
--march v5 is invalid for GCC 9.2.1. ARM11 is an armv6 implementation. So
-change the architecture flag for the compiler to armv6.
-Cf. https://gcc.gnu.org/onlinedocs/gcc/ARM-Options.html
+In GCC 9 support for the Armv5 and Armv5E architectures (which have no
+known implementations) has been removed, cf.
+https://gcc.gnu.org/gcc-9/changes.html
+
+ARM11 is an armv6 implementation. So change the architecture flag for the
+compiler to armv6 for ARM11.
 
 Suggested-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	change commit message
 ---
  arch/arm/Makefile | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
