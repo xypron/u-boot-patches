@@ -49,9 +49,9 @@ git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 git am ../patch/0001-arm-fix-march-for-ARM11.patch
-git am ../patch/0001-efi_loader-default-EFI_LOADER-n-on-ARM11.patch
 
 # efi-2020-01-rc4-2
+git am ../patch/0001-efi_loader-default-EFI_LOADER-n-on-ARM11.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
