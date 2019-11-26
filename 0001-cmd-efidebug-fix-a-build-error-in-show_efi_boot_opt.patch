@@ -1,0 +1,45 @@
+From 7f342faf2c4a6eeccdb5fc1bdd5aa9419c4a71a3 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 26 Nov 2019 10:11:22 +0900
+Subject: [PATCH 1/1] cmd: efidebug: fix a build error in show_efi_boot_opt()
+
+I detected the following error in sandbox with Clang on Travis CI:
+    +cmd/efidebug.c:703:15: error: result of comparison of constant
+     9223372036854775822 with expression of type 'int' is always false
+     [-Werror,-Wtautological-constant-out-of-range-compare]
+    +        else if (ret == EFI_NOT_FOUND)
+    +                 ~~~ ^  ~~~~~~~~~~~~~
+
+Simply changing a type of 'ret' to efi_status_t will fix this error.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index ef97e19d07..1fff4390de 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -684,7 +684,7 @@ static void show_efi_boot_opt(int id)
+ 	efi_guid_t guid;
+ 	void *data = NULL;
+ 	efi_uintn_t size;
+-	int ret;
++	efi_status_t ret;
+ 
+ 	sprintf(var_name, "Boot%04X", id);
+ 	p = var_name16;
+@@ -693,7 +693,7 @@ static void show_efi_boot_opt(int id)
+ 
+ 	size = 0;
+ 	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
+-	if (ret == (int)EFI_BUFFER_TOO_SMALL) {
++	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		data = malloc(size);
+ 		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
+ 						data));
+-- 
+2.24.0
+

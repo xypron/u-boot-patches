@@ -46,6 +46,7 @@ git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-01-rc4-3
+git am ../patch/0001-cmd-efidebug-fix-a-build-error-in-show_efi_boot_opt.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
