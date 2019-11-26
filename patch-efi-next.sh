@@ -47,7 +47,10 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-01-rc4-3
 git am ../patch/0001-cmd-efidebug-fix-a-build-error-in-show_efi_boot_opt.patch
+git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
 exit
+git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
+git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
