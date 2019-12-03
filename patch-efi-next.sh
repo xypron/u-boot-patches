@@ -17,16 +17,6 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-sunxi-psci-avoid-error-address-of-packed-member.patch
 
-# USB keyboard
-# git am ../patch/0001-input-add-PS-2-keyboard-support.patch
-git am ../patch/0001-usb-kbd-fix-typo.patch
-git am ../patch/0001-usb-kbd-signature-of-usb_kbd_put_queue.patch
-git am ../patch/0001-usb-kbd-simplify-coding-for-arrow-keys.patch
-git am ../patch/0001-usb-kbd-implement-special-keys.patch
-git am ../patch/0001-usb-kbd-move-USB_KBD_BOOT_REPORT_SIZE-to-usb.h.patch
-git am ../patch/0001-dm-test-usb-rework-keyboard-test.patch
-git am ../patch/0001-sandbox-enable-USB_KEYBOARD_FN_KEYS.patch
-
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
