@@ -36,7 +36,6 @@ git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-01-rc4-3
-git am ../patch/0001-cmd-efidebug-fix-a-build-error-in-show_efi_boot_opt.patch
 git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
 git am ../patch/0001-efi_loader-pass-address-to-efi_install_fdt.patch
 exit
