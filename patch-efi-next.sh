@@ -37,6 +37,7 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # efi-2020-04-rc1
 git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
+git am ../patch/0001-efi_loader-imply-USB_KEYBOARD_FN_KEYS.patch
 git am ../patch/0001-efi_loader-pass-address-to-efi_install_fdt.patch
 git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
 exit
