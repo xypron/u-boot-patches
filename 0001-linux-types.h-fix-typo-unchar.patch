@@ -1,0 +1,28 @@
+From bddad742f16c7d5b885938f1999e02077fed573a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 7 Dec 2019 20:08:47 +0000
+Subject: [PATCH 1/1] linux/types.h: fix typo unchar
+
+unsigned char should be called uchar and not unchar.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/linux/types.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/types.h b/include/linux/types.h
+index 51cb284bb8..bd912bcb42 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -85,7 +85,7 @@ typedef unsigned int		u_int;
+ typedef unsigned long		u_long;
+ 
+ /* sysv */
+-typedef unsigned char		unchar;
++typedef unsigned char		uchar;
+ typedef unsigned short		ushort;
+ typedef unsigned int		uint;
+ typedef unsigned long		ulong;
+-- 
+2.20.1
+
