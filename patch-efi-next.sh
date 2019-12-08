@@ -43,6 +43,7 @@ git am ../patch/0001-efi_loader-imply-USB_KEYBOARD_FN_KEYS.patch
 git am ../patch/0001-efi_loader-pass-address-to-efi_install_fdt.patch
 git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
 git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
+git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
 exit
 git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
 git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
