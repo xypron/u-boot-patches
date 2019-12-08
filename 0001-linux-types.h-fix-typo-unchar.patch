@@ -5,6 +5,8 @@ Subject: [PATCH 1/1] linux/types.h: fix typo unchar
 
 unsigned char should be called uchar and not unchar.
 
+This fixes a build error in lib/crypto/x509_cert_parser.c.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/linux/types.h | 2 +-
