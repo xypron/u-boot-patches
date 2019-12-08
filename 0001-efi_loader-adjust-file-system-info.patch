@@ -1,0 +1,48 @@
+From fdffa98ec9b0311d727045bf9cd023b4046ffc7a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 8 Dec 2019 10:02:37 +0100
+Subject: [PATCH 1/1] efi_loader: adjust file system info
+
+When the GetInfo() method of the EFI_FILE_PROTOCOL is called to retrieve
+the file system info we claim that the volume is read only and has no free
+space. This leads to failures in programs that check this information
+before writing to the volume like SCT's InstallSct.efi.
+
+Currently there is no function to determine these parameters in U-Boot. So
+let's return optimistic values:
+
+Return that the volume is writable.
+
+Return the volume size as free space.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 6d3f680e56..140116ddc4 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -656,9 +656,16 @@ static efi_status_t EFIAPI efi_file_getinfo(struct efi_file_handle *file,
+ 		memset(info, 0, required_size);
+ 
+ 		info->size = required_size;
+-		info->read_only = true;
++		/*
++		 * TODO: We cannot determine if the volume can be written to.
++		 */
++		info->read_only = false;
+ 		info->volume_size = part.size * part.blksz;
+-		info->free_space = 0;
++		/*
++		 * TODO: We currently have no function to determine the free
++		 * space. The volume size is the best upper bound we have.
++		 */
++		info->free_space = info->volume_size;
+ 		info->block_size = part.blksz;
+ 		/*
+ 		 * TODO: The volume label is not available in U-Boot.
+-- 
+2.24.0
+
