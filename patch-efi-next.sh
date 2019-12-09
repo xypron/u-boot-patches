@@ -16,8 +16,6 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-sunxi-psci-avoid-error-address-of-packed-member.patch
-git am ../patch/0001-arm-march-armv5t-for-ARM11.patch
-git am ../patch/0001-linux-types.h-fix-typo-unchar.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
