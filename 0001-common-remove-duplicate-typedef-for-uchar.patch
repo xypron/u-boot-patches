@@ -1,0 +1,30 @@
+From ff1106707cd2f29e837d9f85547d236053321f17 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 9 Dec 2019 22:01:48 +0100
+Subject: [PATCH 1/1] common: remove duplicate typedef for uchar
+
+With commit 37db55b7e9db ("linux/types.h: fix typo unchar") we have a
+duplicate typedef for uchar. As linux/types.h is included in common.h we
+don't need another typedef for uchar there.
+
+Fixes: 37db55b7e9db ("linux/types.h: fix typo unchar")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/common.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/common.h b/include/common.h
+index 8b37b58747..52c02185f4 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -15,7 +15,6 @@
+ 
+ #ifndef __ASSEMBLY__		/* put C only stuff in this section */
+ 
+-typedef unsigned char		uchar;
+ typedef volatile unsigned long	vu_long;
+ typedef volatile unsigned short vu_short;
+ typedef volatile unsigned char	vu_char;
+-- 
+2.24.0
+
