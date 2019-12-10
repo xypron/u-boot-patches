@@ -31,7 +31,6 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # Sandbox
-git am ../patch/0001-net-avoid-address-of-packed-member-error.patch
 git am ../patch/0001-sandbox-add-missing-compatible-property-in-device-tr.patch
 git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
