@@ -17,6 +17,7 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-sunxi-psci-avoid-error-address-of-packed-member.patch
 git am ../patch/0001-common-remove-duplicate-typedef-for-uchar.patch
+git am ../patch/0001-mkimage-simplify-fit_check_params.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -44,8 +45,13 @@ git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
 git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
 git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
 exit
+
+# UEFI FIT image
 git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
 git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
+git am ../patch/0001-doc-Add-sample-uefi.its-image-description-file.patch
+git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
+exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 

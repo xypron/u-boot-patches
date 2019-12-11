@@ -1,6 +1,6 @@
-From 316e879e84e611920d4375114185247fa38bcca5 Mon Sep 17 00:00:00 2001
+From b295fa382f5b90cb238f7d793595e23f20f0f249 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Sun, 24 Nov 2019 22:11:26 +0200
+Date: Tue, 10 Dec 2019 10:56:50 +0200
 Subject: [PATCH 1/1] bootm: Add a bootm command for type IH_OS_EFI
 
 Add support for booting EFI binaries contained in FIT images.
@@ -10,14 +10,12 @@ boot environment.
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/Kconfig       |  9 ++++++++-
- cmd/bootefi.c     |  2 +-
- common/bootm_os.c | 44 ++++++++++++++++++++++++++++++++++++++++++++
- include/bootm.h   |  2 ++
- 4 files changed, 55 insertions(+), 2 deletions(-)
+ cmd/Kconfig       |  7 ++++++
+ common/bootm_os.c | 61 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 68 insertions(+)
 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index cf982ff65e..1bec840f5a 100644
+index 1e4cf146c5..87f2335a3c 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -263,6 +263,13 @@ config CMD_BOOTI
@@ -34,33 +32,24 @@ index cf982ff65e..1bec840f5a 100644
  config BOOTM_LINUX
  	bool "Support booting Linux OS images"
  	depends on CMD_BOOTM || CMD_BOOTZ || CMD_BOOTI
-@@ -316,7 +323,7 @@ config CMD_BOOTEFI
- 	depends on EFI_LOADER
- 	default y
- 	help
--	  Boot an EFI image from memory.
-+	  Boot an EFI binary from memory.
- 
- config CMD_BOOTEFI_HELLO_COMPILE
- 	bool "Compile a standard EFI hello world binary for testing"
-diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index f613cce7e2..f25d639dfe 100644
---- a/cmd/bootefi.c
-+++ b/cmd/bootefi.c
-@@ -553,7 +553,7 @@ static int do_efi_selftest(void)
-  * @argv:	command line arguments
-  * Return:	status code
-  */
--static int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-+int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
- {
- 	efi_status_t ret;
- 
 diff --git a/common/bootm_os.c b/common/bootm_os.c
-index 6fb7d658da..706151913a 100644
+index d89ddc32b0..debeaa7648 100644
 --- a/common/bootm_os.c
 +++ b/common/bootm_os.c
-@@ -462,6 +462,47 @@ static int do_bootm_tee(int flag, int argc, char * const argv[],
+@@ -7,10 +7,12 @@
+ #include <common.h>
+ #include <bootm.h>
+ #include <cpu_func.h>
++#include <efi_loader.h>
+ #include <env.h>
+ #include <fdt_support.h>
+ #include <linux/libfdt.h>
+ #include <malloc.h>
++#include <mapmem.h>
+ #include <vxworks.h>
+ #include <tee/optee.h>
+ 
+@@ -498,6 +500,62 @@ static int do_bootm_tee(int flag, int argc, char * const argv[],
  }
  #endif
  
@@ -69,46 +58,61 @@ index 6fb7d658da..706151913a 100644
 +			bootm_headers_t *images)
 +{
 +	int ret;
-+	int local_argc = 2;
-+	char *local_args[3];
-+	char str_efi_addr[16];
-+	char str_fdt_addr[16];
++	efi_status_t efi_ret;
++	uintptr_t fdt_addr;
++	void *image_buf;
 +
 +	if (flag != BOOTM_STATE_OS_GO)
 +		return 0;
 +
-+	/* Locate FDT etc */
++	/* Locate EFI binary and FDT, if provided */
 +	ret = bootm_find_images(flag, argc, argv);
 +	if (ret)
 +		return ret;
 +
++	/* Initialize EFI drivers */
++	efi_ret = efi_init_obj_list();
++	if (efi_ret != EFI_SUCCESS) {
++		printf("## Error: Cannot initialize UEFI sub-system, r = %lu\n",
++		       efi_ret & ~EFI_ERROR_MASK);
++		return 1;
++	}
++
++	/* Install device tree */
++	if (images->ft_len)
++		fdt_addr = (uintptr_t)images->ft_addr;
++	else
++		fdt_addr = EFI_FDT_USE_INTERNAL;
++
++	efi_ret = efi_install_fdt(fdt_addr);
++	if (efi_ret != EFI_SUCCESS) {
++		printf("## Error: Cannot install device tree, r = %lu\n",
++		       efi_ret & ~EFI_ERROR_MASK);
++		return 1;
++	}
++
++	/* Run EFI image */
 +	printf("## Transferring control to EFI (at address %08lx) ...\n",
 +	       images->ep);
 +	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 +
-+	local_args[0] = argv[0];
++	image_buf = map_sysmem(images->ep, images->os.image_len);
 +
-+	/* Write efi addr into string */
-+	sprintf(str_efi_addr, "%lx", images->ep);
-+	/* and provide it via the arguments */
-+	local_args[1] = str_efi_addr;
-+
-+	if (images->ft_len) {
-+		/* Write fdt addr into string */
-+		sprintf(str_fdt_addr, "%lx", (unsigned long)images->ft_addr);
-+		/* and provide it via the arguments */
-+		local_args[2] = str_fdt_addr;
-+		local_argc = 3;
++	efi_ret = efi_run_image(image_buf, images->os.image_len);
++	if (efi_ret != EFI_SUCCESS) {
++		printf("## Error: Cannot run EFI image, r = %lu\n",
++		       efi_ret & ~EFI_ERROR_MASK);
++		return 1;
 +	}
 +
-+	return do_bootefi(NULL, 0, local_argc, local_args);
++	return 0;
 +}
 +#endif
 +
  static boot_os_fn *boot_os[] = {
  	[IH_OS_U_BOOT] = do_bootm_standalone,
  #ifdef CONFIG_BOOTM_LINUX
-@@ -498,6 +539,9 @@ static boot_os_fn *boot_os[] = {
+@@ -534,6 +592,9 @@ static boot_os_fn *boot_os[] = {
  #ifdef CONFIG_BOOTM_OPTEE
  	[IH_OS_TEE] = do_bootm_tee,
  #endif
@@ -118,20 +122,6 @@ index 6fb7d658da..706151913a 100644
  };
  
  /* Allow for arch specific config before we boot */
-diff --git a/include/bootm.h b/include/bootm.h
-index edeeacb0df..a0da86dc32 100644
---- a/include/bootm.h
-+++ b/include/bootm.h
-@@ -37,7 +37,9 @@ typedef int boot_os_fn(int flag, int argc, char * const argv[],
- extern boot_os_fn do_bootm_linux;
- extern boot_os_fn do_bootm_vxworks;
- 
-+int do_bootefi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
- int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-+
- void lynxkdi_boot(image_header_t *hdr);
- 
- boot_os_fn *bootm_os_get_boot_func(int os);
 -- 
 2.24.0
 
