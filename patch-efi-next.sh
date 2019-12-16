@@ -43,6 +43,7 @@ git am ../patch/0001-efi_loader-pass-address-to-efi_install_fdt.patch
 git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
 git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
 git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
+git am ../patch/0001-efi_selftest-Update-.gitignore.patch
 exit
 
 # UEFI FIT image
