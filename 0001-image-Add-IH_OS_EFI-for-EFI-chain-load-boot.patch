@@ -1,6 +1,6 @@
-From 726f1157030fb3df6d7dbb043de1bb8e1cd85671 Mon Sep 17 00:00:00 2001
+From dc2b510ca31bd137617962e1d16fe2660f21e5df Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Tue, 10 Dec 2019 10:56:49 +0200
+Date: Tue, 17 Dec 2019 09:46:58 +0200
 Subject: [PATCH 1/1] image: Add IH_OS_EFI for EFI chain-load boot
 
 Add a new OS type to be used for chain-loading an EFI compatible
@@ -17,7 +17,7 @@ identifies the currently introduced OS type:
     images {
         efi-grub {
             description = "GRUB EFI";
-            data = /incbin/("EFI/BOOT/bootarm.efi");
+            data = /incbin/("bootarm.efi");
             type = "kernel_noload";
             arch = "arm";
             os = "efi";
@@ -43,7 +43,7 @@ identifies the currently introduced OS type:
 };
 
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  common/image-fit.c | 3 ++-
  common/image.c     | 1 +

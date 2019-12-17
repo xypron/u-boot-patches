@@ -1,13 +1,13 @@
-From e5b5cb9a273ee965903b882aea62f50cd39bb6ed Mon Sep 17 00:00:00 2001
+From 53fa65acfa5a0140d79dc3bef11b30a645b48b85 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Tue, 10 Dec 2019 10:56:51 +0200
+Date: Tue, 17 Dec 2019 09:47:00 +0200
 Subject: [PATCH 1/1] doc: Add sample uefi.its image description file
 
 This patch adds an example FIT image description file demonstrating
 the usage of bootm command to securely launch UEFI binaries.
 
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  doc/uImage.FIT/uefi.its | 67 +++++++++++++++++++++++++++++++++++++++++
  1 file changed, 67 insertions(+)
@@ -15,12 +15,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 
 diff --git a/doc/uImage.FIT/uefi.its b/doc/uImage.FIT/uefi.its
 new file mode 100644
-index 0000000000..e336ad938d
+index 0000000000..378ca4ed8d
 --- /dev/null
 +++ b/doc/uImage.FIT/uefi.its
 @@ -0,0 +1,67 @@
 +/*
-+ * Example FIT image description file demonstrating the usage of
++ * Example FIT image description file demonstrating the usage of the
 + * bootm command to launch UEFI binaries.
 + *
 + * Two boot configurations are available to enable booting GRUB2 on QEMU,
@@ -37,7 +37,7 @@ index 0000000000..e336ad938d
 +	images {
 +		efi-grub {
 +			description = "GRUB EFI Firmware";
-+			data = /incbin/("efi-part/EFI/BOOT/bootarm.efi");
++			data = /incbin/("bootarm.efi");
 +			type = "kernel_noload";
 +			arch = "arm";
 +			os = "efi";
@@ -65,7 +65,7 @@ index 0000000000..e336ad938d
 +		default = "config-grub-fdt";
 +
 +		config-grub-fdt {
-+			description = "GRUB EFI Boot with FDT";
++			description = "GRUB EFI Boot w/ FDT";
 +			kernel = "efi-grub";
 +			fdt = "fdt-qemu";
 +			signature-1 {

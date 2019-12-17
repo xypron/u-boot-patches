@@ -53,6 +53,7 @@ git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
 git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
 git am ../patch/0001-doc-Add-sample-uefi.its-image-description-file.patch
 git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
+git am ../patch/0001-test-py-Create-a-test-for-launching-UEFI-binaries-fr.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
