@@ -45,7 +45,7 @@ git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
 git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
 git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
 git am ../patch/0001-efi_selftest-Update-.gitignore.patch
-git ma ../patch/0001-efi_loader-git-ignore-helloworld_efi.S.patch
+git am ../patch/0001-efi_loader-git-ignore-helloworld_efi.S.patch
 exit
 
 # UEFI FIT image
