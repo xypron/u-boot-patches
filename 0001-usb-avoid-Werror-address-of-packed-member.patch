@@ -1,0 +1,46 @@
+From dd59bc0f03caa28ee83c36370a128fec1a361d53 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 17 Dec 2019 09:41:49 +0100
+Subject: [PATCH 1/1] usb: avoid -Werror=address-of-packed-member
+
+With GCC 9.2.1 errors of type -Werror=address-of-packed-member occur when
+passing a member of a packed structure to le16_to_cpus() on a big endian
+system (e.g. P2041RDB_defconfig).
+
+Replace le16_to_cpus() by get_unaligned_le16(). Check defined(__BIG_ENDIAN)
+to avoid the introduction of unnecessary instructions on little endian
+systems as seen on aarch64.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/usb.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/common/usb.c b/common/usb.c
+index d9bcb5a57e..de6f7a3bf4 100644
+--- a/common/usb.c
++++ b/common/usb.c
+@@ -1078,10 +1078,16 @@ int usb_select_config(struct usb_device *dev)
+ 		return err;
+ 
+ 	/* correct le values */
+-	le16_to_cpus(&dev->descriptor.bcdUSB);
+-	le16_to_cpus(&dev->descriptor.idVendor);
+-	le16_to_cpus(&dev->descriptor.idProduct);
+-	le16_to_cpus(&dev->descriptor.bcdDevice);
++#if defined(__BIG_ENDIAN)
++	dev->descriptor.bcdUSB =
++		get_unaligned_le16(&dev->descriptor.bcdUSB);
++	dev->descriptor.idVendor =
++		get_unaligned_le16(&dev->descriptor.idVendor);
++	dev->descriptor.idProduct =
++		get_unaligned_le16(&dev->descriptor.idProduct);
++	dev->descriptor.bcdDevice =
++		get_unaligned_le16(&dev->descriptor.bcdDevice);
++#endif
+ 
+ 	/*
+ 	 * Kingston DT Ultimate 32GB USB 3.0 seems to be extremely sensitive
+-- 
+2.24.0
+
