@@ -47,6 +47,7 @@ git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
 git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
 git am ../patch/0001-efi_selftest-Update-.gitignore.patch
 git am ../patch/0001-efi_loader-git-ignore-helloworld_efi.S.patch
+git am ../patch/0001-test-py-describe-env__efi_loader_helloworld_file.patch
 exit
 
 # UEFI FIT image
