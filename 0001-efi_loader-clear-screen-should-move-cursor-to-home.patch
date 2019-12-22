@@ -1,0 +1,52 @@
+From 86c7e863b78d31c914b62167bb0bfc4096cae7e9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Dec 2019 07:15:55 +0000
+Subject: [PATCH 1/1] efi_loader: clear screen should move cursor to home
+
+On a VT100 terminal <ESC>[2J should be enough to both clear the whole
+screen and set the cursor to position (1, 1). But the Linux console does
+not behave like this. So send an extra <ESC>[H. For reference see the
+console_codes(4) man page.
+
+Add a function description.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_console.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 218f7caa12..8494044799 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -360,12 +360,26 @@ static efi_status_t EFIAPI efi_cout_set_attribute(
+ 	return EFI_EXIT(EFI_SUCCESS);
+ }
+ 
++/**
++ * efi_cout_clear_screen() - clear screen
++ *
++ * This function implements the ClearScreen service of the
++ * EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL. See the Unified Extensible Firmware
++ * Interface (UEFI) specification for details.
++ *
++ * @this:	pointer to the protocol instance
++ * Return:	status code
++ */
+ static efi_status_t EFIAPI efi_cout_clear_screen(
+ 			struct efi_simple_text_output_protocol *this)
+ {
+ 	EFI_ENTRY("%p", this);
+ 
+-	printf(ESC"[2J");
++	/*
++	 * The Linux console wants both a clear and a home command. The video
++	 * uclass does not support <ESC>[H without coordinates, yet.
++	 */
++	printf(ESC "[2J" ESC "[1;1H");
+ 	efi_con_mode.cursor_column = 0;
+ 	efi_con_mode.cursor_row = 0;
+ 
+-- 
+2.20.1
+
