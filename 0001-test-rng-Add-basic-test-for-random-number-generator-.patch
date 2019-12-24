@@ -1,0 +1,64 @@
+From c4f112ee7d3a316acb5bce7ed900c482a16f2cc6 Mon Sep 17 00:00:00 2001
+From: Sughosh Ganu <sughosh.ganu@linaro.org>
+Date: Tue, 17 Dec 2019 17:22:04 +0530
+Subject: [PATCH 1/1] test: rng: Add basic test for random number
+ generator(rng) uclass
+
+Add a unit test for testing the rng uclass functionality using the
+sandbox rng driver.
+
+Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+---
+ test/dm/Makefile |  1 +
+ test/dm/rng.c    | 28 ++++++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
+ create mode 100644 test/dm/rng.c
+
+diff --git a/test/dm/Makefile b/test/dm/Makefile
+index 0c2fd5cb5e..f61bf65ae6 100644
+--- a/test/dm/Makefile
++++ b/test/dm/Makefile
+@@ -65,4 +65,5 @@ obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o
+ obj-$(CONFIG_DMA) += dma.o
+ obj-$(CONFIG_DM_MDIO) += mdio.o
+ obj-$(CONFIG_DM_MDIO_MUX) += mdio_mux.o
++obj-$(CONFIG_DM_RNG) += rng.o
+ endif
+diff --git a/test/dm/rng.c b/test/dm/rng.c
+new file mode 100644
+index 0000000000..d533cf6f3f
+--- /dev/null
++++ b/test/dm/rng.c
+@@ -0,0 +1,28 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright (c) 2019, Linaro Limited
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <rng.h>
++#include <dm/test.h>
++#include <test/ut.h>
++
++/* Basic test of the rng uclass */
++static int dm_test_rng_read(struct unit_test_state *uts)
++{
++	unsigned long rand1 = 0, rand2 = 0;
++	struct udevice *dev;
++
++	ut_assertok(uclass_get_device(UCLASS_RNG, 0, &dev));
++	ut_assertnonnull(dev);
++	ut_assertok(dm_rng_read(dev, &rand1, sizeof(rand1)));
++	ut_assertok(dm_rng_read(dev, &rand2, sizeof(rand2)));
++	ut_assert(rand1 != rand2);
++	ut_asserteq(0x21524110, rand1);
++	ut_asserteq(0xdeadbeef, rand2);
++
++	return 0;
++}
++DM_TEST(dm_test_rng_read, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+-- 
+2.24.0
+

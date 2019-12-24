@@ -1,0 +1,159 @@
+From b4208d245a7e29bc596a48f631ccb52472ca2f1b Mon Sep 17 00:00:00 2001
+From: Sughosh Ganu <sughosh.ganu@linaro.org>
+Date: Tue, 17 Dec 2019 17:22:05 +0530
+Subject: [PATCH 1/1] virtio: rng: Add a random number generator(rng) driver
+
+Add a driver for the virtio-rng device on the qemu platform. The
+device uses pci as a transport medium. The driver can be enabled with
+the following configs
+
+CONFIG_VIRTIO
+CONFIG_DM_RNG
+CONFIG_VIRTIO_PCI
+CONFIG_VIRTIO_RNG
+
+Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+---
+ drivers/virtio/Kconfig         |  6 +++
+ drivers/virtio/Makefile        |  1 +
+ drivers/virtio/virtio-uclass.c |  1 +
+ drivers/virtio/virtio_rng.c    | 72 ++++++++++++++++++++++++++++++++++
+ include/virtio.h               |  4 +-
+ 5 files changed, 83 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/virtio/virtio_rng.c
+
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index a9d5fd07b7..2e3dd3bad0 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -59,4 +59,10 @@ config VIRTIO_BLK
+ 	  This is the virtual block driver for virtio. It can be used with
+ 	  QEMU based targets.
+ 
++config VIRTIO_RNG
++       bool "virtio rng driver"
++       depends on VIRTIO
++       help
++         This is the virtual random number generator driver. It can be used
++	 with Qemu based targets.
+ endmenu
+diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+index 4579044ae3..dc8880937a 100644
+--- a/drivers/virtio/Makefile
++++ b/drivers/virtio/Makefile
+@@ -9,3 +9,4 @@ obj-$(CONFIG_VIRTIO_PCI) += virtio_pci_legacy.o virtio_pci_modern.o
+ obj-$(CONFIG_VIRTIO_SANDBOX) += virtio_sandbox.o
+ obj-$(CONFIG_VIRTIO_NET) += virtio_net.o
+ obj-$(CONFIG_VIRTIO_BLK) += virtio_blk.o
++obj-$(CONFIG_VIRTIO_RNG) += virtio_rng.o
+diff --git a/drivers/virtio/virtio-uclass.c b/drivers/virtio/virtio-uclass.c
+index 34397d7dbb..436faa46ee 100644
+--- a/drivers/virtio/virtio-uclass.c
++++ b/drivers/virtio/virtio-uclass.c
+@@ -24,6 +24,7 @@
+ static const char *const virtio_drv_name[VIRTIO_ID_MAX_NUM] = {
+ 	[VIRTIO_ID_NET]		= VIRTIO_NET_DRV_NAME,
+ 	[VIRTIO_ID_BLOCK]	= VIRTIO_BLK_DRV_NAME,
++	[VIRTIO_ID_RNG]		= VIRTIO_RNG_DRV_NAME,
+ };
+ 
+ int virtio_get_config(struct udevice *vdev, unsigned int offset,
+diff --git a/drivers/virtio/virtio_rng.c b/drivers/virtio/virtio_rng.c
+new file mode 100644
+index 0000000000..19a0cc117e
+--- /dev/null
++++ b/drivers/virtio/virtio_rng.c
+@@ -0,0 +1,72 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2019, Linaro Limited
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <rng.h>
++#include <virtio_types.h>
++#include <virtio.h>
++#include <virtio_ring.h>
++
++struct virtio_rng_priv {
++	struct virtqueue *rng_vq;
++};
++
++static int virtio_rng_read(struct udevice *dev, void *data, size_t len)
++{
++	struct virtio_sg sg = { data, len };
++	struct virtio_sg *sgs[] = { &sg };
++	struct virtio_rng_priv *priv = dev_get_priv(dev);
++	unsigned int rsize;
++	int ret;
++
++	ret = virtqueue_add(priv->rng_vq, sgs, 0, 1);
++	if (ret)
++		return ret;
++
++	virtqueue_kick(priv->rng_vq);
++
++	while (!virtqueue_get_buf(priv->rng_vq, &rsize))
++		;
++
++	return rsize;
++}
++
++static int virtio_rng_bind(struct udevice *dev)
++{
++	struct virtio_dev_priv *uc_priv = dev_get_uclass_priv(dev->parent);
++
++	/* Indicate what driver features we support */
++	virtio_driver_features_init(uc_priv, NULL, 0, NULL, 0);
++
++	return 0;
++}
++
++static int virtio_rng_probe(struct udevice *dev)
++{
++	struct virtio_rng_priv *priv = dev_get_priv(dev);
++	int ret;
++
++	ret = virtio_find_vqs(dev, 1, &priv->rng_vq);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
++static const struct dm_rng_ops virtio_rng_ops = {
++	.read	= virtio_rng_read,
++};
++
++U_BOOT_DRIVER(virtio_rng) = {
++	.name	= VIRTIO_RNG_DRV_NAME,
++	.id	= UCLASS_RNG,
++	.bind	= virtio_rng_bind,
++	.probe	= virtio_rng_probe,
++	.remove = virtio_reset,
++	.ops	= &virtio_rng_ops,
++	.priv_auto_alloc_size = sizeof(struct virtio_rng_priv),
++	.flags	= DM_FLAG_ACTIVE_DMA,
++};
+diff --git a/include/virtio.h b/include/virtio.h
+index 654fdf154b..561dcc34ba 100644
+--- a/include/virtio.h
++++ b/include/virtio.h
+@@ -22,10 +22,12 @@
+ 
+ #define VIRTIO_ID_NET		1 /* virtio net */
+ #define VIRTIO_ID_BLOCK		2 /* virtio block */
+-#define VIRTIO_ID_MAX_NUM	3
++#define VIRTIO_ID_RNG		4 /* virtio rng */
++#define VIRTIO_ID_MAX_NUM	5
+ 
+ #define VIRTIO_NET_DRV_NAME	"virtio-net"
+ #define VIRTIO_BLK_DRV_NAME	"virtio-blk"
++#define VIRTIO_RNG_DRV_NAME	"virtio-rng"
+ 
+ /* Status byte for guest to report progress, and synchronize features */
+ 
+-- 
+2.24.0
+

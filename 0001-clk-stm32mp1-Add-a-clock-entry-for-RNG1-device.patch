@@ -1,0 +1,30 @@
+From c6156193c48c98dc78630414cdf015065de5bc32 Mon Sep 17 00:00:00 2001
+From: Sughosh Ganu <sughosh.ganu@linaro.org>
+Date: Tue, 17 Dec 2019 17:21:59 +0530
+Subject: [PATCH 1/1] clk: stm32mp1: Add a clock entry for RNG1 device
+
+Add an entry for allowing clock enablement for the random number
+generator peripheral, RNG1.
+
+Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Acked-by: Patrick Delaunay <patrick.delaunay@st.com>
+---
+ drivers/clk/clk_stm32mp1.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/clk/clk_stm32mp1.c b/drivers/clk/clk_stm32mp1.c
+index 3718970dc7..da66bde41b 100644
+--- a/drivers/clk/clk_stm32mp1.c
++++ b/drivers/clk/clk_stm32mp1.c
+@@ -563,6 +563,7 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
+ 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 10, GPIOK, _UNKNOWN_SEL),
+ 
+ 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB5ENSETR, 0, GPIOZ, _UNKNOWN_SEL),
++	STM32MP1_CLK_SET_CLR(RCC_MP_AHB5ENSETR, 6, RNG1_K, _UNKNOWN_SEL),
+ 
+ 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 7, ETHCK_K, _ETH_SEL),
+ 	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 8, ETHTX, _UNKNOWN_SEL),
+-- 
+2.24.0
+

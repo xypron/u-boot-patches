@@ -62,6 +62,17 @@ git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
 git am ../patch/0001-test-py-Create-a-test-for-launching-UEFI-binaries-fr.patch
 exit
 
+# RNG
+git am ../patch/0001-dm-rng-Add-random-number-generator-rng-uclass.patch
+git am ../patch/0001-clk-stm32mp1-Add-a-clock-entry-for-RNG1-device.patch
+git am ../patch/0001-stm32mp1-rng-Add-a-driver-for-random-number-generato.patch
+git am ../patch/0001-configs-stm32mp15-Enable-random-number-generator-rng.patch
+git am ../patch/0001-sandbox-rng-Add-a-random-number-generator-rng-driver.patch
+git am ../patch/0001-configs-sandbox-Enable-random-number-generator-rng-d.patch
+git am ../patch/0001-test-rng-Add-basic-test-for-random-number-generator-.patch
+git am ../patch/0001-virtio-rng-Add-a-random-number-generator-rng-driver.patch
+exit
+
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch

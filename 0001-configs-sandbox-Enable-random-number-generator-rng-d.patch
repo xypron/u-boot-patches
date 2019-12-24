@@ -1,0 +1,46 @@
+From 4d77b5ada639a9759c8a75be33539b12ea862df3 Mon Sep 17 00:00:00 2001
+From: Sughosh Ganu <sughosh.ganu@linaro.org>
+Date: Tue, 17 Dec 2019 17:22:03 +0530
+Subject: [PATCH 1/1] configs: sandbox: Enable random number generator(rng)
+ device
+
+Enable support for random number generator on sandbox configs. This is
+aimed primarily at adding unit test support for rng uclass.
+
+Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Reviewed-by: Patrick Delaunay <patrick.delaunay@st.com>
+---
+ configs/sandbox64_defconfig | 2 ++
+ configs/sandbox_defconfig   | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/configs/sandbox64_defconfig b/configs/sandbox64_defconfig
+index cc536ff0ba..a21d8325b9 100644
+--- a/configs/sandbox64_defconfig
++++ b/configs/sandbox64_defconfig
+@@ -158,6 +158,8 @@ CONFIG_REGULATOR_RK8XX=y
+ CONFIG_REGULATOR_S5M8767=y
+ CONFIG_DM_REGULATOR_SANDBOX=y
+ CONFIG_REGULATOR_TPS65090=y
++CONFIG_DM_RNG=y
++CONFIG_RNG_SANDBOX=y
+ CONFIG_DM_PWM=y
+ CONFIG_PWM_SANDBOX=y
+ CONFIG_RAM=y
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index 64245f7cdc..9bdc0f56e5 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -179,6 +179,8 @@ CONFIG_REGULATOR_RK8XX=y
+ CONFIG_REGULATOR_S5M8767=y
+ CONFIG_DM_REGULATOR_SANDBOX=y
+ CONFIG_REGULATOR_TPS65090=y
++CONFIG_DM_RNG=y
++CONFIG_RNG_SANDBOX=y
+ CONFIG_DM_PWM=y
+ CONFIG_PWM_SANDBOX=y
+ CONFIG_RAM=y
+-- 
+2.24.0
+
