@@ -1,0 +1,29 @@
+From c53921650167749a545891091147bcca0bf2743d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 24 Dec 2019 08:11:01 +0100
+Subject: [PATCH 1/1] part: efi: comment for GPT_HEADER_SIGNATURE_UBOOT
+
+Add a comment indicating that the value of GPT_HEADER_SIGNATURE_UBOOT
+equals the ASCII string 'EFI PART'.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/part_efi.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/part_efi.h b/include/part_efi.h
+index eb5797af74..1929e4400f 100644
+--- a/include/part_efi.h
++++ b/include/part_efi.h
+@@ -24,7 +24,7 @@
+ #define EFI_PMBR_OSTYPE_EFI 0xEF
+ #define EFI_PMBR_OSTYPE_EFI_GPT 0xEE
+ 
+-#define GPT_HEADER_SIGNATURE_UBOOT 0x5452415020494645ULL
++#define GPT_HEADER_SIGNATURE_UBOOT 0x5452415020494645ULL // 'EFI PART'
+ #define GPT_HEADER_CHROMEOS_IGNORE 0x454d45524f4e4749ULL // 'IGNOREME'
+ 
+ #define GPT_HEADER_REVISION_V1 0x00010000
+-- 
+2.24.0
+
