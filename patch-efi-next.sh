@@ -20,7 +20,6 @@ git am ../patch/0001-mkimage-simplify-fit_check_params.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-sunxi-remove-__packed-from-struct-sunxi_prcm_reg.patch
 git am ../patch/0001-gitlab-use-our-own-GRUB.patch
-git am ../patch/0001-part-efi-comment-for-GPT_HEADER_SIGNATURE_UBOOT.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -51,6 +50,7 @@ git am ../patch/0001-efi_selftest-Update-.gitignore.patch
 git am ../patch/0001-efi_loader-git-ignore-helloworld_efi.S.patch
 git am ../patch/0001-test-py-describe-env__efi_loader_helloworld_file.patch
 git am ../patch/0001-efi_loader-clear-screen-should-move-cursor-to-home.patch
+git am ../patch/0001-part-efi-comment-for-GPT_HEADER_SIGNATURE_UBOOT.patch
 exit
 
 # UEFI FIT image
