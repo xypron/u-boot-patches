@@ -1,0 +1,113 @@
+From aec1e1b1aa16f432bf588b8c0bc87cde1a822ec6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 24 Dec 2019 22:17:37 +0100
+Subject: [PATCH 1/1] cmd: add rng command
+
+For the RNG uclass we currently only have a test working on the sandbox.
+
+Provide a command to test the hardware random number generator on
+non-sandbox systems.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig  |  7 +++++++
+ cmd/Makefile |  1 +
+ cmd/rng.c    | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 64 insertions(+)
+ create mode 100644 cmd/rng.c
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 1e4cf146c5..d39cfaa13b 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1657,6 +1657,13 @@ config CMD_GETTIME
+ 	  milliseconds. See also the 'bootstage' command which provides more
+ 	  flexibility for boot timing.
+ 
++config CMD_RNG
++	bool "rng command"
++	depends on DM_RNG
++	select HEXDUMP
++	help
++	  Print bytes from the hardware random number generator.
++
+ # TODO: rename to CMD_SLEEP
+ config CMD_MISC
+ 	bool "sleep"
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 3ac7104546..7cb182d915 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -116,6 +116,7 @@ obj-$(CONFIG_CMD_READ) += read.o
+ obj-$(CONFIG_CMD_REGINFO) += reginfo.o
+ obj-$(CONFIG_CMD_REISER) += reiser.o
+ obj-$(CONFIG_CMD_REMOTEPROC) += remoteproc.o
++obj-$(CONFIG_CMD_RNG) += rng.o
+ obj-$(CONFIG_CMD_ROCKUSB) += rockusb.o
+ obj-$(CONFIG_SANDBOX) += host.o
+ obj-$(CONFIG_CMD_SATA) += sata.o
+diff --git a/cmd/rng.c b/cmd/rng.c
+new file mode 100644
+index 0000000000..36ca7a101c
+--- /dev/null
++++ b/cmd/rng.c
+@@ -0,0 +1,56 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'rng' command prints bytes from the hardware random number generator.
++ *
++ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++#include <common.h>
++#include <command.h>
++#include <dm.h>
++#include <hexdump.h>
++#include <rng.h>
++
++static int do_rng(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	size_t n = 0x40;
++	struct udevice *dev;
++	void *buf;
++	int ret = CMD_RET_SUCCESS;
++
++	if (uclass_get_device(UCLASS_RNG, 0, &dev) || !dev) {
++		printf("No RNG device\n");
++		return CMD_RET_FAILURE;
++	}
++
++	if (argc >= 2)
++		n = simple_strtoul(argv[1], NULL, 16);
++
++	buf = malloc(n);
++	if (!buf) {
++		printf("Out of memory\n");
++		return CMD_RET_FAILURE;
++	}
++
++	if (dm_rng_read(dev, buf, n)) {
++		printf("Reading RNG failed\n");
++		ret = CMD_RET_FAILURE;
++	} else {
++		print_hex_dump_bytes("", DUMP_PREFIX_OFFSET, buf, n);
++	}
++
++	free(buf);
++
++	return ret;
++}
++
++#ifdef CONFIG_SYS_LONGHELP
++static char rng_help_text[] =
++	"[n]\n"
++	"  - print n random bytes\n";
++#endif
++
++U_BOOT_CMD(
++	rng, 2, 0, do_rng,
++	"print bytes from the hardware random number generator",
++	rng_help_text
++);
+-- 
+2.24.0
+

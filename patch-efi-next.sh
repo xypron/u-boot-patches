@@ -71,6 +71,7 @@ git am ../patch/0001-sandbox-rng-Add-a-random-number-generator-rng-driver.patch
 git am ../patch/0001-configs-sandbox-Enable-random-number-generator-rng-d.patch
 git am ../patch/0001-test-rng-Add-basic-test-for-random-number-generator-.patch
 git am ../patch/0001-virtio-rng-Add-a-random-number-generator-rng-driver.patch
+git am ../patch/0001-cmd-add-rng-command.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
