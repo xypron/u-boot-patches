@@ -21,6 +21,7 @@ git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-sunxi-remove-__packed-from-struct-sunxi_prcm_reg.patch
 git am ../patch/0001-gitlab-use-our-own-GRUB.patch
 git am ../patch/0001-virtio-fix-typo-devicd.patch
+git am ../patch/0001-doc-fix-AX25-AE350-RISC-V-documentation.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
