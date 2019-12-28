@@ -1,0 +1,30 @@
+From 9fe88b18a9be4b2297d198080fc434fffc0213ca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 28 Dec 2019 15:05:06 +0100
+Subject: [PATCH 1/1] efi_loader remove __packed from struct
+ efi_configuration_table
+
+struct efi_configuration_table is naturally packed. There is no need for a
+__packed attribute. Hence remove it.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 22396172e1..a3ff140ac9 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -322,7 +322,7 @@ struct efi_runtime_services {
+ struct efi_configuration_table {
+ 	efi_guid_t guid;
+ 	void *table;
+-} __packed;
++};
+ 
+ #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
+ 
+-- 
+2.24.1
+
