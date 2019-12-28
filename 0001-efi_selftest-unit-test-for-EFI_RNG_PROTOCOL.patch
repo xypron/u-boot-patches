@@ -10,39 +10,11 @@ checks that the two numbers differ.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/virtio/virtio_rng.c         |   2 +-
- include/efi_api.h                   |   2 +-
  lib/efi_selftest/Makefile           |   1 +
  lib/efi_selftest/efi_selftest_rng.c | 117 ++++++++++++++++++++++++++++
  4 files changed, 120 insertions(+), 2 deletions(-)
  create mode 100644 lib/efi_selftest/efi_selftest_rng.c
 
-diff --git a/drivers/virtio/virtio_rng.c b/drivers/virtio/virtio_rng.c
-index d0eed93bdd..4d1131a4b8 100644
---- a/drivers/virtio/virtio_rng.c
-+++ b/drivers/virtio/virtio_rng.c
-@@ -23,7 +23,7 @@ static int virtio_rng_read(struct udevice *dev, void *data, size_t len)
-     unsigned char buf[BUFFER_SIZE] __aligned(4);
-     unsigned char *ptr = data;
-     struct virtio_sg sg;
--    struct virtio_sg *sgs = sg;
-+    struct virtio_sg *sgs = &sg;
-     struct virtio_rng_priv *priv = dev_get_priv(dev);
- 
-     while (len) {
-diff --git a/include/efi_api.h b/include/efi_api.h
-index 22396172e1..a3ff140ac9 100644
---- a/include/efi_api.h
-+++ b/include/efi_api.h
-@@ -322,7 +322,7 @@ struct efi_runtime_services {
- struct efi_configuration_table {
- 	efi_guid_t guid;
- 	void *table;
--} __packed;
-+};
- 
- #define EFI_SYSTEM_TABLE_SIGNATURE ((u64)0x5453595320494249ULL)
- 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
 index 487cb4c674..3ad96e1cbf 100644
 --- a/lib/efi_selftest/Makefile
