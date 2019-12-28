@@ -1,8 +1,8 @@
-From 79bf09f01f3df95e33803d62ef82abc26267d5b7 Mon Sep 17 00:00:00 2001
+From c68d1fad5785dd5b4a850b0ebcd44941c3a3d032 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Fri, 27 Dec 2019 19:56:15 +0530
-Subject: [PATCH 1/1] efi: qemu: arm64: Add efi_rng_protocol implementation for
- the platform
+Date: Sun, 29 Dec 2019 00:01:05 +0530
+Subject: [PATCH] efi: qemu: arm64: Add efi_rng_protocol implementation for the
+ platform
 
 Add support for the EFI_RNG_PROTOCOL routines for the qemu arm64
 platform. EFI_RNG_PROTOCOL is an uefi boottime service which is
@@ -16,23 +16,22 @@ The feature can be enabled through the following config
 CONFIG_EFI_RNG_PROTOCOL
 
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
-Correctly use EFI_EXIT()
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- board/emulation/qemu-arm/qemu-arm.c | 41 +++++++++++++
- include/efi_rng.h                   | 32 ++++++++++
- lib/efi_loader/Kconfig              |  8 +++
- lib/efi_loader/Makefile             |  1 +
- lib/efi_loader/efi_rng.c            | 94 +++++++++++++++++++++++++++++
- 5 files changed, 176 insertions(+)
+ board/emulation/qemu-arm/qemu-arm.c |  42 +++++++++++
+ include/efi_rng.h                   |  32 ++++++++
+ lib/efi_loader/Kconfig              |   8 ++
+ lib/efi_loader/Makefile             |   1 +
+ lib/efi_loader/efi_rng.c            | 112 ++++++++++++++++++++++++++++
+ 5 files changed, 195 insertions(+)
  create mode 100644 include/efi_rng.h
  create mode 100644 lib/efi_loader/efi_rng.c
 
 diff --git a/board/emulation/qemu-arm/qemu-arm.c b/board/emulation/qemu-arm/qemu-arm.c
-index e1f4709c4c..1dcf830d84 100644
+index e1f4709c4c..4e18733001 100644
 --- a/board/emulation/qemu-arm/qemu-arm.c
 +++ b/board/emulation/qemu-arm/qemu-arm.c
-@@ -91,3 +91,44 @@ void *board_fdt_blob_setup(void)
+@@ -91,3 +91,45 @@ void *board_fdt_blob_setup(void)
  	/* QEMU loads a generated DTB for us at the start of RAM. */
  	return (void *)CONFIG_SYS_SDRAM_BASE;
  }
@@ -51,7 +50,8 @@ index e1f4709c4c..1dcf830d84 100644
 +
 +	for (uclass_first_device(UCLASS_VIRTIO, &bus); bus;
 +	     uclass_next_device(&bus)) {
-+		for (device_find_first_child(bus, &devp); devp; device_find_next_child(&devp)) {
++		for (device_find_first_child(bus, &devp); devp;
++		     device_find_next_child(&devp)) {
 +			if (device_get_uclass_id(devp) == UCLASS_RNG) {
 +				*dev = devp;
 +				status = EFI_SUCCESS;
@@ -143,10 +143,10 @@ index 7db4060286..04dc864851 100644
 +obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
 diff --git a/lib/efi_loader/efi_rng.c b/lib/efi_loader/efi_rng.c
 new file mode 100644
-index 0000000000..deee8ea6d8
+index 0000000000..47aaa6adca
 --- /dev/null
 +++ b/lib/efi_loader/efi_rng.c
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,112 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (c) 2019, Linaro Limited
@@ -160,26 +160,42 @@ index 0000000000..deee8ea6d8
 +
 +DECLARE_GLOBAL_DATA_PTR;
 +
++__weak efi_status_t platform_get_rng_device(struct udevice **dev)
++{
++	int ret;
++	struct udevice *devp;
++
++	ret = uclass_get_device(UCLASS_RNG, 0, &devp);
++	if (ret) {
++		debug("Unable to get rng device\n");
++		return EFI_DEVICE_ERROR;
++	}
++
++	*dev = devp;
++
++	return EFI_SUCCESS;
++}
++
 +static efi_status_t EFIAPI rng_getinfo(struct efi_rng_protocol *this,
 +				       efi_uintn_t *rng_algorithm_list_size,
 +				       efi_guid_t *rng_algorithm_list)
 +{
-+	efi_guid_t rng_algo_guid = EFI_RNG_ALGORITHM_RAW;
 +	efi_status_t ret = EFI_SUCCESS;
++	efi_guid_t rng_algo_guid = EFI_RNG_ALGORITHM_RAW;
 +
 +	EFI_ENTRY("%p, %p, %p", this, rng_algorithm_list_size,
 +		  rng_algorithm_list);
 +
 +	if (!this || !rng_algorithm_list_size) {
 +		ret = EFI_INVALID_PARAMETER;
-+		goto out;
++		goto back;
 +	}
 +
 +	if (!rng_algorithm_list ||
 +	    *rng_algorithm_list_size < sizeof(*rng_algorithm_list)) {
 +		*rng_algorithm_list_size = sizeof(*rng_algorithm_list);
-+		ret =  EFI_BUFFER_TOO_SMALL;
-+		goto out;
++		ret = EFI_BUFFER_TOO_SMALL;
++		goto back;
 +	}
 +
 +	/*
@@ -191,7 +207,7 @@ index 0000000000..deee8ea6d8
 +	*rng_algorithm_list_size = sizeof(*rng_algorithm_list);
 +	guidcpy(rng_algorithm_list, &rng_algo_guid);
 +
-+out:
++back:
 +	return EFI_EXIT(ret);
 +}
 +
@@ -200,8 +216,8 @@ index 0000000000..deee8ea6d8
 +				  efi_uintn_t rng_value_length,
 +				  uint8_t *rng_value)
 +{
-+	int r;
-+	efi_status_t ret = EFI_SUCCESS;
++	int ret;
++	efi_status_t status = EFI_SUCCESS;
 +	struct udevice *dev;
 +	const efi_guid_t rng_raw_guid = EFI_RNG_ALGORITHM_RAW;
 +
@@ -209,32 +225,34 @@ index 0000000000..deee8ea6d8
 +		  rng_value);
 +
 +	if (!this || !rng_value || !rng_value_length) {
-+		ret = EFI_INVALID_PARAMETER;
-+		goto out;
++		status = EFI_INVALID_PARAMETER;
++		goto back;
 +	}
 +
 +	if (rng_algorithm) {
 +		EFI_PRINT("RNG algorithm %pUl\n", rng_algorithm);
 +		if (guidcmp(rng_algorithm, &rng_raw_guid)) {
-+			ret = EFI_UNSUPPORTED;
-+			goto out;
++			status = EFI_UNSUPPORTED;
++			goto back;
 +		}
 +	}
 +
-+	r = platform_get_rng_device(&dev);
-+	if (r) {
-+		ret = EFI_UNSUPPORTED;
-+		goto out;
++	ret = platform_get_rng_device(&dev);
++	if (ret != EFI_SUCCESS) {
++		EFI_PRINT("Rng device not found\n");
++		status = EFI_UNSUPPORTED;
++		goto back;
 +	}
 +
 +	ret = dm_rng_read(dev, rng_value, rng_value_length);
 +	if (ret < 0) {
 +		EFI_PRINT("Rng device read failed\n");
-+		ret = EFI_DEVICE_ERROR;
++		status = EFI_DEVICE_ERROR;
++		goto back;
 +	}
 +
-+out:
-+	return EFI_EXIT(ret);
++back:
++	return EFI_EXIT(status);
 +}
 +
 +const struct efi_rng_protocol efi_rng_protocol = {

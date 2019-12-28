@@ -1,6 +1,6 @@
-From 3e5ec7c98809f7f4f2afcdd03dc0e70b393f2398 Mon Sep 17 00:00:00 2001
+From 33a351615d9eac46d398438bf9b13c9309d60225 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Fri, 27 Dec 2019 19:56:14 +0530
+Date: Sun, 29 Dec 2019 00:01:04 +0530
 Subject: [PATCH 1/1] efi_loader: Add guidcpy function
 
 Add guidcpy function to copy the source guid to the destination
