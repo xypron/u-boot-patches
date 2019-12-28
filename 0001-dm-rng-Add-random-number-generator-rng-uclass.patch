@@ -1,13 +1,15 @@
-From d197d82677db2633acb49c76e5c5d2d2c4e08e3a Mon Sep 17 00:00:00 2001
+From 528a63722c9320dc78fd8c3e26669109c6233720 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Fri, 27 Dec 2019 19:53:07 +0530
-Subject: [PATCH 1/9] dm: rng: Add random number generator(rng) uclass
+Date: Sat, 28 Dec 2019 23:58:27 +0530
+Subject: [PATCH] dm: rng: Add random number generator(rng) uclass
 
 Add a uclass for reading a random number seed from a random number
 generator device.
 
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
 Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  drivers/Kconfig          |  2 ++
  drivers/Makefile         |  1 +
@@ -113,7 +115,7 @@ index 0c563d898b..192202d7e3 100644
  	UCLASS_SERIAL,		/* Serial UART */
 diff --git a/include/rng.h b/include/rng.h
 new file mode 100644
-index 0000000000..d54e3e049e
+index 0000000000..d2c0f9af62
 --- /dev/null
 +++ b/include/rng.h
 @@ -0,0 +1,33 @@
@@ -125,7 +127,7 @@ index 0000000000..d54e3e049e
 +#if !defined _RNG_H_
 +#define _RNG_H_
 +
-+#include <dm.h>
++struct udevice;
 +
 +/**
 + * dm_rng_read() - read a random number seed from the rng device
