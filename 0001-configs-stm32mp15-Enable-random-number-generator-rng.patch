@@ -1,7 +1,7 @@
-From d9080756395796d17b85fc7879d08ce5baa35972 Mon Sep 17 00:00:00 2001
+From 60bdca32572e9576e828971119937da62b599795 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Tue, 17 Dec 2019 17:22:01 +0530
-Subject: [PATCH 1/1] configs: stm32mp15: Enable random number generator(rng)
+Date: Sat, 28 Dec 2019 23:58:30 +0530
+Subject: [PATCH] configs: stm32mp15: Enable random number generator(rng)
  device
 
 Enable support for the rng device on the stm32mp15 configs.
@@ -46,5 +46,5 @@ index a5ea528ae3..a846962af5 100644
 +CONFIG_DM_RNG=y
 +CONFIG_RNG_STM32MP1=y
 -- 
-2.24.0
+2.24.1
 
