@@ -1,30 +1,31 @@
-From ea30581b02764ee891d14a9eaf34b8f2671aca7d Mon Sep 17 00:00:00 2001
+From 28243a6b3913d55a26b003d4b899294dfa60ddf0 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Tue, 17 Dec 2019 17:22:02 +0530
-Subject: [PATCH 1/1] sandbox: rng: Add a random number generator(rng) driver
+Date: Sat, 28 Dec 2019 23:58:31 +0530
+Subject: [PATCH] sandbox: rng: Add a random number generator(rng) driver
 
 Add a sandbox driver for random number generation. Mostly aimed at
 providing a unit test for rng uclass.
 
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
 Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- arch/sandbox/dts/test.dts |  4 ++++
- drivers/rng/Kconfig       |  7 +++++++
+ arch/sandbox/dts/test.dts |  4 +++
+ drivers/rng/Kconfig       |  8 ++++++
  drivers/rng/Makefile      |  1 +
- drivers/rng/sandbox_rng.c | 39 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 51 insertions(+)
+ drivers/rng/sandbox_rng.c | 56 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 69 insertions(+)
  create mode 100644 drivers/rng/sandbox_rng.c
 
 diff --git a/arch/sandbox/dts/test.dts b/arch/sandbox/dts/test.dts
-index fdb08f2111..2c85540c3e 100644
+index fdb08f2111..fe1d14aad7 100644
 --- a/arch/sandbox/dts/test.dts
 +++ b/arch/sandbox/dts/test.dts
 @@ -599,6 +599,10 @@
  		reset-names = "other", "test";
  	};
  
-+	rng@0 {
++	rng {
 +		compatible = "sandbox,sandbox-rng";
 +	};
 +
@@ -32,23 +33,24 @@ index fdb08f2111..2c85540c3e 100644
  		compatible = "sandbox,test-processor";
  		remoteproc-name = "remoteproc-test-dev1";
 diff --git a/drivers/rng/Kconfig b/drivers/rng/Kconfig
-index 5fc11db949..3a1d3f049f 100644
+index c9c475128e..35a3bd192a 100644
 --- a/drivers/rng/Kconfig
 +++ b/drivers/rng/Kconfig
-@@ -6,6 +6,13 @@ config DM_RNG
+@@ -6,6 +6,14 @@ config DM_RNG
  	  This interface is used to initialise the rng device and to
  	  read the random seed from the device.
  
 +config RNG_SANDBOX
-+       bool "Sandbox random number generator"
-+       depends on SANDBOX && DM_RNG
-+       help
-+         Enable random number generator for sandbox. This is an
-+	 emulation of a rng device.
++	bool "Sandbox random number generator"
++	depends on SANDBOX && DM_RNG
++	select CONFIG_LIB_RAND
++	help
++	  Enable random number generator for sandbox. This is an
++	  emulation of a rng device.
 +
  config RNG_STM32MP1
-        bool "Enable random number generator for STM32MP1"
-        depends on ARCH_STM32MP && DM_RNG
+ 	bool "Enable random number generator for STM32MP1"
+ 	depends on ARCH_STM32MP && DM_RNG
 diff --git a/drivers/rng/Makefile b/drivers/rng/Makefile
 index 699beb383b..3517005541 100644
 --- a/drivers/rng/Makefile
@@ -61,10 +63,10 @@ index 699beb383b..3517005541 100644
  obj-$(CONFIG_RNG_STM32MP1) += stm32mp1_rng.o
 diff --git a/drivers/rng/sandbox_rng.c b/drivers/rng/sandbox_rng.c
 new file mode 100644
-index 0000000000..8262e0dd10
+index 0000000000..cd0b0ac77b
 --- /dev/null
 +++ b/drivers/rng/sandbox_rng.c
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,56 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Copyright (c) 2019, Linaro Limited
@@ -74,15 +76,32 @@ index 0000000000..8262e0dd10
 +#include <dm.h>
 +#include <rng.h>
 +
-+static unsigned long random = 0xdeadbeef;
++#include <linux/string.h>
 +
 +static int sandbox_rng_read(struct udevice *dev, void *data, size_t len)
 +{
-+	if (len != sizeof(random))
-+		return -EINVAL;
++	unsigned int i, seed, random;
++	unsigned char *buf = data;
++	size_t nrem, nloops;
 +
-+	random ^= ~0UL;
-+	*(unsigned long *)data = random;
++	if (!len)
++		return 0;
++
++	nloops = len / sizeof(random);
++	seed = get_timer(0) ^ rand();
++	srand(seed);
++
++	for (i = 0, nrem = len; i < nloops; i++) {
++		random = rand();
++		memcpy(buf, &random, sizeof(random));
++		buf += sizeof(random);
++		nrem -= sizeof(random);
++	}
++
++	if (nrem) {
++		random = rand();
++		memcpy(buf, &random, nrem);
++	}
 +
 +	return 0;
 +}
@@ -105,5 +124,5 @@ index 0000000000..8262e0dd10
 +	.ops = &sandbox_rng_ops,
 +};
 -- 
-2.24.0
+2.24.1
 
