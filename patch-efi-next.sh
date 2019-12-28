@@ -54,6 +54,7 @@ git am ../patch/0001-test-py-describe-env__efi_loader_helloworld_file.patch
 git am ../patch/0001-efi_loader-clear-screen-should-move-cursor-to-home.patch
 git am ../patch/0001-part-efi-comment-for-GPT_HEADER_SIGNATURE_UBOOT.patch
 git am ../patch/0001-efi_loader-remove-__packed-from-struct-efi_configura.patch
+git am ../patch/0001-efi_loader-Add-guidcpy-function.patch
 exit
 
 # UEFI FIT image
@@ -75,6 +76,9 @@ git am ../patch/0001-test-rng-Add-basic-test-for-random-number-generator-.patch
 git am ../patch/0001-virtio-rng-Add-a-random-number-generator-rng-driver.patch
 git am ../patch/0001-cmd-add-rng-command.patch
 git am ../patch/0001-efi_selftest-unit-test-for-EFI_RNG_PROTOCOL.patch
+
+git am ../patch/0001-efi-qemu-arm64-Add-efi_rng_protocol-implementation-f.patch
+git am ../patch/0001-efi_rng_protocol-Install-the-efi_rng_protocol-on-the.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
