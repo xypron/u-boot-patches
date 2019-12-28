@@ -82,7 +82,7 @@ index 0000000000..06e1635515
 +	efi_guid_t *algo_list;
 +	u8 rnd1[RNG_LEN] __aligned(4), rnd2[RNG_LEN] __aligned(4);
 +	int r;
-+	
++
 +	/* Get random number generator protocol */
 +	ret = boottime->locate_protocol(&efi_rng_guid, NULL, (void **)&rng);
 +	if (ret != EFI_SUCCESS) {
