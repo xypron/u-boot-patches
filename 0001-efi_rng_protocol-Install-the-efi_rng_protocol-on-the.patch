@@ -1,6 +1,6 @@
-From c372d53c2b92758e0e99a7d9d1bb29c3547f0ebf Mon Sep 17 00:00:00 2001
+From 6c969a8b12d747f95260a165ce5fbefcb614c7e3 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Fri, 27 Dec 2019 19:56:16 +0530
+Date: Sun, 29 Dec 2019 00:01:06 +0530
 Subject: [PATCH 1/1] efi_rng_protocol: Install the efi_rng_protocol on the
  root node
 
@@ -38,7 +38,7 @@ index bec787383b..bfcfa74ffb 100644
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
  
 diff --git a/lib/efi_loader/efi_rng.c b/lib/efi_loader/efi_rng.c
-index deee8ea6d8..f38f4ff0ca 100644
+index 47aaa6adca..432c986204 100644
 --- a/lib/efi_loader/efi_rng.c
 +++ b/lib/efi_loader/efi_rng.c
 @@ -11,6 +11,8 @@
@@ -47,9 +47,9 @@ index deee8ea6d8..f38f4ff0ca 100644
  
 +const efi_guid_t efi_guid_rng_protocol = EFI_RNG_PROTOCOL_GUID;
 +
- static efi_status_t EFIAPI rng_getinfo(struct efi_rng_protocol *this,
- 				       efi_uintn_t *rng_algorithm_list_size,
- 				       efi_guid_t *rng_algorithm_list)
+ __weak efi_status_t platform_get_rng_device(struct udevice **dev)
+ {
+ 	int ret;
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
 index f68b0fdc61..76d18fb1a4 100644
 --- a/lib/efi_loader/efi_root_node.c
