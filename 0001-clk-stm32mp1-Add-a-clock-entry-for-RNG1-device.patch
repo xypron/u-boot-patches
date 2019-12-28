@@ -1,7 +1,7 @@
-From c6156193c48c98dc78630414cdf015065de5bc32 Mon Sep 17 00:00:00 2001
+From 5e41895da7eef41a0fcf04f04126515fbf17a920 Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Tue, 17 Dec 2019 17:21:59 +0530
-Subject: [PATCH 1/1] clk: stm32mp1: Add a clock entry for RNG1 device
+Date: Sat, 28 Dec 2019 23:58:28 +0530
+Subject: [PATCH] clk: stm32mp1: Add a clock entry for RNG1 device
 
 Add an entry for allowing clock enablement for the random number
 generator peripheral, RNG1.
@@ -26,5 +26,5 @@ index 3718970dc7..da66bde41b 100644
  	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 7, ETHCK_K, _ETH_SEL),
  	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 8, ETHTX, _UNKNOWN_SEL),
 -- 
-2.24.0
+2.24.1
 
