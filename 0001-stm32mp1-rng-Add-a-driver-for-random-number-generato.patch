@@ -1,8 +1,8 @@
-From e5e74669ff4f0a31732c3d264de030df204eda0c Mon Sep 17 00:00:00 2001
+From af8437c7738acb37614b9caaa1a981252795584b Mon Sep 17 00:00:00 2001
 From: Sughosh Ganu <sughosh.ganu@linaro.org>
-Date: Tue, 17 Dec 2019 17:22:00 +0530
-Subject: [PATCH 1/1] stm32mp1: rng: Add a driver for random number
- generator(rng) device
+Date: Sat, 28 Dec 2019 23:58:29 +0530
+Subject: [PATCH] stm32mp1: rng: Add a driver for random number generator(rng)
+ device
 
 Add a driver for the rng device found on stm32mp1 platforms. The
 driver provides a routine for reading the random number seed from the
@@ -14,12 +14,12 @@ Acked-by: Patrick Delaunay <patrick.delaunay@st.com>
 ---
  drivers/rng/Kconfig        |   7 ++
  drivers/rng/Makefile       |   1 +
- drivers/rng/stm32mp1_rng.c | 157 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 165 insertions(+)
+ drivers/rng/stm32mp1_rng.c | 161 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 169 insertions(+)
  create mode 100644 drivers/rng/stm32mp1_rng.c
 
 diff --git a/drivers/rng/Kconfig b/drivers/rng/Kconfig
-index dd44cc0242..5fc11db949 100644
+index dd44cc0242..c9c475128e 100644
 --- a/drivers/rng/Kconfig
 +++ b/drivers/rng/Kconfig
 @@ -5,3 +5,10 @@ config DM_RNG
@@ -28,11 +28,11 @@ index dd44cc0242..5fc11db949 100644
  	  read the random seed from the device.
 +
 +config RNG_STM32MP1
-+       bool "Enable random number generator for STM32MP1"
-+       depends on ARCH_STM32MP && DM_RNG
-+       default n
-+       help
-+         Enable STM32MP1 rng driver.
++	bool "Enable random number generator for STM32MP1"
++	depends on ARCH_STM32MP && DM_RNG
++	default n
++	help
++	  Enable STM32MP1 rng driver.
 diff --git a/drivers/rng/Makefile b/drivers/rng/Makefile
 index 311705b6e6..699beb383b 100644
 --- a/drivers/rng/Makefile
@@ -44,10 +44,10 @@ index 311705b6e6..699beb383b 100644
 +obj-$(CONFIG_RNG_STM32MP1) += stm32mp1_rng.o
 diff --git a/drivers/rng/stm32mp1_rng.c b/drivers/rng/stm32mp1_rng.c
 new file mode 100644
-index 0000000000..6ef8f1645e
+index 0000000000..ec6af7ee1b
 --- /dev/null
 +++ b/drivers/rng/stm32mp1_rng.c
-@@ -0,0 +1,157 @@
+@@ -0,0 +1,161 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Copyright (c) 2019, Linaro Limited
@@ -107,6 +107,10 @@ index 0000000000..6ef8f1645e
 +			continue;
 +		}
 +
++		/*
++		 * Once the DRDY bit is set, the RNG_DR register can
++		 * be read four consecutive times.
++		 */
 +		count = 4;
 +		while (len && count) {
 +			reg = readl(pdata->base + RNG_DR);
@@ -206,5 +210,5 @@ index 0000000000..6ef8f1645e
 +	.ofdata_to_platdata = stm32_rng_ofdata_to_platdata,
 +};
 -- 
-2.24.0
+2.24.1
 
