@@ -89,8 +89,8 @@ index 0000000000..d0eed93bdd
 +    unsigned int rsize = 0;
 +    unsigned char buf[BUFFER_SIZE] __aligned(4);
 +    unsigned char *ptr = data;
-+    struct virtio_sg sg;
-+    struct virtio_sg *sgs = sg;
++    struct virtio_sg sg __aligned(4);
++    struct virtio_sg *sgs = &sg;
 +    struct virtio_rng_priv *priv = dev_get_priv(dev);
 +
 +    while (len) {
