@@ -24,7 +24,7 @@ index d39cfaa13b..63611b15b6 100644
  
 +config BOOTM_EFI
 +	bool "Support booting EFI OS images"
-+	depends on CMD_BOOTEFI
++	depends on CMD_BOOTEFI && CMD_BOOTM
 +	default y
 +	help
 +	  Support booting EFI images via the bootm command.
