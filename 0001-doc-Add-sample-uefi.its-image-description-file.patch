@@ -1,6 +1,6 @@
-From 53fa65acfa5a0140d79dc3bef11b30a645b48b85 Mon Sep 17 00:00:00 2001
+From 98aed45f9d69217369da5ca956ce85802ea7539c Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Tue, 17 Dec 2019 09:47:00 +0200
+Date: Tue, 24 Dec 2019 18:05:40 +0200
 Subject: [PATCH 1/1] doc: Add sample uefi.its image description file
 
 This patch adds an example FIT image description file demonstrating
@@ -87,5 +87,5 @@ index 0000000000..378ca4ed8d
 +	};
 +};
 -- 
-2.24.0
+2.24.1
 

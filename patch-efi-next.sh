@@ -53,7 +53,6 @@ git am ../patch/0001-efi_loader-clear-screen-should-move-cursor-to-home.patch
 git am ../patch/0001-part-efi-comment-for-GPT_HEADER_SIGNATURE_UBOOT.patch
 git am ../patch/0001-efi_loader-remove-__packed-from-struct-efi_configura.patch
 git am ../patch/0001-efi_loader-Add-guidcpy-function.patch
-exit
 
 # UEFI FIT image
 git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
@@ -61,6 +60,7 @@ git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
 git am ../patch/0001-doc-Add-sample-uefi.its-image-description-file.patch
 git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
 git am ../patch/0001-test-py-Create-a-test-for-launching-UEFI-binaries-fr.patch
+
 exit
 
 # RNG

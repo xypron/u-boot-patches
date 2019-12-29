@@ -1,6 +1,6 @@
-From dc2b510ca31bd137617962e1d16fe2660f21e5df Mon Sep 17 00:00:00 2001
+From 0873ae7fb3d0080535328255c1a6e69088f14598 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Tue, 17 Dec 2019 09:46:58 +0200
+Date: Tue, 24 Dec 2019 18:05:38 +0200
 Subject: [PATCH 1/1] image: Add IH_OS_EFI for EFI chain-load boot
 
 Add a new OS type to be used for chain-loading an EFI compatible
@@ -89,5 +89,5 @@ index f4d2aaf53e..4a280b78e7 100644
  	IH_OS_COUNT,
  };
 -- 
-2.24.0
+2.24.1
 
