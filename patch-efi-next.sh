@@ -38,6 +38,9 @@ git am ../patch/0001-sandbox-add-missing-compatible-property-in-device-tr.patch
 git am ../patch/0001-serial-sandbox-support-Unicode.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
+#
+git am ../patch/0001-test-py-Fix-broken-notbuildconfigspec-marker.patch
+
 # efi-2020-04-rc1
 git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
 git am ../patch/0001-efi_loader-imply-USB_KEYBOARD_FN_KEYS.patch
