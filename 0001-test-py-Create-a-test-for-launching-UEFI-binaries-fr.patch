@@ -1,4 +1,4 @@
-From f3b07db697dee9d0c0988bde933aeb707bc3f086 Mon Sep 17 00:00:00 2001
+From 3b4585fdcc9e20be2b7819e5de677b03581482d8 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 Date: Tue, 24 Dec 2019 18:05:42 +0200
 Subject: [PATCH 1/1] test/py: Create a test for launching UEFI binaries from
@@ -8,6 +8,7 @@ This test verifies the implementation of the 'bootm' extension that
 handles UEFI binaries inside FIT images (enabled via CONFIG_BOOTM_EFI).
 
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_fit.py | 459 ++++++++++++++++++++++++++++++++++
  1 file changed, 459 insertions(+)
@@ -15,7 +16,7 @@ Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
 diff --git a/test/py/tests/test_efi_fit.py b/test/py/tests/test_efi_fit.py
 new file mode 100644
-index 0000000000..e1f0e42694
+index 0000000000..e18863ff2b
 --- /dev/null
 +++ b/test/py/tests/test_efi_fit.py
 @@ -0,0 +1,459 @@
@@ -326,7 +327,7 @@ index 0000000000..e1f0e42694
 +
 +        addr = f.get('addr', None)
 +        if not addr:
-+            addr = u_boot_utils.find_ram_base(cons)
++            addr = util.find_ram_base(cons)
 +
 +        output = cons.run_command(
 +                    'host load hostfs - %s %s/%s' % (addr, f['dn'], f['fn']))
@@ -353,10 +354,10 @@ index 0000000000..e1f0e42694
 +
 +        addr = f.get('addr', None)
 +        if not addr:
-+            addr = u_boot_utils.find_ram_base(cons)
++            addr = util.find_ram_base(cons)
 +
 +        fn = f['fn']
-+        output = cons.run_command('tftpboot %s %s' % (addr, fn))
++        output = cons.run_command('tftpboot %x %s' % (addr, fn))
 +        expected_text = 'Bytes transferred = '
 +        sz = f.get('size', None)
 +        if sz:
@@ -442,7 +443,7 @@ index 0000000000..e1f0e42694
 +
 +            # Try booting.
 +            cons.run_command(
-+                    'bootm %s#%s' % (addr, fit_config), wait_for_prompt=False)
++                    'bootm %x#%s' % (addr, fit_config), wait_for_prompt=False)
 +            if enable_fdt:
 +                cons.wait_for('Booting using the fdt blob')
 +            cons.wait_for('Hello, world')
