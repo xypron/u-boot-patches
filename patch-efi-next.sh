@@ -40,6 +40,7 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 #
 git am ../patch/0001-test-py-Fix-broken-notbuildconfigspec-marker.patch
+git am ../patch/0001-configs-qemu-enable-FIT-images-on-qemu_arm-64-_defco.patch
 
 # efi-2020-04-rc1
 git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
