@@ -65,8 +65,6 @@ git am ../patch/0001-doc-Add-sample-uefi.its-image-description-file.patch
 git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
 git am ../patch/0001-test-py-Create-a-test-for-launching-UEFI-binaries-fr.patch
 
-exit
-
 # RNG
 git am ../patch/0001-dm-rng-Add-random-number-generator-rng-uclass.patch
 git am ../patch/0001-clk-stm32mp1-Add-a-clock-entry-for-RNG1-device.patch
@@ -81,6 +79,7 @@ git am ../patch/0001-cmd-add-rng-command.patch
 git am ../patch/0001-efi-qemu-arm64-Add-efi_rng_protocol-implementation-f.patch
 git am ../patch/0001-efi_rng_protocol-Install-the-efi_rng_protocol-on-the.patch
 git am ../patch/0001-efi_selftest-unit-test-for-EFI_RNG_PROTOCOL.patch
+git am ../patch/0001-MAINTAINERS-assign-drivers-rng.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
