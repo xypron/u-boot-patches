@@ -1,28 +1,25 @@
-From 4311668c00cc96bd8e6bc61f1be9da8e7a4e3854 Mon Sep 17 00:00:00 2001
+From 45fa02cdb2bfea2f13b9038960b2fff93583a3d0 Mon Sep 17 00:00:00 2001
 From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Date: Tue, 24 Dec 2019 18:05:42 +0200
-Subject: [PATCH] test/py: Create a test for launching UEFI binaries from FIT
- images
+Date: Mon, 30 Dec 2019 03:34:27 +0200
+Subject: [PATCH 1/1] test/py: Create a test for launching UEFI binaries from
+ FIT images
 
 This test verifies the implementation of the 'bootm' extension that
 handles UEFI binaries inside FIT images (enabled via CONFIG_BOOTM_EFI).
 
 Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-
-env__efi_fit_tftp_file['addr'] shall be integer.
-
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/py/tests/test_efi_fit.py | 460 ++++++++++++++++++++++++++++++++++
- 1 file changed, 460 insertions(+)
+ test/py/tests/test_efi_fit.py | 458 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 458 insertions(+)
  create mode 100644 test/py/tests/test_efi_fit.py
 
 diff --git a/test/py/tests/test_efi_fit.py b/test/py/tests/test_efi_fit.py
 new file mode 100644
-index 0000000000..9a4c679a38
+index 0000000000..6986b2d35c
 --- /dev/null
 +++ b/test/py/tests/test_efi_fit.py
-@@ -0,0 +1,460 @@
+@@ -0,0 +1,458 @@
 +# SPDX-License-Identifier: GPL-2.0
 +# Copyright (c) 2019, Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 +#
@@ -271,7 +268,7 @@ index 0000000000..9a4c679a38
 +        # Generate resources referenced by FDT.
 +        fdt_params = {
 +            'sys-arch': sys_arch,
-+            'fdt_type' : fdt_type,
++            'fdt_type': fdt_type,
 +        }
 +
 +        # Generate a test FDT file.
@@ -408,10 +405,8 @@ index 0000000000..9a4c679a38
 +
 +        with cons.log.section('FDT=%s;COMP=%s' % (enable_fdt, enable_comp)):
 +            if is_sandbox:
-+                addr = util.find_ram_base(cons)
 +                fit = {
 +                    'dn': cons.config.build_dir,
-+                    'addr': addr,
 +                }
 +            else:
 +                # Init networking.
