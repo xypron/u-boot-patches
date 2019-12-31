@@ -98,7 +98,7 @@ index 0000000000..ffb6835067
 +
 +	do {
 +		sg.addr = buf;
-+		sg.length = nbytes;
++		sg.length = min(nbytes, BUFFER_SIZE);
 +		sgs[0] = &sg;
 +
 +		ret = virtqueue_add(priv->rng_vq, sgs, 0, 1);
