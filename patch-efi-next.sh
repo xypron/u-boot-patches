@@ -22,6 +22,7 @@ git am ../patch/0001-virtio-fix-typo-devicd.patch
 git am ../patch/0001-doc-fix-AX25-AE350-RISC-V-documentation.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-trace-provide-Sphinx-style-comments.patch
+git am ../patch/0001-pci-definition-of-pci_addr_t-and-pci_size_t.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch

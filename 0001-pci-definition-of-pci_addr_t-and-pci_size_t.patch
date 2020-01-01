@@ -1,0 +1,47 @@
+From 32b75dd2c0eec731e98e3cd4c73ff78f43a47522 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 1 Jan 2020 17:28:04 +0100
+Subject: [PATCH 1/1] pci: definition of pci_addr_t and pci_size_t
+
+Currently the size of pci_addr_t and pci_size_t depends on
+CONFIG_SYS_PCI_64BIT. For qemu_arm64_defconfig with 4 GiB RAM this leads
+to an error
+
+    pci_hose_phys_to_bus: invalid physical address
+
+which is due to the truncation of the bus address in _dm_pci_phys_to_bus.
+
+Defining CONFIG_SYS_PCI_64BIT is not a solution as this results in an error
+
+   PCI: Failed autoconfig bar 10
+
+So let's use phys_addr_t for pci_addr_t and pci_size_t.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/pci.h | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/include/pci.h b/include/pci.h
+index ff59ac0e69..04e3d255f4 100644
+--- a/include/pci.h
++++ b/include/pci.h
+@@ -482,13 +482,8 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
+-#ifdef CONFIG_SYS_PCI_64BIT
+-typedef u64 pci_addr_t;
+-typedef u64 pci_size_t;
+-#else
+-typedef u32 pci_addr_t;
+-typedef u32 pci_size_t;
+-#endif
++typedef phys_addr_t pci_addr_t;
++typedef phys_addr_t pci_size_t;
+ 
+ struct pci_region {
+ 	pci_addr_t bus_start;	/* Start on the bus */
+-- 
+2.24.1
+
