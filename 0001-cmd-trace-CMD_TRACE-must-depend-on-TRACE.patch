@@ -1,0 +1,42 @@
+From 8b74a4627164bbf69d223bf3f6c674da61a3b5a1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 1 Jan 2020 15:26:24 +0100
+Subject: [PATCH 1/1] cmd: trace: CMD_TRACE must depend on TRACE
+
+Compiling cmd/trace.c fails if lib/trace.c is not compiled. So CMD_TRACE
+must depend on TRACE.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig | 2 ++
+ lib/Kconfig | 1 -
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index d049535474..36a68e9e48 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -2112,6 +2112,8 @@ config CMD_LOG
+ 
+ config CMD_TRACE
+ 	bool "trace - Support tracing of function calls and timing"
++	depends on TRACE
++	default y
+ 	help
+ 	  Enables a command to control using of function tracing within
+ 	  U-Boot. This allows recording of call traces including timing
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 965cf7bc03..4b63c1b43c 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -181,7 +181,6 @@ config BITREVERSE
+ 
+ config TRACE
+ 	bool "Support for tracing of function calls and timing"
+-	imply CMD_TRACE
+ 	help
+ 	  Enables function tracing within U-Boot. This allows recording of call
+ 	  traces including timing information. The command can write data to
+-- 
+2.24.1
+
