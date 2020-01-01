@@ -21,6 +21,7 @@ git am ../patch/0001-gitlab-use-our-own-GRUB.patch
 git am ../patch/0001-virtio-fix-typo-devicd.patch
 git am ../patch/0001-doc-fix-AX25-AE350-RISC-V-documentation.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
+git am ../patch/0001-trace-provide-Sphinx-style-comments.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
