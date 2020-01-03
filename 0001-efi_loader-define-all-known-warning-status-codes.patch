@@ -1,0 +1,50 @@
+From 802e56539dbb18a3b135dadbc7a982291ea26a7b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 3 Jan 2020 22:47:19 +0100
+Subject: [PATCH 1/1] efi_loader: define all known warning status codes
+
+Of all warning status codes up to now only EFI_WARN_DELETE_FAILURE is
+defined.
+
+The patch adds the missing definitions for later usage.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ .mailmap      | 1 +
+ include/efi.h | 8 +++++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/.mailmap b/.mailmap
+index 98d2131e97..dec2abeffa 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -24,6 +24,7 @@ Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@bootlin.com>
+ Boris Brezillon <bbrezillon@kernel.org> <boris.brezillon@free-electrons.com>
+ Dirk Behme <dirk.behme@googlemail.com>
+ Fabio Estevam <fabio.estevam@nxp.com>
++Heinrich Schuchardt <xypron.glpk@gmx.de>
+ Jagan Teki <402jagan@gmail.com>
+ Jagan Teki <jaganna@gmail.com>
+ Jagan Teki <jaganna@xilinx.com>
+diff --git a/include/efi.h b/include/efi.h
+index 5f415a99cc..e12697a5d5 100644
+--- a/include/efi.h
++++ b/include/efi.h
+@@ -91,7 +91,13 @@ typedef struct {
+ #define EFI_IP_ADDRESS_CONFLICT		(EFI_ERROR_MASK | 34)
+ #define EFI_HTTP_ERROR			(EFI_ERROR_MASK | 35)
+ 
+-#define EFI_WARN_DELETE_FAILURE	2
++#define EFI_WARN_UNKNOWN_GLYPH		1
++#define EFI_WARN_DELETE_FAILURE		2
++#define EFI_WARN_WRITE_FAILURE		3
++#define EFI_WARN_BUFFER_TOO_SMALL	4
++#define EFI_WARN_STALE_DATA		5
++#define EFI_WARN_FILE_SYSTEM		6
++#define EFI_WARN_RESET_REQUIRED		7
+ 
+ typedef unsigned long efi_status_t;
+ typedef u64 efi_physical_addr_t;
+-- 
+2.24.1
+

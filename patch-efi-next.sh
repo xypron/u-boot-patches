@@ -63,6 +63,7 @@ git am ../patch/0001-efi_loader-remove-__packed-from-struct-efi_configura.patch
 git am ../patch/0001-efi_loader-__cyg_profile_func_enter-_exit.patch
 git am ../patch/0001-efi_loader-Add-guidcpy-function.patch
 git am ../patch/0001-efi_loader-free-load-options-after-execution.patch
+git am ../patch/0001-efi_loader-define-all-known-warning-status-codes.patch
 
 # UEFI FIT image
 git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
