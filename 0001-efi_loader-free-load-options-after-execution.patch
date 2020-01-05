@@ -1,7 +1,7 @@
-From 3dadef601704f931107be2e3b445f1dcd1090d6a Mon Sep 17 00:00:00 2001
+From dfc4ea4f2e2a3af7d8b61bc2c31966e01d5d8d9f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Fri, 3 Jan 2020 00:31:57 +0100
-Subject: [PATCH 1/1] efi_loader: free load options after execution
+Date: Fri, 3 Jan 2020 22:53:42 +0100
+Subject: [PATCH v2 1/1] efi_loader: free load options after execution
 
 When be launch a binary via bootefi the bootargs environment variable is
 used to set the load options in the loaded image protocol.
@@ -10,11 +10,14 @@ Free memory allocated for load options when the UEFI binary exits.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 53 ++++++++++++++++++++-------------------------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+v2
+	supply load_options argument in bootefi_run_prepare()
+---
+ cmd/bootefi.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 78c8b8dbd1..bb8224437e 100644
+index f613cce7e2..d9cc1fc3e7 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -28,11 +28,13 @@ static struct efi_device_path *bootefi_device_path;
@@ -51,7 +54,7 @@ index 78c8b8dbd1..bb8224437e 100644
  	utf8_utf16_strcpy(&pos, env);
  	loaded_image_info->load_options_size = size * 2;
  
-@@ -298,9 +302,10 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
+@@ -293,9 +297,10 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
  	efi_status_t ret;
  	efi_uintn_t exit_data_size = 0;
  	u16 *exit_data = NULL;
@@ -63,7 +66,7 @@ index 78c8b8dbd1..bb8224437e 100644
  	if (ret != EFI_SUCCESS)
  		return ret;
  
-@@ -314,12 +319,7 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
+@@ -309,12 +314,7 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle)
  
  	efi_restore_gd();
  
@@ -77,6 +80,24 @@ index 78c8b8dbd1..bb8224437e 100644
  
  	return ret;
  }
+@@ -451,6 +451,7 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
+ 		struct efi_loaded_image **loaded_image_infop)
+ {
+ 	efi_status_t ret;
++	u16 *load_options;
+ 
+ 	ret = efi_setup_loaded_image(device_path, image_path, image_objp,
+ 				     loaded_image_infop);
+@@ -458,7 +459,8 @@ static efi_status_t bootefi_run_prepare(const char *load_options_path,
+ 		return ret;
+ 
+ 	/* Transfer environment variable as load options */
+-	return set_load_options((efi_handle_t)*image_objp, load_options_path);
++	return set_load_options((efi_handle_t)*image_objp, load_options_path,
++				&load_options);
+ }
+ 
+ /**
 -- 
 2.24.1
 
