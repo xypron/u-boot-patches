@@ -1,0 +1,39 @@
+From 3090054fb9d84efbda9b359c7c93711b0346ca4f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 7 Jan 2020 07:48:15 +0100
+Subject: [PATCH 1/1] cmd: efidebug: capitalize UEFI
+
+%s/uefi/UEFI/g
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 78fc649782..576e95b395 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -1149,15 +1149,15 @@ static char efidebug_help_text[] =
+ 	"  - set/show UEFI boot order\n"
+ 	"\n"
+ 	"efidebug devices\n"
+-	"  - show uefi devices\n"
++	"  - show UEFI devices\n"
+ 	"efidebug drivers\n"
+-	"  - show uefi drivers\n"
++	"  - show UEFI drivers\n"
+ 	"efidebug dh\n"
+-	"  - show uefi handles\n"
++	"  - show UEFI handles\n"
+ 	"efidebug images\n"
+ 	"  - show loaded images\n"
+ 	"efidebug memmap\n"
+-	"  - show uefi memory map\n"
++	"  - show UEFI memory map\n"
+ 	"efidebug tables\n"
+ 	"  - show UEFI configuration tables\n";
+ #endif
+-- 
+2.24.1
+
