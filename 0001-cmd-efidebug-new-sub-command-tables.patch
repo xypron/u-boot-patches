@@ -1,7 +1,7 @@
-From 88fb5b72d5888cef6f166d1cea9b5d558daace97 Mon Sep 17 00:00:00 2001
+From cb8fd8f65c493f4f2b5a548b370e6160d375eb05 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 7 Jan 2020 05:57:47 +0100
-Subject: [PATCH 1/1] cmd: efidebug tables
+Subject: [PATCH 1/1] cmd: efidebug: new sub-command tables
 
 Provide sub-command for efidebug to list configuration tables.
 
@@ -11,7 +11,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 46 insertions(+), 1 deletion(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 1fff4390de..ac7af018c3 100644
+index 45ed5be885..78fc649782 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
 @@ -251,6 +251,19 @@ static const struct {
@@ -34,7 +34,7 @@ index 1fff4390de..ac7af018c3 100644
  };
  
  /**
-@@ -477,6 +490,34 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
+@@ -480,6 +493,34 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
  	return CMD_RET_SUCCESS;
  }
  
@@ -69,7 +69,7 @@ index 1fff4390de..ac7af018c3 100644
  /**
   * do_efi_boot_add() - set UEFI load option
   *
-@@ -1044,6 +1085,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
+@@ -1047,6 +1088,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
  			 "", ""),
  	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
  			 "", ""),
@@ -78,14 +78,14 @@ index 1fff4390de..ac7af018c3 100644
  };
  
  /**
-@@ -1111,7 +1154,9 @@ static char efidebug_help_text[] =
+@@ -1114,7 +1157,9 @@ static char efidebug_help_text[] =
  	"efidebug images\n"
  	"  - show loaded images\n"
  	"efidebug memmap\n"
 -	"  - show uefi memory map\n";
 +	"  - show uefi memory map\n"
 +	"efidebug tables\n"
-+	"  - show uefi configuration tables\n";
++	"  - show UEFI configuration tables\n";
  #endif
  
  U_BOOT_CMD(

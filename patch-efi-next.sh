@@ -65,7 +65,7 @@ git am ../patch/0001-efi_loader-Add-guidcpy-function.patch
 git am ../patch/0001-efi_loader-free-load-options-after-execution.patch
 git am ../patch/0001-efi_loader-define-all-known-warning-status-codes.patch
 git am ../patch/0001-cmd-efidebug-simplify-get_guid_text.patch
-git am ../patch/0001-cmd-efidebug-tables.patch
+git am ../patch/0001-cmd-efidebug-new-sub-command-tables.patch
 
 # UEFI FIT image
 git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
