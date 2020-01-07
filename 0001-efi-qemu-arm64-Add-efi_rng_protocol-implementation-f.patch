@@ -16,6 +16,7 @@ The feature can be enabled through the following config
 CONFIG_EFI_RNG_PROTOCOL
 
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Changed SPDX header to use /* instead of //.
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  board/emulation/qemu-arm/qemu-arm.c |  42 +++++++++++
@@ -83,7 +84,7 @@ index 0000000000..a46e66ddd2
 --- /dev/null
 +++ b/include/efi_rng.h
 @@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * Copyright (c) 2019, Linaro Limited
 + */

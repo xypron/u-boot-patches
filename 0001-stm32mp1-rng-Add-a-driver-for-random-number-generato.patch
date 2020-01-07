@@ -11,6 +11,8 @@ hardware device.
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
 Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
 Acked-by: Patrick Delaunay <patrick.delaunay@st.com>
+Remove a superfluous blank line
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  drivers/rng/Kconfig        |   7 ++
  drivers/rng/Makefile       |   1 +
@@ -47,7 +49,7 @@ new file mode 100644
 index 0000000000..ec6af7ee1b
 --- /dev/null
 +++ b/drivers/rng/stm32mp1_rng.c
-@@ -0,0 +1,161 @@
+@@ -0,0 +1,160 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Copyright (c) 2019, Linaro Limited
@@ -144,7 +146,6 @@ index 0000000000..ec6af7ee1b
 +
 +static int stm32_rng_cleanup(struct stm32_rng_platdata *pdata)
 +{
-+
 +	writel(0, pdata->base + RNG_CR);
 +
 +	return clk_disable(&pdata->clk);
