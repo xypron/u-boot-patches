@@ -1,0 +1,63 @@
+From 77ef06258c8390441b37831fd64f25bcec468b05 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 7 Jan 2020 06:02:33 +0100
+Subject: [PATCH 1/1] cmd: efidebug: simplify get_guid_text()
+
+When we hit a matching GUID we can directly return the text. There is no
+need for a check after the loop.
+
+efi_guid_t is defined as 8 byte aligned but GUIDs in packed structures do
+not follow this alignment. Do not require the argument of get_guid_text()
+to be correctly aligned.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 1fff4390de..959926a99f 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -254,24 +254,27 @@ static const struct {
+ };
+ 
+ /**
+- * get_guid_text - get string of protocol guid
+- * @guid:	Protocol guid
+- * Return:	String
++ * get_guid_text - get string of GUID
++ *
++ * Return description of GUID.
+  *
+- * Return string for display to represent the protocol.
++ * @guid:	GUID
++ * Return:	description of GUID or NULL
+  */
+-static const char *get_guid_text(const efi_guid_t *guid)
++static const char *get_guid_text(const void *guid)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < ARRAY_SIZE(guid_list); i++)
++	for (i = 0; i < ARRAY_SIZE(guid_list); i++) {
++		/*
++		 * As guidcmp uses memcmp() we can safely accept unaligned
++		 * GUIDs.
++		 */
+ 		if (!guidcmp(&guid_list[i].guid, guid))
+-			break;
++			return guid_list[i].text;
++	}
+ 
+-	if (i != ARRAY_SIZE(guid_list))
+-		return guid_list[i].text;
+-	else
+-		return NULL;
++	return NULL;
+ }
+ 
+ /**
+-- 
+2.24.1
+

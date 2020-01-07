@@ -1,0 +1,94 @@
+From 88fb5b72d5888cef6f166d1cea9b5d558daace97 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 7 Jan 2020 05:57:47 +0100
+Subject: [PATCH 1/1] cmd: efidebug tables
+
+Provide sub-command for efidebug to list configuration tables.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 1fff4390de..ac7af018c3 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -251,6 +251,19 @@ static const struct {
+ 		"PXE Base Code",
+ 		EFI_PXE_BASE_CODE_PROTOCOL_GUID,
+ 	},
++	/* Configuration table GUIDs */
++	{
++		"ACPI table",
++		EFI_ACPI_TABLE_GUID,
++	},
++	{
++		"device tree",
++		EFI_FDT_GUID,
++	},
++	{
++		"SMBIOS table",
++		SMBIOS_TABLE_GUID,
++	},
+ };
+ 
+ /**
+@@ -477,6 +490,34 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
+ 	return CMD_RET_SUCCESS;
+ }
+ 
++/**
++ * do_efi_show_tables() - show UEFI configuration tables
++ *
++ * @cmdtp:	Command table
++ * @flag:	Command flag
++ * @argc:	Number of arguments
++ * @argv:	Argument array
++ * Return:	CMD_RET_SUCCESS on success, CMD_RET_RET_FAILURE on failure
++ *
++ * Implement efidebug "tables" sub-command.
++ * Show UEFI configuration tables.
++ */
++static int do_efi_show_tables(cmd_tbl_t *cmdtp, int flag,
++			      int argc, char * const argv[])
++{
++	efi_uintn_t i;
++	const char *guid_str;
++
++	for (i = 0; i < systab.nr_tables; ++i) {
++		guid_str = get_guid_text(&systab.tables[i].guid);
++		if (!guid_str)
++			guid_str = "";
++		printf("%pUl %s\n", &systab.tables[i].guid, guid_str);
++	}
++
++	return CMD_RET_SUCCESS;
++}
++
+ /**
+  * do_efi_boot_add() - set UEFI load option
+  *
+@@ -1044,6 +1085,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
+ 			 "", ""),
+ 	U_BOOT_CMD_MKENT(memmap, CONFIG_SYS_MAXARGS, 1, do_efi_show_memmap,
+ 			 "", ""),
++	U_BOOT_CMD_MKENT(tables, CONFIG_SYS_MAXARGS, 1, do_efi_show_tables,
++			 "", ""),
+ };
+ 
+ /**
+@@ -1111,7 +1154,9 @@ static char efidebug_help_text[] =
+ 	"efidebug images\n"
+ 	"  - show loaded images\n"
+ 	"efidebug memmap\n"
+-	"  - show uefi memory map\n";
++	"  - show uefi memory map\n"
++	"efidebug tables\n"
++	"  - show uefi configuration tables\n";
+ #endif
+ 
+ U_BOOT_CMD(
+-- 
+2.24.1
+
