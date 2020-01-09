@@ -40,52 +40,8 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 # Sandbox
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
-#
-git am ../patch/0001-test-py-Fix-broken-notbuildconfigspec-marker.patch
-git am ../patch/0001-configs-qemu-enable-FIT-images-on-qemu_arm-64-_defco.patch
+# UEFI
 
-# efi-2020-04-rc1
-git am ../patch/0001-include-pe.h-add-signature-related-definitions.patch
-git am ../patch/0001-efi_loader-imply-USB_KEYBOARD_FN_KEYS.patch
-git am ../patch/0001-efi_loader-adjust-file-system-info.patch
-git am ../patch/0001-efi_loader-pass-address-to-efi_install_fdt.patch
-git am ../patch/0001-efi_loader-use-hardware-device-tree-by-default.patch
-git am ../patch/0001-efi_loader-carve-out-efi_run_image.patch
-git am ../patch/0001-efi_loader-export-efi_install_fdt.patch
-git am ../patch/0001-efi_selftest-Update-.gitignore.patch
-git am ../patch/0001-efi_loader-git-ignore-helloworld_efi.S.patch
-git am ../patch/0001-test-py-describe-env__efi_loader_helloworld_file.patch
-git am ../patch/0001-efi_loader-clear-screen-should-move-cursor-to-home.patch
-git am ../patch/0001-part-efi-comment-for-GPT_HEADER_SIGNATURE_UBOOT.patch
-git am ../patch/0001-efi_loader-__cyg_profile_func_enter-_exit.patch
-git am ../patch/0001-efi_loader-Add-guidcpy-function.patch
-git am ../patch/0001-efi_loader-free-load-options-after-execution.patch
-git am ../patch/0001-efi_loader-define-all-known-warning-status-codes.patch
-git am ../patch/0001-cmd-efidebug-simplify-get_guid_text.patch
-git am ../patch/0001-cmd-efidebug-new-sub-command-tables.patch
-git am ../patch/0001-cmd-efidebug-capitalize-UEFI.patch
-
-# UEFI FIT image
-git am ../patch/0001-image-Add-IH_OS_EFI-for-EFI-chain-load-boot.patch
-git am ../patch/0001-bootm-Add-a-bootm-command-for-type-IH_OS_EFI.patch
-git am ../patch/0001-doc-Add-sample-uefi.its-image-description-file.patch
-git am ../patch/0001-doc-uefi.rst-Document-launching-UEFI-binaries-from-F.patch
-git am ../patch/0001-test-py-Create-a-test-for-launching-UEFI-binaries-fr.patch
-
-# RNG
-git am ../patch/0001-dm-rng-Add-random-number-generator-rng-uclass.patch
-git am ../patch/0001-clk-stm32mp1-Add-a-clock-entry-for-RNG1-device.patch
-git am ../patch/0001-stm32mp1-rng-Add-a-driver-for-random-number-generato.patch
-git am ../patch/0001-configs-stm32mp15-Enable-random-number-generator-rng.patch
-git am ../patch/0001-sandbox-rng-Add-a-random-number-generator-rng-driver.patch
-git am ../patch/0001-configs-sandbox-Enable-random-number-generator-rng-d.patch
-git am ../patch/0001-test-rng-Add-basic-test-for-random-number-generator-.patch
-git am ../patch/0001-virtio-rng-Add-a-random-number-generator-rng-driver.patch
-git am ../patch/0001-cmd-add-rng-command.patch
-
-git am ../patch/0001-efi-qemu-arm64-Add-efi_rng_protocol-implementation-f.patch
-git am ../patch/0001-efi_rng_protocol-Install-the-efi_rng_protocol-on-the.patch
-git am ../patch/0001-efi_selftest-unit-test-for-EFI_RNG_PROTOCOL.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
