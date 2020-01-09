@@ -27,6 +27,11 @@ git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-MAINTAINERS-Add-entry-for-rng-drivers.patch
 git am ../patch/0001-doc-Chromebook-Coral-fix-build-warnings.patch
 
+# make htmldocs
+git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
+git am ../patch/0001-travis-build-HTML-docs.patch
+git am ../patch/0001-gitlab-build-HTML-documentation.patch
+
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
