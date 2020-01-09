@@ -25,6 +25,7 @@ git am ../patch/0001-trace-provide-Sphinx-style-comments.patch
 git am ../patch/0001-pci-definition-of-pci_addr_t-and-pci_size_t.patch
 git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-MAINTAINERS-Add-entry-for-rng-drivers.patch
+git am ../patch/0001-doc-Chromebook-Coral-fix-build-warnings.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -42,7 +43,7 @@ git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # UEFI
-
+git am ../patch/0001-efi_loader-document-functions-in-efi_rng.c.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
