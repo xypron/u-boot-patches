@@ -8,6 +8,9 @@ should be able to discover this in Travis CI or Gitlab CI.
 
 So let us turn all build warnings into errors.
 
+We cannot add --keep-going as Gitlab does not use sphinx-build version 1.8
+or later yet.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  doc/Makefile | 1 +
@@ -21,7 +24,7 @@ index 5135a96e88..b3cce50730 100644
  	PYTHONDONTWRITEBYTECODE=1 \
  	BUILDDIR=$(abspath $(BUILDDIR)) SPHINX_CONF=$(abspath $(srctree)/$(src)/$5/$(SPHINX_CONF)) \
  	$(SPHINXBUILD) \
-+	-W --keep-going \
++	-W \
  	-b $2 \
  	-c $(abspath $(srctree)/$(src)) \
  	-d $(abspath $(BUILDDIR)/.doctrees/$3) \
