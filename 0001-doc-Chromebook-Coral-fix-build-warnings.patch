@@ -11,6 +11,7 @@ WARNING: Block quote ends without a blank line; unexpected unindent.
 when building with `make htmldocs`.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/board/google/chromebook_coral.rst | 90 ++++++++++++++-------------
  1 file changed, 46 insertions(+), 44 deletions(-)
