@@ -50,6 +50,8 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 # UEFI
 git am ../patch/0001-efi_loader-document-functions-in-efi_rng.c.patch
 git am ../patch/0001-efi_driver-fix-efi_uc_stop.patch
+git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
+git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
