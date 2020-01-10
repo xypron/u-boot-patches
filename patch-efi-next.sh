@@ -15,10 +15,8 @@ git am --abort || true
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
-git am ../patch/0001-mkimage-simplify-fit_check_params.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-gitlab-use-our-own-GRUB.patch
-git am ../patch/0001-virtio-fix-typo-devicd.patch
 git am ../patch/0001-doc-fix-AX25-AE350-RISC-V-documentation.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-trace-provide-Sphinx-style-comments.patch
