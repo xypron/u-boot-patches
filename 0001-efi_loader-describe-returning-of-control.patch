@@ -1,0 +1,35 @@
+From 6bf13439c19dd0d6adf055881bfba5b9bee1a06e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Jan 2020 22:06:54 +0100
+Subject: [PATCH 1/1] efi_loader: describe returning of control
+
+Provide a sober description of how control can be returned by a UEFI
+binary.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index fad2bdc400..80daa21347 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -2933,10 +2933,10 @@ efi_status_t EFIAPI efi_start_image(efi_handle_t image_handle,
+ 	ret = EFI_CALL(image_obj->entry(image_handle, &systab));
+ 
+ 	/*
+-	 * Usually UEFI applications call Exit() instead of returning.
+-	 * But because the world doesn't consist of ponies and unicorns,
+-	 * we're happy to emulate that behavior on behalf of a payload
+-	 * that forgot.
++	 * Control is returned from a started UEFI image either by calling
++	 * Exit() (where exit data can be provided) or by simply returning from
++	 * the entry point. In the latter case call Exit() on behalf of the
++	 * image.
+ 	 */
+ 	return EFI_CALL(systab.boottime->exit(image_handle, ret, 0, NULL));
+ }
+-- 
+2.24.1
+
