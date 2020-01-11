@@ -1,0 +1,31 @@
+From 6fc88ed0b222322e53ee99b05455065cc7f8cff9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 11 Jan 2020 10:59:08 +0100
+Subject: [PATCH 1/1] efi_selftest: enable CONFIG_CMD_POWEROFF
+
+For automating testing we should be able to power off the test system.
+The implementation of EFI_RESET_SHUTDOWN requires the do_poweroff()
+function which is only available if CONFIG_CMD_POWEROFF=y.
+
+Enable CONFIG_CMD_POWEROFF if PSCI reset is available.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_selftest/Kconfig b/lib/efi_selftest/Kconfig
+index d20f5899af..478140330b 100644
+--- a/lib/efi_selftest/Kconfig
++++ b/lib/efi_selftest/Kconfig
+@@ -3,6 +3,7 @@ config CMD_BOOTEFI_SELFTEST
+ 	depends on CMD_BOOTEFI
+ 	imply FAT
+ 	imply FAT_WRITE
++	imply CMD_POWEROFF if PSCI_RESET || SYSRESET_PSCI
+ 	help
+ 	  This adds a UEFI test application to U-Boot that can be executed
+ 	  via the 'bootefi selftest' command. It provides extended tests of
+-- 
+2.24.1
+

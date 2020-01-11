@@ -48,8 +48,11 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 # UEFI
 git am ../patch/0001-efi_loader-document-functions-in-efi_rng.c.patch
 git am ../patch/0001-efi_loader-describe-returning-of-control.patch
+git am ../patch/0001-efi_selftest-enable-CONFIG_CMD_POWEROFF.patch
 git am ../patch/0001-efi_driver-fix-efi_uc_stop.patch
 git am ../patch/0001-efi_driver-debug-output-efi_uc_start-efi_uc_stop.patch
+exit
+
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
 git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
