@@ -1,0 +1,188 @@
+From 4ff741967399b9b2af8fcd400d59f1c37e3ed6d9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 12 Jan 2020 16:26:30 +0100
+Subject: [PATCH] test: verbatim character entry with CTRL-V
+
+Provide a unit test checking that CTRL-V can be used to add control
+characters to the line buffer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/dm/Makefile      |   2 +-
+ test/dm/usb_console.c | 151 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 152 insertions(+), 1 deletion(-)
+ create mode 100644 test/dm/usb_console.c
+
+diff --git a/test/dm/Makefile b/test/dm/Makefile
+index dd1ceff86c..0261424168 100644
+--- a/test/dm/Makefile
++++ b/test/dm/Makefile
+@@ -51,7 +51,7 @@ obj-$(CONFIG_DM_SPI_FLASH) += sf.o
+ obj-$(CONFIG_SMEM) += smem.o
+ obj-$(CONFIG_DM_SPI) += spi.o
+ obj-y += syscon.o
+-obj-$(CONFIG_DM_USB) += usb.o
++obj-$(CONFIG_DM_USB) += usb.o usb_console.o
+ obj-$(CONFIG_DM_PMIC) += pmic.o
+ obj-$(CONFIG_DM_REGULATOR) += regulator.o
+ obj-$(CONFIG_TIMER) += timer.o
+diff --git a/test/dm/usb_console.c b/test/dm/usb_console.c
+new file mode 100644
+index 0000000000..8f7f709b6c
+--- /dev/null
++++ b/test/dm/usb_console.c
+@@ -0,0 +1,151 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (C) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Tests for the command line interface using the USB keyboard as input.
++ */
++
++#include <common.h>
++#include <cli.h>
++#include <asm/state.h>
++#include <asm/test.h>
++#include <dm/test.h>
++#include <test/ut.h>
++#include <usb.h>
++
++#define SCAN_CODE_END_OF_BUFFER 0xff
++
++struct console_test_data {
++	const char modifiers;
++	const unsigned char scancode;
++};
++
++/**
++ * put_buffer() - copy key strokes to USB keyboard buffer
++ *
++ * @key_strokes:	key strokes
++ * Return:		0 = ok
++ */
++static int put_buffer(const struct console_test_data *key_strokes,
++		      struct unit_test_state *uts)
++{
++	struct udevice *dev;
++	const struct console_test_data *pos;
++
++	ut_assertok(uclass_get_device_by_name(UCLASS_USB_EMUL, "keyb@3",
++					      &dev));
++	for (pos = key_strokes; pos->scancode != SCAN_CODE_END_OF_BUFFER;
++	     ++pos) {
++		char scancodes[USB_KBD_BOOT_REPORT_SIZE] = {0};
++
++		scancodes[0] = pos->modifiers;
++		scancodes[2] = pos->scancode;
++
++		ut_assertok(sandbox_usb_keyb_add_string(dev, scancodes));
++
++	}
++	ut_asserteq(1, tstc());
++
++	return 0;
++}
++
++/**
++ * usb_console_setup() - setup for usb keyboard test
++ *
++ * Return:	0 = ok
++ */
++static int usb_console_setup(struct unit_test_state *uts)
++{
++	state_set_skip_delays(true);
++	ut_assertok(usb_init());
++
++	/* Initially there should be no characters */
++	ut_asserteq(0, tstc());
++
++	return 0;
++}
++
++/**
++ * usb_console_teardown() - tear down after usb keyboard test
++ *
++ * Return:	0 = ok
++ */
++static int usb_console_teardown(struct unit_test_state *uts)
++{
++	ut_assertok(usb_stop());
++	return 0;
++}
++
++/**
++ * dm_test_usb_console_verbatim() - test verbatim entry in console
++ *
++ * This test copies the key strokes
++ *
++ *	setenv error '<CTRL-V><ESC>[33;1mError<CTRL-V><ESC>[0m'<ENTER>
++ *
++ * into the buffer of the USB keyboard emulation driver. It then checks if the
++ * string is read into a command line interface buffer as
++ *
++ *	"setenv error '\x1b[33;1mError\x1b[0m'"
++ *
++ * This confirms that <CTRL-V> can be used for verbatim input of control
++ * characters.
++ *
++ * @uts:	unit test state
++ * Return:	0 on success
++ */
++static int dm_test_usb_console_verbatim(struct unit_test_state *uts)
++{
++	char buffer[CONFIG_SYS_CBSIZE + 1]; /* console I/O buffer */
++	const struct console_test_data con_test_data[] = {
++		{0x00, 0x16}, /* s */
++		{0x00, 0x08}, /* e */
++		{0x00, 0x17}, /* t */
++		{0x00, 0x08}, /* e */
++		{0x00, 0x11}, /* n */
++		{0x00, 0x19}, /* v */
++		{0x00, 0x2c}, /*   */
++		{0x00, 0x08}, /* e */
++		{0x00, 0x15}, /* r */
++		{0x00, 0x00}, /*   */
++		{0x00, 0x15}, /* r */
++		{0x00, 0x12}, /* o */
++		{0x00, 0x15}, /* r */
++		{0x00, 0x2c}, /*   */
++		{0x00, 0x34}, /* ' */
++		{0x01, 0x19}, /* <CONTROL><V> */
++		{0x00, 0x29}, /* <ESC> */
++		{0x00, 0x2F}, /* [ */
++		{0x00, 0x20}, /* 3 */
++		{0x00, 0x00}, /*   */
++		{0x00, 0x20}, /* 3 */
++		{0x00, 0x33}, /* ; */
++		{0x00, 0x1E}, /* 1 */
++		{0x00, 0x10}, /* m */
++		{0x20, 0x08}, /* E */
++		{0x00, 0x15}, /* r */
++		{0x00, 0x00}, /*   */
++		{0x00, 0x15}, /* r */
++		{0x00, 0x12}, /* o */
++		{0x00, 0x15}, /* r */
++		{0x01, 0x19}, /* <CONTROL><V> */
++		{0x00, 0x29}, /* <ESC> */
++		{0x00, 0x2F}, /* [ */
++		{0x00, 0x27}, /* 0 */
++		{0x00, 0x10}, /* m */
++		{0x00, 0x34}, /* ' */
++		{0x00, 0x28}, /* <ENTER> */
++		/* End of list */
++		{0x00, SCAN_CODE_END_OF_BUFFER}
++	};
++
++	ut_assertok(usb_console_setup(uts));
++	ut_assertok(put_buffer(con_test_data, uts));
++	ut_asserteq(31, cli_readline_into_buffer("", buffer, 0));
++	ut_asserteq_str("setenv error '\x1b[33;1mError\x1b[0m'", buffer);
++	ut_asserteq(0, tstc());
++	ut_assertok(usb_console_teardown(uts));
++
++	return 0;
++}
++DM_TEST(dm_test_usb_console_verbatim, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+-- 
+2.24.1
+

@@ -1,0 +1,99 @@
+From 4088c7e81cc805da895bcb8624bad5fe7ef728da Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 12 Jan 2020 10:44:23 +0100
+Subject: [PATCH 1/1] cli: allow verbatim character entry with CTRL-v
+
+Up to now the U-Boot console does not allow to add a control character to
+the line buffer. In Bash and Vim we can use CTRL-v for this purpose.
+
+Add support for CTRL-v for verbatim entry of characters - if
+CONFIG_CMDLINE_EDITING is enabled.
+
+To keep things simple, while editing control characters are displayed as
+simple characters, e.g. ESC (0x1b) is displayed as [ and not as ^[.
+
+For testing enter
+
+    setenv error '<CTRL-v><ESC>[33;1mError<CTRL-v><ESC>[0m'
+    echo $error
+
+You should see the word 'Error' in yellow.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/cli_readline.c | 38 +++++++++++++++++++++++++++++++++++---
+ 1 file changed, 35 insertions(+), 3 deletions(-)
+
+diff --git a/common/cli_readline.c b/common/cli_readline.c
+index 6ef7a3e564..402f15a361 100644
+--- a/common/cli_readline.c
++++ b/common/cli_readline.c
+@@ -58,8 +58,6 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
+  * Author: Janghoon Lyu <nandy@mizi.com>
+  */
+ 
+-#define putnstr(str, n)	printf("%.*s", (int)n, str)
+-
+ #define CTL_CH(c)		((c) - 'a' + 1)
+ #define CTL_BACKSPACE		('\b')
+ #define DEL			((char)255)
+@@ -83,6 +81,34 @@ static char hist_lines[HIST_MAX][HIST_SIZE + 1];	/* Save room for NULL */
+ 
+ #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
+ 
++/**
++ * putchar() - output single character
++ *
++ * Outputs single character. Control characters are converted,
++ * e.g. CTR-c is displayed as C.
++ */
++static void putchar(char c)
++{
++	if (c < ' ')
++		c += '@';
++	putc(c);
++}
++
++/**
++ * putnstr() - output string buffer
++ *
++ * Outputs n characters for buffer str. Control characters are converted, e.g.
++ * CTRL-c is displayed as C.
++ *
++ * @str:	string buffer
++ * @n:		number of characters to print
++ */
++static void putnstr(const char *str, size_t n)
++{
++	for (; n; --n)
++		putchar(*str++);
++}
++
+ static void hist_init(void)
+ {
+ 	int i;
+@@ -385,7 +411,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+ 			return -1;
+ 		case CTL_CH('f'):
+ 			if (num < eol_num) {
+-				getcmd_putch(buf[num]);
++				putchar(buf[num]);
+ 				num++;
+ 			}
+ 			break;
+@@ -419,6 +445,12 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
+ 		case CTL_CH('o'):
+ 			insert = !insert;
+ 			break;
++		case CTL_CH('v'):
++			/* Add next character verbatim */
++			ichar = getcmd_getch();
++			cread_add_char(ichar, insert, &num, &eol_num, buf,
++				       *len);
++			break;
+ 		case CTL_CH('x'):
+ 		case CTL_CH('u'):
+ 			BEGINNING_OF_LINE();
+-- 
+2.24.1
+
