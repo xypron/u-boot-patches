@@ -1,7 +1,7 @@
-From 4ff741967399b9b2af8fcd400d59f1c37e3ed6d9 Mon Sep 17 00:00:00 2001
+From e93650488528d1b4dc5ca044308067325615d347 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 12 Jan 2020 16:26:30 +0100
-Subject: [PATCH] test: verbatim character entry with CTRL-V
+Subject: [PATCH 1/1] test: verbatim character entry with CTRL-V
 
 Provide a unit test checking that CTRL-V can be used to add control
 characters to the line buffer.
@@ -9,8 +9,8 @@ characters to the line buffer.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/dm/Makefile      |   2 +-
- test/dm/usb_console.c | 151 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 152 insertions(+), 1 deletion(-)
+ test/dm/usb_console.c | 150 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 151 insertions(+), 1 deletion(-)
  create mode 100644 test/dm/usb_console.c
 
 diff --git a/test/dm/Makefile b/test/dm/Makefile
@@ -28,10 +28,10 @@ index dd1ceff86c..0261424168 100644
  obj-$(CONFIG_TIMER) += timer.o
 diff --git a/test/dm/usb_console.c b/test/dm/usb_console.c
 new file mode 100644
-index 0000000000..8f7f709b6c
+index 0000000000..c62a05291d
 --- /dev/null
 +++ b/test/dm/usb_console.c
-@@ -0,0 +1,151 @@
+@@ -0,0 +1,150 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (C) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -76,7 +76,6 @@ index 0000000000..8f7f709b6c
 +		scancodes[2] = pos->scancode;
 +
 +		ut_assertok(sandbox_usb_keyb_add_string(dev, scancodes));
-+
 +	}
 +	ut_asserteq(1, tstc());
 +
