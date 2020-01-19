@@ -1,0 +1,37 @@
+From fe4a3e3c424293e32f162ec1f012df957d90f0ba Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 19 Jan 2020 09:03:28 +0100
+Subject: [PATCH] lib: rsa: consider CONFIG_SPL_RSA
+
+CONFIG_SPL_RSA is meant to control if lib/rsa/* is used for SPL. Adjust
+lib/Makefile to consider this setting.
+
+This was correctly setup with commit 51c14cd128f4 ("verified-boot: Minimal
+support for booting U-Boot proper from SPL") and got lost with commit
+089df18bfe9d ("lib: move hash CONFIG options to Kconfig").
+
+Fixes: 089df18bfe9d ("lib: move hash CONFIG options to Kconfig")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+There currently is no CONFIG_TPL_RSA. I guess it is save to leave the
+TPL case unchanged.
+---
+ lib/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/Makefile b/lib/Makefile
+index 51eba80b89..15259d0473 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -58,7 +58,7 @@ obj-$(CONFIG_TPM_V1) += tpm-v1.o
+ obj-$(CONFIG_TPM_V2) += tpm-v2.o
+ endif
+ 
+-obj-$(CONFIG_RSA) += rsa/
++obj-$(CONFIG_$(SPL_)RSA) += rsa/
+ obj-$(CONFIG_SHA1) += sha1.o
+ obj-$(CONFIG_SHA256) += sha256.o
+ 
+-- 
+2.24.1
+
