@@ -17,12 +17,9 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-gitlab-use-our-own-GRUB.patch
-git am ../patch/0001-doc-fix-AX25-AE350-RISC-V-documentation.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
-git am ../patch/0001-trace-provide-Sphinx-style-comments.patch
 git am ../patch/0001-pci-definition-of-pci_addr_t-and-pci_size_t.patch
 git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
-git am ../patch/0001-MAINTAINERS-Add-entry-for-rng-drivers.patch
 git am ../patch/0001-doc-Chromebook-Coral-fix-build-warnings.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
@@ -45,7 +42,6 @@ git am ../patch/0001-gitlab-build-HTML-documentation.patch
 # must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
 
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
-git am ../patch/0001-disk-part-rename-parameter-of-lba512_muldiv.patch
 
 # Sandbox
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
