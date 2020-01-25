@@ -46,6 +46,7 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 
 # UEFI
+git am ../patch/0001-test-test_efi_fit-fix-pylint-warnings.patch
 exit
 
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
