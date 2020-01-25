@@ -24,6 +24,7 @@ git am ../patch/0001-doc-Chromebook-Coral-fix-build-warnings.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-watchdog-cannot-select-CONFIG_CONFIG_MPC8xx_WATCHDOG.patch
+git am ../patch/0001-board-ls1012ardb-do-not-use-imply-CONFIG_.patch
 
 # make htmldocs
 git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
