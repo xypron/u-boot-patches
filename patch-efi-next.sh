@@ -23,9 +23,6 @@ git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-doc-Chromebook-Coral-fix-build-warnings.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-lib-rsa-consider-CONFIG_SPL_RSA.patch
-git am ../patch/0001-DM-crypto-rsa_mod_exp-make-mod_exp_sw-static.patch
-git am ../patch/0001-lib-Kconfig-dependencies-for-pseudo-random-library.patch
 
 # make htmldocs
 git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
