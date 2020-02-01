@@ -1,4 +1,4 @@
-From 9a55828d5eb69798b2de363d718345fe6ebb4abf Mon Sep 17 00:00:00 2001
+From 4e04c4a3b303c2927eb73d4f06e0f9f07ea29a01 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 1 Feb 2020 13:56:53 +0100
 Subject: [PATCH 1/1] efi_loader: architecture specific UEFI setup
@@ -16,8 +16,8 @@ specific UEFI variables or configuration tables.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h       |  3 +++
- lib/efi_loader/efi_setup.c | 15 +++++++++++++++
- 2 files changed, 18 insertions(+)
+ lib/efi_loader/efi_setup.c | 16 ++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index d4c59b54c4..d87de85e83 100644
@@ -34,7 +34,7 @@ index d4c59b54c4..d87de85e83 100644
  extern struct efi_simple_text_input_protocol efi_con_in;
  extern struct efi_console_control_protocol efi_console_control;
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index de7b616c6d..9bbaa344ec 100644
+index de7b616c6d..8469f0f43c 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
 @@ -22,6 +22,17 @@ void __weak allow_unaligned(void)
@@ -47,7 +47,7 @@ index de7b616c6d..9bbaa344ec 100644
 + * This routine can be used to define architecture specific variables
 + * or configuration tables, e.g. HART id for RISC-V
 + */
-+efi_status_t __weak  efi_setup_arch_specific(void)
++efi_status_t __weak efi_setup_arch_specific(void)
 +{
 +	return EFI_SUCCESS;
 +}
@@ -55,17 +55,18 @@ index de7b616c6d..9bbaa344ec 100644
  /**
   * efi_init_platform_lang() - define supported languages
   *
-@@ -178,6 +189,10 @@ efi_status_t efi_init_obj_list(void)
- 	ret = efi_reset_system_init();
+@@ -179,6 +190,11 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
-+	
+ 
++	/* Architecture specific setup */
 +	ret = efi_setup_arch_specific();
 +	if (ret != EFI_SUCCESS)
 +		goto out;
- 
++
  out:
  	efi_obj_list_initialized = ret;
+ 	return ret;
 -- 
 2.24.1
 
