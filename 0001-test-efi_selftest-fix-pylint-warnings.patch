@@ -5,7 +5,7 @@ Subject: [PATCH 1/1] test: efi_selftest: fix pylint warnings
 
 Fix pylint warnings:
 
-* add missing module and function documenation
+* add missing module and function documentation
 * correct indentation
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
