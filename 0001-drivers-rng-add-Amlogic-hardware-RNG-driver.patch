@@ -1,15 +1,15 @@
-From c0ff103a75052a2b899110e1905270a0b0caa501 Mon Sep 17 00:00:00 2001
+From 28f8a71440fa9d6a17d6d9a24f41b15df22e20ea Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Feb 2020 19:52:04 +0100
-Subject: [PATCH] drivers/rng: add Amlogic hardware RNG driver
+Subject: [PATCH 1/1] drivers/rng: add Amlogic hardware RNG driver
 
 Add support for the hardware random number generator of Amlogic SOCs.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  drivers/rng/Kconfig     |  8 ++++++
- drivers/rng/meson-rng.c | 54 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 62 insertions(+)
+ drivers/rng/meson-rng.c | 62 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 70 insertions(+)
  create mode 100644 drivers/rng/meson-rng.c
 
 diff --git a/drivers/rng/Kconfig b/drivers/rng/Kconfig
@@ -33,39 +33,47 @@ index c1aa43b823..edb6152bb9 100644
  	depends on SANDBOX
 diff --git a/drivers/rng/meson-rng.c b/drivers/rng/meson-rng.c
 new file mode 100644
-index 0000000000..650557de59
+index 0000000000..0331db4497
 --- /dev/null
 +++ b/drivers/rng/meson-rng.c
-@@ -0,0 +1,54 @@
-+struct stm32_rng_platdata {
+@@ -0,0 +1,62 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <clk.h>
++#include <asm/io.h>
++
++struct meson_rng_platdata {
 +};
 +
-+static int stm32_rng_read(struct udevice *dev, void *data, size_t len)
++static int meson_rng_read(struct udevice *dev, void *data, size_t len)
 +{
 +	return 0;
 +}
 +
-+static int stm32_rng_init(struct stm32_rng_platdata *pdata)
++static int meson_rng_init(struct meson_rng_platdata *pdata)
 +{
 +	return 0;
 +}
 +
-+static int stm32_rng_cleanup(struct stm32_rng_platdata *pdata)
++static int meson_rng_cleanup(struct meson_rng_platdata *pdata)
 +{
 +	return 0;
 +}
 +
-+static int stm32_rng_probe(struct udevice *dev)
++static int meson_rng_probe(struct udevice *dev)
 +{
 +	return 0;
 +}
 +
-+static int stm32_rng_remove(struct udevice *dev)
++static int meson_rng_remove(struct udevice *dev)
 +{
 +	return 0;
 +}
 +
-+static int stm32_rng_ofdata_to_platdata(struct udevice *dev)
++static int meson_rng_ofdata_to_platdata(struct udevice *dev)
 +{
 +	return 0;
 +}
