@@ -3,15 +3,19 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 1 Feb 2020 13:56:53 +0100
 Subject: [PATCH 1/1] efi_loader: architecture specific UEFI setup
 
-RISC-V patches are developed for OpenSBI and Linux to replace random boot
-by sequential CPU bring-up.
+RISC-V booting currently is based on a per boot stage lottery to determine
+the active CPU. The Hart State Management (HSM) SBI extension replaces
+this lottery by using a dedicated primary CPU.
+
+Cf. Hart State Management Extension, Extension ID: 0x48534D (HSM)
+https://github.com/riscv/riscv-sbi-doc/blob/master/riscv-sbi.adoc
 
 In this scenario the id of the active hart has to be passed from boot stage
 to boot stage. Using a UEFI variable would provide an easy implementation.
 
 This patch provides a weak function that is called at the end of the setup
-of the UEFI sub-system. This patch can be used to create architecture
-specific UEFI variables or configuration tables.
+of U-Boot's UEFI sub-system. By overriding this function architecture
+specific UEFI variables or configuration tables can be created.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
