@@ -1,7 +1,7 @@
-From 233d0fea49665274aa22299a967f958b36444b1e Mon Sep 17 00:00:00 2001
+From 1fb779ca4d7a0114e95e6e7406b09344dddcb45b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 Jan 2020 17:28:04 +0100
-Subject: [PATCH 1/1] pci: definition of pci_addr_t and pci_size_t
+Subject: [PATCH v2 1/1] pci: definition of pci_addr_t and pci_size_t
 
 Currently the size of pci_addr_t and pci_size_t depends on
 CONFIG_SYS_PCI_64BIT. For qemu_arm64_defconfig with 4 GiB RAM this leads
@@ -15,33 +15,35 @@ Defining CONFIG_SYS_PCI_64BIT is not a solution as this results in an error
 
    PCI: Failed autoconfig bar 10
 
-So let's use unsigned long for pci_addr_t and pci_size_t.
+So let's use unsigned long for pci_addr_t and pci_size_t if
+CONFIG_SYS_PCI_64BIT is not defined.
+
+Considering that 32bit U-Boot is used to launch some 64bit x86 systems we
+cannot do without CONFIG_SYS_PCI_64BIT requiring u64 as type.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/pci.h | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+v2
+	Do not change CONFIG_SYS_PCI_64BIT=y case.
+---
+ include/pci.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/include/pci.h b/include/pci.h
-index 8c761d8da3..d8bce8ab80 100644
+index 8c761d8da3..06a09f8987 100644
 --- a/include/pci.h
 +++ b/include/pci.h
-@@ -484,13 +484,8 @@
- 
- #include <dm/pci.h>
- 
--#ifdef CONFIG_SYS_PCI_64BIT
--typedef u64 pci_addr_t;
--typedef u64 pci_size_t;
--#else
+@@ -488,8 +488,8 @@
+ typedef u64 pci_addr_t;
+ typedef u64 pci_size_t;
+ #else
 -typedef u32 pci_addr_t;
 -typedef u32 pci_size_t;
--#endif
 +typedef unsigned long pci_addr_t;
 +typedef unsigned long pci_size_t;
+ #endif
  
  struct pci_region {
- 	pci_addr_t bus_start;	/* Start on the bus */
 -- 
 2.24.1
 
