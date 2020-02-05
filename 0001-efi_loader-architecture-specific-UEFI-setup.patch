@@ -1,7 +1,7 @@
-From 4e04c4a3b303c2927eb73d4f06e0f9f07ea29a01 Mon Sep 17 00:00:00 2001
+From 6d76eb09f540d6144a054468e3b8dcc8cae1b49d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 1 Feb 2020 13:56:53 +0100
-Subject: [PATCH 1/1] efi_loader: architecture specific UEFI setup
+Subject: [PATCH v2 1/1] efi_loader: architecture specific UEFI setup
 
 RISC-V booting currently is based on a per boot stage lottery to determine
 the active CPU. The Hart State Management (HSM) SBI extension replaces
@@ -18,6 +18,10 @@ of U-Boot's UEFI sub-system. By overriding this function architecture
 specific UEFI variables or configuration tables can be created.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+---
+v2:
+	reference the Hart State Management Extension in the commit message
 ---
  include/efi_loader.h       |  3 +++
  lib/efi_loader/efi_setup.c | 16 ++++++++++++++++
