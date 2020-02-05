@@ -1,4 +1,4 @@
-From 46639351015abc8680f68dd20be31fdc6b072b50 Mon Sep 17 00:00:00 2001
+From 233d0fea49665274aa22299a967f958b36444b1e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 Jan 2020 17:28:04 +0100
 Subject: [PATCH 1/1] pci: definition of pci_addr_t and pci_size_t
@@ -15,29 +15,33 @@ Defining CONFIG_SYS_PCI_64BIT is not a solution as this results in an error
 
    PCI: Failed autoconfig bar 10
 
-So let's use unsigned long for pci_addr_t and pci_size_t if
-CONFIG_SYS_PCI_64BIT is not defined.
+So let's use unsigned long for pci_addr_t and pci_size_t.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/pci.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/pci.h | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/include/pci.h b/include/pci.h
-index ff59ac0e69..478df4c397 100644
+index 8c761d8da3..d8bce8ab80 100644
 --- a/include/pci.h
 +++ b/include/pci.h
-@@ -486,8 +486,8 @@
- typedef u64 pci_addr_t;
- typedef u64 pci_size_t;
- #else
+@@ -484,13 +484,8 @@
+ 
+ #include <dm/pci.h>
+ 
+-#ifdef CONFIG_SYS_PCI_64BIT
+-typedef u64 pci_addr_t;
+-typedef u64 pci_size_t;
+-#else
 -typedef u32 pci_addr_t;
 -typedef u32 pci_size_t;
+-#endif
 +typedef unsigned long pci_addr_t;
 +typedef unsigned long pci_size_t;
- #endif
  
  struct pci_region {
+ 	pci_addr_t bus_start;	/* Start on the bus */
 -- 
 2.24.1
 
