@@ -1,4 +1,4 @@
-From a962e0e6cda9de941804ec2047cdff98a602c0cf Mon Sep 17 00:00:00 2001
+From eec66c335ae7770e5ec721853ebb606384276849 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 9 Nov 2019 09:20:11 +0100
 Subject: [PATCH 1/1] configs: sandbox: enable CONFIG_CMD_BOOTEFI_SELFTEST
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  4 files changed, 4 insertions(+)
 
 diff --git a/configs/sandbox64_defconfig b/configs/sandbox64_defconfig
-index 1fea683d89..329645d362 100644
+index 7b80033c3b..a1168fdc9d 100644
 --- a/configs/sandbox64_defconfig
 +++ b/configs/sandbox64_defconfig
-@@ -21,6 +21,7 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
+@@ -22,6 +22,7 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_CMD_CPU=y
  CONFIG_CMD_LICENSE=y
  CONFIG_CMD_BOOTZ=y
@@ -26,22 +26,22 @@ index 1fea683d89..329645d362 100644
  CONFIG_CMD_ASKENV=y
  CONFIG_CMD_GREPENV=y
 diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
-index 20ebc68997..b6d0d3f2fa 100644
+index 790dcb0592..e2902640d6 100644
 --- a/configs/sandbox_defconfig
 +++ b/configs/sandbox_defconfig
-@@ -24,6 +24,7 @@ CONFIG_ANDROID_AB=y
+@@ -25,6 +25,7 @@ CONFIG_ANDROID_AB=y
  CONFIG_CMD_CPU=y
  CONFIG_CMD_LICENSE=y
  CONFIG_CMD_BOOTZ=y
 +CONFIG_CMD_BOOTEFI_SELFTEST=y
+ CONFIG_CMD_ABOOTIMG=y
  # CONFIG_CMD_ELF is not set
  CONFIG_CMD_ASKENV=y
- CONFIG_CMD_GREPENV=y
 diff --git a/configs/sandbox_flattree_defconfig b/configs/sandbox_flattree_defconfig
-index 898815fe53..02bbda071e 100644
+index 2c90639ecb..ff39cff507 100644
 --- a/configs/sandbox_flattree_defconfig
 +++ b/configs/sandbox_flattree_defconfig
-@@ -18,6 +18,7 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
+@@ -19,6 +19,7 @@ CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_CMD_CPU=y
  CONFIG_CMD_LICENSE=y
  CONFIG_CMD_BOOTZ=y
@@ -50,10 +50,10 @@ index 898815fe53..02bbda071e 100644
  CONFIG_CMD_ASKENV=y
  CONFIG_CMD_GREPENV=y
 diff --git a/configs/sandbox_spl_defconfig b/configs/sandbox_spl_defconfig
-index 409b8a38d5..9c24ea89ea 100644
+index b78115af61..83593eed8a 100644
 --- a/configs/sandbox_spl_defconfig
 +++ b/configs/sandbox_spl_defconfig
-@@ -27,6 +27,7 @@ CONFIG_SPL_ENV_SUPPORT=y
+@@ -28,6 +28,7 @@ CONFIG_SPL_ENV_SUPPORT=y
  CONFIG_CMD_CPU=y
  CONFIG_CMD_LICENSE=y
  CONFIG_CMD_BOOTZ=y
@@ -62,5 +62,5 @@ index 409b8a38d5..9c24ea89ea 100644
  CONFIG_CMD_ASKENV=y
  CONFIG_CMD_GREPENV=y
 -- 
-2.24.0.rc1
+2.24.1
 
