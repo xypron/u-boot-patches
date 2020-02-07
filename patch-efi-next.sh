@@ -16,7 +16,6 @@ git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
-git am ../patch/0001-gitlab-use-our-own-GRUB.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-pci-definition-of-pci_addr_t-and-pci_size_t.patch
 git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
@@ -49,8 +48,6 @@ git am ../patch/0001-drivers-rng-simplify-Kconfig.patch
 git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 
 # UEFI
-git am ../patch/0001-test-test_efi_fit-fix-pylint-warnings.patch
-git am ../patch/0001-test-efi_selftest-fix-pylint-warnings.patch
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit
 
