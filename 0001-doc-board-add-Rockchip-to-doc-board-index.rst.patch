@@ -1,0 +1,31 @@
+From 746a92d9ca1f2e512194b41a54397b1d3bf23ff4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 7 Feb 2020 21:20:51 +0100
+Subject: [PATCH 1/1] doc: board: add Rockchip to doc/board/index.rst
+
+Fix a build error
+
+checking consistency...
+/doc/board/rockchip/index.rst:
+WARNING: document isn't included in any toctree
+
+Fixes: 338b86c9b305 ("doc: boards: Add rockchip documentation")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/board/index.rst | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/doc/board/index.rst b/doc/board/index.rst
+index 00e72f57cd..b8b956d730 100644
+--- a/doc/board/index.rst
++++ b/doc/board/index.rst
+@@ -14,5 +14,6 @@ Board-specific doc
+    google/index
+    intel/index
+    renesas/index
++   rockchip/index
+    sifive/index
+    xilinx/index
+-- 
+2.24.1
+
