@@ -1,4 +1,4 @@
-From 9db40174d572d9514996138fe23f3e59174e846a Mon Sep 17 00:00:00 2001
+From 473e518553d053cbec99d01f110fb959c891a96c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Feb 2020 22:27:02 +0100
 Subject: [PATCH 1/1] log: syslog driver
@@ -15,10 +15,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 common/log_syslog.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 9dce9f10f2..95909a47ce 100644
+index 82e4159bec..d630176e33 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -622,7 +622,7 @@ LOGGING
+@@ -630,7 +630,7 @@ LOGGING
  M:	Simon Glass <sjg@chromium.org>
  S:	Maintained
  T:	git https://gitlab.denx.de/u-boot/u-boot.git
@@ -59,7 +59,7 @@ index 896e4af91d..bde3f024bd 100644
  obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 diff --git a/common/log_syslog.c b/common/log_syslog.c
 new file mode 100644
-index 0000000000..67dfc09874
+index 0000000000..1e2c6140e5
 --- /dev/null
 +++ b/common/log_syslog.c
 @@ -0,0 +1,100 @@
@@ -75,7 +75,7 @@ index 0000000000..67dfc09874
 +
 +DECLARE_GLOBAL_DATA_PTR;
 +
-+#define BUFFER_SIZE 255
++#define BUFFER_SIZE 256
 +
 +static void append(char **buf, char *buf_end, const char *fmt, ...)
 +{
@@ -83,7 +83,7 @@ index 0000000000..67dfc09874
 +	size_t size = buf_end - *buf;
 +
 +	va_start(args, fmt);
-+	snprintf(*buf, size, fmt, args);
++	vsnprintf(*buf, size, fmt, args);
 +	va_end(args);
 +	*buf += strlen(*buf);
 +}
@@ -164,5 +164,5 @@ index 0000000000..67dfc09874
 +	.emit	= log_syslog_emit,
 +};
 -- 
-2.24.1
+2.20.1
 
