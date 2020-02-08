@@ -47,6 +47,8 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-drivers-rng-simplify-Kconfig.patch
 git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 
+git am ../patch/0001-log-syslog-driver.patch
+
 # UEFI
 git am ../patch/0001-efi_loader-fix-efi_install_fdt-description.patch
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch

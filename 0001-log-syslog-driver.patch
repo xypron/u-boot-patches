@@ -1,0 +1,166 @@
+From 43d9c552c5be0f093f13e0b346fccf47d6c17127 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 8 Feb 2020 22:27:02 +0100
+Subject: [PATCH 1/1] log: syslog driver
+
+Provide a log driver that broadcasts log messages to syslog servers.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS         |  2 +-
+ common/Kconfig      |  7 ++++
+ common/Makefile     |  1 +
+ common/log_syslog.c | 98 +++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 107 insertions(+), 1 deletion(-)
+ create mode 100644 common/log_syslog.c
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9dce9f10f2..95909a47ce 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -622,7 +622,7 @@ LOGGING
+ M:	Simon Glass <sjg@chromium.org>
+ S:	Maintained
+ T:	git https://gitlab.denx.de/u-boot/u-boot.git
+-F:	common/log.c
++F:	common/log*
+ F:	cmd/log.c
+ F:	test/log/log_test.c
+ F:	test/py/tests/test_log.py
+diff --git a/common/Kconfig b/common/Kconfig
+index a7c5ba278a..16a67f5f76 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -773,6 +773,13 @@ config TPL_LOG_CONSOLE
+ 	  log message is shown - other details like level, category, file and
+ 	  line number are omitted.
+ 
++config LOG_SYSLOG
++	bool "Log output to syslog server"
++	depends on LOG && NET
++	help
++	  Enables a log driver which broadcasts log records via UDP port 514
++	  to syslog servers.
++
+ config LOG_TEST
+ 	bool "Provide a test for logging"
+ 	depends on LOG
+diff --git a/common/Makefile b/common/Makefile
+index 896e4af91d..bde3f024bd 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -131,6 +131,7 @@ obj-$(CONFIG_DFU_OVER_USB) += dfu.o
+ obj-y += command.o
+ obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
+ obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
++obj-$(CONFIG_LOG_SYSLOG) += log_syslog.o
+ obj-y += s_record.o
+ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
+ obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
+diff --git a/common/log_syslog.c b/common/log_syslog.c
+new file mode 100644
+index 0000000000..7208f2ee9e
+--- /dev/null
++++ b/common/log_syslog.c
+@@ -0,0 +1,98 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Log to syslog
++ *
++ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <log.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define BUFFER_SIZE 255
++
++static void append(char **buf, char *buf_end, const char *fmt, ...)
++{
++	va_list args;
++	size_t size = buf_end - *buf;
++
++	va_start(args, fmt);
++	snprintf(*buf, size, fmt, args);
++	va_end(args);
++	*buf += strlen(*buf);
++}
++
++static int log_syslog_emit(struct log_device *ldev, struct log_rec *rec)
++{
++	int ret;
++	int fmt = gd->log_fmt;
++	char msg[BUFFER_SIZE];
++	char *msg_end = msg + BUFFER_SIZE;
++	char *ptr = msg;
++	char *iphdr;
++	int eth_hdr_size;
++	struct in_addr bcast_ip;
++	static int processing_msg;
++
++	/* Fend off messages from the network stack while writing a message */
++	if (processing_msg)
++		return 0;
++
++	processing_msg = 1;
++
++	/* Setup packet buffers */
++	net_init();
++	/* Disable hardware and put it into the reset state */
++	eth_halt();
++	/* Set current device according to environment variables */
++	eth_set_current();
++	/* Get hardware ready for send and receive operations */
++	ret = eth_init();
++	if (ret < 0) {
++		eth_halt();
++		goto out;
++	}
++
++	memset(msg, 0, BUFFER_SIZE);
++
++	/* Set ethernet header */
++	eth_hdr_size = net_set_ether((uchar *)ptr, net_bcast_ethaddr, PROT_IP);
++	ptr += eth_hdr_size;
++	iphdr = ptr;
++	ptr += IP_UDP_HDR_SIZE;
++
++	/* Write log message to buffer */
++	append(&ptr, msg_end, msg_end, "<14>uboot: ");
++	if (fmt & (1 << LOGF_LEVEL))
++		append(&ptr, msg_end, msg_end, "%s.",
++		       log_get_level_name(rec->level));
++	if (fmt & (1 << LOGF_CAT))
++		append(&ptr, msg_end, msg_end, "%s,",
++		       log_get_cat_name(rec->cat));
++	if (fmt & (1 << LOGF_FILE))
++		append(&ptr, msg_end, msg_end, "%s:", rec->file);
++	if (fmt & (1 << LOGF_LINE))
++		append(&ptr, msg_end, msg_end, "%d-", rec->line);
++	if (fmt & (1 << LOGF_FUNC))
++		append(&ptr, msg_end, msg_end, "%s()", rec->func);
++	if (fmt & (1 << LOGF_MSG))
++		append(&ptr, msg_end, msg_end, "%s%s",
++		       fmt != (1 << LOGF_MSG) ? " " : "", rec->msg);
++	/* Consider trailing 0x00 */
++	ptr++;
++
++	/* Broadcast message */
++	bcast_ip.s_addr = 0xFFFFFFFFL;
++	net_set_udp_header((uchar *)iphdr, bcast_ip, 514, 514, ptr - iphdr);
++	net_send_packet(net_tx_packet, ptr - msg);
++
++out:
++	processing_msg = 0;
++	return ret;
++}
++
++LOG_DRIVER(syslog) = {
++	.name	= "syslog",
++	.emit	= log_syslog_emit,
++};
+-- 
+2.24.1
+
