@@ -1,17 +1,26 @@
-From 09b20c4b6cc5342bfb6e182b9c8dd13489cdde15 Mon Sep 17 00:00:00 2001
+From 141733c9079799c91292edf85cfac889718262f2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Feb 2020 22:27:02 +0100
-Subject: [PATCH] log: syslog driver
+Subject: [PATCH 1/1] log: syslog driver
 
-Provide a log driver that broadcasts log messages to syslog servers.
+Provide a log driver that broadcasts RFC 3164 messages to syslog servers.
+rsyslog is one implementation of such a server.
+
+The messages are sent to the local broadcast address 255.255.255.255 on
+port 514.
+
+The environment variable log_hostname can be used to provide the HOSTNAME
+field for the messages. The optional TIMESTAMP field of RFC 3164 is not
+provided.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS         |   2 +-
  common/Kconfig      |   7 +++
  common/Makefile     |   1 +
- common/log_syslog.c | 102 ++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 111 insertions(+), 1 deletion(-)
+ common/log_syslog.c | 117 ++++++++++++++++++++++++++++++++++++++++++++
+ doc/README.log      |   3 ++
+ 5 files changed, 129 insertions(+), 1 deletion(-)
  create mode 100644 common/log_syslog.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -59,13 +68,13 @@ index 896e4af91d..bde3f024bd 100644
  obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 diff --git a/common/log_syslog.c b/common/log_syslog.c
 new file mode 100644
-index 0000000000..305de91578
+index 0000000000..cd8ab09abd
 --- /dev/null
 +++ b/common/log_syslog.c
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,117 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * Log to syslog
++ * Log to syslog.
 + *
 + * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + */
@@ -75,7 +84,7 @@ index 0000000000..305de91578
 +
 +DECLARE_GLOBAL_DATA_PTR;
 +
-+#define BUFFER_SIZE 256
++#define BUFFER_SIZE 480
 +
 +static void append(char **buf, char *buf_end, const char *fmt, ...)
 +{
@@ -100,6 +109,8 @@ index 0000000000..305de91578
 +	int eth_hdr_size;
 +	struct in_addr bcast_ip;
 +	static int processing_msg;
++	unsigned int log_level;
++	char *log_hostname;
 +
 +	/* Fend off messages from the network stack while writing a message */
 +	if (processing_msg)
@@ -129,8 +140,21 @@ index 0000000000..305de91578
 +	ptr += IP_UDP_HDR_SIZE;
 +	log_msg = ptr;
 +
++	/*
++	 * The syslog log levels defined in RFC 5424 match the U-Boot ones up to
++	 * level 7 (debug).
++	 */
++	log_level = rec->level;
++	if (log_level > 7)
++		log_level = 7;
++	/* Leave high bits as 0 to write a 'kernel message' */
++
 +	/* Write log message to buffer */
-+	append(&ptr, msg_end, "<14>uboot: ");
++	append(&ptr, msg_end, "<%u>", log_level);
++	log_hostname = env_get("log_hostname");
++	if (log_hostname)
++		append(&ptr, msg_end, "%s ", log_hostname);
++	append(&ptr, msg_end, "uboot[1]: ");
 +	if (fmt & (1 << LOGF_LEVEL))
 +		append(&ptr, msg_end, "%s.",
 +		       log_get_level_name(rec->level));
@@ -165,6 +189,21 @@ index 0000000000..305de91578
 +	.name	= "syslog",
 +	.emit	= log_syslog_emit,
 +};
+diff --git a/doc/README.log b/doc/README.log
+index 19856d43da..1057981f45 100644
+--- a/doc/README.log
++++ b/doc/README.log
+@@ -147,7 +147,10 @@ several possible determinations for logging information, all of which can be
+ enabled or disabled independently:
+ 
+    console - goes to stdout
++   syslog - broadcast RFC 3164 messages to syslog servers on UDP port 514
+ 
++The syslog driver sends the value of environmental variable 'log_hostname' as
++HOSTNAME if available.
+ 
+ Log format
+ ----------
 -- 
 2.20.1
 
