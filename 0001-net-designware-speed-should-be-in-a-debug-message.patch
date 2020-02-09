@@ -1,0 +1,33 @@
+From 0fee3ce815237882d4560e728a477c8cc8ccbc69 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 9 Feb 2020 01:30:57 +0100
+Subject: [PATCH 1/1] net: designware: speed should be in a debug message
+
+The network connection speed is a debug information. So we should use
+debug() and not printf().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/net/designware.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/designware.c b/drivers/net/designware.c
+index 19fc34f771..a89f4bedf1 100644
+--- a/drivers/net/designware.c
++++ b/drivers/net/designware.c
+@@ -255,9 +255,9 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
+ 
+ 	writel(conf, &mac_p->conf);
+ 
+-	printf("Speed: %d, %s duplex%s\n", phydev->speed,
+-	       (phydev->duplex) ? "full" : "half",
+-	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
++	debug("Speed: %d, %s duplex%s\n", phydev->speed,
++	      (phydev->duplex) ? "full" : "half",
++	      (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+ 
+ 	return 0;
+ }
+-- 
+2.20.1
+

@@ -1,17 +1,17 @@
-From 473e518553d053cbec99d01f110fb959c891a96c Mon Sep 17 00:00:00 2001
+From 09b20c4b6cc5342bfb6e182b9c8dd13489cdde15 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Feb 2020 22:27:02 +0100
-Subject: [PATCH 1/1] log: syslog driver
+Subject: [PATCH] log: syslog driver
 
 Provide a log driver that broadcasts log messages to syslog servers.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS         |   2 +-
- common/Kconfig      |   7 ++++
+ common/Kconfig      |   7 +++
  common/Makefile     |   1 +
- common/log_syslog.c | 100 ++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 109 insertions(+), 1 deletion(-)
+ common/log_syslog.c | 102 ++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 111 insertions(+), 1 deletion(-)
  create mode 100644 common/log_syslog.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -59,10 +59,10 @@ index 896e4af91d..bde3f024bd 100644
  obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 diff --git a/common/log_syslog.c b/common/log_syslog.c
 new file mode 100644
-index 0000000000..1e2c6140e5
+index 0000000000..305de91578
 --- /dev/null
 +++ b/common/log_syslog.c
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,102 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Log to syslog
@@ -96,6 +96,7 @@ index 0000000000..1e2c6140e5
 +	char *msg_end = msg + BUFFER_SIZE;
 +	char *ptr = msg;
 +	char *iphdr;
++	char *log_msg;
 +	int eth_hdr_size;
 +	struct in_addr bcast_ip;
 +	static int processing_msg;
@@ -126,6 +127,7 @@ index 0000000000..1e2c6140e5
 +	ptr += eth_hdr_size;
 +	iphdr = ptr;
 +	ptr += IP_UDP_HDR_SIZE;
++	log_msg = ptr;
 +
 +	/* Write log message to buffer */
 +	append(&ptr, msg_end, "<14>uboot: ");
@@ -147,11 +149,11 @@ index 0000000000..1e2c6140e5
 +	/* Consider trailing 0x00 */
 +	ptr++;
 +
-+	debug("log message: '%s'\n", iphdr + IP_UDP_HDR_SIZE);
++	debug("log message: '%s'\n", log_msg);
 +
 +	/* Broadcast message */
 +	bcast_ip.s_addr = 0xFFFFFFFFL;
-+	net_set_udp_header((uchar *)iphdr, bcast_ip, 514, 514, ptr - iphdr);
++	net_set_udp_header((uchar *)iphdr, bcast_ip, 514, 514, ptr - log_msg);
 +	net_send_packet((uchar *)msg, ptr - msg);
 +
 +out:
