@@ -47,10 +47,11 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-drivers-rng-simplify-Kconfig.patch
 git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 
-git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-log-correct-CONFIG_LOG_TEST-prerequisites.patch
 git am ../patch/0001-log-syslog-driver.patch
+git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
+git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
 
 # UEFI
 git am ../patch/0001-efi_loader-fix-efi_install_fdt-description.patch

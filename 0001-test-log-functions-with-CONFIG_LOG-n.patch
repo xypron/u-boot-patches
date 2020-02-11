@@ -1,0 +1,257 @@
+From f979d930f5e5727857d375d754d3fade28d60d42 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 9 Feb 2020 22:59:35 +0100
+Subject: [PATCH 1/1] test: log functions with CONFIG_LOG=n
+
+If CONFIG_LOG=n, we still expect output for log_err(), log_warning(),
+log_notice(), log_info() and in case of DEBUG=1 also for log_debug().
+
+Provide unit tests verifying this.
+
+The tests depend on:
+
+	CONFIG_CONSOLE_RECORD=y
+	CONFIG_LOG=n
+
+It may be necessary to increase the value of CONFIG_SYS_MALLOC_F_LEN to
+accommodate CONFIG_CONSOLE_RECORD=y.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS           |   2 +-
+ include/test/suites.h |   1 +
+ test/Makefile         |   2 +-
+ test/cmd_ut.c         |   6 ++
+ test/log/Makefile     |   4 ++
+ test/log/nolog_test.c | 147 ++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 160 insertions(+), 2 deletions(-)
+ create mode 100644 test/log/nolog_test.c
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d630176e33..ee80460fd7 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -632,7 +632,7 @@ S:	Maintained
+ T:	git https://gitlab.denx.de/u-boot/u-boot.git
+ F:	common/log*
+ F:	cmd/log.c
+-F:	test/log/log_test.c
++F:	test/log/
+ F:	test/py/tests/test_log.py
+ 
+ MALI DISPLAY PROCESSORS
+diff --git a/include/test/suites.h b/include/test/suites.h
+index 0748185eaf..39ad81a90f 100644
+--- a/include/test/suites.h
++++ b/include/test/suites.h
+@@ -30,6 +30,7 @@ int do_ut_compression(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
+ int do_ut_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_env(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_lib(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
++int do_ut_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_optee(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+ int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+diff --git a/test/Makefile b/test/Makefile
+index 2fe41f489c..2971d0d87f 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -10,5 +10,5 @@ obj-$(CONFIG_SANDBOX) += compression.o
+ obj-$(CONFIG_SANDBOX) += print_ut.o
+ obj-$(CONFIG_UT_TIME) += time_ut.o
+ obj-$(CONFIG_UT_UNICODE) += unicode_ut.o
+-obj-$(CONFIG_$(SPL_)LOG) += log/
++obj-y += log/
+ obj-$(CONFIG_UNIT_TEST) += lib/
+diff --git a/test/cmd_ut.c b/test/cmd_ut.c
+index a3a9d49f7e..9b0d5e3e03 100644
+--- a/test/cmd_ut.c
++++ b/test/cmd_ut.c
+@@ -60,6 +60,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
+ #ifdef CONFIG_UT_LIB
+ 	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
+ #endif
++#if !defined(CONFIG_LOG) && defined(CONFIG_CONSOLE_RECORD)
++	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
++#endif
+ #ifdef CONFIG_UT_TIME
+ 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+ #endif
+@@ -122,6 +125,9 @@ static char ut_help_text[] =
+ #ifdef CONFIG_UT_ENV
+ 	"ut env [test-name]\n"
+ #endif
++#if !defined(CONFIG_LOG) && defined(CONFIG_CONSOLE_RECORD)
++	"ut log [test-name] - test logging functions\n"
++#endif
+ #ifdef CONFIG_UT_LIB
+ 	"ut lib [test-name] - test library functions\n"
+ #endif
+diff --git a/test/log/Makefile b/test/log/Makefile
+index e0d0a4745f..ef82144759 100644
+--- a/test/log/Makefile
++++ b/test/log/Makefile
+@@ -3,3 +3,7 @@
+ # Copyright (c) 2017 Google, Inc
+ 
+ obj-$(CONFIG_LOG_TEST) += log_test.o
++
++ifndef CONFIG_LOG
++obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
++endif
+diff --git a/test/log/nolog_test.c b/test/log/nolog_test.c
+new file mode 100644
+index 0000000000..a1c8afafb1
+--- /dev/null
++++ b/test/log/nolog_test.c
+@@ -0,0 +1,147 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Logging function tests for CONFIG_LOG=n.
++ */
++
++/* Needed for testing log_debug() */
++#define DEBUG 1
++
++#include <common.h>
++#include <console.h>
++#include <test/test.h>
++#include <test/suites.h>
++#include <test/ut.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++/* Linker list entry for a Unicode test */
++#define NOLOG_TEST(_name) UNIT_TEST(_name, 0, nolog_test)
++
++#define BUFFSIZE 32
++
++static int nolog_test_log_err(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_err("testing %s\n", "log_err");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing log_err\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_err);
++
++static int nolog_test_log_warning(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_warning("testing %s\n", "log_warning");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing log_warning\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_warning);
++
++static int nolog_test_log_notice(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_notice("testing %s\n", "log_notice");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing log_notice\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_notice);
++
++static int nolog_test_log_info(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_err("testing %s\n", "log_info");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing log_info\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_info);
++
++#undef _DEBUG
++#define _DEBUG 0
++static int nolog_test_nodebug(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	debug("testing %s\n", "debug");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, ""));
++	return 0;
++}
++NOLOG_TEST(nolog_test_nodebug);
++
++static int nolog_test_log_nodebug(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_debug("testing %s\n", "log_debug");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, ""));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_nodebug);
++
++#undef _DEBUG
++#define _DEBUG 1
++static int nolog_test_debug(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	debug("testing %s\n", "debug");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing debug\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_debug);
++
++static int nolog_test_log_debug(struct unit_test_state *uts)
++{
++	char buf[BUFFSIZE];
++
++	memset(buf, 0, BUFFSIZE);
++	console_record_reset_enable();
++	log_debug("testing %s\n", "log_debug");
++	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assert(!strcmp(buf, "testing log_debug\n"));
++	return 0;
++}
++NOLOG_TEST(nolog_test_log_debug);
++
++int do_ut_log(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
++{
++	struct unit_test *tests = ll_entry_start(struct unit_test, nolog_test);
++	const int n_ents = ll_entry_count(struct unit_test, nolog_test);
++
++	return cmd_ut_category("log", "nolog_test_",
++			       tests, n_ents, argc, argv);
++}
+-- 
+2.25.0
+
