@@ -50,6 +50,7 @@ git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-log-correct-CONFIG_LOG_TEST-prerequisites.patch
 git am ../patch/0001-log-syslog-driver.patch
+git am ../patch/0001-common-console.c-discard-volatile.patch
 git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
 git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
 

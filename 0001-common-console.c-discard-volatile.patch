@@ -1,0 +1,99 @@
+From 668b6b53892bc67a9b6a877d882d38a9cd50e87b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 11 Feb 2020 12:47:09 +0100
+Subject: [PATCH 1/1] common/console.c: discard volatile
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Avoid errors of like
+
+common/console.c: In function ‘console_record_reset’:
+common/console.c:615:16: error: passing argument 1 of ‘membuff_purge’
+discards ‘volatile’ qualifier from pointer target type
+[-Werror=discarded-qualifiers]
+  615 |  membuff_purge(&gd->console_out);
+      |                ^~~~~~~~~~~~~~~~
+
+by casting to non-volatile.
+
+The volatile property stems from declarations like
+
+arch/arm/include/asm/global_data.h:114:
+
+But there is no need to treat gd->console_out and gd->console_in as
+volatile in the context of common/console.c.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/console.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/common/console.c b/common/console.c
+index 168ba60d0d..61541cb470 100644
+--- a/common/console.c
++++ b/common/console.c
+@@ -401,7 +401,7 @@ int getc(void)
+ 	if (gd->console_in.start) {
+ 		int ch;
+ 
+-		ch = membuff_getbyte(&gd->console_in);
++		ch = membuff_getbyte((struct membuff *)&gd->console_in);
+ 		if (ch != -1)
+ 			return 1;
+ 	}
+@@ -426,7 +426,7 @@ int tstc(void)
+ 		return 0;
+ #ifdef CONFIG_CONSOLE_RECORD
+ 	if (gd->console_in.start) {
+-		if (membuff_peekbyte(&gd->console_in) != -1)
++		if (membuff_peekbyte((struct membuff *)&gd->console_in) != -1)
+ 			return 1;
+ 	}
+ #endif
+@@ -518,7 +518,7 @@ void putc(const char c)
+ 		return;
+ #ifdef CONFIG_CONSOLE_RECORD
+ 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+-		membuff_putbyte(&gd->console_out, c);
++		membuff_putbyte((struct membuff *)&gd->console_out, c);
+ #endif
+ #ifdef CONFIG_SILENT_CONSOLE
+ 	if (gd->flags & GD_FLG_SILENT) {
+@@ -569,7 +569,7 @@ void puts(const char *s)
+ 		return;
+ #ifdef CONFIG_CONSOLE_RECORD
+ 	if ((gd->flags & GD_FLG_RECORD) && gd->console_out.start)
+-		membuff_put(&gd->console_out, s, strlen(s));
++		membuff_put((struct membuff *)&gd->console_out, s, strlen(s));
+ #endif
+ #ifdef CONFIG_SILENT_CONSOLE
+ 	if (gd->flags & GD_FLG_SILENT) {
+@@ -602,18 +602,20 @@ int console_record_init(void)
+ {
+ 	int ret;
+ 
+-	ret = membuff_new(&gd->console_out, CONFIG_CONSOLE_RECORD_OUT_SIZE);
++	ret = membuff_new((struct membuff *)&gd->console_out,
++			  CONFIG_CONSOLE_RECORD_OUT_SIZE);
+ 	if (ret)
+ 		return ret;
+-	ret = membuff_new(&gd->console_in, CONFIG_CONSOLE_RECORD_IN_SIZE);
++	ret = membuff_new((struct membuff *)&gd->console_in,
++			  CONFIG_CONSOLE_RECORD_IN_SIZE);
+ 
+ 	return ret;
+ }
+ 
+ void console_record_reset(void)
+ {
+-	membuff_purge(&gd->console_out);
+-	membuff_purge(&gd->console_in);
++	membuff_purge((struct membuff *)&gd->console_out);
++	membuff_purge((struct membuff *)&gd->console_in);
+ }
+ 
+ void console_record_reset_enable(void)
+-- 
+2.24.1
+
