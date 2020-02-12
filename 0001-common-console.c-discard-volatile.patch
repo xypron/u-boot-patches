@@ -25,6 +25,7 @@ But there is no need to treat gd->console_out and gd->console_in as
 volatile in the context of common/console.c.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/console.c | 18 ++++++++++--------
  1 file changed, 10 insertions(+), 8 deletions(-)

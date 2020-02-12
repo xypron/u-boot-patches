@@ -12,6 +12,7 @@ occurs for CONFIG_CMD_LOG=y, CONFIG_LOG_TEST=y, CONGIG_UNIT_TEST=n
 Make CONFIG_UNIT_TEST a prerequisite.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
