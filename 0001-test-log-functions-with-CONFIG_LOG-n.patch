@@ -1,7 +1,7 @@
-From 66880485789d65940375e4065b622d6d545d4ba3 Mon Sep 17 00:00:00 2001
+From 640d7a1ebb81d9faa78ecde956f146e8c9939a91 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Feb 2020 22:59:35 +0100
-Subject: [PATCH v2 1/1] test: log functions with CONFIG_LOG=n
+Subject: [PATCH v3 1/1] test: log functions with CONFIG_LOG=n
 
 If CONFIG_LOG=n, we still expect output for log_err(), log_warning(),
 log_notice(), log_info() and in case of DEBUG=1 also for log_debug().
@@ -19,6 +19,8 @@ accommodate CONFIG_CONSOLE_RECORD=y.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v3:
+	correctly consider CONFIG_UT_LOG in test/cmd_ut.c
 v2:
 	use ut_check_console_line()
 	move do_ut_log() to test/log/test-main.c to accomodate further
@@ -118,28 +120,28 @@ index 2fe41f489c..2971d0d87f 100644
 +obj-y += log/
  obj-$(CONFIG_UNIT_TEST) += lib/
 diff --git a/test/cmd_ut.c b/test/cmd_ut.c
-index a3a9d49f7e..9b0d5e3e03 100644
+index a3a9d49f7e..7fdcdbb1a6 100644
 --- a/test/cmd_ut.c
 +++ b/test/cmd_ut.c
 @@ -60,6 +60,9 @@ static cmd_tbl_t cmd_ut_sub[] = {
  #ifdef CONFIG_UT_LIB
  	U_BOOT_CMD_MKENT(lib, CONFIG_SYS_MAXARGS, 1, do_ut_lib, "", ""),
  #endif
-+#if !defined(CONFIG_LOG) && defined(CONFIG_CONSOLE_RECORD)
++#ifdef CONFIG_UT_LOG
 +	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
 +#endif
  #ifdef CONFIG_UT_TIME
  	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
  #endif
-@@ -122,6 +125,9 @@ static char ut_help_text[] =
- #ifdef CONFIG_UT_ENV
- 	"ut env [test-name]\n"
- #endif
-+#if !defined(CONFIG_LOG) && defined(CONFIG_CONSOLE_RECORD)
-+	"ut log [test-name] - test logging functions\n"
-+#endif
+@@ -125,6 +128,9 @@ static char ut_help_text[] =
  #ifdef CONFIG_UT_LIB
  	"ut lib [test-name] - test library functions\n"
+ #endif
++#ifdef CONFIG_UT_LOG
++	"ut log [test-name] - test logging functions\n"
++#endif
+ #ifdef CONFIG_UT_OPTEE
+ 	"ut optee [test-name]\n"
  #endif
 diff --git a/test/log/Makefile b/test/log/Makefile
 index e0d0a4745f..98178f5e2b 100644
