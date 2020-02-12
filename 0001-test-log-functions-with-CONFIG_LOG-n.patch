@@ -1,7 +1,7 @@
-From 993ee09c6a6b2593c794168fdf49c00455c11302 Mon Sep 17 00:00:00 2001
+From 66880485789d65940375e4065b622d6d545d4ba3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 9 Feb 2020 22:59:35 +0100
-Subject: [PATCH 1/1] test: log functions with CONFIG_LOG=n
+Subject: [PATCH v2 1/1] test: log functions with CONFIG_LOG=n
 
 If CONFIG_LOG=n, we still expect output for log_err(), log_warning(),
 log_notice(), log_info() and in case of DEBUG=1 also for log_debug().
@@ -12,21 +12,29 @@ The tests depend on:
 
 	CONFIG_CONSOLE_RECORD=y
 	CONFIG_LOG=n
+	CONFIG_UT_LOG=y
 
 It may be necessary to increase the value of CONFIG_SYS_MALLOC_F_LEN to
 accommodate CONFIG_CONSOLE_RECORD=y.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2:
+	use ut_check_console_line()
+	move do_ut_log() to test/log/test-main.c to accomodate further
+	tests
+	provide CONFIG_UT_LOG configuration option
+---
  MAINTAINERS           |   2 +-
  include/test/log.h    |  16 +++++
  include/test/suites.h |   1 +
+ test/Kconfig          |   9 +++
  test/Makefile         |   2 +-
  test/cmd_ut.c         |   6 ++
- test/log/Makefile     |   5 ++
- test/log/nolog_test.c | 136 ++++++++++++++++++++++++++++++++++++++++++
+ test/log/Makefile     |  10 ++++
+ test/log/nolog_test.c | 135 ++++++++++++++++++++++++++++++++++++++++++
  test/log/test-main.c  |  20 +++++++
- 8 files changed, 186 insertions(+), 2 deletions(-)
+ 9 files changed, 199 insertions(+), 2 deletions(-)
  create mode 100644 include/test/log.h
  create mode 100644 test/log/nolog_test.c
  create mode 100644 test/log/test-main.c
@@ -78,6 +86,26 @@ index 0748185eaf..39ad81a90f 100644
  int do_ut_optee(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  int do_ut_overlay(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  int do_ut_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+diff --git a/test/Kconfig b/test/Kconfig
+index cb51b46721..32e6197dca 100644
+--- a/test/Kconfig
++++ b/test/Kconfig
+@@ -30,6 +30,15 @@ config UT_LIB_ASN1
+ 
+ endif
+ 
++config UT_LOG
++	bool "Unit tests for logging functions"
++	depends on UNIT_TEST
++	default y
++	help
++	  Enables the 'ut log' command which tests logging functions like
++	  log_err().
++	  See also CONFIG_LOG_TEST which provides the 'log test' command.
++
+ config UT_TIME
+ 	bool "Unit tests for time functions"
+ 	depends on UNIT_TEST
 diff --git a/test/Makefile b/test/Makefile
 index 2fe41f489c..2971d0d87f 100644
 --- a/test/Makefile
@@ -114,24 +142,29 @@ index a3a9d49f7e..9b0d5e3e03 100644
  	"ut lib [test-name] - test library functions\n"
  #endif
 diff --git a/test/log/Makefile b/test/log/Makefile
-index e0d0a4745f..96526f5d7c 100644
+index e0d0a4745f..98178f5e2b 100644
 --- a/test/log/Makefile
 +++ b/test/log/Makefile
-@@ -3,3 +3,8 @@
+@@ -3,3 +3,13 @@
  # Copyright (c) 2017 Google, Inc
  
  obj-$(CONFIG_LOG_TEST) += log_test.o
++
++ifdef CONFIG_UT_LOG
++
 +obj-y += test-main.o
 +
 +ifndef CONFIG_LOG
 +obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
 +endif
++
++endif # CONFIG_UT_LOG
 diff --git a/test/log/nolog_test.c b/test/log/nolog_test.c
 new file mode 100644
-index 0000000000..62b649e659
+index 0000000000..050aec15a6
 --- /dev/null
 +++ b/test/log/nolog_test.c
-@@ -0,0 +1,136 @@
+@@ -0,0 +1,135 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -160,9 +193,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_err("testing %s\n", "log_err");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing log_err\n"));
++	ut_assertok(ut_check_console_line(uts, "testing log_err"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_err);
@@ -174,9 +207,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_warning("testing %s\n", "log_warning");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing log_warning\n"));
++	ut_assertok(ut_check_console_line(uts, "testing log_warning"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_warning);
@@ -188,9 +221,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_notice("testing %s\n", "log_notice");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing log_notice\n"));
++	ut_assertok(ut_check_console_line(uts, "testing log_notice"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_notice);
@@ -202,9 +235,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_err("testing %s\n", "log_info");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing log_info\n"));
++	ut_assertok(ut_check_console_line(uts, "testing log_info"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_info);
@@ -218,9 +251,8 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	debug("testing %s\n", "debug");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, ""));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_nodebug);
@@ -232,9 +264,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_debug("testing %s\n", "log_debug");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
 +	ut_assert(!strcmp(buf, ""));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_nodebug);
@@ -248,9 +280,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	debug("testing %s\n", "debug");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing debug\n"));
++	ut_assertok(ut_check_console_line(uts, "testing debug"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_debug);
@@ -262,9 +294,9 @@ index 0000000000..62b649e659
 +	memset(buf, 0, BUFFSIZE);
 +	console_record_reset_enable();
 +	log_debug("testing %s\n", "log_debug");
-+	membuff_get((struct membuff *)&gd->console_out, buf, BUFFSIZE - 1);
 +	gd->flags &= ~GD_FLG_RECORD;
-+	ut_assert(!strcmp(buf, "testing log_debug\n"));
++	ut_assertok(ut_check_console_line(uts, "testing log_debug"));
++	ut_assertok(ut_check_console_end(uts));
 +	return 0;
 +}
 +LOG_TEST(nolog_test_log_debug);
@@ -295,5 +327,5 @@ index 0000000000..6d57f78e2a
 +			       tests, n_ents, argc, argv);
 +}
 -- 
-2.24.1
+2.25.0
 
