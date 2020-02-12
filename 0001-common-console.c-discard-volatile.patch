@@ -1,7 +1,7 @@
-From 668b6b53892bc67a9b6a877d882d38a9cd50e87b Mon Sep 17 00:00:00 2001
+From 3bf19f31e2bcf7d743e7191c9f261727d87cd5d8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 11 Feb 2020 12:47:09 +0100
-Subject: [PATCH 1/1] common/console.c: discard volatile
+Subject: [PATCH v2 1/1] common/console.c: discard volatile
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -24,14 +24,18 @@ arch/arm/include/asm/global_data.h:114:
 But there is no need to treat gd->console_out and gd->console_in as
 volatile in the context of common/console.c.
 
+Fixes: b612312816ff ("console: Add a function to read a line of the output / eof")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- common/console.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+v2:
+	Fix additional errors introduced by b612312816ff.
+---
+ common/console.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
 diff --git a/common/console.c b/common/console.c
-index 168ba60d0d..61541cb470 100644
+index 7681da19a2..e398530a13 100644
 --- a/common/console.c
 +++ b/common/console.c
 @@ -401,7 +401,7 @@ int getc(void)
@@ -95,6 +99,22 @@ index 168ba60d0d..61541cb470 100644
  }
  
  void console_record_reset_enable(void)
+@@ -624,12 +626,13 @@ void console_record_reset_enable(void)
+ 
+ int console_record_readline(char *str, int maxlen)
+ {
+-	return membuff_readline(&gd->console_out, str, maxlen, ' ');
++	return membuff_readline((struct membuff *)&gd->console_out, str,
++				maxlen, ' ');
+ }
+ 
+ int console_record_avail(void)
+ {
+-	return membuff_avail(&gd->console_out);
++	return membuff_avail((struct membuff *)&gd->console_out);
+ }
+ 
+ #endif
 -- 
-2.24.1
+2.25.0
 
