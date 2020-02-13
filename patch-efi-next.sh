@@ -53,6 +53,7 @@ git am ../patch/0001-log-syslog-driver.patch
 git am ../patch/0001-common-console.c-discard-volatile.patch
 git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
 git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
+git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 
 # UEFI
 git am ../patch/0001-efi_loader-fix-efi_install_fdt-description.patch
