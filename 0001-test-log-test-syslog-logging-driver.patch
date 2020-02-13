@@ -1,32 +1,35 @@
-From 160d9e992966069473533d993fe1fd1842e65c93 Mon Sep 17 00:00:00 2001
+From d766919e29a1916886bdd5cb4c9f4d5fdc976708 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 13 Feb 2020 02:38:10 +0100
-Subject: [PATCH] test: log: test syslog logging driver
+Subject: [PATCH 1/1] test: log: test syslog logging driver
 
 Provide unit tests for the syslog logging driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/log/Makefile      |   1 +
+ test/log/Makefile      |   4 +
  test/log/syslog_test.c | 186 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 187 insertions(+)
+ 2 files changed, 190 insertions(+)
  create mode 100644 test/log/syslog_test.c
 
 diff --git a/test/log/Makefile b/test/log/Makefile
-index 98178f5e2b..f45040ee89 100644
+index 98178f5e2b..4c92550f6e 100644
 --- a/test/log/Makefile
 +++ b/test/log/Makefile
-@@ -7,6 +7,7 @@ obj-$(CONFIG_LOG_TEST) += log_test.o
- ifdef CONFIG_UT_LOG
+@@ -8,6 +8,10 @@ ifdef CONFIG_UT_LOG
  
  obj-y += test-main.o
-+obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
  
++ifdef CONFIG_SANDBOX
++obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
++endif
++
  ifndef CONFIG_LOG
  obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
+ endif
 diff --git a/test/log/syslog_test.c b/test/log/syslog_test.c
 new file mode 100644
-index 0000000000..9bf5e2810c
+index 0000000000..7f3321f680
 --- /dev/null
 +++ b/test/log/syslog_test.c
 @@ -0,0 +1,186 @@
