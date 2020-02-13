@@ -1,7 +1,7 @@
-From 2caddfa62b1544e9989fd3e73a62dac8c269a7b6 Mon Sep 17 00:00:00 2001
+From 160d9e992966069473533d993fe1fd1842e65c93 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 13 Feb 2020 02:38:10 +0100
-Subject: [PATCH 1/1] test: log: test syslog logging driver
+Subject: [PATCH] test: log: test syslog logging driver
 
 Provide unit tests for the syslog logging driver.
 
@@ -26,7 +26,7 @@ index 98178f5e2b..f45040ee89 100644
  obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
 diff --git a/test/log/syslog_test.c b/test/log/syslog_test.c
 new file mode 100644
-index 0000000000..a015bbd9ae
+index 0000000000..9bf5e2810c
 --- /dev/null
 +++ b/test/log/syslog_test.c
 @@ -0,0 +1,186 @@
@@ -76,7 +76,7 @@ index 0000000000..a015bbd9ae
 +	ut_asserteq(ntohs(ip_udp_hdr->udp_dst), 514);
 +	ut_asserteq(UDP_HDR_SIZE + strlen(expected) + 1,
 +		    ntohs(ip_udp_hdr->udp_len));
-+	
++
 +	/* Check payload */
 +	buf += sizeof(struct ip_udp_hdr);
 +	ut_asserteq_mem(expected, buf,
