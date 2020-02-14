@@ -312,7 +312,7 @@ index 0000000000..6d57f78e2a
 +/*
 + * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
-+ * Logging function tests for CONFIG_LOG=n.
++ * Logging function tests.
 + */
 +
 +#include <common.h>
