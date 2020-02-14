@@ -67,15 +67,15 @@ index 0000000000..0b3a3ce51a
 + * Tests for logging functions
 + */
 +
-+#ifndef __TEST_ENV_H__
-+#define __TEST_ENV_H__
++#ifndef __TEST_LOG_H__
++#define __TEST_LOG_H__
 +
 +#include <test/test.h>
 +
 +/* Declare a new logging test */
 +#define LOG_TEST(_name) UNIT_TEST(_name, 0, log_test)
 +
-+#endif /* __TEST_ENV_H__ */
++#endif /* __TEST_LOG_H__ */
 diff --git a/include/test/suites.h b/include/test/suites.h
 index 0748185eaf..39ad81a90f 100644
 --- a/include/test/suites.h
