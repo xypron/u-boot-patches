@@ -56,6 +56,9 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
 git am ../patch/0001-efi_loader-fix-efi_install_fdt-description.patch
+git am ../patch/0001-efi_loader-EFI_RNG_PROTOCOL.patch
+exit
+
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit
 
