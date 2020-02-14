@@ -17,12 +17,10 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
-git am ../patch/0001-pci-definition-of-pci_addr_t-and-pci_size_t.patch
 git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-watchdog-cannot-select-CONFIG_CONFIG_MPC8xx_WATCHDOG.patch
-git am ../patch/0001-doc-board-add-Rockchip-to-doc-board-index.rst.patch
 
 # make htmldocs
 git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
@@ -51,7 +49,6 @@ git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-log-correct-CONFIG_LOG_TEST-prerequisites.patch
 git am ../patch/0001-log-syslog-driver.patch
-git am ../patch/0001-common-console.c-discard-volatile.patch
 git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
 git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
 git am ../patch/0001-test-log-test-syslog-logging-driver.patch
