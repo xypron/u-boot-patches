@@ -62,6 +62,9 @@ exit
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit
 
+git am ../patch/0001-test-efi-UEFI-unit-tests.patch
+exit
+
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
 git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
