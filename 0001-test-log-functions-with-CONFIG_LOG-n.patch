@@ -169,7 +169,7 @@ index 0000000000..050aec15a6
 @@ -0,0 +1,135 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
 + * Logging function tests for CONFIG_LOG=n.
 + */
@@ -310,7 +310,7 @@ index 0000000000..6d57f78e2a
 @@ -0,0 +1,20 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
 + * Logging function tests for CONFIG_LOG=n.
 + */
