@@ -76,7 +76,7 @@ index 0000000000..cd8ab09abd
 +/*
 + * Log to syslog.
 + *
-+ * Copyright (c) 2019, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + */
 +
 +#include <common.h>
@@ -154,7 +154,7 @@ index 0000000000..cd8ab09abd
 +	log_hostname = env_get("log_hostname");
 +	if (log_hostname)
 +		append(&ptr, msg_end, "%s ", log_hostname);
-+	append(&ptr, msg_end, "uboot[1]: ");
++	append(&ptr, msg_end, "uboot: ");
 +	if (fmt & (1 << LOGF_LEVEL))
 +		append(&ptr, msg_end, "%s.",
 +		       log_get_level_name(rec->level));
