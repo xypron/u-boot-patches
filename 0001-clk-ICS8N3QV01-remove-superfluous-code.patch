@@ -1,0 +1,30 @@
+From 2e792af833b91b1d69434763e3f55bc14388590c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Feb 2020 21:24:56 +0100
+Subject: [PATCH 1/1] clk: ICS8N3QV01 remove superfluous code
+
+Do not calculate a unused value of n which is overwritten in both branches
+of the subsequent if statement.
+
+Identified by cppcheck.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/clk/ics8n3qv01.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/clk/ics8n3qv01.c b/drivers/clk/ics8n3qv01.c
+index e85ab1f9a0..984379bb12 100644
+--- a/drivers/clk/ics8n3qv01.c
++++ b/drivers/clk/ics8n3qv01.c
+@@ -81,7 +81,6 @@ static int ics8n3qv01_calc_parameters(uint fout, uint *_mint, uint *_mfrac,
+ 	uint n, foutiic, fvcoiic, mint;
+ 	u64 mfrac;
+ 
+-	n = (2215000000U + fout / 2) / fout;
+ 	if (fout < 417000000U)
+ 		n = 2 * ((2215000000U / 2 + fout / 2) / fout);
+ 	else
+-- 
+2.25.0
+
