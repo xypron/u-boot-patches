@@ -7,6 +7,7 @@ If CONFIG_LOG=n, we should still output errors, warnings, notices, infos,
 and for DEBUG=1 also debug messages.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  include/log.h | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
