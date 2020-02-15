@@ -1,0 +1,36 @@
+From f20ed5578190948fccd0782cd441e4bdbbb0ca0d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Feb 2020 21:34:44 +0100
+Subject: [PATCH 1/1] dm: core: remove redundant if statement
+
+The value of parent is not changed in the first if statement. So we can
+merge the two if statements depending on parent.
+
+Indicated by cppcheck.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/core/device.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/core/device.c b/drivers/core/device.c
+index 89ea820d48..534cfa7314 100644
+--- a/drivers/core/device.c
++++ b/drivers/core/device.c
+@@ -143,11 +143,9 @@ static int device_bind_common(struct udevice *parent, const struct driver *drv,
+ 				goto fail_alloc3;
+ 			}
+ 		}
+-	}
+-
+-	/* put dev into parent's successor list */
+-	if (parent)
++		/* put dev into parent's successor list */
+ 		list_add_tail(&dev->sibling_node, &parent->child_head);
++	}
+ 
+ 	ret = uclass_bind_device(dev);
+ 	if (ret)
+-- 
+2.25.0
+
