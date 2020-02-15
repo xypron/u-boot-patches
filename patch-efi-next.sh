@@ -21,6 +21,7 @@ git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-watchdog-cannot-select-CONFIG_CONFIG_MPC8xx_WATCHDOG.patch
+git am ../patch/0001-clk-meson-g12a-missing-break.patch
 
 # make htmldocs
 git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
