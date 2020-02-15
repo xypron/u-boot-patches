@@ -1,0 +1,32 @@
+From 792bdce43e06c3676f021d64da135ac31432c72c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Feb 2020 21:41:40 +0100
+Subject: [PATCH 1/1] dm: core: remove redundant assignment
+
+Variable count is initialized at the start of every round of the while
+loop and it is not used after the while loop. So there is no need to
+initialize it beforehand.
+
+Identified by cppcheck.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/core/of_access.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/core/of_access.c b/drivers/core/of_access.c
+index acd745c121..29e705e0b6 100644
+--- a/drivers/core/of_access.c
++++ b/drivers/core/of_access.c
+@@ -577,7 +577,7 @@ static int __of_parse_phandle_with_args(const struct device_node *np,
+ {
+ 	const __be32 *list, *list_end;
+ 	int rc = 0, cur_index = 0;
+-	uint32_t count = 0;
++	uint32_t count;
+ 	struct device_node *node = NULL;
+ 	phandle phandle;
+ 	int size;
+-- 
+2.25.0
+
