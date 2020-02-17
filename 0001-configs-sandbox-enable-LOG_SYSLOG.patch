@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] configs: sandbox: enable LOG_SYSLOG
 For testing purposes enable the syslog logging driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  configs/sandbox64_defconfig        | 1 +
  configs/sandbox_defconfig          | 1 +

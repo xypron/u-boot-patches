@@ -14,6 +14,7 @@ field for the messages. The optional TIMESTAMP field of RFC 3164 is not
 provided.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  MAINTAINERS         |   2 +-
  common/Kconfig      |   7 +++

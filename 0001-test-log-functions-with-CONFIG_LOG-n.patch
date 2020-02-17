@@ -18,6 +18,7 @@ It may be necessary to increase the value of CONFIG_SYS_MALLOC_F_LEN to
 accommodate CONFIG_CONSOLE_RECORD=y.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
 v3:
 	correctly consider CONFIG_UT_LOG in test/cmd_ut.c
