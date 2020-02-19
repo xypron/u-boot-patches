@@ -26,6 +26,7 @@ git am ../patch/0001-x86-remove-dead-code-in-intel_clk_get_rate.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
+git am ../patch/0001-efi_loader-implement-EFI_RT_PROPERTIES_TABLE.patch
 
 # make htmldocs
 git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
