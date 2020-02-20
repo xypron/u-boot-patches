@@ -9,6 +9,7 @@ EFI_RT_PROPERTIES_TABLE. So let's follow suit.
 
 Cc: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Tested-by: Ard Biesheuvel <ardb@kernel.org>
 ---
  cmd/efidebug.c               |  4 ++++
  include/efi_api.h            | 12 ++++++++++++
