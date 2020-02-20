@@ -60,8 +60,6 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
-git am ../patch/0001-efi_loader-fix-efi_install_fdt-description.patch
-git am ../patch/0001-efi_loader-EFI_RNG_PROTOCOL.patch
 git am ../patch/0001-efi_loader-implement-EFI_RT_PROPERTIES_TABLE.patch
 git am ../patch/0001-efi_loader-Implement-FileLoad2-for-initramfs-loading.patch
 git am ../patch/0001-efi_selftest-add-selftests-for-loadfile2-used-to-loa.patch
