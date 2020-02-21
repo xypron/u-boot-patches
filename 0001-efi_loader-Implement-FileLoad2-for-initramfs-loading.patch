@@ -1,7 +1,7 @@
-From 546e8b6c8baecbe0f41e58c56b7dc355a6c8db00 Mon Sep 17 00:00:00 2001
+From f5f2f50bc3db6062327601421ffc32b24f920377 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Fri, 7 Feb 2020 14:26:32 +0200
-Subject: [PATCH 1/2] efi_loader: Implement FileLoad2 for initramfs loading
+Date: Fri, 21 Feb 2020 09:55:45 +0200
+Subject: [PATCH 1/1] efi_loader: Implement FileLoad2 for initramfs loading
 
 Following kernel's proposal for an arch-agnostic initrd loading
 mechanism [1] let's implement the U-boot counterpart.
@@ -138,12 +138,12 @@ index d4c59b54c4..8e34379833 100644
  /**
   * efi_acpi_register() - write out ACPI tables
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index a7afa3f29e..50d4f81e62 100644
+index 76f43eca95..9890144d41 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -130,4 +130,19 @@ config EFI_RNG_PROTOCOL
- 	  "Support for EFI_RNG_PROTOCOL implementation. Uses the rng
- 	   device on the platform"
+ 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
+ 	  number generator of the platform.
  
 +config EFI_LOAD_FILE2_INITRD
 +	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
