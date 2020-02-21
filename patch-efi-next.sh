@@ -32,6 +32,7 @@ git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
 git am ../patch/0001-travis-build-HTML-docs.patch
 git am ../patch/0001-gitlab-build-HTML-documentation.patch
 git am ../patch/0001-azure-build-HTML-documentation.patch
+git am ../patch/0001-doc-update-doc-sphinx-kerneldoc.py.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
