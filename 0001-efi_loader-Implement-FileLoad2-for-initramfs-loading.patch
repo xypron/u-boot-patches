@@ -1,4 +1,4 @@
-From f5f2f50bc3db6062327601421ffc32b24f920377 Mon Sep 17 00:00:00 2001
+From 368344d178b35fd64c3dc5378a71b6040d822ce3 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Fri, 21 Feb 2020 09:55:45 +0200
 Subject: [PATCH 1/1] efi_loader: Implement FileLoad2 for initramfs loading
@@ -38,25 +38,25 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_load_initrd.c
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 576e95b395..f450518c9e 100644
+index 510e258b12..21dfd44fcc 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
-@@ -264,6 +264,10 @@ static const struct {
- 		"SMBIOS table",
- 		SMBIOS_TABLE_GUID,
+@@ -243,6 +243,10 @@ static const struct {
+ 		"HII Config Routing",
+ 		EFI_HII_CONFIG_ROUTING_PROTOCOL_GUID,
  	},
 +	{
 +		"Load File2",
 +		EFI_LOAD_FILE2_PROTOCOL_GUID,
 +	},
- };
- 
- /**
+ 	{
+ 		"Simple Network",
+ 		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 22396172e1..8ffed1334b 100644
+index b7b68cb7a1..3d1a6beeea 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -319,6 +319,14 @@ struct efi_runtime_services {
+@@ -331,6 +331,14 @@ struct efi_runtime_services {
  	EFI_GUID(0xeb9d2d31, 0x2d88, 0x11d3,  \
  		 0x9a, 0x16, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
  
@@ -71,7 +71,7 @@ index 22396172e1..8ffed1334b 100644
  struct efi_configuration_table {
  	efi_guid_t guid;
  	void *table;
-@@ -474,6 +482,7 @@ struct efi_device_path_nvme {
+@@ -486,6 +494,7 @@ struct efi_device_path_nvme {
  #define DEVICE_PATH_TYPE_MEDIA_DEVICE		0x04
  #  define DEVICE_PATH_SUB_TYPE_HARD_DRIVE_PATH	0x01
  #  define DEVICE_PATH_SUB_TYPE_CDROM_PATH	0x02
@@ -79,7 +79,7 @@ index 22396172e1..8ffed1334b 100644
  #  define DEVICE_PATH_SUB_TYPE_FILE_PATH	0x04
  
  struct efi_device_path_hard_drive_path {
-@@ -1607,6 +1616,14 @@ struct efi_unicode_collation_protocol {
+@@ -1619,6 +1628,14 @@ struct efi_unicode_collation_protocol {
  	char *supported_languages;
  };
  
@@ -375,7 +375,7 @@ index 0000000000..574a83d7e3
 +	return ret;
 +}
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index de7b616c6d..f03685b115 100644
+index 2060307b05..b458093dfb 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
 @@ -155,6 +155,11 @@ efi_status_t efi_init_obj_list(void)
