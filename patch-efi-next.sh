@@ -26,6 +26,7 @@ git am ../patch/0001-x86-remove-dead-code-in-intel_clk_get_rate.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
+git am ../patch/0001-MAINTAINERS-set-maintainer-for-doc-api-efi.rst.patch
 
 # make htmldocs
 git am ../patch/0001-doc-update-doc-sphinx-kerneldoc.py.patch
@@ -65,6 +66,7 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 git am ../patch/0001-efi_loader-implement-EFI_RT_PROPERTIES_TABLE.patch
 git am ../patch/0001-efi_loader-Implement-FileLoad2-for-initramfs-loading.patch
 git am ../patch/0001-efi_selftest-add-selftests-for-loadfile2-used-to-loa.patch
+git am ../patch/0001-doc-efi-add-load-file-2-protocol-to-HTML-documentati.patch
 exit
 
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
