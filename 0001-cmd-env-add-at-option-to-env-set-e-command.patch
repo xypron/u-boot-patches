@@ -1,0 +1,70 @@
+From c6d78b87fcafdcf3d13046dd28671202cb162338 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 28 Jan 2020 17:25:26 +0900
+Subject: [PATCH 1/1] cmd: env: add "-at" option to "env set -e" command
+
+With "-at" option, EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS
+will be passed to SetVariable() to authenticate the variable.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit.c     | 5 +++--
+ cmd/nvedit_efi.c | 5 ++++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/cmd/nvedit.c b/cmd/nvedit.c
+index 81d94cd193..966c134059 100644
+--- a/cmd/nvedit.c
++++ b/cmd/nvedit.c
+@@ -1417,7 +1417,7 @@ static char env_help_text[] =
+ #endif
+ #endif
+ #if defined(CONFIG_CMD_NVEDIT_EFI)
+-	"env set -e [-nv][-bs][-rt][-a][-i addr,size][-v] name [arg ...]\n"
++	"env set -e [-nv][-bs][-rt][-at][-a][-i addr,size][-v] name [arg ...]\n"
+ 	"    - set UEFI variable; unset if '-i' or 'arg' not specified\n"
+ #endif
+ 	"env set [-f] name [arg ...]\n";
+@@ -1479,13 +1479,14 @@ U_BOOT_CMD_COMPLETE(
+ 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
+ 	"set environment variables",
+ #if defined(CONFIG_CMD_NVEDIT_EFI)
+-	"-e [-guid guid][-nv][-bs][-rt][-a][-v]\n"
++	"-e [-guid guid][-nv][-bs][-rt][-at][-a][-v]\n"
+ 	"        [-i addr,size name], or [name [value ...]]\n"
+ 	"    - set UEFI variable 'name' to 'value' ...'\n"
+ 	"      \"-guid\": set vendor guid\n"
+ 	"      \"-nv\": set non-volatile attribute\n"
+ 	"      \"-bs\": set boot-service attribute\n"
+ 	"      \"-rt\": set runtime attribute\n"
++	"      \"-at\": set time-based authentication attribute\n"
+ 	"      \"-a\": append-write\n"
+ 	"      \"-i addr,size\": use <addr,size> as variable's value\n"
+ 	"      \"-v\": verbose message\n"
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index 579cf43059..837e39e021 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -458,7 +458,7 @@ out:
+  * Return:	CMD_RET_SUCCESS on success, or CMD_RET_RET_FAILURE
+  *
+  * This function is for "env set -e" or "setenv -e" command:
+- *   => env set -e [-guid guid][-nv][-bs][-rt][-a][-v]
++ *   => env set -e [-guid guid][-nv][-bs][-rt][-at][-a][-v]
+  *		   [-i address,size] var, or
+  *                 var [value ...]
+  * Encode values specified and set given UEFI variable.
+@@ -517,6 +517,9 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 			attributes |= EFI_VARIABLE_RUNTIME_ACCESS;
+ 		} else if (!strcmp(argv[0], "-nv")) {
+ 			attributes |= EFI_VARIABLE_NON_VOLATILE;
++		} else if (!strcmp(argv[0], "-at")) {
++			attributes |=
++			  EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS;
+ 		} else if (!strcmp(argv[0], "-a")) {
+ 			attributes |= EFI_VARIABLE_APPEND_WRITE;
+ 		} else if (!strcmp(argv[0], "-i")) {
+-- 
+2.25.0
+
