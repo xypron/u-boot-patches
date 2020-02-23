@@ -73,6 +73,7 @@ exit
 git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
 git am ../patch/0001-efi_loader-add-signature-database-parser.patch
 git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
+git am ../patch/0001-efi_loader-variable-support-variable-authentication.patch
 
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit
