@@ -84,6 +84,7 @@ git am ../patch/0001-cmd-efidebug-add-test-bootmgr-sub-command.patch
 git am ../patch/0001-efi_loader-pytest-set-up-secure-boot-environment.patch
 git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-authent.patch
 git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-image.patch
+git am ../patch/0001-sandbox-add-extra-configurations-for-UEFI-and-relate.patch
 exit
 
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch

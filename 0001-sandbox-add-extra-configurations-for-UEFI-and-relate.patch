@@ -1,0 +1,75 @@
+From 5ed9620832062ac7c1ff8d2d54e5a55b00c62209 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 28 Jan 2020 17:25:31 +0900
+Subject: [PATCH 1/1] sandbox: add extra configurations for UEFI and related
+ tests
+
+Adding those extra configurations allows us to successfully run UEFI
+secure boot pytest on Travis CI.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/sandbox64_defconfig | 3 +++
+ configs/sandbox_defconfig   | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/configs/sandbox64_defconfig b/configs/sandbox64_defconfig
+index e96982402b..58c2c1e4db 100644
+--- a/configs/sandbox64_defconfig
++++ b/configs/sandbox64_defconfig
+@@ -27,6 +27,7 @@ CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_GREPENV=y
+ CONFIG_CMD_ENV_CALLBACK=y
+ CONFIG_CMD_ENV_FLAGS=y
++CONFIG_CMD_NVEDIT_EFI=y
+ CONFIG_LOOPW=y
+ CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMINFO=y
+@@ -53,6 +54,7 @@ CONFIG_CMD_DNS=y
+ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_ETHSW=y
+ CONFIG_CMD_BMP=y
++CONFIG_CMD_EFIDEBUG=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_TIMER=y
+ CONFIG_CMD_SOUND=y
+@@ -204,6 +206,7 @@ CONFIG_RSA_VERIFY_WITH_PKEY=y
+ CONFIG_TPM=y
+ CONFIG_LZ4=y
+ CONFIG_ERRNO_STR=y
++CONFIG_EFI_SECURE_BOOT=y
+ CONFIG_TEST_FDTDEC=y
+ CONFIG_UNIT_TEST=y
+ CONFIG_UT_TIME=y
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index 4e001fc650..c4c2261c94 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -31,6 +31,7 @@ CONFIG_CMD_ASKENV=y
+ CONFIG_CMD_GREPENV=y
+ CONFIG_CMD_ENV_CALLBACK=y
+ CONFIG_CMD_ENV_FLAGS=y
++CONFIG_CMD_NVEDIT_EFI=y
+ CONFIG_LOOPW=y
+ CONFIG_CMD_MD5SUM=y
+ CONFIG_CMD_MEMINFO=y
+@@ -62,6 +63,7 @@ CONFIG_CMD_LINK_LOCAL=y
+ CONFIG_CMD_ETHSW=y
+ CONFIG_CMD_BMP=y
+ CONFIG_CMD_BOOTCOUNT=y
++CONFIG_CMD_EFIDEBUG=y
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_TIMER=y
+ CONFIG_CMD_SOUND=y
+@@ -230,6 +232,7 @@ CONFIG_RSA_VERIFY_WITH_PKEY=y
+ CONFIG_TPM=y
+ CONFIG_LZ4=y
+ CONFIG_ERRNO_STR=y
++CONFIG_EFI_SECURE_BOOT=y
+ CONFIG_TEST_FDTDEC=y
+ CONFIG_UNIT_TEST=y
+ CONFIG_UT_TIME=y
+-- 
+2.25.0
+
