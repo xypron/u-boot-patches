@@ -80,6 +80,7 @@ git am ../patch/0001-efi_loader-set-up-secure-boot.patch
 git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
 git am ../patch/0001-cmd-env-use-appropriate-guid-for-authenticated-UEFI-.patch
 git am ../patch/0001-cmd-env-add-at-option-to-env-set-e-command.patch
+git am ../patch/0001-cmd-efidebug-add-test-bootmgr-sub-command.patch
 exit
 
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
