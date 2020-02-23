@@ -72,11 +72,13 @@ exit
 # UEFI secure boot
 git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
 git am ../patch/0001-efi_loader-add-signature-database-parser.patch
-git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
 git am ../patch/0001-efi_loader-variable-support-variable-authentication.patch
 git am ../patch/0001-efi_loader-variable-add-secure-boot-state-transition.patch
 git am ../patch/0001-efi_loader-variable-add-VendorKeys-variable.patch
 git am ../patch/0001-efi_loader-image_loader-support-image-authentication.patch
+git am ../patch/0001-efi_loader-set-up-secure-boot.patch
+git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
+exit
 
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit

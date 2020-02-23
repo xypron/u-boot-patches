@@ -1,0 +1,74 @@
+From 2f881be68858976a5eb59cdbe19888818bdbb58c Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 28 Jan 2020 17:25:24 +0900
+Subject: [PATCH 1/1] efi_loader: set up secure boot
+
+The following variable is exported as UEFI specification defines:
+SignatureSupport: array of GUIDs representing the type of signatures
+                      supported by the platform firmware
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_setup.c | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index b458093dfb..1b648c8467 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -82,6 +82,39 @@ out:
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_EFI_SECURE_BOOT
++/**
++ * efi_init_secure_boot - initialize secure boot state
++ *
++ * Return:	EFI_SUCCESS on success, status code (negative) on error
++ */
++static efi_status_t efi_init_secure_boot(void)
++{
++	efi_guid_t signature_types[] = {
++		EFI_CERT_SHA256_GUID,
++		EFI_CERT_X509_GUID,
++	};
++	efi_status_t ret;
++
++	/* TODO: read-only */
++	ret = EFI_CALL(efi_set_variable(L"SignatureSupport",
++					&efi_global_variable_guid,
++					EFI_VARIABLE_BOOTSERVICE_ACCESS
++					 | EFI_VARIABLE_RUNTIME_ACCESS,
++					sizeof(signature_types),
++					&signature_types));
++	if (ret != EFI_SUCCESS)
++		printf("EFI: cannot initialize SignatureSupport variable\n");
++
++	return ret;
++}
++#else
++static efi_status_t efi_init_secure_boot(void)
++{
++	return EFI_SUCCESS;
++}
++#endif /* CONFIG_EFI_SECURE_BOOT */
++
+ /**
+  * efi_init_obj_list() - Initialize and populate EFI object list
+  *
+@@ -127,6 +160,11 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
++	/* Secure boot */
++	ret = efi_init_secure_boot();
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ 	/* Indicate supported runtime services */
+ 	ret = efi_init_runtime_supported();
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.25.0
+
