@@ -69,6 +69,11 @@ git am ../patch/0001-efi_selftest-add-selftests-for-loadfile2-used-to-loa.patch
 git am ../patch/0001-doc-efi-add-load-file-2-protocol-to-HTML-documentati.patch
 exit
 
+# UEFI secure boot
+git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
+git am ../patch/0001-efi_loader-add-signature-database-parser.patch
+git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
+
 git am ../patch/0001-efi_loader-architecture-specific-UEFI-setup.patch
 exit
 
