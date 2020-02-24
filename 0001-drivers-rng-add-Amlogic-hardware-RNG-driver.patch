@@ -1,4 +1,4 @@
-From 28f8a71440fa9d6a17d6d9a24f41b15df22e20ea Mon Sep 17 00:00:00 2001
+From daa33550eadec2fac2eb47ca52372f1c974a882c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Feb 2020 19:52:04 +0100
 Subject: [PATCH 1/1] drivers/rng: add Amlogic hardware RNG driver
@@ -7,9 +7,9 @@ Add support for the hardware random number generator of Amlogic SOCs.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/rng/Kconfig     |  8 ++++++
- drivers/rng/meson-rng.c | 62 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 70 insertions(+)
+ drivers/rng/Kconfig     |  8 ++++
+ drivers/rng/meson-rng.c | 83 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 91 insertions(+)
  create mode 100644 drivers/rng/meson-rng.c
 
 diff --git a/drivers/rng/Kconfig b/drivers/rng/Kconfig
@@ -33,10 +33,10 @@ index c1aa43b823..edb6152bb9 100644
  	depends on SANDBOX
 diff --git a/drivers/rng/meson-rng.c b/drivers/rng/meson-rng.c
 new file mode 100644
-index 0000000000..0331db4497
+index 0000000000..aa17be0b18
 --- /dev/null
 +++ b/drivers/rng/meson-rng.c
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,83 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -46,7 +46,10 @@ index 0000000000..0331db4497
 +#include <asm/io.h>
 +
 +struct meson_rng_platdata {
++	fdt_addr_t base;
++	struct clk *core_clk;
 +};
++
 +
 +static int meson_rng_read(struct udevice *dev, void *data, size_t len)
 +{
@@ -65,6 +68,10 @@ index 0000000000..0331db4497
 +
 +static int meson_rng_probe(struct udevice *dev)
 +{
++	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
++
++	printf("%s(%d) %s:\n", __FILE__, __LINE__, __func__);
++
 +	return 0;
 +}
 +
@@ -75,6 +82,20 @@ index 0000000000..0331db4497
 +
 +static int meson_rng_ofdata_to_platdata(struct udevice *dev)
 +{
++	struct meson_rng_platdata *pdata = dev_get_platdata(dev);
++
++	printf("%s(%d) %s:\n", __FILE__, __LINE__, __func__);
++
++	pdata->base = dev_read_addr(dev);
++	if (!pdata->base)
++		return -ENOMEM;
++	printf("%s(%d) %s:\n", __FILE__, __LINE__, __func__);
++
++	pdata->clk = devm_clk_get(dev, "core");
++	if (!IS_ERR(clk))
++		return PTR_ERR(clk);
++	printf("%s(%d) %s: we go a clock\n", __FILE__, __LINE__, __func__);
++
 +	return 0;
 +}
 +
@@ -100,5 +121,5 @@ index 0000000000..0331db4497
 +	.ofdata_to_platdata = meson_rng_ofdata_to_platdata,
 +};
 -- 
-2.24.1
+2.25.0
 

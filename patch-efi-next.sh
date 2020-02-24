@@ -27,6 +27,7 @@ git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
 git am ../patch/0001-MAINTAINERS-set-maintainer-for-doc-api-efi.rst.patch
+git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
 
 # make htmldocs
 git am ../patch/0001-doc-update-doc-sphinx-kerneldoc.py.patch
