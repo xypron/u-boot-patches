@@ -1,0 +1,28 @@
+From e2a279149553d64a755a7573537b8628960e88b2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 25 Feb 2020 13:04:03 +0100
+Subject: [PATCH 1/1] drivers/rng: enable DM_RNG by default on ARCH_MESON
+
+All boards with ARCH_MESON provide a random number generator. So select
+DM_RNG by default.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rng/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/rng/Kconfig b/drivers/rng/Kconfig
+index edb6152bb9..e1fcba21f9 100644
+--- a/drivers/rng/Kconfig
++++ b/drivers/rng/Kconfig
+@@ -1,6 +1,7 @@
+ config DM_RNG
+ 	bool "Driver support for Random Number Generator devices"
+ 	depends on DM
++	default y if ARCH_MESON
+ 	help
+ 	  Enable driver model for random number generator(rng) devices.
+ 	  This interface is used to initialise the rng device and to
+-- 
+2.25.0
+
