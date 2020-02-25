@@ -30,6 +30,7 @@ git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
 git am ../patch/0001-scripts-add-documentation-file-ref-check.patch
 git am ../patch/0001-doc-fix-references-to-driver-model.patch
 git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
+git am ../patch/0001-include-ata.h-remove-invalid-links.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch

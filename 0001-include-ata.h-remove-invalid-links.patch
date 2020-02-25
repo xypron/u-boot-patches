@@ -1,0 +1,31 @@
+From f69599387de8efe56a42269e9a96f278896a5e50 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 25 Feb 2020 22:02:27 +0100
+Subject: [PATCH 1/1] include/ata.h: remove invalid links
+
+Remove invalid URLs for "Information Technology - AT Attachment-3 Interface
+(ATA-3)".
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/ata.h | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/include/ata.h b/include/ata.h
+index 3f4e4a0234..aecb9cd589 100644
+--- a/include/ata.h
++++ b/include/ata.h
+@@ -7,10 +7,6 @@
+ /*
+  * Most of the following information was derived from the document
+  * "Information Technology - AT Attachment-3 Interface (ATA-3)"
+- * which can be found at:
+- * http://www.dt.wdc.com/ata/ata-3/ata3r5v.zip
+- * ftp://poctok.iae.nsk.su/pub/asm/Documents/IDE/ATA3R5V.ZIP
+- * ftp://ftp.fee.vutbr.cz/pub/doc/io/ata/ata-3/ata3r5v.zip
+  */
+ 
+ #ifndef	_ATA_H
+-- 
+2.25.0
+
