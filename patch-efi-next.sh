@@ -29,13 +29,6 @@ git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
 git am ../patch/0001-MAINTAINERS-set-maintainer-for-doc-api-efi.rst.patch
 git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
 
-# make htmldocs
-git am ../patch/0001-doc-update-doc-sphinx-kerneldoc.py.patch
-git am ../patch/0001-travis-build-HTML-docs.patch
-git am ../patch/0001-gitlab-build-HTML-documentation.patch
-git am ../patch/0001-azure-build-HTML-documentation.patch
-git am ../patch/0001-doc-Makefile-turn-warnings-into-errors.patch
-
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
 
