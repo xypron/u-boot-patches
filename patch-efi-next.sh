@@ -46,7 +46,8 @@ git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 # RNG
 git am ../patch/0001-drivers-rng-simplify-Kconfig.patch
 git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
-git am ../patch/0001-drivers-rng-enable-DM_RNG-by-default-on-ARCH_MESON.patch
+git am ../patch/0001-drivers-rng-enable-DM_RNG-for-ARCH_MESON-ARCH_STM32M.patch
+git am ../patch/0001-efi_loader-enable-EFI_RNG_PROTOCOL-by-default.patch
 
 # Logging
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch

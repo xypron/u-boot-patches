@@ -1,0 +1,27 @@
+From 44f0f42e0dd1340737465784c311dc932db01ca2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 25 Feb 2020 18:38:34 +0100
+Subject: [PATCH 1/1] efi_loader: enable EFI_RNG_PROTOCOL by default
+
+If DM_RNG is available, we should also enable the EFI_RNG_PROTOCOL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 76f43eca95..1196e95a30 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -125,6 +125,7 @@ config EFI_GRUB_ARM32_WORKAROUND
+ 
+ config EFI_RNG_PROTOCOL
+ 	bool "EFI_RNG_PROTOCOL support"
++	default y
+ 	depends on DM_RNG
+ 	help
+ 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
+-- 
+2.25.0
+
