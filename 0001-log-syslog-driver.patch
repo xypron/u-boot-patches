@@ -1,4 +1,4 @@
-From 141733c9079799c91292edf85cfac889718262f2 Mon Sep 17 00:00:00 2001
+From be440ce0f3ab66bedd43bcaf779742b8f311fdb3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 8 Feb 2020 22:27:02 +0100
 Subject: [PATCH 1/1] log: syslog driver
@@ -15,6 +15,7 @@ provided.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS         |   2 +-
  common/Kconfig      |   7 +++
@@ -25,10 +26,10 @@ Reviewed-by: Simon Glass <sjg@chromium.org>
  create mode 100644 common/log_syslog.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 82e4159bec..d630176e33 100644
+index 1842569f24..c1ff620c4a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -630,7 +630,7 @@ LOGGING
+@@ -631,7 +631,7 @@ LOGGING
  M:	Simon Glass <sjg@chromium.org>
  S:	Maintained
  T:	git https://gitlab.denx.de/u-boot/u-boot.git
@@ -38,10 +39,10 @@ index 82e4159bec..d630176e33 100644
  F:	test/log/log_test.c
  F:	test/py/tests/test_log.py
 diff --git a/common/Kconfig b/common/Kconfig
-index 31e975ca71..5ad23ce2c4 100644
+index cedd353e89..af0a009a8e 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -773,6 +773,13 @@ config TPL_LOG_CONSOLE
+@@ -774,6 +774,13 @@ config TPL_LOG_CONSOLE
  	  log message is shown - other details like level, category, file and
  	  line number are omitted.
  
@@ -56,20 +57,20 @@ index 31e975ca71..5ad23ce2c4 100644
  	bool "Provide a test for logging"
  	depends on LOG && UNIT_TEST
 diff --git a/common/Makefile b/common/Makefile
-index 896e4af91d..bde3f024bd 100644
+index 896e4af91d..dd54118091 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -131,6 +131,7 @@ obj-$(CONFIG_DFU_OVER_USB) += dfu.o
  obj-y += command.o
  obj-$(CONFIG_$(SPL_TPL_)LOG) += log.o
  obj-$(CONFIG_$(SPL_TPL_)LOG_CONSOLE) += log_console.o
-+obj-$(CONFIG_LOG_SYSLOG) += log_syslog.o
++obj-$(CONFIG_$(SPL_TPL_)LOG_SYSLOG) += log_syslog.o
  obj-y += s_record.o
  obj-$(CONFIG_CMD_LOADB) += xyzModem.o
  obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
 diff --git a/common/log_syslog.c b/common/log_syslog.c
 new file mode 100644
-index 0000000000..cd8ab09abd
+index 0000000000..5e3e20e8a4
 --- /dev/null
 +++ b/common/log_syslog.c
 @@ -0,0 +1,117 @@
@@ -206,5 +207,5 @@ index 19856d43da..1057981f45 100644
  Log format
  ----------
 -- 
-2.20.1
+2.25.0
 
