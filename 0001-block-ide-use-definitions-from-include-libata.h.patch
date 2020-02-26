@@ -1,0 +1,57 @@
+From e57e6a51b8aa91e41b9d16180d829edc1a10f486 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 26 Feb 2020 08:16:01 +0100
+Subject: [PATCH 1/1] block: ide: use definitions from include/libata.h
+
+Currently ATA commands are defined both in include/libata.h and
+include/ata.h. Use the command definitions from include/libata.h where
+applicable.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/block/ide.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/block/ide.c b/drivers/block/ide.c
+index 4b8a4eac17..67cc4fbc02 100644
+--- a/drivers/block/ide.c
++++ b/drivers/block/ide.c
+@@ -231,7 +231,7 @@ unsigned char atapi_issue(int device, unsigned char *ccb, int ccblen,
+ 		 (unsigned char) ((buflen >> 8) & 0xFF));
+ 	ide_outb(device, ATA_DEV_HD, ATA_LBA | ATA_DEVICE(device));
+ 
+-	ide_outb(device, ATA_COMMAND, ATAPI_CMD_PACKET);
++	ide_outb(device, ATA_COMMAND, ATA_CMD_PACKET);
+ 	udelay(50);
+ 
+ 	mask = ATA_STAT_DRQ | ATA_STAT_BUSY | ATA_STAT_ERR;
+@@ -570,7 +570,7 @@ static void ide_ident(struct blk_desc *dev_desc)
+ 			/*
+ 			 * Start Ident Command
+ 			 */
+-			ide_outb(device, ATA_COMMAND, ATAPI_CMD_IDENT);
++			ide_outb(device, ATA_COMMAND, ATA_CMD_ID_ATAPI);
+ 			/*
+ 			 * Wait for completion - ATAPI devices need more time
+ 			 * to become ready
+@@ -582,7 +582,7 @@ static void ide_ident(struct blk_desc *dev_desc)
+ 			/*
+ 			 * Start Ident Command
+ 			 */
+-			ide_outb(device, ATA_COMMAND, ATA_CMD_IDENT);
++			ide_outb(device, ATA_COMMAND, ATA_CMD_ID_ATA);
+ 
+ 			/*
+ 			 * Wait for completion
+@@ -966,7 +966,7 @@ ulong ide_read(struct blk_desc *block_dev, lbaint_t blknr, lbaint_t blkcnt,
+ 
+ 	/* first check if the drive is in Powersaving mode, if yes,
+ 	 * increase the timeout value */
+-	ide_outb(device, ATA_COMMAND, ATA_CMD_CHK_PWR);
++	ide_outb(device, ATA_COMMAND, ATA_CMD_CHK_POWER);
+ 	udelay(50);
+ 
+ 	c = ide_wait(device, IDE_TIME_OUT);	/* can't take over 500 ms */
+-- 
+2.25.0
+
