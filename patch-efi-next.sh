@@ -31,6 +31,7 @@ git am ../patch/0001-scripts-add-documentation-file-ref-check.patch
 git am ../patch/0001-doc-fix-references-to-driver-model.patch
 git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
 git am ../patch/0001-include-ata.h-remove-invalid-links.patch
+git am ../patch/0001-cmd-fat-remove-unused-includes.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch

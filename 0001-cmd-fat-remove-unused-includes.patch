@@ -1,0 +1,33 @@
+From 18ca2b95341dae5b91508d3bb3fc71e0006126d5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 26 Feb 2020 07:21:50 +0100
+Subject: [PATCH 1/1] cmd: fat: remove unused includes
+
+Remove unused includes from cmd/fat.c.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/fat.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/cmd/fat.c b/cmd/fat.c
+index 50df127f6d..abce2f1e0c 100644
+--- a/cmd/fat.c
++++ b/cmd/fat.c
+@@ -8,13 +8,7 @@
+  * Boot support
+  */
+ #include <common.h>
+-#include <command.h>
+-#include <s_record.h>
+-#include <net.h>
+-#include <ata.h>
+-#include <asm/io.h>
+ #include <mapmem.h>
+-#include <part.h>
+ #include <fat.h>
+ #include <fs.h>
+ 
+-- 
+2.25.0
+
