@@ -1,0 +1,28 @@
+From cdfd84688f0a3fdfd7abf10cc5d9c372f7b62475 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 26 Feb 2020 20:08:44 +0100
+Subject: [PATCH 1/1] doc: driver-model: there is no UCLASS_ETHERNET
+
+%s/UCLASS_ETHERNET/UCLASS_ETH/g
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/driver-model/design.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/driver-model/design.rst b/doc/driver-model/design.rst
+index 5247ecc276..e37b51bf43 100644
+--- a/doc/driver-model/design.rst
++++ b/doc/driver-model/design.rst
+@@ -579,7 +579,7 @@ a USB bus with several devices attached to it, each from a different (made
+ up) uclass::
+ 
+    xhci_usb (UCLASS_USB)
+-      eth (UCLASS_ETHERNET)
++      eth (UCLASS_ETH)
+       camera (UCLASS_CAMERA)
+       flash (UCLASS_FLASH_STORAGE)
+ 
+-- 
+2.25.0
+
