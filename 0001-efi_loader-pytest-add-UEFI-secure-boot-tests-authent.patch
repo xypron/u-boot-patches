@@ -1,13 +1,12 @@
-From 92761f82780efb5d5ffaa90adf42bc788be677da Mon Sep 17 00:00:00 2001
+From 728e7671185ca9d4b79e8dd23ad6c4a49bbb37e6 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:29 +0900
+Date: Wed, 26 Feb 2020 13:54:45 +0900
 Subject: [PATCH 1/1] efi_loader, pytest: add UEFI secure boot tests
  (authenticated variables)
 
 Provide a couple of test cases for variable authentication.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  .../py/tests/test_efi_secboot/test_authvar.py | 282 ++++++++++++++++++
  1 file changed, 282 insertions(+)

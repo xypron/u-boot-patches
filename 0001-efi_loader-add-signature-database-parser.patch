@@ -1,6 +1,6 @@
-From 78d3c53269c33bea1926b7b02ea5781903f8aa58 Mon Sep 17 00:00:00 2001
+From 781e89fcd5056f8f5039b4850c3855d74c722784 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:19 +0900
+Date: Wed, 26 Feb 2020 13:54:35 +0900
 Subject: [PATCH 1/1] efi_loader: add signature database parser
 
 efi_signature_parse_sigdb() is a helper function will be used to parse
@@ -15,10 +15,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 229 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 3d00a87f2f..e645711c28 100644
+index 5c8481e279..34f7b8eec8 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -736,6 +736,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
+@@ -735,6 +735,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
  efi_status_t efi_image_region_add(struct efi_image_regions *regs,
  				  const void *start, const void *end,
  				  int nocheck);

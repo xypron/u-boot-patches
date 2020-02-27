@@ -1,6 +1,6 @@
-From fcce4a379bb804cba8b37ad2b9e1928aff1fb154 Mon Sep 17 00:00:00 2001
+From eb46048e6d21b035e536f0c5450836bda089dba3 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:28 +0900
+Date: Wed, 26 Feb 2020 13:54:44 +0900
 Subject: [PATCH 1/1] efi_loader, pytest: set up secure boot environment
 
 A fixture for UEFI secure boot tests (image authentication and variable
@@ -11,7 +11,6 @@ This test requires efitools v1.5.2 or later. If the system's efitools
 is older, you have to build it on your own and define EFITOOLS_PATH.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/README.md                          |   8 ++
  test/py/tests/test_efi_secboot/conftest.py | 151 +++++++++++++++++++++

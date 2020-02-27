@@ -1,6 +1,6 @@
-From d4b2563b7e4c6c18b3fa7cd117606558643bc066 Mon Sep 17 00:00:00 2001
+From 83b28475ac27fb251fa0a3d673533286f5fcb8ab Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:23 +0900
+Date: Wed, 26 Feb 2020 13:54:39 +0900
 Subject: [PATCH 1/1] efi_loader: image_loader: support image authentication
 
 With this commit, image validation can be enforced, as UEFI specification
@@ -23,15 +23,14 @@ in a bit ambiguous way. I tried to implement it as closely to as
 EDK2 does.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h              |  13 +-
  lib/efi_loader/efi_boottime.c     |  10 +-
- lib/efi_loader/efi_image_loader.c | 460 +++++++++++++++++++++++++++++-
- 3 files changed, 467 insertions(+), 16 deletions(-)
+ lib/efi_loader/efi_image_loader.c | 459 +++++++++++++++++++++++++++++-
+ 3 files changed, 466 insertions(+), 16 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 1f07bf4b9e..36e94583bd 100644
+index f461c61958..0e15470d9c 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -11,6 +11,7 @@
@@ -62,7 +61,7 @@ index 1f07bf4b9e..36e94583bd 100644
  };
  
  /**
-@@ -415,7 +422,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
+@@ -414,7 +421,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
  /* Called from places to check whether a timer expired */
  void efi_timer_check(void);
  /* PE loader implementation */
@@ -72,7 +71,7 @@ index 1f07bf4b9e..36e94583bd 100644
  			 struct efi_loaded_image *loaded_image_info);
  /* Called once to store the pristine gd pointer */
  void efi_save_gd(void);
-@@ -742,6 +750,9 @@ void efi_sigstore_free(struct efi_signature_store *sigstore);
+@@ -741,6 +749,9 @@ void efi_sigstore_free(struct efi_signature_store *sigstore);
  struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
  
  bool efi_secure_boot_enabled(void);
@@ -119,7 +118,7 @@ index 1f598b357a..cc8cc4cb54 100644
  					 &info, NULL, NULL,
  					 EFI_OPEN_PROTOCOL_GET_PROTOCOL));
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index d5de6df16d..f6ddddb44c 100644
+index d5de6df16d..f9c389e2fb 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -10,7 +10,10 @@
@@ -133,7 +132,7 @@ index d5de6df16d..f6ddddb44c 100644
  
  const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
  const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
-@@ -206,6 +209,367 @@ static void efi_set_code_and_data_type(
+@@ -206,6 +209,383 @@ static void efi_set_code_and_data_type(
  	}
  }
  
@@ -146,7 +145,7 @@ index d5de6df16d..f6ddddb44c 100644
 + * Compare two sections in PE image.
 + *
 + * Return:	-1, 0, 1 respectively if arg1 < arg2, arg1 == arg2 or
-+		arg1 > arg2
++ *		arg1 > arg2
 + */
 +static int cmp_pe_section(const void *arg1, const void *arg2)
 +{
@@ -164,7 +163,7 @@ index d5de6df16d..f6ddddb44c 100644
 + * efi_image_parse - parse a PE image
 + * @efi:	Pointer to image
 + * @len:	Size of @efi
-+ * @regs:	Pointer to a list of regions
++ * @regp:	Pointer to a list of regions
 + * @auth:	Pointer to a pointer to authentication data in PE
 + * @auth_len:	Size of @auth
 + *
@@ -267,7 +266,7 @@ index d5de6df16d..f6ddddb44c 100644
 +	 */
 +	for (i = 0; i < num_sections; i++)
 +		sorted[i] = &sections[i];
-+	qsort(sorted, num_sections, sizeof(&sections[0]), cmp_pe_section);
++	qsort(sorted, num_sections, sizeof(sorted[0]), cmp_pe_section);
 +
 +	for (i = 0; i < num_sections; i++) {
 +		if (!sorted[i]->SizeOfRawData)
@@ -377,7 +376,7 @@ index d5de6df16d..f6ddddb44c 100644
 +/**
 + * efi_image_authenticate - verify a signature of signed image
 + * @efi:	Pointer to image
-+ * @len:	Size of @efi
++ * @efi_size:	Size of @efi
 + *
 + * A signed image should have its signature stored in a table of its PE header.
 + * So if an image is signed and only if if its signature is verified using
@@ -395,7 +394,7 @@ index d5de6df16d..f6ddddb44c 100644
 + *
 + * Return:	true if authenticated, false if not
 + */
-+static bool efi_image_authenticate(void *efi, size_t len)
++static bool efi_image_authenticate(void *efi, size_t efi_size)
 +{
 +	struct efi_image_regions *regs = NULL;
 +	WIN_CERTIFICATE *wincerts = NULL, *wincert;
@@ -403,23 +402,38 @@ index d5de6df16d..f6ddddb44c 100644
 +	struct pkcs7_message *msg = NULL;
 +	struct efi_signature_store *db = NULL, *dbx = NULL;
 +	struct x509_certificate *cert = NULL;
++	void *new_efi = NULL;
++	size_t new_efi_size;
 +	bool ret = false;
 +
 +	if (!efi_secure_boot_enabled())
 +		return true;
 +
-+	if (!efi_image_parse(efi, len, &regs, &wincerts,
++	/*
++	 * Size must be 8-byte aligned and the trailing bytes must be
++	 * zero'ed. Otherwise hash value may be incorrect.
++	 */
++	if (efi_size & 0x7) {
++		new_efi_size = (efi_size + 0x7) & ~0x7ULL;
++		new_efi = calloc(new_efi_size, 1);
++		if (!new_efi)
++			return false;
++		memcpy(new_efi, efi, efi_size);
++		efi = new_efi;
++		efi_size = new_efi_size;
++	}
++
++	if (!efi_image_parse(efi, efi_size, &regs, &wincerts,
 +			     &wincerts_len)) {
 +		debug("Parsing PE executable image failed\n");
-+		return false;
++		goto err;
 +	}
 +
 +	if (!wincerts) {
 +		/* The image is not signed */
 +		ret = efi_image_unsigned_authenticate(regs);
-+		free(regs);
 +
-+		return ret;
++		goto err;
 +	}
 +
 +	/*
@@ -488,11 +502,12 @@ index d5de6df16d..f6ddddb44c 100644
 +	efi_sigstore_free(dbx);
 +	pkcs7_free_message(msg);
 +	free(regs);
++	free(new_efi);
 +
 +	return ret;
 +}
 +#else
-+static bool efi_image_authenticate(void *efi, size_t len)
++static bool efi_image_authenticate(void *efi, size_t efi_size)
 +{
 +	return true;
 +}
@@ -501,7 +516,11 @@ index d5de6df16d..f6ddddb44c 100644
  /**
   * efi_load_pe() - relocate EFI binary
   *
-@@ -217,7 +581,8 @@ static void efi_set_code_and_data_type(
+@@ -214,10 +594,12 @@ static void efi_set_code_and_data_type(
+  *
+  * @handle:		loaded image handle
+  * @efi:		pointer to the EFI binary
++ * @efi_size:		size of @efi binary
   * @loaded_image_info:	loaded image protocol
   * Return:		status code
   */
@@ -511,27 +530,11 @@ index d5de6df16d..f6ddddb44c 100644
  			 struct efi_loaded_image *loaded_image_info)
  {
  	IMAGE_NT_HEADERS32 *nt;
-@@ -232,17 +597,57 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -232,17 +614,41 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	uint64_t image_base;
  	unsigned long virt_size = 0;
  	int supported = 0;
-+	void *new_efi = NULL;
-+	size_t new_efi_size;
 +	efi_status_t ret;
-+
-+	/*
-+	 * Size must be 8-byte aligned and the trailing bytes must be
-+	 * zero'ed. Otherwise hash value may be incorrect.
-+	 */
-+	if (efi_size & 0x7) {
-+		new_efi_size = (efi_size + 0x7) & ~0x7ULL;
-+		new_efi = calloc(new_efi_size, 1);
-+		if (!new_efi)
-+			return EFI_OUT_OF_RESOURCES;
-+		memcpy(new_efi, efi, efi_size);
-+		efi = new_efi;
-+		efi_size = new_efi_size;
-+	}
 +
 +	/* Sanity check for a file header */
 +	if (efi_size < sizeof(*dos)) {
@@ -571,7 +574,7 @@ index d5de6df16d..f6ddddb44c 100644
  	}
  
  	for (i = 0; machines[i]; i++)
-@@ -254,14 +659,29 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -254,14 +660,29 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	if (!supported) {
  		printf("%s: Machine type 0x%04x is not supported\n",
  		       __func__, nt->FileHeader.Machine);
@@ -603,7 +606,7 @@ index d5de6df16d..f6ddddb44c 100644
  	for (i = num_sections - 1; i >= 0; i--) {
  		IMAGE_SECTION_HEADER *sec = &sections[i];
  		virt_size = max_t(unsigned long, virt_size,
-@@ -280,7 +700,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -280,7 +701,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  		if (!efi_reloc) {
  			printf("%s: Could not allocate %lu bytes\n",
  			       __func__, virt_size);
@@ -613,7 +616,7 @@ index d5de6df16d..f6ddddb44c 100644
  		}
  		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
  		rel_size = opt->DataDirectory[rel_idx].Size;
-@@ -296,7 +717,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -296,7 +718,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  		if (!efi_reloc) {
  			printf("%s: Could not allocate %lu bytes\n",
  			       __func__, virt_size);
@@ -623,7 +626,7 @@ index d5de6df16d..f6ddddb44c 100644
  		}
  		handle->entry = efi_reloc + opt->AddressOfEntryPoint;
  		rel_size = opt->DataDirectory[rel_idx].Size;
-@@ -305,13 +727,16 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -305,13 +728,16 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	} else {
  		printf("%s: Invalid optional header magic %x\n", __func__,
  		       nt->OptionalHeader.Magic);
@@ -644,7 +647,7 @@ index d5de6df16d..f6ddddb44c 100644
  
  	/* Load sections into RAM */
  	for (i = num_sections - 1; i >= 0; i--) {
-@@ -328,7 +753,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -328,7 +754,8 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  				(unsigned long)image_base) != EFI_SUCCESS) {
  		efi_free_pages((uintptr_t) efi_reloc,
  			       (virt_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT);
@@ -654,7 +657,7 @@ index d5de6df16d..f6ddddb44c 100644
  	}
  
  	/* Flush cache */
-@@ -340,5 +766,13 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
+@@ -340,5 +767,11 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle, void *efi,
  	loaded_image_info->image_base = efi_reloc;
  	loaded_image_info->image_size = virt_size;
  
@@ -665,8 +668,6 @@ index d5de6df16d..f6ddddb44c 100644
 +		return EFI_SECURITY_VIOLATION;
 +
 +err:
-+	free(new_efi);
-+
 +	return ret;
  }
 -- 

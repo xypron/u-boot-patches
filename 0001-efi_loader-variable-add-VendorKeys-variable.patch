@@ -1,6 +1,6 @@
-From db3d667e2c58e4243bf72c8bd94fef347f043849 Mon Sep 17 00:00:00 2001
+From 74ea325a896b58e8ae57fa269b2fb94d7d113a97 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:22 +0900
+Date: Wed, 26 Feb 2020 13:54:38 +0900
 Subject: [PATCH 1/1] efi_loader: variable: add VendorKeys variable
 
 The following variable is exported as UEFI specification defines:
@@ -10,13 +10,12 @@ The value will have to be modified if a platform has its own way of
 initializing signature database, in particular, PK.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_variable.c | 69 ++++++++++++++++++++++++++++++++---
  1 file changed, 63 insertions(+), 6 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 17ea7d382d..05d8f2ad81 100644
+index bf0ee486e4..3b6089e81b 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -26,6 +26,7 @@ enum efi_secure_mode {
@@ -27,7 +26,7 @@ index 17ea7d382d..05d8f2ad81 100644
  
  #define READ_ONLY BIT(31)
  
-@@ -343,6 +344,8 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+@@ -344,6 +345,8 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
  		return EFI_INVALID_PARAMETER;
  	}
  
@@ -36,7 +35,7 @@ index 17ea7d382d..05d8f2ad81 100644
  	return EFI_SUCCESS;
  
  err:
-@@ -358,16 +361,46 @@ err:
+@@ -359,16 +362,46 @@ err:
   */
  static efi_status_t efi_init_secure_state(void)
  {
@@ -88,7 +87,7 @@ index 17ea7d382d..05d8f2ad81 100644
  	return ret;
  }
  
-@@ -1123,6 +1156,8 @@ out:
+@@ -1124,6 +1157,8 @@ out:
  	if (env_set(native_name, val)) {
  		ret = EFI_DEVICE_ERROR;
  	} else {
@@ -97,7 +96,7 @@ index 17ea7d382d..05d8f2ad81 100644
  		if ((u16_strcmp(variable_name, L"PK") == 0 &&
  		     guidcmp(vendor, &efi_global_variable_guid) == 0)) {
  			ret = efi_transfer_secure_state(
-@@ -1130,8 +1165,30 @@ out:
+@@ -1131,8 +1166,30 @@ out:
  						  EFI_MODE_USER));
  			if (ret != EFI_SUCCESS)
  				goto err;

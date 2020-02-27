@@ -1,6 +1,6 @@
-From 52dbb0c4c6aa3fa10ce2957493e02c651517d9b0 Mon Sep 17 00:00:00 2001
+From 94487f7c6d3baa18751188942d64bb5832d07a0e Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:27 +0900
+Date: Wed, 26 Feb 2020 13:54:43 +0900
 Subject: [PATCH 1/1] cmd: efidebug: add "test bootmgr" sub-command
 
 This sub-command will be used to test image authentication,
@@ -11,16 +11,15 @@ refuses to call efi_start_image() if anything but EFI_SUCCESS
 is returned when loading an image.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/efidebug.c | 78 +++++++++++++++++++++++++++++++++++++++++++++++++-
  1 file changed, 77 insertions(+), 1 deletion(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 21dfd44fcc..ec7ae3e5d1 100644
+index 510e258b12..85daba5b4a 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
-@@ -1084,6 +1084,78 @@ static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
+@@ -1080,6 +1080,78 @@ static int do_efi_boot_opt(cmd_tbl_t *cmdtp, int flag,
  	return cp->cmd(cmdtp, flag, argc, argv);
  }
  
@@ -99,7 +98,7 @@ index 21dfd44fcc..ec7ae3e5d1 100644
  static cmd_tbl_t cmd_efidebug_sub[] = {
  	U_BOOT_CMD_MKENT(boot, CONFIG_SYS_MAXARGS, 1, do_efi_boot_opt, "", ""),
  	U_BOOT_CMD_MKENT(devices, CONFIG_SYS_MAXARGS, 1, do_efi_show_devices,
-@@ -1098,6 +1170,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
+@@ -1094,6 +1166,8 @@ static cmd_tbl_t cmd_efidebug_sub[] = {
  			 "", ""),
  	U_BOOT_CMD_MKENT(tables, CONFIG_SYS_MAXARGS, 1, do_efi_show_tables,
  			 "", ""),
@@ -108,7 +107,7 @@ index 21dfd44fcc..ec7ae3e5d1 100644
  };
  
  /**
-@@ -1167,7 +1241,9 @@ static char efidebug_help_text[] =
+@@ -1163,7 +1237,9 @@ static char efidebug_help_text[] =
  	"efidebug memmap\n"
  	"  - show UEFI memory map\n"
  	"efidebug tables\n"

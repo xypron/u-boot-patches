@@ -1,6 +1,6 @@
-From c089e1abed770cb0c0c0ef733988e5a18868696b Mon Sep 17 00:00:00 2001
+From 8a312e6824e85462cdf8803cf89fcba5d8374fe2 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:30 +0900
+Date: Wed, 26 Feb 2020 13:54:46 +0900
 Subject: [PATCH 1/1] efi_loader, pytest: add UEFI secure boot tests (image)
 
 Provide test cases for
@@ -10,7 +10,6 @@ Provide test cases for
    (test_efi_secboot/test_unsigned.py)
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/test_signed.py | 117 +++++++++++++++++
  .../tests/test_efi_secboot/test_unsigned.py   | 121 ++++++++++++++++++
@@ -20,7 +19,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 
 diff --git a/test/py/tests/test_efi_secboot/test_signed.py b/test/py/tests/test_efi_secboot/test_signed.py
 new file mode 100644
-index 0000000000..ad33da0be0
+index 0000000000..584282b338
 --- /dev/null
 +++ b/test/py/tests/test_efi_secboot/test_signed.py
 @@ -0,0 +1,117 @@
@@ -85,7 +84,7 @@ index 0000000000..ad33da0be0
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 2',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 +
@@ -121,7 +120,7 @@ index 0000000000..ad33da0be0
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 1',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 +
@@ -138,12 +137,12 @@ index 0000000000..ad33da0be0
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 1',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 diff --git a/test/py/tests/test_efi_secboot/test_unsigned.py b/test/py/tests/test_efi_secboot/test_unsigned.py
 new file mode 100644
-index 0000000000..87d1b3d21c
+index 0000000000..22d849afb8
 --- /dev/null
 +++ b/test/py/tests/test_efi_secboot/test_unsigned.py
 @@ -0,0 +1,121 @@
@@ -192,7 +191,7 @@ index 0000000000..87d1b3d21c
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 1',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 +
@@ -246,7 +245,7 @@ index 0000000000..87d1b3d21c
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 1',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 +
@@ -265,7 +264,7 @@ index 0000000000..87d1b3d21c
 +            output = u_boot_console.run_command_list([
 +                'efidebug boot next 1',
 +                'efidebug test bootmgr'])
-+            assert(re.search('efi_start_image\(\) returned: 26',
++            assert(re.search('efi_start_image[(][)] returned: 26',
 +                ''.join(output)))
 +            assert(not re.search('Hello, world!', ''.join(output)))
 -- 
