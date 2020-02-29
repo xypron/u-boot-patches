@@ -20,7 +20,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-watchdog-cannot-select-CONFIG_CONFIG_MPC8xx_WATCHDOG.patch
 git am ../patch/0001-clk-meson-g12a-missing-break.patch
 git am ../patch/0001-x86-remove-dead-code-in-intel_clk_get_rate.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
