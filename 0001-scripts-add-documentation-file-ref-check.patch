@@ -1,12 +1,15 @@
-From e94b46402dcb4dd3994da4b4c8a7e1770d0dacf6 Mon Sep 17 00:00:00 2001
+From 6dd544bfd13911e1a14639fb358a35e91b71a8a0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 25 Feb 2020 20:44:52 +0100
-Subject: [PATCH 1/1] scripts: add documentation-file-ref-check
+Subject: [PATCH v2 1/1] scripts: add documentation-file-ref-check
 
 'make refcheckdocs' requires scripts/documentation-file-ref-check.
 Adopt script from Linux v5.6-rc3.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	our device-tree documentation is at doc/device-tree-bindings/
 ---
  scripts/documentation-file-ref-check | 226 +++++++++++++++++++++++++++
  1 file changed, 226 insertions(+)
@@ -14,7 +17,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 
 diff --git a/scripts/documentation-file-ref-check b/scripts/documentation-file-ref-check
 new file mode 100755
-index 0000000000..9978fc9a91
+index 0000000000..0bfc5feefb
 --- /dev/null
 +++ b/scripts/documentation-file-ref-check
 @@ -0,0 +1,226 @@
@@ -199,11 +202,11 @@ index 0000000000..9978fc9a91
 +		if (!$f) {
 +			my $search = $new;
 +			$search =~ s,^.*/,,;
-+			$f = qx(find doc/devicetree/ -iname "*$search*") if ($search);
++			$f = qx(find doc/device-tree-bindings/ -iname "*$search*") if ($search);
 +			if (!$f) {
 +				# Manufacturer name may have changed
 +				$search =~ s/^.*,//;
-+				$f = qx(find doc/devicetree/ -iname "*$search*") if ($search);
++				$f = qx(find doc/device-tree-bindings/ -iname "*$search*") if ($search);
 +			}
 +		}
 +	}
