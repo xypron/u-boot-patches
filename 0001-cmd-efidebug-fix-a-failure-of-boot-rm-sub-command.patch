@@ -1,0 +1,41 @@
+From d37b6e2881c2544150d6727ece33cfb0090ce7ba Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 28 Feb 2020 09:05:04 +0900
+Subject: [PATCH 1/1] cmd: efidebug: fix a failure of "boot rm" sub-command
+
+There is a wrong usage of utf8_utf16_strncpy() in "boot rm" command, and
+then it will end up with a failure of this command due to a wrong
+value of an interim variable ("var_name16").
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 21dfd44fcc..056ebb1083 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -649,7 +649,7 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
+ 	int id, i;
+ 	char *endp;
+ 	char var_name[9];
+-	u16 var_name16[9];
++	u16 var_name16[9], *p;
+ 	efi_status_t ret;
+ 
+ 	if (argc == 1)
+@@ -662,7 +662,8 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
+ 			return CMD_RET_FAILURE;
+ 
+ 		sprintf(var_name, "Boot%04X", id);
+-		utf8_utf16_strncpy((u16 **)&var_name16, var_name, 9);
++		p = var_name16;
++		utf8_utf16_strncpy(&p, var_name, 9);
+ 
+ 		ret = EFI_CALL(RT->set_variable(var_name16, &guid, 0, 0, NULL));
+ 		if (ret) {
+-- 
+2.25.1
+

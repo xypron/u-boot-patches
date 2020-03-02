@@ -67,6 +67,8 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
+git am ../patch/0001-cmd-efidebug-fix-a-failure-of-boot-rm-sub-command.patch
+git am ../patch/0001-cmd-efidebug-correct-error-message.patch
 exit
 
 # UEFI secure boot
