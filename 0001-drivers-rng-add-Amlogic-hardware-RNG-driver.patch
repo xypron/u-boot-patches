@@ -1,11 +1,15 @@
-From 59d4cd001a0395d890544efbb4a6a5602f4570ad Mon Sep 17 00:00:00 2001
+From c0ee3373366312d9dc3a2b1112320e813fac80ea Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 2 Feb 2020 19:52:04 +0100
-Subject: [PATCH 1/1] drivers/rng: add Amlogic hardware RNG driver
+Subject: [PATCH 2/2] drivers/rng: add Amlogic hardware RNG driver
 
 Add support for the hardware random number generator of Amlogic SOCs.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+---
+Resent
 ---
  drivers/rng/Kconfig     |   8 +++
  drivers/rng/Makefile    |   1 +
@@ -170,5 +174,5 @@ index 0000000000..4b81a62353
 +	.ofdata_to_platdata = meson_rng_ofdata_to_platdata,
 +};
 -- 
-2.20.1
+2.25.1
 
