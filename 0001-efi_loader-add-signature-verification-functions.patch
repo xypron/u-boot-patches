@@ -1,14 +1,13 @@
-From 46243b11a56e9c953cfc279d2b2d362c69a300df Mon Sep 17 00:00:00 2001
+From fb704bf5f05d06523fb5ab6352dba1ebc1249798 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Wed, 26 Feb 2020 13:54:34 +0900
-Subject: [PATCH 1/1] efi_loader: add signature verification functions
+Subject: [PATCH] efi_loader: add signature verification functions
 
 In this commit, implemented are a couple of helper functions which will be
 used to materialize variable authentication as well as image authentication
 in later patches.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h              |  87 +++++
  include/efi_loader.h           |  72 ++++
@@ -18,7 +17,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_signature.c
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index b7b68cb7a1..45c7fcbafc 100644
+index 3d1a6beeea..a577cde22c 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
 @@ -18,6 +18,7 @@
@@ -40,7 +39,7 @@ index b7b68cb7a1..45c7fcbafc 100644
  #define EFI_FDT_GUID \
  	EFI_GUID(0xb1b621d5, 0xf19c, 0x41a5, \
  		 0x83, 0x0b, 0xd9, 0x15, 0x2c, 0x69, 0xaa, 0xe0)
-@@ -1628,4 +1633,86 @@ struct efi_unicode_collation_protocol {
+@@ -1645,4 +1650,86 @@ struct efi_load_file_protocol {
  #define LOAD_OPTION_CATEGORY_BOOT	0x00000000
  #define LOAD_OPTION_CATEGORY_APP	0x00000100
  
@@ -128,7 +127,7 @@ index b7b68cb7a1..45c7fcbafc 100644
 +
  #endif
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index d4c59b54c4..5c8481e279 100644
+index 8e34379833..3d00a87f2f 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -26,6 +26,7 @@ static inline void *guidcpy(void *dst, const void *src)
@@ -151,7 +150,7 @@ index d4c59b54c4..5c8481e279 100644
  
  /* GUID of RNG protocol */
  extern const efi_guid_t efi_guid_rng_protocol;
-@@ -665,6 +671,72 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
+@@ -666,6 +672,72 @@ void efi_deserialize_load_option(struct efi_load_option *lo, u8 *data);
  unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
  efi_status_t efi_bootmgr_load(efi_handle_t *handle);
  
@@ -225,13 +224,13 @@ index d4c59b54c4..5c8481e279 100644
  
  /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 04dc864851..a1c48e76e0 100644
+index 9b3b704473..eff3c25ec3 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -43,3 +43,4 @@ obj-$(CONFIG_NET) += efi_net.o
- obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
+@@ -44,3 +44,4 @@ obj-$(CONFIG_GENERATE_ACPI_TABLE) += efi_acpi.o
  obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
  obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
+ obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_load_initrd.o
 +obj-y += efi_signature.o
 diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
 new file mode 100644
@@ -823,5 +822,5 @@ index 0000000000..23dac94c05
 +}
 +#endif /* CONFIG_EFI_SECURE_BOOT */
 -- 
-2.25.0
+2.25.1
 

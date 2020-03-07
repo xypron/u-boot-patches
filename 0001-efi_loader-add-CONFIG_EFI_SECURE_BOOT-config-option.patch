@@ -1,24 +1,23 @@
-From 807c366e7b45314912062c30f459f35d1a6a14f0 Mon Sep 17 00:00:00 2001
+From facb9e2d3c48dba4ef875b5fe8f593c99faf9c43 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 28 Jan 2020 17:25:17 +0900
-Subject: [PATCH 1/1] efi_loader: add CONFIG_EFI_SECURE_BOOT config option
+Date: Wed, 26 Feb 2020 13:54:33 +0900
+Subject: [PATCH] efi_loader: add CONFIG_EFI_SECURE_BOOT config option
 
 Under this configuration, UEFI secure boot support will be added
 in later patches.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/Kconfig | 18 ++++++++++++++++++
  1 file changed, 18 insertions(+)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 9890144d41..ba5ad87cb8 100644
+index 9890144d41..71a0d003c9 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -130,6 +130,24 @@ config EFI_RNG_PROTOCOL
- 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
- 	  number generator of the platform.
+@@ -145,4 +145,22 @@ config EFI_INITRD_FILESPEC
+ 	help
+ 	  Full path of the initramfs file, e.g. mmc 0:2 initramfs.cpio.gz.
  
 +config EFI_SECURE_BOOT
 +	bool "Enable EFI secure boot support"
@@ -38,9 +37,7 @@ index 9890144d41..ba5ad87cb8 100644
 +	  it is signed with a trusted key. To do that, you need to install,
 +	  at least, PK, KEK and db.
 +
- config EFI_LOAD_FILE2_INITRD
- 	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
- 	default n
+ endif
 -- 
-2.25.0
+2.25.1
 
