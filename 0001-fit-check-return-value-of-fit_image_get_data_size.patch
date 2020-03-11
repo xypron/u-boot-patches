@@ -1,0 +1,48 @@
+From 5d869d46937648602f050fe71b805bd9d5e0c42d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 11 Mar 2020 21:43:02 +0100
+Subject: [PATCH 1/1] fit: check return value of fit_image_get_data_size()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+GCC-10 reports:
+
+In file included from tools/common/image-fit.c:1:
+include/image.h: In function ‘fit_image_get_data_and_size’:
+./tools/../common/image-fit.c:1015:9: warning: ‘len’ may be used
+uninitialized in this function [-Wmaybe-uninitialized]
+ 1015 |   *size = len;
+      |   ~~~~~~^~~~~
+./tools/../common/image-fit.c:996:6: note: ‘len’ was declared here
+  996 |  int len;
+      |      ^~~
+
+Add the missing check of the return value of fit_image_get_data_size().
+
+Fixes: c3c863880479 ("add FIT data-position & data-offset property support")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/image-fit.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/common/image-fit.c b/common/image-fit.c
+index f3bb00c98a..4435bc4f1d 100644
+--- a/common/image-fit.c
++++ b/common/image-fit.c
+@@ -1011,8 +1011,10 @@ int fit_image_get_data_and_size(const void *fit, int noffset,
+ 	if (external_data) {
+ 		debug("External Data\n");
+ 		ret = fit_image_get_data_size(fit, noffset, &len);
+-		*data = fit + offset;
+-		*size = len;
++		if (!ret) {
++			*data = fit + offset;
++			*size = len;
++		}
+ 	} else {
+ 		ret = fit_image_get_data(fit, noffset, data, size);
+ 	}
+-- 
+2.25.1
+
