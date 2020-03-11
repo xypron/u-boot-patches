@@ -1,0 +1,87 @@
+From 7085a17b00e9eb5b7d46bf772daffd48d8bfe6c0 Mon Sep 17 00:00:00 2001
+From: Eugeniu Rosca <erosca@de.adit-jv.com>
+Date: Mon, 17 Feb 2020 11:23:53 +0100
+Subject: [PATCH v2 1/1] image.h: use uint32_t instead of u32 in
+ android_image_get_dtb*
+
+Replace 'u32' by 'uint32_t' in image.h, since the former may lead to
+build failures in U-Boot tooling (see [1]).
+
+Avoid using 'uint', since it is not a fixed-width type [2], potentially
+leading to a dangerous mismatch between the prototypes and definitions
+of the android_image_get_dtb* functions.
+
+This should be the quickest way to overcome the tooling build failure,
+with more future-proof solutions being proposed by Yamada-san in [1].
+
+[1] https://patchwork.ozlabs.org/patch/1238245/
+[2] Excerpt from https://en.cppreference.com/w/cpp/language/types
+ -----------8<------------
+ Type specifier    Width in bits by data model
+                   LP32  ILP32  LLP64  LP64
+ unsigned int      16    32     32     32
+ -----------8<------------
+
+Cc: Tom Rini <trini@konsulko.com>
+Cc: Sam Protsenko <joe.skb7@gmail.com>
+Fixes: 7f2531502c74c0 ("image: android: Add routine to get dtbo params")
+Fixes: c3bfad825a71ea ("image: android: Add functions for handling dtb field")
+Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+
+Change the function parameters in the implementation to match the
+declaration in the header.
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	Change the function parameters in the implementation to match the
+	declaration in the header.
+---
+ common/image-android.c | 6 +++---
+ include/image.h        | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/common/image-android.c b/common/image-android.c
+index 6af9baa121..3c3600b6f9 100644
+--- a/common/image-android.c
++++ b/common/image-android.c
+@@ -216,7 +216,7 @@ int android_image_get_second(const struct andr_img_hdr *hdr,
+  *
+  * Return: true on success or false on error.
+  */
+-bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size)
++bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, uint32_t *size)
+ {
+ 	const struct andr_img_hdr *hdr;
+ 	ulong dtbo_img_addr;
+@@ -317,8 +317,8 @@ exit:
+  *
+  * Return: true on success or false on error.
+  */
+-bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
+-				    u32 *size)
++bool android_image_get_dtb_by_index(ulong hdr_addr, uint32_t index, ulong *addr,
++				    uint32_t *size)
+ {
+ 	const struct andr_img_hdr *hdr;
+ 	bool res;
+diff --git a/include/image.h b/include/image.h
+index b316d167d8..1341fbed62 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -1425,9 +1425,9 @@ int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
+ 			      ulong *rd_data, ulong *rd_len);
+ int android_image_get_second(const struct andr_img_hdr *hdr,
+ 			      ulong *second_data, ulong *second_len);
+-bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, u32 *size);
+-bool android_image_get_dtb_by_index(ulong hdr_addr, u32 index, ulong *addr,
+-				    u32 *size);
++bool android_image_get_dtbo(ulong hdr_addr, ulong *addr, uint32_t *size);
++bool android_image_get_dtb_by_index(ulong hdr_addr, uint32_t index, ulong *addr,
++				    uint32_t *size);
+ ulong android_image_get_end(const struct andr_img_hdr *hdr);
+ ulong android_image_get_kload(const struct andr_img_hdr *hdr);
+ ulong android_image_get_kcomp(const struct andr_img_hdr *hdr);
+-- 
+2.25.1
+
