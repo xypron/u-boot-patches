@@ -1,7 +1,7 @@
-From 5ffc8795ec8f29d3a8c7015b50b633517354f144 Mon Sep 17 00:00:00 2001
+From 7fcec626fe8cf0a020ce9f268fe75fb1bb1cb058 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 26 Feb 2020 19:13:53 +0100
-Subject: [PATCH 1/1] ide: remove duplicate defines form include/ata.h
+Subject: [PATCH] ide: remove duplicate defines from include/ata.h
 
 ATA commands are already defined in include/libata.h. There is no need to
 duplicate them in include/ata.h.
@@ -60,5 +60,5 @@ index 3f4e4a0234..e35d91941d 100644
  #define ATAPI_CMD_REQ_SENSE 0x03
  #define ATAPI_CMD_READ_CAP 0x25
 -- 
-2.25.0
+2.25.1
 
