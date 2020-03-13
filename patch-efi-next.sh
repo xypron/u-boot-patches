@@ -17,11 +17,9 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
-git am ../patch/0001-net-tftp-use-correct-printf-codes.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-meson-g12a-missing-break.patch
-git am ../patch/0001-x86-remove-dead-code-in-intel_clk_get_rate.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
@@ -53,8 +51,6 @@ git am ../patch/0001-ide-remove-duplicate-defines-from-include-ata.h.patch
 git am ../patch/0001-block-ide-use-definitions-from-include-libata.h.patch
 
 # RNG
-git am ../patch/0001-drivers-rng-simplify-Kconfig.patch
-git am ../patch/0001-drivers-rng-add-Amlogic-hardware-RNG-driver.patch
 git am ../patch/0001-drivers-rng-enable-DM_RNG-for-ARCH_MESON-ARCH_STM32M.patch
 git am ../patch/0001-efi_loader-enable-EFI_RNG_PROTOCOL-by-default.patch
 
@@ -68,9 +64,6 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
-git am ../patch/0001-cmd-efidebug-fix-a-failure-of-boot-rm-sub-command.patch
-git am ../patch/0001-cmd-efidebug-correct-error-message.patch
-git am ../patch/0001-efi_loader-unnecessary-assignment-in-efi_queue_event.patch
 exit
 
 # UEFI secure boot
