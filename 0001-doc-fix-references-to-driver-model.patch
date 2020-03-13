@@ -1,13 +1,12 @@
-From 509331025b4707886447c8f3fc8a86f5f9edb6d5 Mon Sep 17 00:00:00 2001
+From a033c6f2b72f5be411059d9885d2289ad6eddc08 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 25 Feb 2020 21:32:53 +0100
-Subject: [PATCH 1/1] doc: fix references to driver-model
+Subject: [PATCH] doc: fix references to driver-model
 
 Fix some errors pointed out by 'make refcheckdocs'.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- doc/README.drivers.eth     | 2 +-
  doc/README.fdt-control     | 2 +-
  drivers/i2c/davinci_i2c.c  | 2 +-
  drivers/i2c/kona_i2c.c     | 2 +-
@@ -15,21 +14,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/i2c/soft_i2c.c     | 2 +-
  tools/dtoc/dtb_platdata.py | 4 ++--
  tools/dtoc/dtoc.py         | 2 +-
- 8 files changed, 9 insertions(+), 9 deletions(-)
+ 7 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/doc/README.drivers.eth b/doc/README.drivers.eth
-index 1a9a23b51b..acaf11fea3 100644
---- a/doc/README.drivers.eth
-+++ b/doc/README.drivers.eth
-@@ -2,7 +2,7 @@
- 
- This guide describes to the old way of doing things. No new Ethernet drivers
- should be implemented this way. All new drivers should be written against the
--U-Boot core driver model. See doc/driver-model/README.txt
-+U-Boot core driver model. See doc/driver-model/index.rst.
- 
- -----------------------
-  Ethernet Driver Guide
 diff --git a/doc/README.fdt-control b/doc/README.fdt-control
 index e53cf51875..424d13fc5b 100644
 --- a/doc/README.fdt-control
@@ -131,5 +117,5 @@ index b3596a5918..f31cba900e 100755
  
  from __future__ import print_function
 -- 
-2.25.0
+2.25.1
 
