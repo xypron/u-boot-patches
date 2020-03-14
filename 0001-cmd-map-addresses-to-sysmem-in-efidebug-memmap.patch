@@ -1,0 +1,45 @@
+From e4426b941832c5cbf9e93b6e57ae840f75e11547 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 14 Mar 2020 08:44:07 +0100
+Subject: [PATCH 1/1] cmd: map addresses to sysmem in efidebug memmap
+
+Addresses in the sandbox's device tree are in the sandbox's virtual address
+space. If we want to compare memory reservations in the device-tree with
+the output of 'efidebug memmap', we need to convert back to this address
+space.
+
+Adjust the output of the 'efidebug memmap' command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 8c3681c37d..bb7c13d6a1 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -12,6 +12,7 @@
+ #include <exports.h>
+ #include <hexdump.h>
+ #include <malloc.h>
++#include <mapmem.h>
+ #include <search.h>
+ #include <linux/ctype.h>
+ 
+@@ -488,9 +489,10 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
+ 
+ 		printf("%-16s %.*llx-%.*llx", type,
+ 		       EFI_PHYS_ADDR_WIDTH,
+-		       map->physical_start,
++		       (u64)map_to_sysmem((void *)map->physical_start),
+ 		       EFI_PHYS_ADDR_WIDTH,
+-		       map->physical_start + map->num_pages * EFI_PAGE_SIZE);
++		       (u64)map_to_sysmem((void *)map->physical_start +
++					  map->num_pages * EFI_PAGE_SIZE));
+ 
+ 		print_memory_attributes(map->attribute);
+ 		putc('\n');
+-- 
+2.25.1
+

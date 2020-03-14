@@ -63,6 +63,7 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
+git am ../patch/0001-cmd-map-addresses-to-sysmem-in-efidebug-memmap.patch
 git am ../patch/0001-cmd-bootefi-Parse-reserved-memory-node-from-DT.patch
 exit
 

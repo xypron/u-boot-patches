@@ -1,4 +1,4 @@
-From 1c25a4369307d741339fe946d6c5173c3f34abee Mon Sep 17 00:00:00 2001
+From a7149b38b7f3c4d4ce49fd75137406c2fdb18f92 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Fri, 13 Mar 2020 17:11:30 -0700
 Subject: [PATCH 1/1] cmd: bootefi: Parse reserved-memory node from DT
@@ -15,15 +15,18 @@ mappings accordingly.
 
 Signed-off-by: Atish Patra <atish.patra@wdc.com>
 
+Fix an endless loop.
+
 The /reserved-memory node may have children without reg property. Remove
 a superfluous debug statement. Add a comment.
+
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 44 +++++++++++++++++++++++++++++++++++---------
- 1 file changed, 35 insertions(+), 9 deletions(-)
+ cmd/bootefi.c | 43 ++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 34 insertions(+), 9 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index 24fc42ae89..290ad59852 100644
+index 24fc42ae89..b5b9d88273 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
 @@ -149,6 +149,20 @@ done:
@@ -57,7 +60,7 @@ index 24fc42ae89..290ad59852 100644
  
  	nr_rsv = fdt_num_mem_rsv(fdt);
  
-@@ -169,15 +184,26 @@ static void efi_carve_out_dt_rsv(void *fdt)
+@@ -169,15 +184,25 @@ static void efi_carve_out_dt_rsv(void *fdt)
  	for (i = 0; i < nr_rsv; i++) {
  		if (fdt_get_mem_rsv(fdt, i, &addr, &size) != 0)
  			continue;
@@ -84,9 +87,8 @@ index 24fc42ae89..290ad59852 100644
 +			 * The /reserved-memory node may have children with
 +			 * a size instead of a reg property.
 +			 */
-+			if (addr == FDT_ADDR_T_NONE)
-+				continue;
-+			efi_reserve_memory(addr, size);
++			if (addr != FDT_ADDR_T_NONE)
++				efi_reserve_memory(addr, size);
 +			subnode = fdt_next_subnode(fdt, subnode);
 +		}
  	}
