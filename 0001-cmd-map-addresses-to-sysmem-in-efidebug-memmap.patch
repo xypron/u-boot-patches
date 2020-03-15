@@ -11,6 +11,7 @@ space.
 Adjust the output of the 'efidebug memmap' command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromum.org>
 ---
  cmd/efidebug.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
