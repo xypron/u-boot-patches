@@ -1,7 +1,7 @@
 From a7149b38b7f3c4d4ce49fd75137406c2fdb18f92 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Fri, 13 Mar 2020 17:11:30 -0700
-Subject: [PATCH 1/1] cmd: bootefi: Parse reserved-memory node from DT
+Subject: [PATCH v3 1/1] cmd: bootefi: Parse reserved-memory node from DT
 
 Currently, bootefi only parses memory reservation block to setup
 EFI reserved memory mappings. However, it doesn't parse the
@@ -18,9 +18,9 @@ Signed-off-by: Atish Patra <atish.patra@wdc.com>
 Fix an endless loop.
 
 The /reserved-memory node may have children without reg property. Remove
-a superfluous debug statement. Add a comment.
+a superfluous debug statement.
 
-Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/bootefi.c | 43 ++++++++++++++++++++++++++++++++++---------
  1 file changed, 34 insertions(+), 9 deletions(-)
@@ -33,9 +33,9 @@ index 24fc42ae89..b5b9d88273 100644
  	return ret;
  }
  
-+static void efi_reserve_memory(uint64_t addr, uint64_t size)
++static void efi_reserve_memory(u64 addr, u64 size)
 +{
-+	uint64_t pages;
++	u64 pages;
 +
 +	/* Convert from sandbox address space. */
 +	addr = (uintptr_t)map_sysmem(addr, 0);
@@ -44,7 +44,7 @@ index 24fc42ae89..b5b9d88273 100644
 +	if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
 +			       false) != EFI_SUCCESS)
 +		printf("Reserved memory mapping failed addr %llx size %llx\n",
-+		      (unsigned long long)addr, (unsigned long long)size);
++		       addr, size);
 +}
 +
  /**
@@ -55,7 +55,7 @@ index 24fc42ae89..b5b9d88273 100644
  {
  	int nr_rsv, i;
 -	uint64_t addr, size, pages;
-+	uint64_t addr, size;
++	u64 addr, size;
 +	int nodeoffset, subnode;
  
  	nr_rsv = fdt_num_mem_rsv(fdt);
