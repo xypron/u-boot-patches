@@ -1,0 +1,78 @@
+From 717320c54d20c2af63a3468e3d5d017312359ac5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 14 Mar 2020 11:19:06 +0100
+Subject: [PATCH 1/2] sandbox: add reserved-memory node in device tree
+
+For testing the handling of memory reservations create a reserved-memory
+node in sandbox.dts and sandbox64.dts.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/dts/sandbox.dts   | 19 +++++++++++++++++++
+ arch/sandbox/dts/sandbox64.dts | 20 ++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
+
+diff --git a/arch/sandbox/dts/sandbox.dts b/arch/sandbox/dts/sandbox.dts
+index 4dd82f6a32..d2e8cd8319 100644
+--- a/arch/sandbox/dts/sandbox.dts
++++ b/arch/sandbox/dts/sandbox.dts
+@@ -20,6 +20,25 @@
+ 		reg = <0 CONFIG_SYS_SDRAM_SIZE>;
+ 	};
+ 
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		reservation_test0 {
++			size = <0x4000>;
++			alignment = <0x2000>;
++		};
++
++		reservation_test1: restest@a000 {
++			reg = <0x00d0a000 0x2000>;
++		};
++
++		reservation_test2: restest@7000 {
++			reg = <0x00d07000 0x1000>;
++		};
++	};
++
+ 	cros_ec: cros-ec {
+ 		reg = <0 0>;
+ 		u-boot,dm-pre-reloc;
+diff --git a/arch/sandbox/dts/sandbox64.dts b/arch/sandbox/dts/sandbox64.dts
+index 5c95cee9d7..56dd703a1e 100644
+--- a/arch/sandbox/dts/sandbox64.dts
++++ b/arch/sandbox/dts/sandbox64.dts
+@@ -20,6 +20,26 @@
+ 		reg = /bits/ 64 <0 CONFIG_SYS_SDRAM_SIZE>;
+ 	};
+ 
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		reservation_test_size {
++			size = <0 0x4000>;
++			alignment = <0 0x2000>;
++		};
++
++		reservation_test@a000 {
++			reg = <0 0x00d0a000 0 0x2000>;
++		};
++
++		reservation_test@7000 {
++			reg = <0 0x00d07000 0 0x1000>;
++		};
++	};
++
++	/* ... */
+ 	cros_ec: cros-ec {
+ 		reg = <0 0 0 0>;
+ 		u-boot,dm-pre-reloc;
+-- 
+2.25.1
+
