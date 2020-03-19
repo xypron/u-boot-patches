@@ -3,9 +3,14 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 22:24:24 +0100
 Subject: [PATCH] efi_loader: eliminate EFI_CALL() for variable access
 
-Provide functions to access variable that can be called without using
-EFI_CALL() for accessing variables. Provide wrappers for exposing these
-functions as runtime services.
+In several places of the UEFI sub-system UEFI variables as accessed via
+runtime services functions. These functions require being called via
+EFI_CALL() to restore the register holding the gd variable. Some code
+even calls the functions via the runtime services table.
+
+By making the functions exposing the variable runtime services wrappers for
+exported functions that we can use internally we get rid of this clumsy
+code.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
