@@ -1,0 +1,648 @@
+From 78f8a82a9c01173465a72b3137481d0ab7ceaef9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 19 Mar 2020 22:24:24 +0100
+Subject: [PATCH 1/1] efi_loader: eliminate EFI_CALL() for variable access
+
+Provide functions to access variable that can be called without using
+EFI_CALL() for accessing variables. Provide wrappers for exposing these
+functions as runtime services.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c                |  63 +++++++++----------
+ cmd/nvedit_efi.c              |  18 +++---
+ include/efi_loader.h          |   9 +++
+ lib/efi_loader/efi_bootmgr.c  |  20 +++---
+ lib/efi_loader/efi_setup.c    |  42 ++++++-------
+ lib/efi_loader/efi_variable.c | 115 +++++++++++++++++++++++++++-------
+ 6 files changed, 169 insertions(+), 98 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index bb7c13d6a1..f7744bdc55 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -17,7 +17,6 @@
+ #include <linux/ctype.h>
+ 
+ #define BS systab.boottime
+-#define RT systab.runtime
+ 
+ /**
+  * efi_get_device_handle_info() - get information of UEFI device
+@@ -612,11 +611,11 @@ static int do_efi_boot_add(cmd_tbl_t *cmdtp, int flag,
+ 		goto out;
+ 	}
+ 
+-	ret = EFI_CALL(RT->set_variable(var_name16, &guid,
+-					EFI_VARIABLE_NON_VOLATILE |
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					size, data));
++	ret = efi_set_variable_int(var_name16, &guid,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   size, data);
+ 	if (ret != EFI_SUCCESS) {
+ 		printf("Cannot set %ls\n", var_name16);
+ 		r = CMD_RET_FAILURE;
+@@ -667,7 +666,8 @@ static int do_efi_boot_rm(cmd_tbl_t *cmdtp, int flag,
+ 		p = var_name16;
+ 		utf8_utf16_strncpy(&p, var_name, 9);
+ 
+-		ret = EFI_CALL(RT->set_variable(var_name16, &guid, 0, 0, NULL));
++		ret = efi_set_variable_int(var_name16, &guid, 0, 0,
++					   NULL);
+ 		if (ret) {
+ 			printf("Cannot remove %ls\n", var_name16);
+ 			return CMD_RET_FAILURE;
+@@ -747,11 +747,11 @@ static void show_efi_boot_opt(int id)
+ 	guid = efi_global_variable_guid;
+ 
+ 	size = 0;
+-	ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size, NULL));
++	ret = efi_get_variable_int(var_name16, &guid, NULL, &size, NULL);
+ 	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		data = malloc(size);
+-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
+-						data));
++		ret = efi_get_variable_int(var_name16, &guid, NULL, &size,
++					   data);
+ 	}
+ 	if (ret == EFI_SUCCESS)
+ 		show_efi_boot_opt_data(id, data, size);
+@@ -806,8 +806,7 @@ static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
+ 	var_name16[0] = 0;
+ 	for (;;) {
+ 		size = buf_size;
+-		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
+-							  &guid));
++		ret = efi_get_next_variable_name_int(&size, var_name16, &guid);
+ 		if (ret == EFI_NOT_FOUND)
+ 			break;
+ 		if (ret == EFI_BUFFER_TOO_SMALL) {
+@@ -818,9 +817,8 @@ static int do_efi_boot_dump(cmd_tbl_t *cmdtp, int flag,
+ 				return CMD_RET_FAILURE;
+ 			}
+ 			var_name16 = p;
+-			ret = EFI_CALL(efi_get_next_variable_name(&size,
+-								  var_name16,
+-								  &guid));
++			ret = efi_get_next_variable_name_int(&size, var_name16,
++							     &guid);
+ 		}
+ 		if (ret != EFI_SUCCESS) {
+ 			free(var_name16);
+@@ -868,12 +866,11 @@ static int show_efi_boot_order(void)
+ 
+ 	guid = efi_global_variable_guid;
+ 	size = 0;
+-	ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL, &size,
+-					NULL));
++	ret = efi_get_variable_int(L"BootOrder", &guid, NULL, &size, NULL);
+ 	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		bootorder = malloc(size);
+-		ret = EFI_CALL(RT->get_variable(L"BootOrder", &guid, NULL,
+-						&size, bootorder));
++		ret = efi_get_variable_int(L"BootOrder", &guid, NULL,
++					   &size, bootorder);
+ 	}
+ 	if (ret == EFI_NOT_FOUND) {
+ 		printf("BootOrder not defined\n");
+@@ -891,8 +888,8 @@ static int show_efi_boot_order(void)
+ 		utf8_utf16_strncpy(&p16, var_name, 9);
+ 
+ 		size = 0;
+-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
+-						NULL));
++		ret = efi_get_variable_int(var_name16, &guid, NULL, &size,
++					   NULL);
+ 		if (ret != EFI_BUFFER_TOO_SMALL) {
+ 			printf("%2d: Boot%04X: (not defined)\n",
+ 			       i + 1, bootorder[i]);
+@@ -904,8 +901,8 @@ static int show_efi_boot_order(void)
+ 			ret = CMD_RET_FAILURE;
+ 			goto out;
+ 		}
+-		ret = EFI_CALL(RT->get_variable(var_name16, &guid, NULL, &size,
+-						data));
++		ret = efi_get_variable_int(var_name16, &guid, NULL, &size,
++					   data);
+ 		if (ret != EFI_SUCCESS) {
+ 			free(data);
+ 			ret = CMD_RET_FAILURE;
+@@ -972,11 +969,11 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
+ 
+ 	guid = efi_global_variable_guid;
+ 	size = sizeof(u16);
+-	ret = EFI_CALL(RT->set_variable(L"BootNext", &guid,
+-					EFI_VARIABLE_NON_VOLATILE |
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					size, &bootnext));
++	ret = efi_set_variable_int(L"BootNext", &guid,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   size, &bootnext);
+ 	if (ret != EFI_SUCCESS) {
+ 		printf("Cannot set BootNext\n");
+ 		r = CMD_RET_FAILURE;
+@@ -1033,11 +1030,11 @@ static int do_efi_boot_order(cmd_tbl_t *cmdtp, int flag,
+ 	}
+ 
+ 	guid = efi_global_variable_guid;
+-	ret = EFI_CALL(RT->set_variable(L"BootOrder", &guid,
+-					EFI_VARIABLE_NON_VOLATILE |
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					size, bootorder));
++	ret = efi_set_variable_int(L"BootOrder", &guid,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   size, bootorder);
+ 	if (ret != EFI_SUCCESS) {
+ 		printf("Cannot set BootOrder\n");
+ 		r = CMD_RET_FAILURE;
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index 8ea0da0128..9d338478d3 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -87,14 +87,14 @@ static void efi_dump_single_var(u16 *name, const efi_guid_t *guid, bool verbose)
+ 
+ 	data = NULL;
+ 	size = 0;
+-	ret = EFI_CALL(efi_get_variable(name, guid, &attributes, &size, data));
++	ret = efi_get_variable_int(name, guid, &attributes, &size, data);
+ 	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		data = malloc(size);
+ 		if (!data)
+ 			goto out;
+ 
+-		ret = EFI_CALL(efi_get_variable(name, guid, &attributes, &size,
+-						data));
++		ret = efi_get_variable_int(name, guid, &attributes, &size,
++					   data);
+ 	}
+ 	if (ret == EFI_NOT_FOUND) {
+ 		printf("Error: \"%ls\" not defined\n", name);
+@@ -224,8 +224,7 @@ static int efi_dump_var_all(int argc,  char * const argv[],
+ 	var_name16[0] = 0;
+ 	for (;;) {
+ 		size = buf_size;
+-		ret = EFI_CALL(efi_get_next_variable_name(&size, var_name16,
+-							  &guid));
++		ret = efi_get_next_variable_name_int(&size, var_name16, &guid);
+ 		if (ret == EFI_NOT_FOUND)
+ 			break;
+ 		if (ret == EFI_BUFFER_TOO_SMALL) {
+@@ -236,9 +235,8 @@ static int efi_dump_var_all(int argc,  char * const argv[],
+ 				return CMD_RET_FAILURE;
+ 			}
+ 			var_name16 = p;
+-			ret = EFI_CALL(efi_get_next_variable_name(&size,
+-								  var_name16,
+-								  &guid));
++			ret = efi_get_next_variable_name_int(&size, var_name16,
++							     &guid);
+ 		}
+ 		if (ret != EFI_SUCCESS) {
+ 			free(var_name16);
+@@ -576,8 +574,8 @@ int do_env_set_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 	p = var_name16;
+ 	utf8_utf16_strncpy(&p, var_name, len + 1);
+ 
+-	ret = EFI_CALL(efi_set_variable(var_name16, &guid, attributes,
+-					size, value));
++	ret = efi_set_variable_int(var_name16, &guid, attributes, size,
++				   value);
+ 	unmap_sysmem(value);
+ 	if (ret == EFI_SUCCESS) {
+ 		ret = CMD_RET_SUCCESS;
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 37c3f15da1..8c4a3bfa61 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -643,12 +643,21 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
+ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 *attributes,
+ 				     efi_uintn_t *data_size, void *data);
++efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
++				  u32 *attributes,
++				  efi_uintn_t *data_size, void *data);
+ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 					       u16 *variable_name,
+ 					       const efi_guid_t *vendor);
++efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
++					    u16 *variable_name,
++					    const efi_guid_t *vendor);
+ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 attributes,
+ 				     efi_uintn_t data_size, const void *data);
++efi_status_t efi_set_variable_int(u16 *variable_name,
++				  const efi_guid_t *vendor, u32 attributes,
++				  efi_uintn_t data_size, const void *data);
+ 
+ efi_status_t EFIAPI efi_query_variable_info(
+ 			u32 attributes, u64 *maximum_variable_storage_size,
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 2ea21448f0..c87f38e46c 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -12,7 +12,6 @@
+ #include <asm/unaligned.h>
+ 
+ static const struct efi_boot_services *bs;
+-static const struct efi_runtime_services *rs;
+ 
+ /*
+  * bootmgr implements the logic of trying to find a payload to boot
+@@ -123,10 +122,10 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
+ 	void *buf = NULL;
+ 
+ 	*size = 0;
+-	EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
++	ret = efi_get_variable_int(name, v, NULL, size, buf);
+ 	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		buf = malloc(*size);
+-		EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
++		ret = efi_get_variable_int(name, v, NULL, size, buf);
+ 	}
+ 
+ 	if (ret != EFI_SUCCESS) {
+@@ -186,10 +185,10 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
+ 		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 			     EFI_VARIABLE_RUNTIME_ACCESS;
+ 		size = sizeof(n);
+-		ret = EFI_CALL(efi_set_variable(
++		ret = efi_set_variable_int(
+ 				L"BootCurrent",
+ 				(efi_guid_t *)&efi_global_variable_guid,
+-				attributes, size, &n));
++				attributes, size, &n);
+ 		if (ret != EFI_SUCCESS) {
+ 			if (EFI_CALL(efi_unload_image(*handle))
+ 			    != EFI_SUCCESS)
+@@ -226,25 +225,24 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
+ 	efi_status_t ret;
+ 
+ 	bs = systab.boottime;
+-	rs = systab.runtime;
+ 
+ 	/* BootNext */
+ 	bootnext = 0;
+ 	size = sizeof(bootnext);
+-	ret = EFI_CALL(efi_get_variable(L"BootNext",
+-					(efi_guid_t *)&efi_global_variable_guid,
+-					NULL, &size, &bootnext));
++	ret = efi_get_variable_int(L"BootNext",
++				   (efi_guid_t *)&efi_global_variable_guid,
++				   NULL, &size, &bootnext);
+ 	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
+ 		/* BootNext does exist here */
+ 		if (ret == EFI_BUFFER_TOO_SMALL || size != sizeof(u16))
+ 			printf("BootNext must be 16-bit integer\n");
+ 
+ 		/* delete BootNext */
+-		ret = EFI_CALL(efi_set_variable(
++		ret = efi_set_variable_int(
+ 					L"BootNext",
+ 					(efi_guid_t *)&efi_global_variable_guid,
+ 					EFI_VARIABLE_NON_VOLATILE, 0,
+-					&bootnext));
++					&bootnext);
+ 
+ 		/* load BootNext */
+ 		if (ret == EFI_SUCCESS) {
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index b458093dfb..d1884e4dae 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -40,12 +40,12 @@ static efi_status_t efi_init_platform_lang(void)
+ 	 * Variable PlatformLangCodes defines the language codes that the
+ 	 * machine can support.
+ 	 */
+-	ret = EFI_CALL(efi_set_variable(L"PlatformLangCodes",
+-					&efi_global_variable_guid,
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					sizeof(CONFIG_EFI_PLATFORM_LANG_CODES),
+-					CONFIG_EFI_PLATFORM_LANG_CODES));
++	ret = efi_set_variable_int(L"PlatformLangCodes",
++				   &efi_global_variable_guid,
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   sizeof(CONFIG_EFI_PLATFORM_LANG_CODES),
++				   CONFIG_EFI_PLATFORM_LANG_CODES);
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+@@ -53,9 +53,9 @@ static efi_status_t efi_init_platform_lang(void)
+ 	 * Variable PlatformLang defines the language that the machine has been
+ 	 * configured for.
+ 	 */
+-	ret = EFI_CALL(efi_get_variable(L"PlatformLang",
+-					&efi_global_variable_guid,
+-					NULL, &data_size, &pos));
++	ret = efi_get_variable_int(L"PlatformLang",
++				   &efi_global_variable_guid,
++				   NULL, &data_size, &pos);
+ 	if (ret == EFI_BUFFER_TOO_SMALL) {
+ 		/* The variable is already set. Do not change it. */
+ 		ret = EFI_SUCCESS;
+@@ -70,12 +70,12 @@ static efi_status_t efi_init_platform_lang(void)
+ 	if (pos)
+ 		*pos = 0;
+ 
+-	ret = EFI_CALL(efi_set_variable(L"PlatformLang",
+-					&efi_global_variable_guid,
+-					EFI_VARIABLE_NON_VOLATILE |
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					1 + strlen(lang), lang));
++	ret = efi_set_variable_int(L"PlatformLang",
++				   &efi_global_variable_guid,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   1 + strlen(lang), lang);
+ out:
+ 	if (ret != EFI_SUCCESS)
+ 		printf("EFI: cannot initialize platform language settings\n");
+@@ -113,12 +113,12 @@ efi_status_t efi_init_obj_list(void)
+ 		goto out;
+ 
+ 	/* Indicate supported features */
+-	ret = EFI_CALL(efi_set_variable(L"OsIndicationsSupported",
+-					&efi_global_variable_guid,
+-					EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-					EFI_VARIABLE_RUNTIME_ACCESS,
+-					sizeof(os_indications_supported),
+-					&os_indications_supported));
++	ret = efi_set_variable_int(L"OsIndicationsSupported",
++				   &efi_global_variable_guid,
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   sizeof(os_indications_supported),
++				   &os_indications_supported);
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index c316bdfec0..7fe6d4fa23 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -165,6 +165,30 @@ static const char *parse_attr(const char *str, u32 *attrp)
+ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 *attributes,
+ 				     efi_uintn_t *data_size, void *data)
++{
++	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
++		  data_size, data);
++
++	return EFI_EXIT(efi_get_variable_int(variable_name, vendor, attributes,
++					     data_size, data));
++}
++
++/**
++ * efi_get_variable_int() - retrieve value of a UEFI variable
++ *
++ * This function allows to retrieve the value of a UEFI variable without using
++ * EFI_CALL().
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer to which the variable value is copied
++ * @data:		buffer to which the variable value is copied
++ * Return:		status code
++ */
++efi_status_t efi_get_variable_int(u16 *variable_name,
++				  const efi_guid_t *vendor, u32 *attributes,
++				  efi_uintn_t *data_size, void *data)
+ {
+ 	char *native_name;
+ 	efi_status_t ret;
+@@ -172,22 +196,20 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 	const char *val, *s;
+ 	u32 attr;
+ 
+-	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
+-		  data_size, data);
+ 
+ 	if (!variable_name || !vendor || !data_size)
+-		return EFI_EXIT(EFI_INVALID_PARAMETER);
++		return EFI_INVALID_PARAMETER;
+ 
+ 	ret = efi_to_native(&native_name, variable_name, vendor);
+ 	if (ret)
+-		return EFI_EXIT(ret);
++		return ret;
+ 
+ 	EFI_PRINT("get '%s'\n", native_name);
+ 
+ 	val = env_get(native_name);
+ 	free(native_name);
+ 	if (!val)
+-		return EFI_EXIT(EFI_NOT_FOUND);
++		return EFI_NOT_FOUND;
+ 
+ 	val = parse_attr(val, &attr);
+ 
+@@ -198,7 +220,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 
+ 		/* number of hexadecimal digits must be even */
+ 		if (len & 1)
+-			return EFI_EXIT(EFI_DEVICE_ERROR);
++			return EFI_DEVICE_ERROR;
+ 
+ 		/* two characters per byte: */
+ 		len /= 2;
+@@ -210,10 +232,10 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 		}
+ 
+ 		if (!data)
+-			return EFI_EXIT(EFI_INVALID_PARAMETER);
++			return EFI_INVALID_PARAMETER;
+ 
+ 		if (hex2bin(data, s, len))
+-			return EFI_EXIT(EFI_DEVICE_ERROR);
++			return EFI_DEVICE_ERROR;
+ 
+ 		EFI_PRINT("got value: \"%s\"\n", s);
+ 	} else if ((s = prefix(val, "(utf8)"))) {
+@@ -227,7 +249,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 		}
+ 
+ 		if (!data)
+-			return EFI_EXIT(EFI_INVALID_PARAMETER);
++			return EFI_INVALID_PARAMETER;
+ 
+ 		memcpy(data, s, len);
+ 		((char *)data)[len] = '\0';
+@@ -235,14 +257,14 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 		EFI_PRINT("got value: \"%s\"\n", (char *)data);
+ 	} else {
+ 		EFI_PRINT("invalid value: '%s'\n", val);
+-		return EFI_EXIT(EFI_DEVICE_ERROR);
++		return EFI_DEVICE_ERROR;
+ 	}
+ 
+ out:
+ 	if (attributes)
+ 		*attributes = attr & EFI_VARIABLE_MASK;
+ 
+-	return EFI_EXIT(ret);
++	return ret;
+ }
+ 
+ static char *efi_variables_list;
+@@ -330,6 +352,34 @@ static efi_status_t parse_uboot_variable(char *variable,
+ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 					       u16 *variable_name,
+ 					       const efi_guid_t *vendor)
++{
++	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
++
++	return EFI_EXIT(efi_get_next_variable_name_int(variable_name_size,
++						       variable_name, vendor));
++}
++
++/**
++ * efi_get_next_variable_name_int() - enumerate the current variable names
++ *
++ * This function can be used to enumerate UEFI variable without using
++ * EFI_CALL().
++ *
++ * @variable_name_size:	size of variable_name buffer in byte
++ * @variable_name:	name of uefi variable's name in u16
++ * @vendor:		vendor's guid
++ *
++ * This function implements the GetNextVariableName service.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * Return: status code
++ */
++efi_status_t EFIAPI efi_get_next_variable_name_int(
++					efi_uintn_t *variable_name_size,
++					u16 *variable_name,
++					const efi_guid_t *vendor)
+ {
+ 	char *native_name, *variable;
+ 	ssize_t name_len, list_len;
+@@ -339,10 +389,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 	int i;
+ 	efi_status_t ret;
+ 
+-	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
+-
+ 	if (!variable_name_size || !variable_name || !vendor)
+-		return EFI_EXIT(EFI_INVALID_PARAMETER);
++		return EFI_INVALID_PARAMETER;
+ 
+ 	if (variable_name[0]) {
+ 		/* check null-terminated string */
+@@ -350,12 +398,12 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 			if (!variable_name[i])
+ 				break;
+ 		if (i >= *variable_name_size)
+-			return EFI_EXIT(EFI_INVALID_PARAMETER);
++			return EFI_INVALID_PARAMETER;
+ 
+ 		/* search for the last-returned variable */
+ 		ret = efi_to_native(&native_name, variable_name, vendor);
+ 		if (ret)
+-			return EFI_EXIT(ret);
++			return ret;
+ 
+ 		name_len = strlen(native_name);
+ 		for (variable = efi_variables_list; variable && *variable;) {
+@@ -370,14 +418,14 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 
+ 		free(native_name);
+ 		if (!(variable && *variable))
+-			return EFI_EXIT(EFI_INVALID_PARAMETER);
++			return EFI_INVALID_PARAMETER;
+ 
+ 		/* next variable */
+ 		variable = strchr(variable, '\n');
+ 		if (variable)
+ 			variable++;
+ 		if (!(variable && *variable))
+-			return EFI_EXIT(EFI_NOT_FOUND);
++			return EFI_NOT_FOUND;
+ 	} else {
+ 		/*
+ 		 *new search: free a list used in the previous search
+@@ -392,7 +440,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 				     &efi_variables_list, 0, 1, regexlist);
+ 		/* 1 indicates that no match was found */
+ 		if (list_len <= 1)
+-			return EFI_EXIT(EFI_NOT_FOUND);
++			return EFI_NOT_FOUND;
+ 
+ 		variable = efi_variables_list;
+ 	}
+@@ -400,7 +448,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 	ret = parse_uboot_variable(variable, variable_name_size, variable_name,
+ 				   vendor, &attributes);
+ 
+-	return EFI_EXIT(ret);
++	return ret;
+ }
+ 
+ /**
+@@ -421,6 +469,29 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 attributes,
+ 				     efi_uintn_t data_size, const void *data)
++{
++	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
++		  data_size, data);
++	
++	return EFI_EXIT(efi_set_variable_int(variable_name, vendor, attributes,
++					     data_size, data));
++}
++
++/**
++ * efi_set_variable_int() - set value of a UEFI variable internal
++ *
++ * This function can be used to set a UEFI variable without using EFI_CALL().
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer with the variable value
++ * @data:		buffer with the variable value
++ * Return:		status code
++ */
++efi_status_t efi_set_variable_int(u16 *variable_name,
++				  const efi_guid_t *vendor, u32 attributes,
++				  efi_uintn_t data_size, const void *data)
+ {
+ 	char *native_name = NULL, *val = NULL, *s;
+ 	const char *old_val;
+@@ -428,8 +499,6 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 	efi_status_t ret = EFI_SUCCESS;
+ 	u32 attr;
+ 
+-	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
+-		  data_size, data);
+ 
+ 	if (!variable_name || !*variable_name || !vendor ||
+ 	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
+@@ -539,7 +608,7 @@ out:
+ 	free(native_name);
+ 	free(val);
+ 
+-	return EFI_EXIT(ret);
++	return ret;
+ }
+ 
+ /**
+-- 
+2.25.1
+
