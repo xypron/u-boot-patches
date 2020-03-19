@@ -65,6 +65,7 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
+git am ../patch/0001-efi_loader-fix-function-descriptions-in-efi_disk.c.patch
 exit
 
 # UEFI secure boot
