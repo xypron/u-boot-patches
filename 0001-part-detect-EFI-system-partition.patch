@@ -62,7 +62,7 @@ index b2e157d9c1..ea5fbccf73 100644
 +		ret |=  PART_EFI_SYSTEM_PARTITION;
 +	if (p->attributes.fields.legacy_bios_bootable)
 +		ret |=  PART_BOOTABLE;
-+	return 0;
++	return ret;
  }
  
  static int validate_gpt_header(gpt_header *gpt_h, lbaint_t lba,
