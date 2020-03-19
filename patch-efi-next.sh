@@ -71,6 +71,8 @@ git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
 
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
+
+git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 exit
 
 # UEFI secure boot
