@@ -1,4 +1,4 @@
-From ea3539d8923703270dd7383d06bf61dba285e661 Mon Sep 17 00:00:00 2001
+From 9b9ee058a8728f52f0da3474f84a268b280b7405 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 15:16:31 +0100
 Subject: [PATCH 1/1] efi_loader: identify EFI system partition
@@ -30,7 +30,7 @@ index 37c3f15da1..536ef84cb5 100644
  int __efi_exit_check(void);
  const char *__efi_nesting(void);
 diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
-index fc0682bc48..48d08ba65d 100644
+index fc0682bc48..2f752a5e99 100644
 --- a/lib/efi_loader/efi_disk.c
 +++ b/lib/efi_loader/efi_disk.c
 @@ -13,6 +13,8 @@
@@ -59,14 +59,14 @@ index fc0682bc48..48d08ba65d 100644
 +			efi_system_partition.if_type = desc->if_type;
 +			efi_system_partition.devnum = desc->devnum;
 +			efi_system_partition.part = part;
-+			debug("EFI system partition: %s %d:%d\n",
-+			      blk_get_if_type_name(desc->if_type), desc->devnum,
-+			      part);
++			EFI_PRINT("EFI system partition: %s %d:%d\n",
++				  blk_get_if_type_name(desc->if_type),
++				  desc->devnum, part);
 +		}
 +	}
  	return EFI_SUCCESS;
  }
  
 -- 
-2.25.1
+2.20.1
 
