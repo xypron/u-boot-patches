@@ -65,8 +65,10 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
+git am ../patch/0001-efi_loader-description-of-efi_variable.c.patch
 git am ../patch/0001-efi_loader-fix-function-descriptions-in-efi_disk.c.patch
 git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
+
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 exit
