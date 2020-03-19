@@ -66,6 +66,7 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
 git am ../patch/0001-efi_loader-fix-function-descriptions-in-efi_disk.c.patch
+git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
 exit
 
 # UEFI secure boot
