@@ -1,0 +1,45 @@
+From 317067b7d870c4899cd5bcccb0eb78b9b1804e62 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 20 Mar 2020 19:04:34 +0100
+Subject: [PATCH 1/1] efi_loader: correct reported length in GetNextVariable()
+
+The runtime service GetNextVariable() returns the length of the next
+variable including the closing 0x0000. This length should be in bytes.
+
+Comparing the output of EDK2 and U-Boot shows that this is currently not
+correctly implemented:
+
+EDK2:
+OsIndicationsSupported: 46
+PlatformLang: 26
+PlatformLangCodes: 36
+
+U-Boot:
+OsIndicationsSupported: 23
+PlatformLang: 13
+PlatformLangCodes: 18
+
+Provide correct length in GetNextVariable().
+
+Fixes: d99a87f84b75 ("efi_loader: implement GetNextVariableName()")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index c316bdfec0..3f37a222ba 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -299,7 +299,7 @@ static efi_status_t parse_uboot_variable(char *variable,
+ 	p = variable_name;
+ 	utf8_utf16_strncpy(&p, name, name_len);
+ 	variable_name[name_len] = 0;
+-	*variable_name_size = name_len + 1;
++	*variable_name_size = sizeof(u16) * (name_len + 1);
+ 
+ 	/* guid */
+ 	c = *(name - 1);
+-- 
+2.25.1
+
