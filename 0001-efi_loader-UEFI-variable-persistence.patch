@@ -1,15 +1,15 @@
-From 27bacebe965bbbed0f599fb60b1b1bb961dac74b Mon Sep 17 00:00:00 2001
+From 259ba0d6e987db1c847c7a6b46c8074fc5b9ed7b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
-Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
+Subject: [PATCH] efi_loader: UEFI variable persistence
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h                |   2 +
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_boottime.c       |   3 +
- lib/efi_loader/efi_variables_file.c | 109 ++++++++++++++++++++++++++++
- 4 files changed, 115 insertions(+)
+ lib/efi_loader/efi_variables_file.c | 164 ++++++++++++++++++++++++++++
+ 4 files changed, 170 insertions(+)
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
@@ -53,18 +53,16 @@ index 3b79a88a48..cf940ea392 100644
  
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..9229f28e63
+index 0000000000..e94d34c6f7
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,164 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
 + *
 + * Copyright (c) 2020, Heinrich Schuchardt
 + */
-+
-+ adsjföladsjf
 +
 +#include <common.h>
 +#include <fs.h>
@@ -113,16 +111,73 @@ index 0000000000..9229f28e63
 +static efi_status_t efi_var_collect(struct efi_var_file **bufp, loff_t *lenp)
 +{
 +	size_t len = 0x1000;
-+	struct efi_var_file *buf;
++	struct efi_var_file *buf, *old_buf;
++	struct efi_var_entry *var;
 +
-+	buf = calloc(1, len);
++	buf = malloc(len);
 +	*bufp = buf;
 +	*lenp = len;
 +	if (!buf)
 +		return EFI_OUT_OF_RESOURCES;
 +	buf->magic = EFI_VAR_FILE_MAGIC;
 +	buf->length = len;
-+	buf->crc32 = crc32(0, (u8 *)buf->var, len - sizeof(struct efi_var_file));
++	var = buf->var;
++	for (;;) {
++		efi_uintn_t vlen;
++		u16 *data;
++		efi_status_t ret;
++
++		vlen = (u8 *)buf + len - (u8 *) var->var_name;
++		memset(var->var_name, 0, vlen);
++		ret = efi_get_next_variable_name_int(
++				&vlen, var->var_name, &var->guid);
++		if (ret == EFI_NOT_FOUND)
++			break;
++		if (ret == EFI_BUFFER_TOO_SMALL) {
++			len = (u8 *)var->var_name + vlen - (u8 *)buf + 0x800;
++			len = ALIGN(len, 0x1000);
++			old_buf = buf;
++			buf = realloc(buf, len);
++			if (!buf) {
++				free(old_buf);
++				return EFI_OUT_OF_RESOURCES;
++			}
++			var = (struct efi_var_entry *)
++			      ((u8 *)buf + ((u8 *)var - (u8 *)old_buf));
++			continue;
++		} else if (ret != EFI_SUCCESS) {
++			free(buf);
++			return ret;
++		}
++retry:
++		for (data = var->var_name; *data; ++data)
++			;
++		vlen = (u8 *)buf + len - (u8 *)data;
++		ret = efi_get_variable_int(var->var_name, &var->guid,
++					   &var->attr, &vlen, &data);
++		if (ret == EFI_BUFFER_TOO_SMALL) {
++			len = (u8 *)data + vlen - (u8 *)buf + 0x800;
++			len = ALIGN(len, 0x1000);
++			old_buf = buf;
++			buf = realloc(buf, len);
++			if (!buf) {
++				free(old_buf);
++				return EFI_OUT_OF_RESOURCES;
++			}
++			var = (struct efi_var_entry *)
++			      ((u8 *)buf + ((u8 *)var - (u8 *)old_buf));
++			goto retry;
++		} else if (ret != EFI_SUCCESS) {
++			free(buf);
++			return ret;
++		}
++		var->len = vlen;
++		vlen = ALIGN(vlen, 4);
++		var = (struct efi_var_entry *)((u8 *)data + vlen);
++	}
++
++	buf->crc32 = crc32(0, (u8 *)buf->var,
++			   len - sizeof(struct efi_var_file));
 +
 +	return EFI_SUCCESS;
 +}
@@ -167,5 +222,5 @@ index 0000000000..9229f28e63
 +	return EFI_SUCCESS;
 +}
 -- 
-2.20.1
+2.25.1
 
