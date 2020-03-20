@@ -1,7 +1,7 @@
-From a5c45eaf646b7c2f1bf940dbde6849b4a839b589 Mon Sep 17 00:00:00 2001
+From 06528698eb12f52a7fb4f71343a68e3ce045ae14 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 22:24:24 +0100
-Subject: [PATCH] efi_loader: eliminate EFI_CALL() for variable access
+Subject: [PATCH 1/1] efi_loader: eliminate EFI_CALL() for variable access
 
 In several places of the UEFI sub-system UEFI variables as accessed via
 runtime services functions. These functions require being called via
@@ -19,8 +19,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_loader.h          |   9 +++
  lib/efi_loader/efi_bootmgr.c  |  20 +++---
  lib/efi_loader/efi_setup.c    |  42 ++++++-------
- lib/efi_loader/efi_variable.c | 115 +++++++++++++++++++++++++++-------
- 6 files changed, 169 insertions(+), 98 deletions(-)
+ lib/efi_loader/efi_variable.c | 114 +++++++++++++++++++++++++++-------
+ 6 files changed, 168 insertions(+), 98 deletions(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
 index bb7c13d6a1..f7744bdc55 100644
@@ -395,7 +395,7 @@ index b458093dfb..d1884e4dae 100644
  		goto out;
  
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 99d2f01f57..b6f0b58268 100644
+index 99d2f01f57..63c3ea4d55 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -165,6 +165,30 @@ static const char *parse_attr(const char *str, u32 *attrp)
@@ -503,7 +503,7 @@ index 99d2f01f57..b6f0b58268 100644
  }
  
  static char *efi_variables_list;
-@@ -330,6 +352,34 @@ static efi_status_t parse_uboot_variable(char *variable,
+@@ -330,6 +352,33 @@ static efi_status_t parse_uboot_variable(char *variable,
  efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  					       u16 *variable_name,
  					       const efi_guid_t *vendor)
@@ -531,14 +531,13 @@ index 99d2f01f57..b6f0b58268 100644
 + *
 + * Return: status code
 + */
-+efi_status_t EFIAPI efi_get_next_variable_name_int(
-+					efi_uintn_t *variable_name_size,
-+					u16 *variable_name,
-+					const efi_guid_t *vendor)
++efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
++					    u16 *variable_name,
++					    const efi_guid_t *vendor)
  {
  	char *native_name, *variable;
  	ssize_t name_len, list_len;
-@@ -339,10 +389,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -339,10 +388,8 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	int i;
  	efi_status_t ret;
  
@@ -550,7 +549,7 @@ index 99d2f01f57..b6f0b58268 100644
  
  	if (variable_name[0]) {
  		/* check null-terminated string */
-@@ -350,12 +398,12 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -350,12 +397,12 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  			if (!variable_name[i])
  				break;
  		if (i >= *variable_name_size)
@@ -565,7 +564,7 @@ index 99d2f01f57..b6f0b58268 100644
  
  		name_len = strlen(native_name);
  		for (variable = efi_variables_list; variable && *variable;) {
-@@ -370,14 +418,14 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -370,14 +417,14 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  
  		free(native_name);
  		if (!(variable && *variable))
@@ -582,7 +581,7 @@ index 99d2f01f57..b6f0b58268 100644
  	} else {
  		/*
  		 *new search: free a list used in the previous search
-@@ -392,7 +440,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -392,7 +439,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  				     &efi_variables_list, 0, 1, regexlist);
  		/* 1 indicates that no match was found */
  		if (list_len <= 1)
@@ -591,7 +590,7 @@ index 99d2f01f57..b6f0b58268 100644
  
  		variable = efi_variables_list;
  	}
-@@ -400,7 +448,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -400,7 +447,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	ret = parse_uboot_variable(variable, variable_name_size, variable_name,
  				   vendor, &attributes);
  
@@ -600,7 +599,7 @@ index 99d2f01f57..b6f0b58268 100644
  }
  
  /**
-@@ -421,6 +469,29 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -421,6 +468,29 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
  				     const efi_guid_t *vendor, u32 attributes,
  				     efi_uintn_t data_size, const void *data)
@@ -630,7 +629,7 @@ index 99d2f01f57..b6f0b58268 100644
  {
  	char *native_name = NULL, *val = NULL, *s;
  	const char *old_val;
-@@ -428,8 +499,6 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+@@ -428,8 +498,6 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
  	efi_status_t ret = EFI_SUCCESS;
  	u32 attr;
  
@@ -639,7 +638,7 @@ index 99d2f01f57..b6f0b58268 100644
  
  	if (!variable_name || !*variable_name || !vendor ||
  	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
-@@ -539,7 +608,7 @@ out:
+@@ -539,7 +607,7 @@ out:
  	free(native_name);
  	free(val);
  
