@@ -1,17 +1,19 @@
-From 186915747ef37f63260e8d4944034df9eb12deda Mon Sep 17 00:00:00 2001
+From 27bacebe965bbbed0f599fb60b1b1bb961dac74b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h          | 2 ++
- lib/efi_loader/Makefile       | 1 +
- lib/efi_loader/efi_boottime.c | 3 +++
- 3 files changed, 6 insertions(+)
+ include/efi_loader.h                |   2 +
+ lib/efi_loader/Makefile             |   1 +
+ lib/efi_loader/efi_boottime.c       |   3 +
+ lib/efi_loader/efi_variables_file.c | 109 ++++++++++++++++++++++++++++
+ 4 files changed, 115 insertions(+)
+ create mode 100644 lib/efi_loader/efi_variables_file.c
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 536ef84cb5..e972244ce0 100644
+index 029a5ec2b8..4c7a43f214 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -647,6 +647,8 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
@@ -49,6 +51,121 @@ index 3b79a88a48..cf940ea392 100644
  	/* Fix up caches for EFI payloads if necessary */
  	efi_exit_caches();
  
+diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
+new file mode 100644
+index 0000000000..9229f28e63
+--- /dev/null
++++ b/lib/efi_loader/efi_variables_file.c
+@@ -0,0 +1,109 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * File interface for UEFI variables
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt
++ */
++
++ adsjföladsjf
++
++#include <common.h>
++#include <fs.h>
++#include <malloc.h>
++#include <mapmem.h>
++#include <efi_loader.h>
++#include <u-boot/crc.h>
++
++struct efi_var_entry {
++	u32 len;
++	efi_guid_t guid;
++	u32 attr;
++	u16 var_name[0];
++};
++
++struct efi_var_file {
++	u64 reserved; /* May be overwritten by memory probing */
++	u64 magic;    /* 0xf2dfad52c3195fdb */
++	u32 length;
++	u32 crc32;
++	struct efi_var_entry var[0];
++};
++
++#define EFI_VAR_FILE_MAGIC 0xf2dfad52c3195fdb
++
++#define PART_STR_LEN 10
++
++static efi_status_t efi_set_blk_dev_to_system_partition(void)
++{
++	char part_str[PART_STR_LEN];
++	int r;
++
++	if (!efi_system_partition.if_type)
++		return EFI_NOT_FOUND;
++	snprintf(part_str, PART_STR_LEN, "%u:%u",
++		 efi_system_partition.devnum, efi_system_partition.part);
++	r = fs_set_blk_dev(blk_get_if_type_name(efi_system_partition.if_type),
++			   part_str, FS_TYPE_ANY);
++	if (r) {
++		printf("Cannot read EFI system partition\n");
++		return EFI_DEVICE_ERROR;
++	}
++	return EFI_SUCCESS;
++}
++
++static efi_status_t efi_var_collect(struct efi_var_file **bufp, loff_t *lenp)
++{
++	size_t len = 0x1000;
++	struct efi_var_file *buf;
++
++	buf = calloc(1, len);
++	*bufp = buf;
++	*lenp = len;
++	if (!buf)
++		return EFI_OUT_OF_RESOURCES;
++	buf->magic = EFI_VAR_FILE_MAGIC;
++	buf->length = len;
++	buf->crc32 = crc32(0, (u8 *)buf->var, len - sizeof(struct efi_var_file));
++
++	return EFI_SUCCESS;
++}
++
++efi_status_t efi_var_to_file(void)
++{
++	efi_status_t ret;
++	struct efi_var_file *buf;
++	loff_t len;
++	loff_t actlen;
++	int r;
++
++	ret = efi_var_collect(&buf, &len);
++	if (ret != EFI_SUCCESS)
++		goto error;
++
++	ret = efi_set_blk_dev_to_system_partition();
++	if (ret != EFI_SUCCESS)
++		goto error;
++
++	r = fs_write("efi.var", map_to_sysmem(buf), 0, len, &actlen);
++	free(buf);
++	if (r || len != actlen) {
++		EFI_PRINT("Failed to persist EFI variables\n");
++		ret =  EFI_DEVICE_ERROR;
++	}
++
++error:
++	free(buf);
++	return ret;
++}
++
++efi_status_t efi_var_from_file(void)
++{
++	efi_status_t ret;
++
++	ret = efi_set_blk_dev_to_system_partition();
++	if (ret != EFI_SUCCESS) {
++		return ret;
++	}
++
++	return EFI_SUCCESS;
++}
 -- 
 2.20.1
 
