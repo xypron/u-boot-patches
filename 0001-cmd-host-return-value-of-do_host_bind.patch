@@ -1,0 +1,37 @@
+From d9ca2a5218c8047c8d14029366f528b922ef3b3d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 21 Mar 2020 05:44:01 +0100
+Subject: [PATCH 1/1] cmd: host: return value of do_host_bind()
+
+When trying to bind to a non-existent file the following output is
+displayed:
+
+=> host bind 0 non_existent
+Failed to access host backing file 'non_existent'
+exit not allowed from main input shell.
+
+The last line is quite unexpected and due to an incorrect return value.
+
+If do_host_bind() fails, return CMD_RET_FAILURE (= 1).
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/host.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/host.c b/cmd/host.c
+index eefc4f255e..22dabc6bf2 100644
+--- a/cmd/host.c
++++ b/cmd/host.c
+@@ -50,7 +50,7 @@ static int do_host_bind(cmd_tbl_t *cmdtp, int flag, int argc,
+ 		printf("** Bad device specification %s **\n", dev_str);
+ 		return CMD_RET_USAGE;
+ 	}
+-	return host_dev_bind(dev, file);
++	return host_dev_bind(dev, file) != 0;
+ }
+ 
+ static int do_host_info(cmd_tbl_t *cmdtp, int flag, int argc,
+-- 
+2.25.1
+

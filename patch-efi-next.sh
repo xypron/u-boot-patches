@@ -46,6 +46,7 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-reserved-memory-node-in-device-tree.patch
 git am ../patch/0001-sandbox-implement-ft_board_setup.patch
+git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 
 # IDE
 git am ../patch/0001-ide-remove-duplicate-defines-from-include-ata.h.patch
