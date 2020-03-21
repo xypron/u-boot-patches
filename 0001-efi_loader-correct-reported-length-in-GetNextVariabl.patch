@@ -1,4 +1,4 @@
-From 317067b7d870c4899cd5bcccb0eb78b9b1804e62 Mon Sep 17 00:00:00 2001
+From eb8064ba83ce8f982fcb94d4f3ea61aafb5362d8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 20 Mar 2020 19:04:34 +0100
 Subject: [PATCH 1/1] efi_loader: correct reported length in GetNextVariable()
@@ -24,19 +24,42 @@ Provide correct length in GetNextVariable().
 Fixes: d99a87f84b75 ("efi_loader: implement GetNextVariableName()")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_variable.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/efi_loader/efi_variable.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index c316bdfec0..3f37a222ba 100644
+index c316bdfec0..0122cb8909 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -299,7 +299,7 @@ static efi_status_t parse_uboot_variable(char *variable,
+@@ -273,7 +273,8 @@ static efi_status_t parse_uboot_variable(char *variable,
+ 					 u32 *attributes)
+ {
+ 	char *guid, *name, *end, c;
+-	unsigned long name_len;
++	size_t name_len;
++	efi_uintn_t old_variable_name_size;
+ 	u16 *p;
+ 
+ 	guid = strchr(variable, '_');
+@@ -289,17 +290,17 @@ static efi_status_t parse_uboot_variable(char *variable,
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	name_len = end - name;
+-	if (*variable_name_size < (name_len + 1)) {
+-		*variable_name_size = name_len + 1;
++	old_variable_name_size = *variable_name_size;
++	*variable_name_size = sizeof(u16) * (name_len + 1);
++	if (old_variable_name_size < *variable_name_size)
+ 		return EFI_BUFFER_TOO_SMALL;
+-	}
++
+ 	end++; /* point to value */
+ 
+ 	/* variable name */
  	p = variable_name;
  	utf8_utf16_strncpy(&p, name, name_len);
  	variable_name[name_len] = 0;
 -	*variable_name_size = name_len + 1;
-+	*variable_name_size = sizeof(u16) * (name_len + 1);
  
  	/* guid */
  	c = *(name - 1);

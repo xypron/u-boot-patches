@@ -1,4 +1,4 @@
-From e6c6080423796f40e41b80b2cf3eefbcf943df48 Mon Sep 17 00:00:00 2001
+From 0fe49bc11cb029d0711cd3866069a32be18831ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 20 Mar 2020 19:20:17 +0100
 Subject: [PATCH 1/1] efi_selftest: check length report by
@@ -9,15 +9,26 @@ final 0x0000 in bytes.
 
 Check this in the unit test.
 
+Increase the buffer size for variable names. 40 bytes is too short.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/efi_selftest_variables.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/efi_selftest/efi_selftest_variables.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/lib/efi_selftest/efi_selftest_variables.c b/lib/efi_selftest/efi_selftest_variables.c
-index 5d98c029b8..b7ead340f5 100644
+index 5d98c029b8..2c16f3db6c 100644
 --- a/lib/efi_selftest/efi_selftest_variables.c
 +++ b/lib/efi_selftest/efi_selftest_variables.c
+@@ -11,7 +11,7 @@
+ #include <efi_selftest.h>
+ 
+ #define EFI_ST_MAX_DATA_SIZE 16
+-#define EFI_ST_MAX_VARNAME_SIZE 40
++#define EFI_ST_MAX_VARNAME_SIZE 80
+ 
+ static struct efi_boot_services *boottime;
+ static struct efi_runtime_services *runtime;
 @@ -155,8 +155,14 @@ static int execute(void)
  			return EFI_ST_FAILURE;
  		}
