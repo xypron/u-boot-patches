@@ -77,6 +77,7 @@ git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
 git am ../patch/0001-efi_loader-export-initialization-state.patch
+git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 exit
 
