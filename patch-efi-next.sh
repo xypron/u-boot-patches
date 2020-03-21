@@ -76,6 +76,7 @@ git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 
+git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 exit
 

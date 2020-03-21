@@ -1,33 +1,23 @@
-From dfbd694535bd2f639a1f71deefb12c5f78ffedb0 Mon Sep 17 00:00:00 2001
+From f1f58a39204e0044550b858bc1891a6c9754ce86 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
-Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
+Subject: [PATCH] efi_loader: UEFI variable persistence
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h                |   5 +
+ include/efi_loader.h                |   2 +
  lib/efi_loader/Makefile             |   1 +
- lib/efi_loader/efi_setup.c          |  12 +-
+ lib/efi_loader/efi_setup.c          |  10 +-
  lib/efi_loader/efi_variable.c       |  19 ++-
  lib/efi_loader/efi_variables_file.c | 251 ++++++++++++++++++++++++++++
- 5 files changed, 277 insertions(+), 11 deletions(-)
+ 5 files changed, 273 insertions(+), 10 deletions(-)
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 029a5ec2b8..0f0a35130b 100644
+index 029a5ec2b8..4c7a43f214 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -45,6 +45,9 @@ static inline void *guidcpy(void *dst, const void *src)
- /* Root node */
- extern efi_handle_t efi_root;
- 
-+/* Set to EFI_SUCCESS when initialized */
-+extern efi_status_t efi_obj_list_initialized;
-+
- /* EFI system partition */
- extern struct efi_system_partition {
- 	enum if_type if_type;
-@@ -647,6 +650,8 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
+@@ -647,6 +647,8 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
  				 struct efi_system_table *systab);
  #endif
  
@@ -49,18 +39,9 @@ index 9b3b704473..621a767ab3 100644
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index d1884e4dae..1e3e474835 100644
+index d1884e4dae..393359cdfb 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -11,7 +11,7 @@
- 
- #define OBJ_LIST_NOT_INITIALIZED 1
- 
--static efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
-+efi_status_t efi_obj_list_initialized = OBJ_LIST_NOT_INITIALIZED;
- 
- /*
-  * Allow unaligned memory access.
 @@ -102,6 +102,11 @@ efi_status_t efi_init_obj_list(void)
  	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
  	switch_to_non_secure_mode();
