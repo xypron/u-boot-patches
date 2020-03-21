@@ -1,4 +1,4 @@
-From 8c4ee2605b726155f9cca1d2a59390921fda1429 Mon Sep 17 00:00:00 2001
+From 5fae35719d640b2556c8f0d9fe989bd8657de9e8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH] efi_loader: UEFI variable persistence
@@ -6,10 +6,12 @@ Subject: [PATCH] efi_loader: UEFI variable persistence
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h                |   2 +
+ include/efi_variable.h              |  27 ++++
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_variable.c       |  11 +-
- lib/efi_loader/efi_variables_file.c | 251 ++++++++++++++++++++++++++++
- 4 files changed, 264 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_variables_file.c | 227 ++++++++++++++++++++++++++++
+ 5 files changed, 267 insertions(+), 1 deletion(-)
+ create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
@@ -25,6 +27,39 @@ index e20f9b7cbe..0f0a35130b 100644
  efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
  				     const efi_guid_t *vendor, u32 *attributes,
  				     efi_uintn_t *data_size, void *data);
+diff --git a/include/efi_variable.h b/include/efi_variable.h
+new file mode 100644
+index 0000000000..27a31fbb69
+--- /dev/null
++++ b/include/efi_variable.h
+@@ -0,0 +1,27 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * File interface for UEFI variables
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt
++ */
++
++#define EFI_VAR_FILE_NAME "ubootefi.var"
++
++#define EFI_VAR_BUF_SIZE 0x4000
++
++#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
++
++struct efi_var_entry {
++	u32 len;
++	u32 attr;
++	efi_guid_t guid;
++	u16 name[0];
++};
++
++struct efi_var_file {
++	u64 reserved; /* May be overwritten by memory probing */
++	u64 magic;
++	u32 length;
++	u32 crc32;
++	struct efi_var_entry var[0];
++};
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 9b3b704473..621a767ab3 100644
 --- a/lib/efi_loader/Makefile
@@ -73,10 +108,10 @@ index 9e308eed2c..94656fddea 100644
  }
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..5b52522ab3
+index 0000000000..111e19e368
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
-@@ -0,0 +1,251 @@
+@@ -0,0 +1,227 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -90,26 +125,8 @@ index 0000000000..5b52522ab3
 +#include <malloc.h>
 +#include <mapmem.h>
 +#include <efi_loader.h>
++#include <efi_variable.h>
 +#include <u-boot/crc.h>
-+
-+struct efi_var_entry {
-+	u32 len;
-+	u32 attr;
-+	efi_guid_t guid;
-+	u16 name[0];
-+};
-+
-+struct efi_var_file {
-+	u64 reserved; /* May be overwritten by memory probing */
-+	u64 magic;
-+	u32 length;
-+	u32 crc32;
-+	struct efi_var_entry var[0];
-+};
-+
-+#define EFI_VAR_BUF_SIZE 0x4000
-+
-+#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
 +
 +#define PART_STR_LEN 10
 +
@@ -175,12 +192,8 @@ index 0000000000..5b52522ab3
 +		guidcpy(&var->guid, &old_var->guid);
 +		ret = efi_get_next_variable_name_int(
 +				&var_name_length, var->name, &var->guid);
-+		if (ret == EFI_NOT_FOUND) {
-+			memset(var->name, 0, old_var_name_length);
-+			len = (uintptr_t)&var->len - (uintptr_t)buf +
-+			      sizeof(var);
++		if (ret == EFI_NOT_FOUND)
 +			break;
-+		}
 +		if (ret != EFI_SUCCESS) {
 +			free(buf);
 +			return ret;
@@ -196,10 +209,8 @@ index 0000000000..5b52522ab3
 +			free(buf);
 +			return ret;
 +		}
-+		if (!(var->attr & EFI_VARIABLE_NON_VOLATILE)) {
-+			memset(data, 0, data_length);
++		if (!(var->attr & EFI_VARIABLE_NON_VOLATILE))
 +			continue;
-+		}
 +		var->len = data_length;
 +		var = (struct efi_var_entry *)
 +		      ALIGN((uintptr_t)data + data_length, 8);
@@ -240,7 +251,7 @@ index 0000000000..5b52522ab3
 +	if (ret != EFI_SUCCESS)
 +		goto error;
 +
-+	r = fs_write("efi.var", map_to_sysmem(buf), 0, len, &actlen);
++	r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
 +	if (r || len != actlen) {
 +		ret =  EFI_DEVICE_ERROR;
 +	}
@@ -317,7 +328,7 @@ index 0000000000..5b52522ab3
 +		printf("No EFI system partition\n");
 +		goto error;
 +	}
-+	r = fs_read("efi.var", map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE, &len);
++	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE, &len);
 +	if (r || len < sizeof(struct efi_var_file)) {
 +		printf("Failed to load EFI variables\n");
 +		goto error;
