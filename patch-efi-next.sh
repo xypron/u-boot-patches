@@ -71,8 +71,9 @@ git am ../patch/0001-efi_loader-fix-function-descriptions-in-efi_disk.c.patch
 git am ../patch/0001-efi_loader-correct-reported-length-in-GetNextVariabl.patch
 git am ../patch/0001-efi_selftest-check-length-report-by-GetNextVariableN.patch
 git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
-git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 
+# efi-2020-07
+git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
