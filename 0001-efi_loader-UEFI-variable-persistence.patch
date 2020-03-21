@@ -1,44 +1,19 @@
-From 5a5491b472ba08f004ec9f3aefdcf992f39e57ab Mon Sep 17 00:00:00 2001
+From 255163078b115871ecbe3d8a347c7a4d6d45a896 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- Makefile                            |   5 +-
  include/efi_loader.h                |   2 +
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_boottime.c       |   3 +
  lib/efi_loader/efi_setup.c          |  10 +-
  lib/efi_loader/efi_variable.c       |   2 +-
  lib/efi_loader/efi_variables_file.c | 252 ++++++++++++++++++++++++++++
- 7 files changed, 267 insertions(+), 8 deletions(-)
+ 6 files changed, 264 insertions(+), 6 deletions(-)
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
-diff --git a/Makefile b/Makefile
-index fa687f13a5..195f0d32ae 100644
---- a/Makefile
-+++ b/Makefile
-@@ -414,6 +414,7 @@ KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
- 
- KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
- 		   -Wno-format-security \
-+		   -Wno-error=maybe-uninitialized \
- 		   -fno-builtin -ffreestanding $(CSTD_FLAG)
- KBUILD_CFLAGS	+= -fshort-wchar -fno-strict-aliasing
- KBUILD_AFLAGS   := -D__ASSEMBLY__
-@@ -646,9 +647,9 @@ LDPPFLAGS	+= -ansi
- endif
- 
- ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
--KBUILD_CFLAGS	+= -Os
-+KBUILD_CFLAGS	+= -Og
- else
--KBUILD_CFLAGS	+= -O2
-+KBUILD_CFLAGS	+= -Og
- endif
- 
- KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 029a5ec2b8..4c7a43f214 100644
 --- a/include/efi_loader.h
