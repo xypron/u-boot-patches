@@ -1,17 +1,44 @@
-From 70c8dd91824b7723209526a0382b65f499759bed Mon Sep 17 00:00:00 2001
+From 5a5491b472ba08f004ec9f3aefdcf992f39e57ab Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ Makefile                            |   5 +-
  include/efi_loader.h                |   2 +
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_boottime.c       |   3 +
- lib/efi_loader/efi_variables_file.c | 180 ++++++++++++++++++++++++++++
- 4 files changed, 186 insertions(+)
+ lib/efi_loader/efi_setup.c          |  10 +-
+ lib/efi_loader/efi_variable.c       |   2 +-
+ lib/efi_loader/efi_variables_file.c | 252 ++++++++++++++++++++++++++++
+ 7 files changed, 267 insertions(+), 8 deletions(-)
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
+diff --git a/Makefile b/Makefile
+index fa687f13a5..195f0d32ae 100644
+--- a/Makefile
++++ b/Makefile
+@@ -414,6 +414,7 @@ KBUILD_CPPFLAGS := -D__KERNEL__ -D__UBOOT__
+ 
+ KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
+ 		   -Wno-format-security \
++		   -Wno-error=maybe-uninitialized \
+ 		   -fno-builtin -ffreestanding $(CSTD_FLAG)
+ KBUILD_CFLAGS	+= -fshort-wchar -fno-strict-aliasing
+ KBUILD_AFLAGS   := -D__ASSEMBLY__
+@@ -646,9 +647,9 @@ LDPPFLAGS	+= -ansi
+ endif
+ 
+ ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+-KBUILD_CFLAGS	+= -Os
++KBUILD_CFLAGS	+= -Og
+ else
+-KBUILD_CFLAGS	+= -O2
++KBUILD_CFLAGS	+= -Og
+ endif
+ 
+ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 029a5ec2b8..4c7a43f214 100644
 --- a/include/efi_loader.h
@@ -51,12 +78,51 @@ index 3b79a88a48..cf940ea392 100644
  	/* Fix up caches for EFI payloads if necessary */
  	efi_exit_caches();
  
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index d1884e4dae..393359cdfb 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -102,6 +102,11 @@ efi_status_t efi_init_obj_list(void)
+ 	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
+ 	switch_to_non_secure_mode();
+ 
++#ifdef CONFIG_PARTITIONS
++	ret = efi_disk_register();
++	if (ret != EFI_SUCCESS)
++		goto out;
++#endif
+ 	/* Initialize variable services */
+ 	ret = efi_init_variables();
+ 	if (ret != EFI_SUCCESS)
+@@ -145,11 +150,6 @@ efi_status_t efi_init_obj_list(void)
+ 	ret = efi_console_register();
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+-#ifdef CONFIG_PARTITIONS
+-	ret = efi_disk_register();
+-	if (ret != EFI_SUCCESS)
+-		goto out;
+-#endif
+ #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+ 	ret = efi_gop_register();
+ 	if (ret != EFI_SUCCESS)
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index a4dcf41dd2..0fab6ce2da 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -708,5 +708,5 @@ void efi_variables_boot_exit_notify(void)
+  */
+ efi_status_t efi_init_variables(void)
+ {
+-	return EFI_SUCCESS;
++	return efi_var_from_file();
+ }
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..3534c81e1b
+index 0000000000..8ebfc549d4
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
-@@ -0,0 +1,180 @@
+@@ -0,0 +1,252 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -76,7 +142,7 @@ index 0000000000..3534c81e1b
 +	u32 len;
 +	u32 attr;
 +	efi_guid_t guid;
-+	u16 var_name[0];
++	u16 name[0];
 +};
 +
 +struct efi_var_file {
@@ -87,10 +153,19 @@ index 0000000000..3534c81e1b
 +	struct efi_var_entry var[0];
 +};
 +
-+#define EFI_VAR_FILE_MAGIC 0x7261566966456255
++#define EFI_VAR_BUF_SIZE 0x4000
++
++#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
 +
 +#define PART_STR_LEN 10
 +
++/**
++ * efi_set_blk_dev_to_system_partition() - select EFI system partition
++ *
++ * Set the EFI system partition as current block device.
++ *
++ * Return:	status code
++ */
 +static efi_status_t efi_set_blk_dev_to_system_partition(void)
 +{
 +	char part_str[PART_STR_LEN];
@@ -109,86 +184,77 @@ index 0000000000..3534c81e1b
 +	return EFI_SUCCESS;
 +}
 +
++/**
++ * efi_var_collect() - collect non-volatile variables in buffer
++ *
++ * A buffer is allocated and filled with all non-volatile variables in a
++ * format ready to be written to disk.
++ *
++ * @bufp:	pointer to pointer of buffer with collected variables
++ * @lenp:	pointer to length of buffer
++ * Return:	status code
++ */
 +static efi_status_t efi_var_collect(struct efi_var_file **bufp, loff_t *lenp)
 +{
-+	size_t len = 0x32;
-+	struct efi_var_file *buf, *old_buf;
-+	struct efi_var_entry *var, *old_var;;
++	size_t len = EFI_VAR_BUF_SIZE;
++	struct efi_var_file *buf;
++	struct efi_var_entry *var, *old_var;
++	size_t old_var_name_length = 2;
 +
 +	*bufp = NULL; /* Avoid double free() */
-+	buf = malloc(len);
++	buf = calloc(1, len);
 +	if (!buf)
 +		return EFI_OUT_OF_RESOURCES;
-+	buf->magic = EFI_VAR_FILE_MAGIC;
-+	buf->length = len;
 +	var = buf->var;
 +	old_var = var;
 +	for (;;) {
-+		efi_uintn_t nlen, vlen;
-+		u16 *data;
++		efi_uintn_t data_length, var_name_length;
++		u8 *data;
 +		efi_status_t ret;
-+		size_t offset;
 +
-+		vlen = (u8 *)buf + len - (u8 *)var->var_name;
-+		memset(var->var_name, 0, vlen);
-+		nlen = 2 + 2 * u16_strlen(old_var->var_name);
-+		if (vlen >= nlen) {
-+			memcpy(var->var_name, old_var->var_name, nlen);
-+			guidcpy(&var->guid, &old_var->guid);
-+			ret = efi_get_next_variable_name_int(
-+					&vlen, var->var_name, &var->guid);
-+			if (ret == EFI_NOT_FOUND) {
-+				memset(var, 0, sizeof(var));
-+				len = (u8 *)&var->len - (u8 *)buf + sizeof(var);
-+				break;
-+			}
-+		} else {
-+			vlen = nlen;
-+			ret = EFI_BUFFER_TOO_SMALL;
++		if ((uintptr_t)buf + len <=
++		    (uintptr_t)var->name + old_var_name_length)
++			return EFI_BUFFER_TOO_SMALL;
++
++		var_name_length = (uintptr_t)buf + len - (uintptr_t)var->name;
++		memcpy(var->name, old_var->name, old_var_name_length);
++		guidcpy(&var->guid, &old_var->guid);
++		ret = efi_get_next_variable_name_int(
++				&var_name_length, var->name, &var->guid);
++		if (ret == EFI_NOT_FOUND) {
++			memset(var->name, 0, old_var_name_length);
++			len = (uintptr_t)&var->len - (uintptr_t)buf +
++			      sizeof(var);
++			break;
 +		}
-+		if (ret == EFI_BUFFER_TOO_SMALL) {
-+			len = (u8 *)var->var_name + vlen - (u8 *)buf + 0x1a;
-+			len = ALIGN(len, 0x8);
-+			old_buf = buf;
-+			buf = realloc(buf, len);
-+			if (!buf) {
-+				free(old_buf);
-+				return EFI_OUT_OF_RESOURCES;
-+			}
-+			offset = (u8 *)var - (u8 *)old_buf;
-+			*(u8 *)&var += offset;
-+			*(u8 *)&old_var += offset;
-+			continue;
-+		} else if (ret != EFI_SUCCESS) {
++		if (ret != EFI_SUCCESS) {
 +			free(buf);
 +			return ret;
 +		}
-+retry:
-+		data = var->var_name + u16_strlen(var->var_name) + 1;
-+		vlen = (u8 *)buf + len - (u8 *)data;
-+		ret = efi_get_variable_int(var->var_name, &var->guid,
-+					   &var->attr, &vlen, data);
-+		if (ret == EFI_BUFFER_TOO_SMALL) {
-+			len = (u8 *)data + vlen - (u8 *)buf + 0x8;
-+			len = ALIGN(len, 0x8);
-+			old_buf = buf;
-+			buf = realloc(buf, len);
-+			if (!buf) {
-+				free(old_buf);
-+				return EFI_OUT_OF_RESOURCES;
-+			}
-+			var = (struct efi_var_entry *)
-+			      ((u8 *)buf + ((u8 *)var - (u8 *)old_buf));
-+			goto retry;
-+		} else if (ret != EFI_SUCCESS) {
-+			free(buf);
-+			return ret;
-+		}
-+		var->len = vlen;
++		old_var_name_length = var_name_length;
 +		old_var = var;
-+		var = (struct efi_var_entry *)ALIGN((uintptr_t)data + vlen, 8);
++
++		printf("%ls\n", var->name);
++		data = (u8 *)var->name + old_var_name_length;
++		data_length = (uintptr_t)buf + len - (uintptr_t)data;
++		ret = efi_get_variable_int(var->name, &var->guid,
++					   &var->attr, &data_length, data);
++		if (ret != EFI_SUCCESS) {
++			free(buf);
++			return ret;
++		}
++		if (!(var->attr & EFI_VARIABLE_NON_VOLATILE)) {
++			memset(data, 0, data_length);
++			continue;
++		}
++		var->len = data_length;
++		var = (struct efi_var_entry *)
++		      ALIGN((uintptr_t)data + data_length, 8);
 +	}
 +
++	buf->reserved = 0;
++	buf->magic = EFI_VAR_FILE_MAGIC;
++	len = (uintptr_t)var - (uintptr_t)buf;
 +	buf->crc32 = crc32(0, (u8 *)buf->var,
 +			   len - sizeof(struct efi_var_file));
 +	buf->length = len;
@@ -198,6 +264,13 @@ index 0000000000..3534c81e1b
 +	return EFI_SUCCESS;
 +}
 +
++/**
++ * efi_var_to_file() - save non-volatile variables as file
++ *
++ * File efi.var is created on the EFI system partion.
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_to_file(void)
 +{
 +	efi_status_t ret;
@@ -226,15 +299,80 @@ index 0000000000..3534c81e1b
 +	return ret;
 +}
 +
++/**
++ * efi_var_restore() - restore EFI variables from buffer
++ *
++ * @buf:	buffer
++ * Return:	status code
++ */
++static efi_status_t efi_var_restore(struct efi_var_file *buf)
++{
++	struct efi_var_entry *var, *last_var;
++	efi_status_t ret;
++
++	if (buf->reserved || buf->magic != EFI_VAR_FILE_MAGIC ||
++	    buf->crc32 != crc32(0, (u8 *)buf->var,
++				buf->length - sizeof(struct efi_var_file))) {
++		printf("Invalid EFI variables file\n");
++		return EFI_INVALID_PARAMETER;
++	}
++
++	var = buf->var;
++	last_var = (struct efi_var_entry *)((u8 *)buf + buf->length);
++	while(var < last_var) {
++		u16 *data = var->name + u16_strlen(var->name) + 1;
++
++		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->len) {
++			ret = efi_set_variable_int(var->name, &var->guid,
++						   var->attr, var->len, data);
++			if (ret != EFI_SUCCESS)
++				printf("Failed to set EFI variable %ls\n",
++				       var->name);
++			}
++		var = (struct efi_var_entry *)
++		      ALIGN((uintptr_t)data + var->len, 8);
++	}
++	return EFI_SUCCESS;
++}
++
++/**
++ * efi_var_from_file() - read variables from file
++ *
++ * File efi.var is read from the EFI system partitions and the variables
++ * stored in the file are created.
++ *
++ * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
++ * is returned
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_from_file(void)
 +{
++	struct efi_var_file *buf;
++	loff_t len;
 +	efi_status_t ret;
++	int r;
++
++	buf = calloc(1, EFI_VAR_BUF_SIZE);
++	if (!buf) {
++		printf("Out of memory\n");
++		return EFI_OUT_OF_RESOURCES;
++	}
 +
 +	ret = efi_set_blk_dev_to_system_partition();
 +	if (ret != EFI_SUCCESS) {
-+		return ret;
++		printf("No EFI system partition\n");
++		goto error;
 +	}
-+
++	r = fs_read("efi.var", map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE, &len);
++	if (r || len < sizeof(struct efi_var_file)) {
++		printf("Failed to load EFI variables\n");
++		goto error;
++	}
++	if (buf->length != len || efi_var_restore(buf) != EFI_SUCCESS)
++		printf("Invalid EFI variables file\n");
++error:
++	free(buf);
 +	return EFI_SUCCESS;
 +}
 -- 
