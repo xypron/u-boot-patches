@@ -1,0 +1,604 @@
+From 9e8ffd904ca7177e5e9cbc4f3ad1d9823e9bcec7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Mar 2020 13:56:19 +0100
+Subject: [PATCH] efi_loader: use memory based variable storage
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 503 +++++-----------------------------
+ 1 file changed, 67 insertions(+), 436 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 94656fddea..292cc7d86b 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -2,151 +2,15 @@
+ /*
+  * UEFI runtime variable services
+  *
+- * Copyright (c) 2017 Rob Clark
++ * Copyright (c) 2019 Heinrich Schuchardt
+  */
+ 
+ #include <common.h>
+ #include <efi_loader.h>
+-#include <env_internal.h>
+-#include <hexdump.h>
+-#include <malloc.h>
+-#include <search.h>
+-#include <u-boot/crc.h>
++#include <efi_variable.h>
+ 
+ #define READ_ONLY BIT(31)
+ 
+-/*
+- * Mapping between EFI variables and u-boot variables:
+- *
+- *   efi_$guid_$varname = {attributes}(type)value
+- *
+- * For example:
+- *
+- *   efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_OsIndicationsSupported=
+- *      "{ro,boot,run}(blob)0000000000000000"
+- *   efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_BootOrder=
+- *      "(blob)00010000"
+- *
+- * The attributes are a comma separated list of these possible
+- * attributes:
+- *
+- *   + ro   - read-only
+- *   + boot - boot-services access
+- *   + run  - runtime access
+- *
+- * NOTE: with current implementation, no variables are available after
+- * ExitBootServices, and all are persisted (if possible).
+- *
+- * If not specified, the attributes default to "{boot}".
+- *
+- * The required type is one of:
+- *
+- *   + utf8 - raw utf8 string
+- *   + blob - arbitrary length hex string
+- *
+- * Maybe a utf16 type would be useful to for a string value to be auto
+- * converted to utf16?
+- */
+-
+-#define PREFIX_LEN (strlen("efi_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx_"))
+-
+-/**
+- * efi_to_native() - convert the UEFI variable name and vendor GUID to U-Boot
+- *		     variable name
+- *
+- * The U-Boot variable name is a concatenation of prefix 'efi', the hexstring
+- * encoded vendor GUID, and the UTF-8 encoded UEFI variable name separated by
+- * underscores, e.g. 'efi_8be4df61-93ca-11d2-aa0d-00e098032b8c_BootOrder'.
+- *
+- * @native:		pointer to pointer to U-Boot variable name
+- * @variable_name:	UEFI variable name
+- * @vendor:		vendor GUID
+- * Return:		status code
+- */
+-static efi_status_t efi_to_native(char **native, const u16 *variable_name,
+-				  const efi_guid_t *vendor)
+-{
+-	size_t len;
+-	char *pos;
+-
+-	len = PREFIX_LEN + utf16_utf8_strlen(variable_name) + 1;
+-	*native = malloc(len);
+-	if (!*native)
+-		return EFI_OUT_OF_RESOURCES;
+-
+-	pos = *native;
+-	pos += sprintf(pos, "efi_%pUl_", vendor);
+-	utf16_utf8_strcpy(&pos, variable_name);
+-
+-	return EFI_SUCCESS;
+-}
+-
+-/**
+- * prefix() - skip over prefix
+- *
+- * Skip over a prefix string.
+- *
+- * @str:	string with prefix
+- * @prefix:	prefix string
+- * Return:	string without prefix, or NULL if prefix not found
+- */
+-static const char *prefix(const char *str, const char *prefix)
+-{
+-	size_t n = strlen(prefix);
+-	if (!strncmp(prefix, str, n))
+-		return str + n;
+-	return NULL;
+-}
+-
+-/**
+- * parse_attr() - decode attributes part of variable value
+- *
+- * Convert the string encoded attributes of a UEFI variable to a bit mask.
+- * TODO: Several attributes are not supported.
+- *
+- * @str:	value of U-Boot variable
+- * @attrp:	pointer to UEFI attributes
+- * Return:	pointer to remainder of U-Boot variable value
+- */
+-static const char *parse_attr(const char *str, u32 *attrp)
+-{
+-	u32 attr = 0;
+-	char sep = '{';
+-
+-	if (*str != '{') {
+-		*attrp = EFI_VARIABLE_BOOTSERVICE_ACCESS;
+-		return str;
+-	}
+-
+-	while (*str == sep) {
+-		const char *s;
+-
+-		str++;
+-
+-		if ((s = prefix(str, "ro"))) {
+-			attr |= READ_ONLY;
+-		} else if ((s = prefix(str, "nv"))) {
+-			attr |= EFI_VARIABLE_NON_VOLATILE;
+-		} else if ((s = prefix(str, "boot"))) {
+-			attr |= EFI_VARIABLE_BOOTSERVICE_ACCESS;
+-		} else if ((s = prefix(str, "run"))) {
+-			attr |= EFI_VARIABLE_RUNTIME_ACCESS;
+-		} else {
+-			printf("invalid attribute: %s\n", str);
+-			break;
+-		}
+-
+-		str = s;
+-		sep = ',';
+-	}
+-
+-	str++;
+-
+-	*attrp = attr;
+-
+-	return str;
+-}
+-
+ /**
+  * efi_get_variable() - retrieve value of a UEFI variable
+  *
+@@ -166,11 +30,17 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 *attributes,
+ 				     efi_uintn_t *data_size, void *data)
+ {
++	efi_status_t ret;
++
+ 	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
+-	return EFI_EXIT(efi_get_variable_int(variable_name, vendor, attributes,
+-					     data_size, data));
++	ret = efi_get_variable_int(variable_name, vendor, attributes, data_size,
++				   data);
++	/* Remove read-only bit */
++	*attributes &= EFI_VARIABLE_MASK;
++
++	return EFI_EXIT(ret);
+ }
+ 
+ /**
+@@ -190,148 +60,33 @@ efi_status_t efi_get_variable_int(u16 *variable_name,
+ 				  const efi_guid_t *vendor, u32 *attributes,
+ 				  efi_uintn_t *data_size, void *data)
+ {
+-	char *native_name;
+-	efi_status_t ret;
+-	unsigned long in_size;
+-	const char *val, *s;
+-	u32 attr;
+-
++	efi_uintn_t old_size;
++	struct efi_var_entry *var;
++	u16 *pdata;
+ 
+ 	if (!variable_name || !vendor || !data_size)
+ 		return EFI_INVALID_PARAMETER;
+ 
+-	ret = efi_to_native(&native_name, variable_name, vendor);
+-	if (ret)
+-		return ret;
+-
+-	EFI_PRINT("get '%s'\n", native_name);
+-
+-	val = env_get(native_name);
+-	free(native_name);
+-	if (!val)
++	var = efi_var_mem_find(vendor, variable_name);
++	if (!var)
+ 		return EFI_NOT_FOUND;
+ 
+-	val = parse_attr(val, &attr);
+-
+-	in_size = *data_size;
+-
+-	if ((s = prefix(val, "(blob)"))) {
+-		size_t len = strlen(s);
+-
+-		/* number of hexadecimal digits must be even */
+-		if (len & 1)
+-			return EFI_DEVICE_ERROR;
+-
+-		/* two characters per byte: */
+-		len /= 2;
+-		*data_size = len;
+-
+-		if (in_size < len) {
+-			ret = EFI_BUFFER_TOO_SMALL;
+-			goto out;
+-		}
+-
+-		if (!data)
+-			return EFI_INVALID_PARAMETER;
+-
+-		if (hex2bin(data, s, len))
+-			return EFI_DEVICE_ERROR;
+-
+-		EFI_PRINT("got value: \"%s\"\n", s);
+-	} else if ((s = prefix(val, "(utf8)"))) {
+-		unsigned len = strlen(s) + 1;
+-
+-		*data_size = len;
+-
+-		if (in_size < len) {
+-			ret = EFI_BUFFER_TOO_SMALL;
+-			goto out;
+-		}
+-
+-		if (!data)
+-			return EFI_INVALID_PARAMETER;
+-
+-		memcpy(data, s, len);
+-		((char *)data)[len] = '\0';
+-
+-		EFI_PRINT("got value: \"%s\"\n", (char *)data);
+-	} else {
+-		EFI_PRINT("invalid value: '%s'\n", val);
+-		return EFI_DEVICE_ERROR;
+-	}
+-
+-out:
+ 	if (attributes)
+-		*attributes = attr & EFI_VARIABLE_MASK;
+-
+-	return ret;
+-}
+-
+-static char *efi_variables_list;
+-static char *efi_cur_variable;
++		*attributes = var->attr;
+ 
+-/**
+- * parse_uboot_variable() - parse a u-boot variable and get uefi-related
+- *			    information
+- * @variable:		whole data of u-boot variable (ie. name=value)
+- * @variable_name_size: size of variable_name buffer in byte
+- * @variable_name:	name of uefi variable in u16, null-terminated
+- * @vendor:		vendor's guid
+- * @attributes:		attributes
+- *
+- * A uefi variable is encoded into a u-boot variable as described above.
+- * This function parses such a u-boot variable and retrieve uefi-related
+- * information into respective parameters. In return, variable_name_size
+- * is the size of variable name including NULL.
+- *
+- * Return:		EFI_SUCCESS if parsing is OK, EFI_NOT_FOUND when
+- *			the entire variable list has been returned,
+- *			otherwise non-zero status code
+- */
+-static efi_status_t parse_uboot_variable(char *variable,
+-					 efi_uintn_t *variable_name_size,
+-					 u16 *variable_name,
+-					 const efi_guid_t *vendor,
+-					 u32 *attributes)
+-{
+-	char *guid, *name, *end, c;
+-	size_t name_len;
+-	efi_uintn_t old_variable_name_size;
+-	u16 *p;
+-
+-	guid = strchr(variable, '_');
+-	if (!guid)
+-		return EFI_INVALID_PARAMETER;
+-	guid++;
+-	name = strchr(guid, '_');
+-	if (!name)
+-		return EFI_INVALID_PARAMETER;
+-	name++;
+-	end = strchr(name, '=');
+-	if (!end)
+-		return EFI_INVALID_PARAMETER;
+-
+-	name_len = end - name;
+-	old_variable_name_size = *variable_name_size;
+-	*variable_name_size = sizeof(u16) * (name_len + 1);
+-	if (old_variable_name_size < *variable_name_size)
++	old_size = *data_size;
++	*data_size = var->length;
++	if (old_size < var->length)
+ 		return EFI_BUFFER_TOO_SMALL;
+ 
+-	end++; /* point to value */
+-
+-	/* variable name */
+-	p = variable_name;
+-	utf8_utf16_strncpy(&p, name, name_len);
+-	variable_name[name_len] = 0;
++	if (!data)
++		return EFI_INVALID_PARAMETER;
+ 
+-	/* guid */
+-	c = *(name - 1);
+-	*(name - 1) = '\0'; /* guid need be null-terminated here */
+-	uuid_str_to_bin(guid, (unsigned char *)vendor, UUID_STR_FORMAT_GUID);
+-	*(name - 1) = c;
++	for (pdata = var->name; *pdata; ++pdata)
++		;
++	++pdata;
+ 
+-	/* attributes */
+-	parse_attr(end, attributes);
++	efi_var_mem_memcpy(data, pdata, var->length);
+ 
+ 	return EFI_SUCCESS;
+ }
+@@ -381,74 +136,33 @@ efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
+ 					    u16 *variable_name,
+ 					    const efi_guid_t *vendor)
+ {
+-	char *native_name, *variable;
+-	ssize_t name_len, list_len;
+-	char regex[256];
+-	char * const regexlist[] = {regex};
+-	u32 attributes;
+-	int i;
+-	efi_status_t ret;
++	static struct efi_var_entry *var;
++	efi_uintn_t old_size;
++	u16 *pdata;
+ 
+ 	if (!variable_name_size || !variable_name || !vendor)
+ 		return EFI_INVALID_PARAMETER;
+ 
+-	if (variable_name[0]) {
+-		/* check null-terminated string */
+-		for (i = 0; i < *variable_name_size; i++)
+-			if (!variable_name[i])
+-				break;
+-		if (i >= *variable_name_size)
+-			return EFI_INVALID_PARAMETER;
+-
+-		/* search for the last-returned variable */
+-		ret = efi_to_native(&native_name, variable_name, vendor);
+-		if (ret)
+-			return ret;
+-
+-		name_len = strlen(native_name);
+-		for (variable = efi_variables_list; variable && *variable;) {
+-			if (!strncmp(variable, native_name, name_len) &&
+-			    variable[name_len] == '=')
+-				break;
+-
+-			variable = strchr(variable, '\n');
+-			if (variable)
+-				variable++;
+-		}
++	if (!variable_name[0])
++		var = NULL;
++
++	var = efi_var_mem_next(var);
++	if (!var)
++		return EFI_NOT_FOUND;
+ 
+-		free(native_name);
+-		if (!(variable && *variable))
+-			return EFI_INVALID_PARAMETER;
++	for (pdata = var->name; *pdata; ++pdata)
++		;
++	++pdata;
+ 
+-		/* next variable */
+-		variable = strchr(variable, '\n');
+-		if (variable)
+-			variable++;
+-		if (!(variable && *variable))
+-			return EFI_NOT_FOUND;
+-	} else {
+-		/*
+-		 *new search: free a list used in the previous search
+-		 */
+-		free(efi_variables_list);
+-		efi_variables_list = NULL;
+-		efi_cur_variable = NULL;
+-
+-		snprintf(regex, 256, "efi_.*-.*-.*-.*-.*_.*");
+-		list_len = hexport_r(&env_htab, '\n',
+-				     H_MATCH_REGEX | H_MATCH_KEY,
+-				     &efi_variables_list, 0, 1, regexlist);
+-		/* 1 indicates that no match was found */
+-		if (list_len <= 1)
+-			return EFI_NOT_FOUND;
++	old_size = *variable_name_size;
++	*variable_name_size = (uintptr_t)pdata - (uintptr_t)var->name;
+ 
+-		variable = efi_variables_list;
+-	}
++	if (old_size < *variable_name_size)
++		return EFI_BUFFER_TOO_SMALL;
+ 
+-	ret = parse_uboot_variable(variable, variable_name_size, variable_name,
+-				   vendor, &attributes);
++	efi_var_mem_memcpy(variable_name, var->name, *variable_name_size);
+ 
+-	return ret;
++	return EFI_SUCCESS;
+ }
+ 
+ /**
+@@ -493,125 +207,36 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 				  const efi_guid_t *vendor, u32 attributes,
+ 				  efi_uintn_t data_size, const void *data)
+ {
+-	char *native_name = NULL, *val = NULL, *s;
+-	const char *old_val;
+-	size_t old_size;
+-	efi_status_t ret = EFI_SUCCESS;
+-	u32 attr;
+-
++	static struct efi_var_entry *var;
++	efi_uintn_t ret;
+ 
+ 	if (!variable_name || !*variable_name || !vendor ||
+ 	    ((attributes & EFI_VARIABLE_RUNTIME_ACCESS) &&
+ 	     !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS))) {
+-		ret = EFI_INVALID_PARAMETER;
+-		goto out;
++		return EFI_INVALID_PARAMETER;
+ 	}
+ 
+-	ret = efi_to_native(&native_name, variable_name, vendor);
+-	if (ret)
+-		goto out;
++	var = efi_var_mem_find(vendor, variable_name);
+ 
+-	old_val = env_get(native_name);
+-	if (old_val) {
+-		old_val = parse_attr(old_val, &attr);
+-
+-		/* check read-only first */
+-		if (attr & READ_ONLY) {
+-			ret = EFI_WRITE_PROTECTED;
+-			goto out;
+-		}
+-
+-		if ((data_size == 0 &&
+-		     !(attributes & EFI_VARIABLE_APPEND_WRITE)) ||
+-		    !attributes) {
+-			/* delete the variable: */
+-			env_set(native_name, NULL);
+-			ret = EFI_SUCCESS;
+-			goto out;
+-		}
+-
+-		/* attributes won't be changed */
+-		if (attr != (attributes & ~EFI_VARIABLE_APPEND_WRITE)) {
+-			ret = EFI_INVALID_PARAMETER;
+-			goto out;
+-		}
++	if (var && var->attr & READ_ONLY)
++		return EFI_WRITE_PROTECTED;
++	else if (attributes & EFI_VARIABLE_APPEND_WRITE)
++		return EFI_NOT_FOUND;
+ 
+-		if (attributes & EFI_VARIABLE_APPEND_WRITE) {
+-			if (!prefix(old_val, "(blob)")) {
+-				ret = EFI_DEVICE_ERROR;
+-				goto out;
+-			}
+-			old_size = strlen(old_val);
++	if ((data_size == 0 && !(attributes & EFI_VARIABLE_APPEND_WRITE)) ||
++	    !attributes) {
++		if (var) {
++			efi_var_mem_del(var);
++			return EFI_SUCCESS;
+ 		} else {
+-			old_size = 0;
+-		}
+-	} else {
+-		if (data_size == 0 || !attributes ||
+-		    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
+-			/*
+-			 * Trying to delete or to update a non-existent
+-			 * variable.
+-			 */
+-			ret = EFI_NOT_FOUND;
+-			goto out;
++			return EFI_NOT_FOUND;
+ 		}
+-
+-		old_size = 0;
+-	}
+-
+-	val = malloc(old_size + 2 * data_size
+-		     + strlen("{ro,run,boot,nv}(blob)") + 1);
+-	if (!val) {
+-		ret = EFI_OUT_OF_RESOURCES;
+-		goto out;
+ 	}
+ 
+-	s = val;
+-
+-	/* store attributes */
+-	attributes &= (EFI_VARIABLE_NON_VOLATILE |
+-		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-		       EFI_VARIABLE_RUNTIME_ACCESS);
+-	s += sprintf(s, "{");
+-	for (u32 attr_rem = attributes; attr_rem;) {
+-		u32 attr = 1 << (ffs(attr_rem) - 1);
+-
+-		if (attr == EFI_VARIABLE_NON_VOLATILE)
+-			s += sprintf(s, "nv");
+-		else if (attr == EFI_VARIABLE_BOOTSERVICE_ACCESS)
+-			s += sprintf(s, "boot");
+-		else if (attr == EFI_VARIABLE_RUNTIME_ACCESS)
+-			s += sprintf(s, "run");
+-
+-		attr_rem &= ~attr;
+-		if (attr_rem)
+-			s += sprintf(s, ",");
+-	}
+-	s += sprintf(s, "}");
+-
+-	if (old_size)
+-		/* APPEND_WRITE */
+-		s += sprintf(s, old_val);
+-	else
+-		s += sprintf(s, "(blob)");
+-
+-	/* store payload: */
+-	s = bin2hex(s, data, data_size);
+-	*s = '\0';
+-
+-	EFI_PRINT("setting: %s=%s\n", native_name, val);
+-
+-	if (env_set(native_name, val))
+-		ret = EFI_DEVICE_ERROR;
+-
+-	/* Write non-volatile EFI variables to file */
+-	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
+-	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
+-		efi_var_to_file();
+-
+-out:
+-	free(native_name);
+-	free(val);
++	ret = efi_var_mem_ins(variable_name, vendor, attributes, data_size,
++			      data);
++	if (ret == EFI_SUCCESS)
++		efi_var_mem_del(var);
+ 
+ 	return ret;
+ }
+@@ -717,5 +342,11 @@ void efi_variables_boot_exit_notify(void)
+  */
+ efi_status_t efi_init_variables(void)
+ {
++	efi_status_t ret;
++
++	ret = efi_var_mem_init();
++	if (ret != EFI_SUCCESS)
++		return ret;
++
+ 	return efi_var_from_file();
+ }
+-- 
+2.25.1
+
