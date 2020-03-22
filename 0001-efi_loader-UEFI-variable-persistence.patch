@@ -1,16 +1,27 @@
-From 5fae35719d640b2556c8f0d9fe989bd8657de9e8 Mon Sep 17 00:00:00 2001
+From fc0396b2e076737d591641ec2ba7e217e25fcb76 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
-Subject: [PATCH] efi_loader: UEFI variable persistence
+Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
+
+Persist non-volatile UEFI variables in a file on the EFI system partition.
+
+The file is written:
+
+* whenever a non-volatile UEFI variable is changed after initialization
+  of the UEFI sub-system.
+* upon ExitBootServices()
+
+The file is read during the UEFI sub-system initialization to restore
+non-volatile UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h                |   2 +
- include/efi_variable.h              |  27 ++++
+ include/efi_variable.h              |  32 ++++
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_variable.c       |  11 +-
  lib/efi_loader/efi_variables_file.c | 227 ++++++++++++++++++++++++++++
- 5 files changed, 267 insertions(+), 1 deletion(-)
+ 5 files changed, 272 insertions(+), 1 deletion(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
@@ -29,16 +40,19 @@ index e20f9b7cbe..0f0a35130b 100644
  				     efi_uintn_t *data_size, void *data);
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
-index 0000000000..27a31fbb69
+index 0000000000..68a75ac0e6
 --- /dev/null
 +++ b/include/efi_variable.h
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,32 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * File interface for UEFI variables
 + *
 + * Copyright (c) 2020, Heinrich Schuchardt
 + */
++
++#ifndef _EFI_VARIABLE_H
++#define _EFI_VARIABLE_H
 +
 +#define EFI_VAR_FILE_NAME "ubootefi.var"
 +
@@ -60,6 +74,8 @@ index 0000000000..27a31fbb69
 +	u32 crc32;
 +	struct efi_var_entry var[0];
 +};
++
++#endif
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 9b3b704473..621a767ab3 100644
 --- a/lib/efi_loader/Makefile
