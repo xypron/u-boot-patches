@@ -1,0 +1,180 @@
+From 7d4a6444d3055d5609c1322783d59806b9235386 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Mar 2020 09:07:50 +0100
+Subject: [PATCH 1/1] efi_loader: memory buffer for variables
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Makefile            |   1 +
+ lib/efi_loader/efi_variables_mem.c | 147 +++++++++++++++++++++++++++++
+ 2 files changed, 148 insertions(+)
+ create mode 100644 lib/efi_loader/efi_variables_mem.c
+
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index 621a767ab3..14b210e189 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -36,6 +36,7 @@ obj-y += efi_setup.o
+ obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
+ obj-y += efi_variable.o
+ obj-y += efi_variables_file.o
++obj-y += efi_variables_mem.o
+ obj-y += efi_watchdog.o
+ obj-$(CONFIG_LCD) += efi_gop.o
+ obj-$(CONFIG_DM_VIDEO) += efi_gop.o
+diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
+new file mode 100644
+index 0000000000..8dd1784558
+--- /dev/null
++++ b/lib/efi_loader/efi_variables_mem.c
+@@ -0,0 +1,147 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * File interface for UEFI variables
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt
++ */
++
++#include <common.h>
++#include <efi_loader.h>
++#include <efi_variable.h>
++#include <u-boot/crc.h>
++
++static struct efi_var_file __efi_runtime_data *efi_var_buf;
++
++/**
++ * memcpy() - copy memory area
++ *
++ * @dest:	destination buffer
++ * @src:	source buffer
++ * @n:		number of bytes to copy
++ * Return:	pointer to destination buffer
++ */
++void __efi_runtime efi_var_mem_memcpy(void *dest, const void *src, size_t n)
++{
++	u8 *d = dest;
++	const u8 *s = src;
++
++	for (; n; --n)
++		*d++ = *s++;
++}
++
++static efi_status_t efi_var_mem_init(void)
++{
++	uint64_t *memory;
++	efi_status_t ret;
++
++	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
++				 EFI_RUNTIME_SERVICES_DATA,
++				 efi_size_in_pages(EFI_VAR_BUF_SIZE),
++				 memory);
++	if (ret != EFI_SUCCESS)
++		return ret;
++	efi_var_buf = (struct efi_var_file *) memory;
++	memset(efi_var_buf, 0, EFI_VAR_BUF_SIZE);
++	efi_var_buf->magic = EFI_VAR_FILE_MAGIC;
++	efi_var_buf->length = (uintptr_t)efi_var_buf->var - (uintptr_t)efi_var_buf;
++	/* crc32 for 0 bytes = 0 */
++
++	return ret;
++}
++
++static struct efi_var_entry __efi_runtime
++*efi_var_mem_find(efi_guid_t *guid, u16* name)
++{
++	struct efi_var_entry *last;
++	u8 *guid1, *guid2;
++	int i;
++
++	last = (struct efi_var_entry *)
++	       ((uintptr_t)efi_var_buf + efi_var_buf->length);
++	
++	for(struct efi_var_entry *var = efi_var_buf->var; var < last;) {
++		u16 *data = var->name;
++		bool match = true;
++
++		for (guid1 = (u8 *)&var->guid, guid2 = (u8 *)guid, i = 0;
++		     i < sizeof(efi_guid_t) && match; ++i) {
++			match = (guid1[i] != guid2[i]);
++		}
++		
++		for (;;++data, ++name) {
++			if (match)
++				match = (*data == *name);
++			if (!*data)
++				break;
++		}
++		if (match)
++			return var;
++
++		++data;
++		var = (struct efi_var_entry *)
++		      ALIGN((uintptr_t)data + var->length, 8);
++	}
++	return NULL;
++
++}
++
++static void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
++{
++	u16 *data = var->name;
++	struct efi_var_entry *next, *last;
++	u64 *from, *to;
++
++	last = (struct efi_var_entry *)
++	       ((uintptr_t)efi_var_buf + efi_var_buf->length);
++	
++	for(data = var->name; *data; ++data)
++		;
++	++data;
++	next = (struct efi_var_entry *)
++	       ALIGN((uintptr_t)data + var->length, 8);
++	efi_var_buf->length -= (uintptr_t)next - (uintptr_t)var;
++
++	for (to = (u64 *)var, from = (u64 *)next; from < (u64 *)last;
++	     ++to, ++from)
++		*to = *from;
++	efi_var_buf->crc32 = crc32(0, (u8 *)efi_var_buf->var,
++			     efi_var_buf->length - sizeof(struct efi_var_file));
++}
++
++static efi_status_t __efi_runtime efi_var_mem_ins(
++				u16 *variable_name,
++				const efi_guid_t *vendor, u32 attributes,
++				efi_uintn_t data_size, const void *var_data)
++{
++	u16 *data;
++	struct efi_var_entry *var;
++	u32 var_name_len;
++
++	var = (struct efi_var_entry *)
++	      ((uintptr_t)efi_var_buf + efi_var_buf->length);
++	for(var_name_len = 0; variable_name[var_name_len]; ++var_name_len)
++		;
++	++var_name_len;
++	data = var->name + var_name_len;
++	
++	if ((uintptr_t)data - (uintptr_t)efi_var_buf + data_size >
++	    EFI_VAR_BUF_SIZE)
++		return EFI_OUT_OF_RESOURCES;
++
++	var->attr = attributes;
++	var->length = data_size;
++
++	efi_var_mem_memcpy(&var->guid, vendor, sizeof(efi_guid_t));
++	efi_var_mem_memcpy(var->name, variable_name,
++			   sizeof(u16) * var_name_len);
++	efi_var_mem_memcpy(data, var_data, data_size);
++
++	var = (struct efi_var_entry *)
++	      ALIGN((uintptr_t)data + var->length, 8);
++	efi_var_buf->length = (uintptr_t)var - (uintptr_t)efi_var_buf;
++	efi_var_buf->crc32 = crc32(0, (u8 *)efi_var_buf->var,
++			     efi_var_buf->length - sizeof(struct efi_var_file));
++	
++	return EFI_SUCCESS;
++}
++
+-- 
+2.25.1
+
