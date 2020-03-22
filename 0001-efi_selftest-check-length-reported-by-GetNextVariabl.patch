@@ -1,7 +1,7 @@
-From 0fe49bc11cb029d0711cd3866069a32be18831ba Mon Sep 17 00:00:00 2001
+From 1b2c855f963f3c1637c62176e400d8afb5dd8a5f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 20 Mar 2020 19:20:17 +0100
-Subject: [PATCH 1/1] efi_selftest: check length report by
+Subject: [PATCH 1/1] efi_selftest: check length reported by
  GetNextVariableName()
 
 GetNextVariableName should report the length of the variable including the
