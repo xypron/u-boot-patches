@@ -238,10 +238,10 @@ index 37c3f15da1..8c4a3bfa61 100644
 +				  efi_uintn_t *data_size, void *data);
  efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  					       u16 *variable_name,
- 					       const efi_guid_t *vendor);
+ 					       efi_guid_t *vendor);
 +efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 +					    u16 *variable_name,
-+					    const efi_guid_t *vendor);
++					    efi_guid_t *vendor);
  efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
  				     const efi_guid_t *vendor, u32 attributes,
  				     efi_uintn_t data_size, const void *data);
@@ -506,7 +506,7 @@ index 99d2f01f57..63c3ea4d55 100644
 @@ -330,6 +352,33 @@ static efi_status_t parse_uboot_variable(char *variable,
  efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  					       u16 *variable_name,
- 					       const efi_guid_t *vendor)
+ 					       efi_guid_t *vendor)
 +{
 +	EFI_ENTRY("%p \"%ls\" %pUl", variable_name_size, variable_name, vendor);
 +
@@ -533,7 +533,7 @@ index 99d2f01f57..63c3ea4d55 100644
 + */
 +efi_status_t efi_get_next_variable_name_int(efi_uintn_t *variable_name_size,
 +					    u16 *variable_name,
-+					    const efi_guid_t *vendor)
++					    efi_guid_t *vendor)
  {
  	char *native_name, *variable;
  	ssize_t name_len, list_len;
