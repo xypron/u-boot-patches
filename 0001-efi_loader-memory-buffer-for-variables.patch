@@ -1,7 +1,12 @@
-From 9a7fe2e51087710e5faac1ee738428003be87338 Mon Sep 17 00:00:00 2001
+From 57be3c3d88062979b6ac942b0bb031d7e42a5a69 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
+
+Saving UEFI variable as encoded U-Boot environment variables does not allow
+support at runtime.
+
+Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -48,7 +53,7 @@ index 621a767ab3..14b210e189 100644
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
 new file mode 100644
-index 0000000000..d077a83601
+index 0000000000..ad4562874f
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_mem.c
 @@ -0,0 +1,173 @@
@@ -116,7 +121,7 @@ index 0000000000..d077a83601
 +			;
 +		++data;
 +		var = (struct efi_var_entry *)
-+	 	     ALIGN((uintptr_t)data + var->length, 8);
++		      ALIGN((uintptr_t)data + var->length, 8);
 +	} else {
 +		var = efi_var_buf->var;
 +	}
