@@ -72,6 +72,7 @@ git am ../patch/0001-efi_loader-correct-reported-length-in-GetNextVariabl.patch
 git am ../patch/0001-efi_selftest-check-length-report-by-GetNextVariableN.patch
 git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
 git am ../patch/0001-efi_loader-description-efi_convert_pointer.patch
+git am ../patch/0001-efi_loader-fix-memmove.patch
 
 # efi-2020-07
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch

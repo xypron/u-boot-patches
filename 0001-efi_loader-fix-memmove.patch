@@ -1,0 +1,32 @@
+From c93b4f69d33679a992d284f367ab4bf60960f78e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Mar 2020 09:52:48 +0100
+Subject: [PATCH 1/1] efi_loader: fix freestanding memmove()
+
+For EFI binaries we have to provide an implementation of memmove() in
+efi_freestanding.c.
+
+Before this patch the memmove() function was copying in the wrong
+direction.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_freestanding.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_freestanding.c b/lib/efi_loader/efi_freestanding.c
+index dcf5d1c49a..bd0dff162f 100644
+--- a/lib/efi_loader/efi_freestanding.c
++++ b/lib/efi_loader/efi_freestanding.c
+@@ -47,7 +47,7 @@ void *memmove(void *dest, const void *src, size_t n)
+ 	u8 *d = dest;
+ 	const u8 *s = src;
+ 
+-	if (d >= s) {
++	if (d <= s) {
+ 		for (; n; --n)
+ 			*d++ = *s++;
+ 	} else {
+-- 
+2.25.1
+
