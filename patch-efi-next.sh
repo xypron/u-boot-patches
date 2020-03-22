@@ -74,6 +74,7 @@ git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
 git am ../patch/0001-efi_loader-description-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-fix-freestanding-memmove.patch
 git am ../patch/0001-efi_selftest-test-CalculateCrc32-CopyMem-SetMem.patch
+git am ../patch/0001-efi_loader-definition-of-GetNextVariableName.patch
 
 # efi-2020-07
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch

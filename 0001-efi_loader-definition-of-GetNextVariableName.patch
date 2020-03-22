@@ -1,0 +1,67 @@
+From d08ef12e598ae2260cd2da250f55815cb2ee573c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Mar 2020 18:28:20 +0100
+Subject: [PATCH 1/1] efi_loader: definition of GetNextVariableName()
+
+'vendor' is both an input and an output parameter. So it cannot be
+constant.
+
+Fixes: 0bda81bfdc5c ("efi_loader: use const efi_guid_t * for variable services")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h             | 2 +-
+ include/efi_loader.h          | 2 +-
+ lib/efi_loader/efi_variable.c | 4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 4713da2e1d..1c40ffc4f5 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -272,7 +272,7 @@ struct efi_runtime_services {
+ 					    efi_uintn_t *data_size, void *data);
+ 	efi_status_t (EFIAPI *get_next_variable_name)(
+ 			efi_uintn_t *variable_name_size,
+-			u16 *variable_name, const efi_guid_t *vendor);
++			u16 *variable_name, efi_guid_t *vendor);
+ 	efi_status_t (EFIAPI *set_variable)(u16 *variable_name,
+ 					    const efi_guid_t *vendor,
+ 					    u32 attributes,
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 37c3f15da1..3f2792892f 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -645,7 +645,7 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 				     efi_uintn_t *data_size, void *data);
+ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 					       u16 *variable_name,
+-					       const efi_guid_t *vendor);
++					       efi_guid_t *vendor);
+ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 attributes,
+ 				     efi_uintn_t data_size, const void *data);
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 3bec2d0d17..fe2f264591 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -330,7 +330,7 @@ static efi_status_t parse_uboot_variable(char *variable,
+  */
+ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+ 					       u16 *variable_name,
+-					       const efi_guid_t *vendor)
++					       efi_guid_t *vendor)
+ {
+ 	char *native_name, *variable;
+ 	ssize_t name_len, list_len;
+@@ -598,7 +598,7 @@ efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+  */
+ static efi_status_t __efi_runtime EFIAPI
+ efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
+-				   u16 *variable_name, const efi_guid_t *vendor)
++				   u16 *variable_name, efi_guid_t *vendor)
+ {
+ 	return EFI_UNSUPPORTED;
+ }
+-- 
+2.25.1
+
