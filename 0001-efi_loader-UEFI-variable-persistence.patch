@@ -1,4 +1,4 @@
-From fc0396b2e076737d591641ec2ba7e217e25fcb76 Mon Sep 17 00:00:00 2001
+From cf0ad3f68723d9b570498fd79eb96f4f8036915e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -20,8 +20,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_variable.h              |  32 ++++
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_variable.c       |  11 +-
- lib/efi_loader/efi_variables_file.c | 227 ++++++++++++++++++++++++++++
- 5 files changed, 272 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_variables_file.c | 228 ++++++++++++++++++++++++++++
+ 5 files changed, 273 insertions(+), 1 deletion(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
@@ -40,7 +40,7 @@ index e20f9b7cbe..0f0a35130b 100644
  				     efi_uintn_t *data_size, void *data);
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
-index 0000000000..68a75ac0e6
+index 0000000000..a37d5d5061
 --- /dev/null
 +++ b/include/efi_variable.h
 @@ -0,0 +1,32 @@
@@ -61,7 +61,7 @@ index 0000000000..68a75ac0e6
 +#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
 +
 +struct efi_var_entry {
-+	u32 len;
++	u32 length;
 +	u32 attr;
 +	efi_guid_t guid;
 +	u16 name[0];
@@ -124,10 +124,10 @@ index 9e308eed2c..94656fddea 100644
  }
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..111e19e368
+index 0000000000..478a06b514
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
-@@ -0,0 +1,227 @@
+@@ -0,0 +1,228 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -227,7 +227,7 @@ index 0000000000..111e19e368
 +		}
 +		if (!(var->attr & EFI_VARIABLE_NON_VOLATILE))
 +			continue;
-+		var->len = data_length;
++		var->length = data_length;
 +		var = (struct efi_var_entry *)
 +		      ALIGN((uintptr_t)data + data_length, 8);
 +	}
@@ -302,15 +302,16 @@ index 0000000000..111e19e368
 +	while(var < last_var) {
 +		u16 *data = var->name + u16_strlen(var->name) + 1;
 +
-+		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->len) {
++		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->length) {
 +			ret = efi_set_variable_int(var->name, &var->guid,
-+						   var->attr, var->len, data);
++						   var->attr, var->length,
++						   data);
 +			if (ret != EFI_SUCCESS)
 +				printf("Failed to set EFI variable %ls\n",
 +				       var->name);
 +			}
 +		var = (struct efi_var_entry *)
-+		      ALIGN((uintptr_t)data + var->len, 8);
++		      ALIGN((uintptr_t)data + var->length, 8);
 +	}
 +	return EFI_SUCCESS;
 +}
