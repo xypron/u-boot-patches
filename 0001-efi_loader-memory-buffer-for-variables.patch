@@ -1,4 +1,4 @@
-From 3189341b6e5b6d1f953349c161dde92382089efa Mon Sep 17 00:00:00 2001
+From 4534536aa8056eb187f8a29aa525af7715a11a12 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -46,7 +46,7 @@ index 621a767ab3..14b210e189 100644
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
 new file mode 100644
-index 0000000000..9694935020
+index 0000000000..82e0dbd37b
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_mem.c
 @@ -0,0 +1,149 @@
@@ -83,13 +83,13 @@ index 0000000000..9694935020
 +
 +efi_status_t efi_var_mem_init(void)
 +{
-+	u64 *memory;
++	u64 memory;
 +	efi_status_t ret;
 +
 +	ret = efi_allocate_pages(EFI_ALLOCATE_ANY_PAGES,
 +				 EFI_RUNTIME_SERVICES_DATA,
 +				 efi_size_in_pages(EFI_VAR_BUF_SIZE),
-+				 memory);
++				 &memory);
 +	if (ret != EFI_SUCCESS)
 +		return ret;
 +	efi_var_buf = (struct efi_var_file *)memory;
