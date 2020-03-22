@@ -1,24 +1,26 @@
-From 4534536aa8056eb187f8a29aa525af7715a11a12 Mon Sep 17 00:00:00 2001
+From 841f3d4bfbfa47a9fa7f2b02c045f2d6b99bdb3a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h             |  12 +++
+ include/efi_variable.h             |  14 +++
  lib/efi_loader/Makefile            |   1 +
  lib/efi_loader/efi_variables_mem.c | 149 +++++++++++++++++++++++++++++
- 3 files changed, 162 insertions(+)
+ 3 files changed, 164 insertions(+)
  create mode 100644 lib/efi_loader/efi_variables_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index a37d5d5061..fb991eb054 100644
+index a37d5d5061..f5272e3dad 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -29,4 +29,16 @@ struct efi_var_file {
+@@ -29,4 +29,18 @@ struct efi_var_file {
  	struct efi_var_entry var[0];
  };
  
++void __efi_runtime efi_var_mem_memcpy(void *dest, const void *src, size_t n)
++
 +efi_status_t efi_var_mem_init(void);
 +
 +struct efi_var_entry __efi_runtime
