@@ -1,4 +1,4 @@
-From a41f35600376722cd7be2e0b862695844400b1fd Mon Sep 17 00:00:00 2001
+From fc24d0b843a5b5a874304c66eda1ac03d9ca4850 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -12,8 +12,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_variable.h             |  14 +++
  lib/efi_loader/Makefile            |   1 +
- lib/efi_loader/efi_variables_mem.c | 172 +++++++++++++++++++++++++++++
- 3 files changed, 187 insertions(+)
+ lib/efi_loader/efi_variables_mem.c | 178 +++++++++++++++++++++++++++++
+ 3 files changed, 193 insertions(+)
  create mode 100644 lib/efi_loader/efi_variables_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
@@ -53,10 +53,10 @@ index 621a767ab3..14b210e189 100644
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
 new file mode 100644
-index 0000000000..ebf0e597aa
+index 0000000000..f804bf64ce
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_mem.c
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,178 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -70,6 +70,7 @@ index 0000000000..ebf0e597aa
 +#include <u-boot/crc.h>
 +
 +static struct efi_var_file __efi_runtime_data *efi_var_buf;
++static struct efi_var_entry __efi_runtime_data *efi_current_var;
 +
 +/**
 + * memcpy() - copy memory area
@@ -127,6 +128,7 @@ index 0000000000..ebf0e597aa
 +	}
 +	if (var >= last)
 +		var = NULL;
++	efi_current_var = var;
 +	return var;
 +}
 +
@@ -155,8 +157,10 @@ index 0000000000..ebf0e597aa
 +			if (!*data)
 +				break;
 +		}
-+		if (match)
++		if (match) {
++			efi_current_var = var;
 +			return var;
++		}
 +
 +		++data;
 +		var = (struct efi_var_entry *)
@@ -176,6 +180,8 @@ index 0000000000..ebf0e597aa
 +
 +	last = (struct efi_var_entry *)
 +	       ((uintptr_t)efi_var_buf + efi_var_buf->length);
++	if (var < efi_current_var)
++		efi_current_var = NULL;
 +
 +	for (data = var->name; *data; ++data)
 +		;
