@@ -67,15 +67,6 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
-git am ../patch/0001-efi_loader-description-of-efi_variable.c.patch
-git am ../patch/0001-efi_loader-fix-function-descriptions-in-efi_disk.c.patch
-git am ../patch/0001-efi_loader-correct-reported-length-in-GetNextVariabl.patch
-git am ../patch/0001-efi_selftest-check-length-reported-by-GetNextVariabl.patch
-git am ../patch/0001-efi_loader-simplify-logical-expression-in-efi_disk_a.patch
-git am ../patch/0001-efi_loader-description-efi_convert_pointer.patch
-git am ../patch/0001-efi_loader-fix-freestanding-memmove.patch
-git am ../patch/0001-efi_selftest-test-CalculateCrc32-CopyMem-SetMem.patch
-git am ../patch/0001-efi_loader-definition-of-GetNextVariableName.patch
 
 # efi-2020-07
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
