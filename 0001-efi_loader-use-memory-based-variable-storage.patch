@@ -1,4 +1,4 @@
-From 238266f181c687e6ea5c21ed1681fbd8090dcc5e Mon Sep 17 00:00:00 2001
+From 4e703ee0fd24b7cef45942e2fe7c577215ff7a36 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 13:56:19 +0100
 Subject: [PATCH 1/1] efi_loader: use memory based variable storage
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 68 insertions(+), 436 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 5b4b1c490c..76ed80df20 100644
+index 5b4b1c490c..81cbd411be 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -2,151 +2,15 @@
@@ -217,7 +217,7 @@ index 5b4b1c490c..76ed80df20 100644
 -	val = env_get(native_name);
 -	free(native_name);
 -	if (!val)
-+	var = efi_var_mem_find(vendor, variable_name);
++	var = efi_var_mem_find(vendor, variable_name, NULL);
 +	if (!var)
  		return EFI_NOT_FOUND;
  
@@ -399,7 +399,7 @@ index 5b4b1c490c..76ed80df20 100644
 +	if (!variable_name[0])
 +		var = NULL;
 +
-+	var = efi_var_mem_next(var);
++	efi_var_mem_find(vendor, variable_name, &var);
 +	if (!var)
 +		return EFI_NOT_FOUND;
  
@@ -473,7 +473,7 @@ index 5b4b1c490c..76ed80df20 100644
 -	ret = efi_to_native(&native_name, variable_name, vendor);
 -	if (ret)
 -		goto out;
-+	var = efi_var_mem_find(vendor, variable_name);
++	var = efi_var_mem_find(vendor, variable_name, NULL);
  
 -	old_val = env_get(native_name);
 -	if (old_val) {
