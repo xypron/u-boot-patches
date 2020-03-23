@@ -1,4 +1,4 @@
-From 44fc0c841ef68b762d4a984dba20a61421cf5870 Mon Sep 17 00:00:00 2001
+From 40e8f1255432b7f8f74f2c396f9b99eed2b8f651 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -10,17 +10,17 @@ Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h             |  14 ++
+ include/efi_variable.h             |  16 ++
  lib/efi_loader/Makefile            |   1 +
- lib/efi_loader/efi_variables_mem.c | 201 +++++++++++++++++++++++++++++
- 3 files changed, 216 insertions(+)
+ lib/efi_loader/efi_variables_mem.c | 247 +++++++++++++++++++++++++++++
+ 3 files changed, 264 insertions(+)
  create mode 100644 lib/efi_loader/efi_variables_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index a37d5d5061..f5686411e0 100644
+index a37d5d5061..c270239c70 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -29,4 +29,18 @@ struct efi_var_file {
+@@ -29,4 +29,20 @@ struct efi_var_file {
  	struct efi_var_entry var[0];
  };
  
@@ -38,6 +38,8 @@ index a37d5d5061..f5686411e0 100644
 +			     const efi_uintn_t size1, const void *data1,
 +			     const efi_uintn_t size2, const void *data2);
 +
++u64 efi_var_mem_free(void);
++
  #endif
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 621a767ab3..14b210e189 100644
@@ -53,10 +55,10 @@ index 621a767ab3..14b210e189 100644
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
 new file mode 100644
-index 0000000000..a08ff2da6c
+index 0000000000..52f5e6436d
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_mem.c
-@@ -0,0 +1,201 @@
+@@ -0,0 +1,247 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -75,6 +77,8 @@ index 0000000000..a08ff2da6c
 +/**
 + * memcpy() - copy memory area
 + *
++ * At runtime memcpy() is not available.
++ *
 + * @dest:	destination buffer
 + * @src:	source buffer
 + * @n:		number of bytes to copy
@@ -89,6 +93,11 @@ index 0000000000..a08ff2da6c
 +		*d++ = *s++;
 +}
 +
++/**
++ * efi_var_mem_init() - set-up variable list
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_mem_init(void)
 +{
 +	u64 memory;
@@ -144,6 +153,14 @@ index 0000000000..a08ff2da6c
 +	return match;
 +}
 +
++/**
++ * efi_var_mem_find() - find a variable in the list
++ *
++ * @guid:	GUID of the variable
++ * @name:	name of the variable
++ * @next:	on exit pointer to the next variable after the found one
++ * Return:	found variable
++ */
 +struct efi_var_entry __efi_runtime
 +*efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
 +		  struct efi_var_entry **next)
@@ -190,6 +207,11 @@ index 0000000000..a08ff2da6c
 +	return NULL;
 +}
 +
++/**
++ * efi_var_mem_del() - delete a variable from the list of variables
++ *
++ * @var:	variable to delete
++ */
 +void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 +{
 +	u16 *data = var->name;
@@ -219,6 +241,21 @@ index 0000000000..a08ff2da6c
 +				   sizeof(struct efi_var_file));
 +}
 +
++/**
++ * efi_var_mem_ins() - append a variable to the list of variables
++ *
++ * The variable is appended without checking if a variable of the same name
++ * already exists. The two data buffers are concatenated.
++ *
++ * @name:	variable name
++ * @vendor:	GUID
++ * @attributes:	variable attributes
++ * @size1:	size of the first data buffer
++ * @data1:	first data buffer
++ * @size2:	size of the second data field
++ * @data2:	second data buffer
++ * Result:	status code
++ */
 +efi_status_t __efi_runtime efi_var_mem_ins(
 +				u16 *variable_name,
 +				const efi_guid_t *vendor, u32 attributes,
@@ -257,6 +294,17 @@ index 0000000000..a08ff2da6c
 +				   sizeof(struct efi_var_file));
 +
 +	return EFI_SUCCESS;
++}
++
++/**
++ * efi_var_mem_free() - determine free memory for variables
++ *
++ * Return:	maximum data size plus variable name size
++ */
++u64 __efi_runtime efi_var_mem_free(void)
++{
++	return EFI_VAR_BUF_SIZE - efi_var_buf->length -
++	       sizeof(struct efi_var_entry);
 +}
 -- 
 2.25.1
