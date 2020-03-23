@@ -1,4 +1,4 @@
-From a4fe4f81707505a7b79dce3c776f5190d2f06253 Mon Sep 17 00:00:00 2001
+From fd305740ac3b0b6b3678b2f276e712a5dec609f4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 13:56:19 +0100
 Subject: [PATCH 1/1] efi_loader: use memory based variable storage
@@ -10,11 +10,11 @@ Use a memory buffer for storing UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_variable.c | 550 +++++++---------------------------
- 1 file changed, 104 insertions(+), 446 deletions(-)
+ lib/efi_loader/efi_variable.c | 546 +++++++---------------------------
+ 1 file changed, 106 insertions(+), 440 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 5b4b1c490c..2fd1a066ae 100644
+index 5b4b1c490c..cb964571ce 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -2,151 +2,15 @@
@@ -224,8 +224,10 @@ index 5b4b1c490c..2fd1a066ae 100644
 -	val = env_get(native_name);
 -	free(native_name);
 -	if (!val)
--		return EFI_NOT_FOUND;
--
++	var = efi_var_mem_find(vendor, variable_name, NULL);
++	if (!var)
+ 		return EFI_NOT_FOUND;
+ 
 -	val = parse_attr(val, &attr);
 -
 -	in_size = *data_size;
@@ -274,18 +276,14 @@ index 5b4b1c490c..2fd1a066ae 100644
 -		EFI_PRINT("invalid value: '%s'\n", val);
 -		return EFI_DEVICE_ERROR;
 -	}
-+	var = efi_var_mem_find(vendor, variable_name, NULL);
-+	if (!var)
-+		return EFI_INVALID_PARAMETER;
- 
+-
 -out:
  	if (attributes)
 -		*attributes = attr & EFI_VARIABLE_MASK;
 -
 -	return ret;
 -}
-+		*attributes = var->attr;
- 
+-
 -static char *efi_variables_list;
 -static char *efi_cur_variable;
 -
@@ -317,7 +315,8 @@ index 5b4b1c490c..2fd1a066ae 100644
 -	size_t name_len;
 -	efi_uintn_t old_variable_name_size;
 -	u16 *p;
--
++		*attributes = var->attr;
+ 
 -	guid = strchr(variable, '_');
 -	if (!guid)
 -		return EFI_INVALID_PARAMETER;
@@ -395,35 +394,35 @@ index 5b4b1c490c..2fd1a066ae 100644
 -				break;
 -		if (i >= *variable_name_size)
 -			return EFI_INVALID_PARAMETER;
--
++	if (!variable_name[0])
++		var = NULL;
+ 
 -		/* search for the last-returned variable */
 -		ret = efi_to_native(&native_name, variable_name, vendor);
 -		if (ret)
 -			return ret;
-+	if (!variable_name[0])
-+		var = NULL;
++	efi_var_mem_find(vendor, variable_name, &var);
++	if (!var)
++		return EFI_NOT_FOUND;
  
 -		name_len = strlen(native_name);
 -		for (variable = efi_variables_list; variable && *variable;) {
 -			if (!strncmp(variable, native_name, name_len) &&
 -			    variable[name_len] == '=')
 -				break;
--
--			variable = strchr(variable, '\n');
--			if (variable)
--				variable++;
--		}
-+	efi_var_mem_find(vendor, variable_name, &var);
-+	if (!var)
-+		return EFI_NOT_FOUND;
- 
--		free(native_name);
--		if (!(variable && *variable))
--			return EFI_INVALID_PARAMETER;
 +	for (pdata = var->name; *pdata; ++pdata)
 +		;
 +	++pdata;
  
+-			variable = strchr(variable, '\n');
+-			if (variable)
+-				variable++;
+-		}
+-
+-		free(native_name);
+-		if (!(variable && *variable))
+-			return EFI_INVALID_PARAMETER;
+-
 -		/* next variable */
 -		variable = strchr(variable, '\n');
 -		if (variable)
@@ -463,7 +462,7 @@ index 5b4b1c490c..2fd1a066ae 100644
  }
  
  /**
-@@ -489,129 +204,58 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+@@ -489,131 +204,68 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
   * @data:		buffer with the variable value
   * Return:		status code
   */
@@ -518,17 +517,6 @@ index 5b4b1c490c..2fd1a066ae 100644
 -		/* attributes won't be changed */
 -		if (attr != (attributes & ~EFI_VARIABLE_APPEND_WRITE)) {
 -			ret = EFI_INVALID_PARAMETER;
--			goto out;
--		}
--
--		if (attributes & EFI_VARIABLE_APPEND_WRITE) {
--			if (!prefix(old_val, "(blob)")) {
--				ret = EFI_DEVICE_ERROR;
--				goto out;
--			}
--			old_size = strlen(old_val);
--		} else {
--			old_size = 0;
 +	var = efi_var_mem_find(vendor, variable_name, NULL);
 +	append = attributes & EFI_VARIABLE_APPEND_WRITE;
 +	attributes &= ~EFI_VARIABLE_APPEND_WRITE;
@@ -544,9 +532,19 @@ index 5b4b1c490c..2fd1a066ae 100644
 +		if (var->attr & READ_ONLY)
 +			return EFI_WRITE_PROTECTED;
 +		if ((!attributes || !data_size) && !append) {
-+			efi_var_mem_del(var);
-+			return EFI_SUCCESS;
++			attributes = var->attr;
+ 			goto out;
  		}
+-
+-		if (attributes & EFI_VARIABLE_APPEND_WRITE) {
+-			if (!prefix(old_val, "(blob)")) {
+-				ret = EFI_DEVICE_ERROR;
+-				goto out;
+-			}
+-			old_size = strlen(old_val);
+-		} else {
+-			old_size = 0;
+-		}
  	} else {
 -		if (data_size == 0 || !attributes ||
 -		    (attributes & EFI_VARIABLE_APPEND_WRITE)) {
@@ -592,47 +590,53 @@ index 5b4b1c490c..2fd1a066ae 100644
 +			return EFI_NOT_FOUND;
  	}
 -	s += sprintf(s, "}");
--
+ 
 -	if (old_size)
 -		/* APPEND_WRITE */
 -		s += sprintf(s, old_val);
 -	else
 -		s += sprintf(s, "(blob)");
--
--	/* store payload: */
--	s = bin2hex(s, data, data_size);
--	*s = '\0';
- 
--	EFI_PRINT("setting: %s=%s\n", native_name, val);
 +	if (append) {
 +		u16 *old_data = var->name;
  
--	if (env_set(native_name, val))
--		ret = EFI_DEVICE_ERROR;
+-	/* store payload: */
+-	s = bin2hex(s, data, data_size);
+-	*s = '\0';
 +		for(; *old_data; ++old_data)
 +			;
 +		++old_data;
  
--	/* Write non-volatile EFI variables to file */
--	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
--	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
--		efi_var_to_file();
--
--out:
--	free(native_name);
--	free(val);
+-	EFI_PRINT("setting: %s=%s\n", native_name, val);
 +		ret = efi_var_mem_ins(variable_name, vendor, attributes,
 +				      var->length, old_data, data_size, data);
 +	} else {
 +		ret = efi_var_mem_ins(variable_name, vendor, attributes,
 +				      data_size, data, 0, NULL);
 +	}
-+	if (ret == EFI_SUCCESS)
-+		efi_var_mem_del(var);
++	if (ret != EFI_SUCCESS)
++		return ret;
  
- 	return ret;
+-	if (env_set(native_name, val))
+-		ret = EFI_DEVICE_ERROR;
++out:
++	efi_var_mem_del(var);
+ 
+ 	/* Write non-volatile EFI variables to file */
+ 	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
+-	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
++	    efi_obj_list_initialized == EFI_SUCCESS)
+ 		efi_var_to_file();
+ 
+-out:
+-	free(native_name);
+-	free(val);
+-
+-	return ret;
++	return EFI_SUCCESS;
  }
-@@ -628,7 +272,7 @@ out:
+ 
+ /**
+@@ -628,7 +280,7 @@ out:
   *					queried
   * @maximum_variable_storage_size:	maximum size of storage area for the
   *					selected variable types
@@ -641,7 +645,7 @@ index 5b4b1c490c..2fd1a066ae 100644
   *					selected variable types
   * @maximum_variable_size:		maximum size of a variable of the
   *					selected type
-@@ -640,6 +284,14 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+@@ -640,6 +292,14 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
  			u64 *remaining_variable_storage_size,
  			u64 *maximum_variable_size)
  {
@@ -656,7 +660,7 @@ index 5b4b1c490c..2fd1a066ae 100644
  	return EFI_UNSUPPORTED;
  }
  
-@@ -717,5 +369,11 @@ void efi_variables_boot_exit_notify(void)
+@@ -717,5 +377,11 @@ void efi_variables_boot_exit_notify(void)
   */
  efi_status_t efi_init_variables(void)
  {
