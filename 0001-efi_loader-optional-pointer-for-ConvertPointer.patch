@@ -1,0 +1,47 @@
+From b5c09cea76ab67714ad23bc102ef2be24aeb6407 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 24 Mar 2020 17:52:40 +0100
+Subject: [PATCH 1/1] efi_loader: optional pointer for ConvertPointer
+
+If the EFI_OPTIONAL_PTR is set in DebugDisposition, a NULL pointer does not
+constitute an invalid parameter.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h            | 2 ++
+ lib/efi_loader/efi_runtime.c | 6 ++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 1c40ffc4f5..c56703fc5e 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -250,6 +250,8 @@ struct efi_rt_properties_table {
+ 	u32 runtime_services_supported;
+ };
+ 
++#define EFI_OPTIONAL_PTR	0x00000001
++
+ struct efi_runtime_services {
+ 	struct efi_table_hdr hdr;
+ 	efi_status_t (EFIAPI *get_time)(struct efi_time *time,
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 67fa693e41..664a0422e2 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -511,6 +511,12 @@ efi_convert_pointer(efi_uintn_t debug_disposition, void **address)
+ 		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
+ 	}
++	if (!*address) {
++		if (debug_disposition & EFI_OPTIONAL_PTR)
++			return EFI_SUCCESS;
++		else
++			return EFI_INVALID_PARAMETER;
++	}
+ 
+ 	for (i = 0; i < efi_descriptor_count; i++) {
+ 		struct efi_mem_desc *map = (void *)efi_virtmap +
+-- 
+2.25.1
+

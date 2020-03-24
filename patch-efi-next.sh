@@ -78,6 +78,8 @@ git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
+git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
+git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
 git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
 git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 exit
