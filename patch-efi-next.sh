@@ -67,6 +67,7 @@ git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # UEFI
+git am ../patch/0001-efi_loader-only-reserve-memory-if-fdt-node-enabled.patch
 
 # efi-2020-07
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
