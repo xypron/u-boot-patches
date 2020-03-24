@@ -1,4 +1,4 @@
-From 36487626c62b277bb58e4450a56fbc0f8e5f48a1 Mon Sep 17 00:00:00 2001
+From 78e35ec0c706a0080425f50709b320e84891868e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 13:56:19 +0100
 Subject: [PATCH 1/1] efi_loader: use memory based variable storage
@@ -10,11 +10,11 @@ Use a memory buffer for storing UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_variable.c | 546 +++++++---------------------------
- 1 file changed, 106 insertions(+), 440 deletions(-)
+ lib/efi_loader/efi_variable.c | 547 +++++++---------------------------
+ 1 file changed, 107 insertions(+), 440 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 5b4b1c490c..55de30efed 100644
+index 5b4b1c490c..699f11090e 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -2,151 +2,15 @@
@@ -171,7 +171,7 @@ index 5b4b1c490c..55de30efed 100644
  /**
   * efi_get_variable() - retrieve value of a UEFI variable
   *
-@@ -166,11 +30,17 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+@@ -166,11 +30,18 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
  				     const efi_guid_t *vendor, u32 *attributes,
  				     efi_uintn_t *data_size, void *data)
  {
@@ -185,13 +185,14 @@ index 5b4b1c490c..55de30efed 100644
 +	ret = efi_get_variable_int(variable_name, vendor, attributes, data_size,
 +				   data);
 +	/* Remove read-only bit */
-+	*attributes &= EFI_VARIABLE_MASK;
++	if (attributes)
++		*attributes &= EFI_VARIABLE_MASK;
 +
 +	return EFI_EXIT(ret);
  }
  
  /**
-@@ -186,152 +56,37 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+@@ -186,152 +57,37 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
   * @data:		buffer to which the variable value is copied
   * Return:		status code
   */
@@ -362,7 +363,7 @@ index 5b4b1c490c..55de30efed 100644
  
  	return EFI_SUCCESS;
  }
-@@ -377,78 +132,38 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -377,78 +133,38 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
   *
   * Return: status code
   */
@@ -394,35 +395,35 @@ index 5b4b1c490c..55de30efed 100644
 -				break;
 -		if (i >= *variable_name_size)
 -			return EFI_INVALID_PARAMETER;
-+	if (!variable_name[0])
-+		var = NULL;
- 
+-
 -		/* search for the last-returned variable */
 -		ret = efi_to_native(&native_name, variable_name, vendor);
 -		if (ret)
 -			return ret;
-+	efi_var_mem_find(vendor, variable_name, &var);
-+	if (!var)
-+		return EFI_NOT_FOUND;
++	if (!variable_name[0])
++		var = NULL;
  
 -		name_len = strlen(native_name);
 -		for (variable = efi_variables_list; variable && *variable;) {
 -			if (!strncmp(variable, native_name, name_len) &&
 -			    variable[name_len] == '=')
 -				break;
-+	for (pdata = var->name; *pdata; ++pdata)
-+		;
-+	++pdata;
- 
+-
 -			variable = strchr(variable, '\n');
 -			if (variable)
 -				variable++;
 -		}
--
++	efi_var_mem_find(vendor, variable_name, &var);
++	if (!var)
++		return EFI_NOT_FOUND;
+ 
 -		free(native_name);
 -		if (!(variable && *variable))
 -			return EFI_INVALID_PARAMETER;
--
++	for (pdata = var->name; *pdata; ++pdata)
++		;
++	++pdata;
+ 
 -		/* next variable */
 -		variable = strchr(variable, '\n');
 -		if (variable)
@@ -462,7 +463,7 @@ index 5b4b1c490c..55de30efed 100644
  }
  
  /**
-@@ -489,131 +204,68 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+@@ -489,131 +205,68 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
   * @data:		buffer with the variable value
   * Return:		status code
   */
@@ -636,7 +637,7 @@ index 5b4b1c490c..55de30efed 100644
  }
  
  /**
-@@ -628,7 +280,7 @@ out:
+@@ -628,7 +281,7 @@ out:
   *					queried
   * @maximum_variable_storage_size:	maximum size of storage area for the
   *					selected variable types
@@ -645,7 +646,7 @@ index 5b4b1c490c..55de30efed 100644
   *					selected variable types
   * @maximum_variable_size:		maximum size of a variable of the
   *					selected type
-@@ -640,6 +292,14 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+@@ -640,6 +293,14 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
  			u64 *remaining_variable_storage_size,
  			u64 *maximum_variable_size)
  {
@@ -660,7 +661,7 @@ index 5b4b1c490c..55de30efed 100644
  	return EFI_UNSUPPORTED;
  }
  
-@@ -717,5 +377,11 @@ void efi_variables_boot_exit_notify(void)
+@@ -717,5 +378,11 @@ void efi_variables_boot_exit_notify(void)
   */
  efi_status_t efi_init_variables(void)
  {
