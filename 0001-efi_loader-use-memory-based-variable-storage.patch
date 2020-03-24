@@ -1,4 +1,4 @@
-From fd305740ac3b0b6b3678b2f276e712a5dec609f4 Mon Sep 17 00:00:00 2001
+From 36487626c62b277bb58e4450a56fbc0f8e5f48a1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 13:56:19 +0100
 Subject: [PATCH 1/1] efi_loader: use memory based variable storage
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 106 insertions(+), 440 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 5b4b1c490c..cb964571ce 100644
+index 5b4b1c490c..55de30efed 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -2,151 +2,15 @@
@@ -380,7 +380,7 @@ index 5b4b1c490c..cb964571ce 100644
 -	u32 attributes;
 -	int i;
 -	efi_status_t ret;
-+	static struct efi_var_entry *var;
++	struct efi_var_entry *var;
 +	efi_uintn_t old_size;
 +	u16 *pdata;
  
@@ -479,7 +479,7 @@ index 5b4b1c490c..cb964571ce 100644
 -	efi_status_t ret = EFI_SUCCESS;
 -	u32 attr;
 -
-+	static struct efi_var_entry *var;
++	struct efi_var_entry *var;
 +	efi_uintn_t ret;
 +	bool append;
  
@@ -673,5 +673,5 @@ index 5b4b1c490c..cb964571ce 100644
  	return efi_var_from_file();
  }
 -- 
-2.25.1
+2.20.1
 
