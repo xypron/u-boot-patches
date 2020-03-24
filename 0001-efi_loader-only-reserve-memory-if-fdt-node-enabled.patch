@@ -10,6 +10,7 @@ Reported-by: Patrick DELAUNAY <patrick.delaunay@st.com>
 Fixes: fef907b2e440 ("efi_loader: create reservations after
 ft_board_setup")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
 ---
  cmd/bootefi.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
