@@ -83,6 +83,7 @@ git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
 git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
 git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
+git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
 exit
 
 # UEFI secure boot

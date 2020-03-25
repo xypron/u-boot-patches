@@ -1,0 +1,63 @@
+From f5daa4457683cbcda8291df25679d16a692067c7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 25 Mar 2020 20:38:16 +0100
+Subject: [PATCH 1/1] efi_selftest: adjust runtime test for variables
+
+As variable services are available at runtime we have to expect EFI_SUCCESS
+when calling the services.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_variables_runtime.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_variables_runtime.c b/lib/efi_selftest/efi_selftest_variables_runtime.c
+index b3b40ad2cf..d52dc65af2 100644
+--- a/lib/efi_selftest/efi_selftest_variables_runtime.c
++++ b/lib/efi_selftest/efi_selftest_variables_runtime.c
+@@ -52,33 +52,36 @@ static int execute(void)
+ 	efi_guid_t guid;
+ 	u64 max_storage, rem_storage, max_size;
+ 
+-	ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS,
++	ret = runtime->query_variable_info(EFI_VARIABLE_BOOTSERVICE_ACCESS |
++					   EFI_VARIABLE_RUNTIME_ACCESS |
++					   EFI_VARIABLE_NON_VOLATILE,
+ 					   &max_storage, &rem_storage,
+ 					   &max_size);
+-	if (ret != EFI_UNSUPPORTED) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("QueryVariableInfo failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+ 
+ 	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
+ 				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-				    EFI_VARIABLE_RUNTIME_ACCESS,
++				    EFI_VARIABLE_RUNTIME_ACCESS |
++				    EFI_VARIABLE_NON_VOLATILE,
+ 				    3, v + 4);
+-	if (ret != EFI_UNSUPPORTED) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("SetVariable failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+ 	len = 3;
+ 	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
+ 				    &attr, &len, data);
+-	if (ret != EFI_UNSUPPORTED) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("GetVariable failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+ 	memset(&guid, 0, 16);
+ 	*varname = 0;
+ 	ret = runtime->get_next_variable_name(&len, varname, &guid);
+-	if (ret != EFI_UNSUPPORTED) {
++	if (ret != EFI_SUCCESS) {
+ 		efi_st_error("GetNextVariableName failed\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-- 
+2.20.1
+
