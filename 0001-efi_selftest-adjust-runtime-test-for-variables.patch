@@ -1,4 +1,4 @@
-From f5daa4457683cbcda8291df25679d16a692067c7 Mon Sep 17 00:00:00 2001
+From d2123fd8bf23ede9c77fd6e5f2fcbe6ad5a626eb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 25 Mar 2020 20:38:16 +0100
 Subject: [PATCH 1/1] efi_selftest: adjust runtime test for variables
@@ -8,14 +8,14 @@ when calling the services.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/efi_selftest_variables_runtime.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ .../efi_selftest_variables_runtime.c             | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 diff --git a/lib/efi_selftest/efi_selftest_variables_runtime.c b/lib/efi_selftest/efi_selftest_variables_runtime.c
-index b3b40ad2cf..d52dc65af2 100644
+index b3b40ad2cf..f6bf8fc903 100644
 --- a/lib/efi_selftest/efi_selftest_variables_runtime.c
 +++ b/lib/efi_selftest/efi_selftest_variables_runtime.c
-@@ -52,33 +52,36 @@ static int execute(void)
+@@ -52,33 +52,37 @@ static int execute(void)
  	efi_guid_t guid;
  	u64 max_storage, rem_storage, max_size;
  
@@ -52,6 +52,7 @@ index b3b40ad2cf..d52dc65af2 100644
  	}
  	memset(&guid, 0, 16);
  	*varname = 0;
++	len = EFI_ST_MAX_VARNAME_SIZE * sizeof(u16);
  	ret = runtime->get_next_variable_name(&len, varname, &guid);
 -	if (ret != EFI_UNSUPPORTED) {
 +	if (ret != EFI_SUCCESS) {
@@ -59,5 +60,5 @@ index b3b40ad2cf..d52dc65af2 100644
  		return EFI_ST_FAILURE;
  	}
 -- 
-2.20.1
+2.25.1
 
