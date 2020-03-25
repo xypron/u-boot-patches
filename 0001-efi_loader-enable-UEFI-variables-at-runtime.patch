@@ -1,35 +1,56 @@
-From 850dffd02527c476e5cf2f7560632cdb11ffecc2 Mon Sep 17 00:00:00 2001
+From c7cc448375fef753637db611a1db9de2e039f3d8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 24 Mar 2020 19:54:53 +0000
-Subject: [PATCH 1/1] efi_loader: enable UEFI variables at runtime
+Subject: [PATCH] efi_loader: enable UEFI variables at runtime
 
 Enable UEFI variables at runtime.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_runtime.c  | 3 +++
- lib/efi_loader/efi_variable.c | 9 ++++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ lib/efi_loader/efi_runtime.c  |  6 +++++-
+ lib/efi_loader/efi_variable.c | 13 +++++++------
+ 2 files changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 664a0422e2..c47a7c41aa 100644
+index 664a0422e2..acd644202d 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
-@@ -120,6 +120,9 @@ efi_status_t efi_init_runtime_supported(void)
+@@ -120,8 +120,12 @@ efi_status_t efi_init_runtime_supported(void)
  	rt_table->version = EFI_RT_PROPERTIES_TABLE_VERSION;
  	rt_table->length = sizeof(struct efi_rt_properties_table);
  	rt_table->runtime_services_supported =
 +				EFI_RT_SUPPORTED_GET_VARIABLE |
 +				EFI_RT_SUPPORTED_GET_NEXT_VARIABLE_NAME |
-+				/* EFI_RT_SUPPORTED_SET_VARIABLE | */
++				EFI_RT_SUPPORTED_SET_VARIABLE |
  				EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP |
- 				EFI_RT_SUPPORTED_CONVERT_POINTER;
+-				EFI_RT_SUPPORTED_CONVERT_POINTER;
++				EFI_RT_SUPPORTED_CONVERT_POINTER |
++				EFI_RT_SUPPORTED_QUERY_VARIABLE_INFO;
  
+ 	/*
+ 	 * This value must be synced with efi_runtime_detach_list
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 9a95d17cee..596c70eb14 100644
+index 9a95d17cee..d9fe374bd7 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -322,7 +322,8 @@ static efi_status_t __efi_runtime EFIAPI
+@@ -297,15 +297,13 @@ efi_status_t __efi_runtime EFIAPI efi_query_variable_info(
+ 			u64 *remaining_variable_storage_size,
+ 			u64 *maximum_variable_size)
+ {
+-	/*
+ 	*maximum_variable_storage_size = EFI_VAR_BUF_SIZE -
+ 					 sizeof(struct efi_var_file);
+ 	*remaining_variable_storage_size = efi_var_mem_free();
+ 	*maximum_variable_size = EFI_VAR_BUF_SIZE -
+ 				 sizeof(struct efi_var_file) -
+ 				 sizeof(struct efi_var_entry);
+-	*/
+-	return EFI_UNSUPPORTED;
++	return EFI_SUCCESS;
+ }
+ 
+ /**
+@@ -322,7 +320,8 @@ static efi_status_t __efi_runtime EFIAPI
  efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
  			 u32 *attributes, efi_uintn_t *data_size, void *data)
  {
@@ -39,7 +60,7 @@ index 9a95d17cee..596c70eb14 100644
  }
  
  /**
-@@ -338,7 +339,8 @@ static efi_status_t __efi_runtime EFIAPI
+@@ -338,7 +337,8 @@ static efi_status_t __efi_runtime EFIAPI
  efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
  				   u16 *variable_name, efi_guid_t *vendor)
  {
@@ -49,7 +70,7 @@ index 9a95d17cee..596c70eb14 100644
  }
  
  /**
-@@ -356,7 +358,8 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+@@ -356,7 +356,8 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
  			 u32 attributes, efi_uintn_t data_size,
  			 const void *data)
  {
