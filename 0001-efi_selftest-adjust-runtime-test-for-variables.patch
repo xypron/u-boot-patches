@@ -1,4 +1,4 @@
-From d2123fd8bf23ede9c77fd6e5f2fcbe6ad5a626eb Mon Sep 17 00:00:00 2001
+From c2a88606f31ec5e211c2c8be4d5b15b3d5d108f7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 25 Mar 2020 20:38:16 +0100
 Subject: [PATCH 1/1] efi_selftest: adjust runtime test for variables
@@ -6,16 +6,39 @@ Subject: [PATCH 1/1] efi_selftest: adjust runtime test for variables
 As variable services are available at runtime we have to expect EFI_SUCCESS
 when calling the services.
 
+Check the SetVariable() only succeeds with EFI_VARIABLE_RUNTIME_ACCESS and
+EFI_VARIABLE_NON_VOLATILE set.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- .../efi_selftest_variables_runtime.c             | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ .../efi_selftest_variables_runtime.c          | 47 +++++++++++++++----
+ 1 file changed, 39 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_selftest/efi_selftest_variables_runtime.c b/lib/efi_selftest/efi_selftest_variables_runtime.c
-index b3b40ad2cf..f6bf8fc903 100644
+index b3b40ad2cf..c6005eeeaf 100644
 --- a/lib/efi_selftest/efi_selftest_variables_runtime.c
 +++ b/lib/efi_selftest/efi_selftest_variables_runtime.c
-@@ -52,33 +52,37 @@ static int execute(void)
+@@ -20,8 +20,8 @@ static const efi_guid_t guid_vendor0 =
+ 	EFI_GUID(0x67029eb5, 0x0af2, 0xf6b1,
+ 		 0xda, 0x53, 0xfc, 0xb5, 0x66, 0xdd, 0x1c, 0xe6);
+ 
+-/*
+- * Setup unit test.
++/**
++ * setup() - set up unit test.
+  *
+  * @handle	handle of the loaded image
+  * @systable	system table
+@@ -38,7 +38,7 @@ static int setup(const efi_handle_t img_handle,
+ /**
+  * execute() - execute unit test
+  *
+- * As runtime support is not implmented expect EFI_UNSUPPORTED to be returned.
++ * Test variable services at runtime.
+  */
+ static int execute(void)
+ {
+@@ -52,37 +52,68 @@ static int execute(void)
  	efi_guid_t guid;
  	u64 max_storage, rem_storage, max_size;
  
@@ -31,17 +54,35 @@ index b3b40ad2cf..f6bf8fc903 100644
  		return EFI_ST_FAILURE;
  	}
  
++	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
++				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				    EFI_VARIABLE_NON_VOLATILE,
++				    3, v + 4);
++	if (ret != EFI_INVALID_PARAMETER) {
++		efi_st_error("SetVariable succeeded w/o EFI_VARIABLE_RUNTIME_ACCESS\n");
++		return EFI_ST_FAILURE;
++	}
++
  	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
  				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
--				    EFI_VARIABLE_RUNTIME_ACCESS,
-+				    EFI_VARIABLE_RUNTIME_ACCESS |
-+				    EFI_VARIABLE_NON_VOLATILE,
+ 				    EFI_VARIABLE_RUNTIME_ACCESS,
  				    3, v + 4);
 -	if (ret != EFI_UNSUPPORTED) {
++	if (ret != EFI_INVALID_PARAMETER) {
++		efi_st_error("SetVariable succeeded w/o EFI_VARIABLE_NON_VOLATILE\n");
++		return EFI_ST_FAILURE;
++	}
++
++	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
++				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				    EFI_VARIABLE_RUNTIME_ACCESS |
++				    EFI_VARIABLE_NON_VOLATILE,
++				    3, v + 4);
 +	if (ret != EFI_SUCCESS) {
  		efi_st_error("SetVariable failed\n");
  		return EFI_ST_FAILURE;
  	}
++
  	len = 3;
  	ret = runtime->get_variable(L"efi_st_var0", &guid_vendor0,
  				    &attr, &len, data);
@@ -50,6 +91,7 @@ index b3b40ad2cf..f6bf8fc903 100644
  		efi_st_error("GetVariable failed\n");
  		return EFI_ST_FAILURE;
  	}
++
  	memset(&guid, 0, 16);
  	*varname = 0;
 +	len = EFI_ST_MAX_VARNAME_SIZE * sizeof(u16);
@@ -59,6 +101,17 @@ index b3b40ad2cf..f6bf8fc903 100644
  		efi_st_error("GetNextVariableName failed\n");
  		return EFI_ST_FAILURE;
  	}
+ 
++	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0, 0,
++				    3, v + 4);
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("Variable deletion failed\n");
++		return EFI_ST_FAILURE;
++	}
++
+ 	return EFI_ST_SUCCESS;
+ }
+ 
 -- 
-2.25.1
+2.20.1
 
