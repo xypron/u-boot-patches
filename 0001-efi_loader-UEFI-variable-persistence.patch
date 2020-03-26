@@ -1,4 +1,4 @@
-From cf0ad3f68723d9b570498fd79eb96f4f8036915e Mon Sep 17 00:00:00 2001
+From 4a41e2d4c6ac914f5f3275f2fbc5c1432655ab62 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -26,7 +26,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index e20f9b7cbe..0f0a35130b 100644
+index 510f39fe9e..e31537aaf0 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -650,6 +650,8 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
@@ -89,7 +89,7 @@ index 9b3b704473..621a767ab3 100644
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 9e308eed2c..94656fddea 100644
+index d99ad6ddae..5b4b1c490c 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -604,6 +604,11 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
@@ -124,7 +124,7 @@ index 9e308eed2c..94656fddea 100644
  }
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..478a06b514
+index 0000000000..ea70de598a
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
 @@ -0,0 +1,228 @@
@@ -268,9 +268,8 @@ index 0000000000..478a06b514
 +		goto error;
 +
 +	r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
-+	if (r || len != actlen) {
++	if (r || len != actlen)
 +		ret =  EFI_DEVICE_ERROR;
-+	}
 +
 +error:
 +	if (ret != EFI_SUCCESS)
@@ -299,7 +298,7 @@ index 0000000000..478a06b514
 +
 +	var = buf->var;
 +	last_var = (struct efi_var_entry *)((u8 *)buf + buf->length);
-+	while(var < last_var) {
++	while (var < last_var) {
 +		u16 *data = var->name + u16_strlen(var->name) + 1;
 +
 +		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->length) {
@@ -345,7 +344,8 @@ index 0000000000..478a06b514
 +		printf("No EFI system partition\n");
 +		goto error;
 +	}
-+	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE, &len);
++	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
++		    &len);
 +	if (r || len < sizeof(struct efi_var_file)) {
 +		printf("Failed to load EFI variables\n");
 +		goto error;
@@ -357,5 +357,5 @@ index 0000000000..478a06b514
 +	return EFI_SUCCESS;
 +}
 -- 
-2.25.1
+2.20.1
 
