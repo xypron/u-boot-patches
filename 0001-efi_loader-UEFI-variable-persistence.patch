@@ -1,4 +1,4 @@
-From 4a41e2d4c6ac914f5f3275f2fbc5c1432655ab62 Mon Sep 17 00:00:00 2001
+From 8266049cba46c32fb633f821c1cbc3deece68978 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -18,10 +18,11 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h                |   2 +
  include/efi_variable.h              |  32 ++++
+ lib/efi_loader/Kconfig              |   8 +
  lib/efi_loader/Makefile             |   1 +
  lib/efi_loader/efi_variable.c       |  11 +-
- lib/efi_loader/efi_variables_file.c | 228 ++++++++++++++++++++++++++++
- 5 files changed, 273 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_variables_file.c | 235 ++++++++++++++++++++++++++++
+ 6 files changed, 288 insertions(+), 1 deletion(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variables_file.c
 
@@ -76,6 +77,25 @@ index 0000000000..a37d5d5061
 +};
 +
 +#endif
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index e10ca05549..41705fc252 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -27,6 +27,14 @@ config EFI_LOADER
+ 
+ if EFI_LOADER
+ 
++config EFI_VARIABLE_FILE_STORE
++	bool "Store non-volatile UEFI variables as file"
++	depends on FAT_WRITE
++	default y
++	help
++	  Select tis option if you want non-volatile UEFI variables to be stored
++	  as file /ubootefi.var on the EFI system partition.
++
+ config EFI_GET_TIME
+ 	bool "GetTime() runtime service"
+ 	depends on DM_RTC
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 9b3b704473..621a767ab3 100644
 --- a/lib/efi_loader/Makefile
@@ -124,10 +144,10 @@ index d99ad6ddae..5b4b1c490c 100644
  }
 diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
 new file mode 100644
-index 0000000000..ea70de598a
+index 0000000000..ba7ef48b8a
 --- /dev/null
 +++ b/lib/efi_loader/efi_variables_file.c
-@@ -0,0 +1,228 @@
+@@ -0,0 +1,235 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -153,7 +173,7 @@ index 0000000000..ea70de598a
 + *
 + * Return:	status code
 + */
-+static efi_status_t efi_set_blk_dev_to_system_partition(void)
++static efi_status_t __maybe_unused efi_set_blk_dev_to_system_partition(void)
 +{
 +	char part_str[PART_STR_LEN];
 +	int r;
@@ -181,7 +201,8 @@ index 0000000000..ea70de598a
 + * @lenp:	pointer to length of buffer
 + * Return:	status code
 + */
-+static efi_status_t efi_var_collect(struct efi_var_file **bufp, loff_t *lenp)
++static efi_status_t __maybe_unused efi_var_collect(struct efi_var_file **bufp,
++						   loff_t *lenp)
 +{
 +	size_t len = EFI_VAR_BUF_SIZE;
 +	struct efi_var_file *buf;
@@ -247,12 +268,13 @@ index 0000000000..ea70de598a
 +/**
 + * efi_var_to_file() - save non-volatile variables as file
 + *
-+ * File efi.var is created on the EFI system partion.
++ * File ubootefi.var is created on the EFI system partion.
 + *
 + * Return:	status code
 + */
 +efi_status_t efi_var_to_file(void)
 +{
++#ifdef CONFIG_EFI_VARIABLE_FILE_STORE
 +	efi_status_t ret;
 +	struct efi_var_file *buf;
 +	loff_t len;
@@ -276,6 +298,9 @@ index 0000000000..ea70de598a
 +		printf("Failed to persist EFI variables\n");
 +	free(buf);
 +	return ret;
++#else
++	return EFI_SUCCESS;
++#endif
 +}
 +
 +/**
@@ -284,7 +309,7 @@ index 0000000000..ea70de598a
 + * @buf:	buffer
 + * Return:	status code
 + */
-+static efi_status_t efi_var_restore(struct efi_var_file *buf)
++static efi_status_t __maybe_unused efi_var_restore(struct efi_var_file *buf)
 +{
 +	struct efi_var_entry *var, *last_var;
 +	efi_status_t ret;
@@ -318,7 +343,7 @@ index 0000000000..ea70de598a
 +/**
 + * efi_var_from_file() - read variables from file
 + *
-+ * File efi.var is read from the EFI system partitions and the variables
++ * File ubootefi.var is read from the EFI system partitions and the variables
 + * stored in the file are created.
 + *
 + * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
@@ -328,6 +353,7 @@ index 0000000000..ea70de598a
 + */
 +efi_status_t efi_var_from_file(void)
 +{
++#ifdef CONFIG_EFI_VARIABLE_FILE_STORE
 +	struct efi_var_file *buf;
 +	loff_t len;
 +	efi_status_t ret;
@@ -354,6 +380,7 @@ index 0000000000..ea70de598a
 +		printf("Invalid EFI variables file\n");
 +error:
 +	free(buf);
++#endif
 +	return EFI_SUCCESS;
 +}
 -- 

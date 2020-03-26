@@ -85,6 +85,8 @@ git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
 git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
 exit
+git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
+exit
 
 # UEFI secure boot
 git am ../patch/0001-image.h-use-uint32_t-instead-of-u32-in-android_image.patch
