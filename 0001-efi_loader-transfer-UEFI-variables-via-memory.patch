@@ -1,33 +1,19 @@
-From 29e2a515024b19b8eec44b974abde6d49acee6cd Mon Sep 17 00:00:00 2001
+From 16082f4abc9e27aa0edf11ac8501d821800ee45a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 26 Mar 2020 20:53:08 +0000
 Subject: [PATCH 1/1] efi_loader: transfer UEFI variables via memory
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h                |  2 --
- include/efi_variable.h              |  7 +++++++
+ include/efi_variable.h              |  5 ++++-
  lib/efi_loader/Kconfig              | 18 ++++++++++++++++++
- lib/efi_loader/efi_variable.c       | 18 +++++++++++++++---
+ lib/efi_loader/efi_variable.c       | 20 +++++++++++++++++---
  lib/efi_loader/efi_variables_file.c | 12 ++++++++----
  lib/efi_loader/efi_variables_mem.c  | 24 ++++++++++++++++++++++--
- 6 files changed, 70 insertions(+), 11 deletions(-)
+ 5 files changed, 69 insertions(+), 10 deletions(-)
 
-diff --git a/include/efi_loader.h b/include/efi_loader.h
-index fe737dc8ac..d17a3c5ae1 100644
---- a/include/efi_loader.h
-+++ b/include/efi_loader.h
-@@ -653,8 +653,6 @@ efi_status_t EFIAPI efi_selftest(efi_handle_t image_handle,
- 				 struct efi_system_table *systab);
- #endif
- 
--efi_status_t efi_var_to_file(void);
--efi_status_t efi_var_from_file(void);
- efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
- 				     const efi_guid_t *vendor, u32 *attributes,
- 				     efi_uintn_t *data_size, void *data);
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index c270239c70..83595dea2e 100644
+index 037d268085..83595dea2e 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
 @@ -14,6 +14,9 @@
@@ -40,17 +26,15 @@ index c270239c70..83595dea2e 100644
  struct efi_var_entry {
  	u32 length;
  	u32 attr;
-@@ -29,6 +32,10 @@ struct efi_var_file {
- 	struct efi_var_entry var[0];
- };
+@@ -31,7 +34,7 @@ struct efi_var_file {
  
-+efi_status_t efi_var_to_file(void);
-+
+ efi_status_t efi_var_to_file(void);
+ 
+-efi_status_t efi_var_from_file(void);
 +efi_status_t efi_var_from_file(u32 exclude);
-+
+ 
  void efi_var_mem_memcpy(void *dest, const void *src, size_t n);
  
- efi_status_t efi_var_mem_init(void);
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index 41705fc252..5489e19de3 100644
 --- a/lib/efi_loader/Kconfig
@@ -81,10 +65,10 @@ index 41705fc252..5489e19de3 100644
  	bool "GetTime() runtime service"
  	depends on DM_RTC
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index cf8b44c535..4c8db19c1d 100644
+index cf8b44c535..64b6f033e8 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -420,10 +420,22 @@ void efi_variables_boot_exit_notify(void)
+@@ -420,10 +420,24 @@ void efi_variables_boot_exit_notify(void)
  efi_status_t efi_init_variables(void)
  {
  	efi_status_t ret;
@@ -92,21 +76,23 @@ index cf8b44c535..4c8db19c1d 100644
  
  	ret = efi_var_mem_init();
 -	if (ret != EFI_SUCCESS)
-+	switch (ret) {
-+	case EFI_VAR_IN_MEMORY:
+-		return ret;
+ 
+-	return efi_var_from_file();
++	/*
++	 * Do not use switch statements in runtime code. The may be
++	 * compiled to tables leading to relocation errors.
++	 */
++	if (ret == EFI_VAR_IN_MEMORY) {
 +		/*
 +		 * If we found valid variables in memory,
 +		 * don't load runtime variables from file.
 +		 */
 +		exclude = EFI_VARIABLE_RUNTIME_ACCESS;
-+		break;
-+	case EFI_SUCCESS:
++	} else if (ret == EFI_SUCCESS) {
 +		exclude = 0;
-+		break;
-+	default:
- 		return ret;
--
--	return efi_var_from_file();
++	} else {
++		return ret;
 +	}
 +	return efi_var_from_file(exclude);
  }
