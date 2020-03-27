@@ -1,7 +1,7 @@
-From 0e1d925e319956e431ad221282b06b06f099b015 Mon Sep 17 00:00:00 2001
+From 0839c3765536bb5656d7006eb80970b4c1dc3f00 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
-Subject: [PATCH 1/1] efi_loader: memory buffer for variables
+Subject: [PATCH 13/16] efi_loader: memory buffer for variables
 
 Saving UEFI variable as encoded U-Boot environment variables does not allow
 support at runtime.
@@ -300,7 +300,7 @@ index 0000000000..015b235a91
 +		if (var >= last)
 +			break;
 +		if (var->attr & EFI_VARIABLE_RUNTIME_ACCESS) {
-+			u16 * data;
++			u16 *data;
 +
 +			/* skip variable */
 +			for (data = var->name; *data; ++data)
