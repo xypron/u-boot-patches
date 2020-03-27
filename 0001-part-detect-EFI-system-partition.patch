@@ -74,8 +74,8 @@ index 0b5cf3d5e8..a63d1d0cda 100644
  #define PART_TYPE_LEN 32
  #define MAX_SEARCH_PARTITIONS 64
  
-+#define PART_BOOTABLE			1
-+#define PART_EFI_SYSTEM_PARTITION	2
++#define PART_BOOTABLE			BIT(0)
++#define PART_EFI_SYSTEM_PARTITION	BIT(1)
 +
  typedef struct disk_partition {
  	lbaint_t	start;	/* # of first block in partition	*/
