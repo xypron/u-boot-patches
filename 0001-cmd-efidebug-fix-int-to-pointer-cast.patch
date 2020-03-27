@@ -1,0 +1,38 @@
+From 73a6b8439a62d0a338272e855f39f8bb47917c6d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 27 Mar 2020 04:33:17 +0000
+Subject: [PATCH 1/1] cmd: efidebug: fix int to pointer cast
+
+On 32 bit systems fix
+warning: cast to pointer from integer of different size
+[-Wint-to-pointer-cast]
+
+Fixes: a415d61eac26 ("cmd: map addresses to sysmem in efidebug memmap")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index f7744bdc55..f89c1d2db7 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -488,10 +488,12 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
+ 
+ 		printf("%-16s %.*llx-%.*llx", type,
+ 		       EFI_PHYS_ADDR_WIDTH,
+-		       (u64)map_to_sysmem((void *)map->physical_start),
++		       (u64)map_to_sysmem((void *)(uintptr_t)
++					  map->physical_start),
+ 		       EFI_PHYS_ADDR_WIDTH,
+-		       (u64)map_to_sysmem((void *)map->physical_start +
+-					  map->num_pages * EFI_PAGE_SIZE));
++		       (u64)map_to_sysmem((void *)(uintptr_t)
++					  (map->physical_start +
++					   map->num_pages * EFI_PAGE_SIZE)));
+ 
+ 		print_memory_attributes(map->attribute);
+ 		putc('\n');
+-- 
+2.20.1
+
