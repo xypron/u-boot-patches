@@ -1,4 +1,4 @@
-From c2a88606f31ec5e211c2c8be4d5b15b3d5d108f7 Mon Sep 17 00:00:00 2001
+From 8eb25fd8f437a9246e0e378aeab84d8c57cbb7ae Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 25 Mar 2020 20:38:16 +0100
 Subject: [PATCH 1/1] efi_selftest: adjust runtime test for variables
@@ -11,11 +11,11 @@ EFI_VARIABLE_NON_VOLATILE set.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- .../efi_selftest_variables_runtime.c          | 47 +++++++++++++++----
- 1 file changed, 39 insertions(+), 8 deletions(-)
+ .../efi_selftest_variables_runtime.c          | 57 ++++++++++++++++---
+ 1 file changed, 49 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_selftest/efi_selftest_variables_runtime.c b/lib/efi_selftest/efi_selftest_variables_runtime.c
-index b3b40ad2cf..c6005eeeaf 100644
+index b3b40ad2cf..8ab34eaee7 100644
 --- a/lib/efi_selftest/efi_selftest_variables_runtime.c
 +++ b/lib/efi_selftest/efi_selftest_variables_runtime.c
 @@ -20,8 +20,8 @@ static const efi_guid_t guid_vendor0 =
@@ -38,7 +38,7 @@ index b3b40ad2cf..c6005eeeaf 100644
   */
  static int execute(void)
  {
-@@ -52,37 +52,68 @@ static int execute(void)
+@@ -52,37 +52,78 @@ static int execute(void)
  	efi_guid_t guid;
  	u64 max_storage, rem_storage, max_size;
  
