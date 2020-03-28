@@ -79,6 +79,16 @@ index b3b40ad2cf..c6005eeeaf 100644
 +				    EFI_VARIABLE_NON_VOLATILE,
 +				    3, v + 4);
 +	if (ret != EFI_SUCCESS) {
++		efi_st_error("SetVariable succeeded w/o EFI_VARIABLE_NON_VOLATILE\n");
++		return EFI_ST_FAILURE;
++	}
++
++	ret = runtime->set_variable(L"efi_st_var0", &guid_vendor0,
++				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				    EFI_VARIABLE_RUNTIME_ACCESS |
++				    EFI_VARIABLE_NON_VOLATILE,
++				    3, v + 4);
++	if (ret != EFI_SUCCESS) {
  		efi_st_error("SetVariable failed\n");
  		return EFI_ST_FAILURE;
  	}
