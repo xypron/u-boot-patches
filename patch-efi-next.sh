@@ -1,5 +1,7 @@
 git am --abort || true
 
+set -e
+
 # Needs rebase
 # git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
 
@@ -69,6 +71,8 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
 git am ../patch/0001-mmc-export-mmc_send_ext_csd.patch
 git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
+git am ../patch/0001-cmd-mmc-fix-typo-a-EMMC.patch
+git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
 
 # UEFI
 git am ../patch/0001-test-py-UEFI-helloworld-requires-OF_CONTROL.patch
