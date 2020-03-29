@@ -1,0 +1,58 @@
+From 35f5651091fb7c658976ec68d1b9e955d75bb2fa Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 29 Mar 2020 17:33:50 +0000
+Subject: [PATCH 1/1] cmd: mmc: display write protect state of boot partition
+
+Boot partitions of eMMC devices can be power on or permanently write
+protected. Let the 'mmc info' command display the protection state.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/mmc.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/cmd/mmc.c b/cmd/mmc.c
+index 6f3cb85cc0..d62c85e439 100644
+--- a/cmd/mmc.c
++++ b/cmd/mmc.c
+@@ -54,6 +54,8 @@ static void print_mmcinfo(struct mmc *mmc)
+ 	if (!IS_SD(mmc) && mmc->version >= MMC_VERSION_4_41) {
+ 		bool has_enh = (mmc->part_support & ENHNCD_SUPPORT) != 0;
+ 		bool usr_enh = has_enh && (mmc->part_attr & EXT_CSD_ENH_USR);
++		u8 wp, ext_csd[MMC_MAX_BLOCK_LEN];
++		int ret;
+ 
+ #if CONFIG_IS_ENABLED(MMC_HW_PARTITIONING)
+ 		puts("HC WP Group Size: ");
+@@ -90,6 +92,28 @@ static void print_mmcinfo(struct mmc *mmc)
+ 					putc('\n');
+ 			}
+ 		}
++		ret = mmc_send_ext_csd(mmc, ext_csd);
++		if (ret)
++			return;
++		wp = ext_csd[EXT_CSD_BOOT_WP_STATUS];
++		for (i = 0; i < 2; ++i) {
++			printf("Boot area %d is ", i);
++			switch (wp &3) {
++			case 0:
++				printf("not write protected\n");
++				break;
++			case 1:
++				printf("power on protected\n");
++				break;
++			case 2:
++				printf("permanently protected\n");
++				break;
++			default:
++				printf("in reserved protection state\n");
++				break;
++			}
++			wp >>= 2;
++		}
+ 	}
+ }
+ static struct mmc *init_mmc_device(int dev, bool force_init)
+-- 
+2.20.1
+
