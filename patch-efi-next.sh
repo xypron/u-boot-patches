@@ -68,6 +68,7 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # MMC
 git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
+git am ../patch/0001-mmc-export-mmc_send_ext_csd.patch
 
 # UEFI
 git am ../patch/0001-test-py-UEFI-helloworld-requires-OF_CONTROL.patch

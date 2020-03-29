@@ -1,0 +1,51 @@
+From 89ef12b5707af507b53483ae523e538f94582c09 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 29 Mar 2020 09:17:44 +0200
+Subject: [PATCH 1/1] mmc: export mmc_send_ext_csd()
+
+Export function mmc_send_ext_csd() for reading the extended CSD register.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mmc/mmc.c |  2 +-
+ include/mmc.h     | 11 +++++++++++
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 3e36566693..bfcdaa665d 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -718,7 +718,7 @@ static int mmc_complete_op_cond(struct mmc *mmc)
+ }
+ 
+ 
+-static int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
++int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
+ {
+ 	struct mmc_cmd cmd;
+ 	struct mmc_data data;
+diff --git a/include/mmc.h b/include/mmc.h
+index e83c22423b..13f0829138 100644
+--- a/include/mmc.h
++++ b/include/mmc.h
+@@ -893,6 +893,17 @@ int mmc_get_env_dev(void);
+  */
+ struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
+ 
++/**
++ * mmc_send_ext_csd() - read the extended CSD register
++ *
++ * @mmc:	MMC device
++ * @ext_csd	a cache aligned buffer of length MMC_MAX_BLOCK_LEN allocated by
++ *		the caller, e.g. using
++ *		ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN)
++ * Return:	0 for success
++ */
++int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd);
++
+ static inline enum dma_data_direction mmc_get_dma_dir(struct mmc_data *data)
+ {
+ 	return data->flags & MMC_DATA_WRITE ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
+-- 
+2.25.1
+
