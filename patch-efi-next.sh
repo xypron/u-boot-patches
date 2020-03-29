@@ -66,7 +66,11 @@ git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
 git am ../patch/0001-test-log-test-syslog-logging-driver.patch
 git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
+# MMC
+git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
+
 # UEFI
+git am ../patch/0001-test-py-UEFI-helloworld-requires-OF_CONTROL.patch
 git am ../patch/0001-cmd-efidebug-fix-int-to-pointer-cast.patch
 git am ../patch/0001-efi_loader-only-reserve-memory-if-fdt-node-enabled.patch
 
