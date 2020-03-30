@@ -1,4 +1,4 @@
-From 89ef12b5707af507b53483ae523e538f94582c09 Mon Sep 17 00:00:00 2001
+From e2ecc7f55f8434c682bbdad4f78068c2c78e9f39 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 29 Mar 2020 09:17:44 +0200
 Subject: [PATCH 1/1] mmc: export mmc_send_ext_csd()
@@ -25,10 +25,10 @@ index 3e36566693..bfcdaa665d 100644
  	struct mmc_cmd cmd;
  	struct mmc_data data;
 diff --git a/include/mmc.h b/include/mmc.h
-index e83c22423b..13f0829138 100644
+index 4ecd6c744c..6d5b11c51c 100644
 --- a/include/mmc.h
 +++ b/include/mmc.h
-@@ -893,6 +893,17 @@ int mmc_get_env_dev(void);
+@@ -896,6 +896,17 @@ int mmc_get_env_dev(void);
   */
  struct blk_desc *mmc_get_blk_desc(struct mmc *mmc);
  
@@ -36,7 +36,7 @@ index e83c22423b..13f0829138 100644
 + * mmc_send_ext_csd() - read the extended CSD register
 + *
 + * @mmc:	MMC device
-+ * @ext_csd	a cache aligned buffer of length MMC_MAX_BLOCK_LEN allocated by
++ * @ext_csd:	a cache aligned buffer of length MMC_MAX_BLOCK_LEN allocated by
 + *		the caller, e.g. using
 + *		ALLOC_CACHE_ALIGN_BUFFER(u8, ext_csd, MMC_MAX_BLOCK_LEN)
 + * Return:	0 for success

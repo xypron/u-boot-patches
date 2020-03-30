@@ -34,7 +34,7 @@ index 6f3cb85cc0..d62c85e439 100644
 +		wp = ext_csd[EXT_CSD_BOOT_WP_STATUS];
 +		for (i = 0; i < 2; ++i) {
 +			printf("Boot area %d is ", i);
-+			switch (wp &3) {
++			switch (wp & 3) {
 +			case 0:
 +				printf("not write protected\n");
 +				break;
