@@ -73,6 +73,7 @@ git am ../patch/0001-mmc-export-mmc_send_ext_csd.patch
 git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
 git am ../patch/0001-cmd-mmc-fix-typo-a-EMMC.patch
 git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
+git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 
 # UEFI
 git am ../patch/0001-test-py-UEFI-helloworld-requires-OF_CONTROL.patch

@@ -1,0 +1,80 @@
+From f74eeee5b77b7ca01eed3e7604aacf211186c7e9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 31 Mar 2020 17:32:22 +0000
+Subject: [PATCH 1/1] mmc: adjust Kconfig for mmc sub-commands
+
+All sub-commands of the mmc command should be shown in the Kconfig menu
+next to the mmc command. This includes:
+
+* mmc bkops
+* mmc rpmb
+* mmc swrite
+
+The mmc rpmb sub-command is not usable without CONFIG_SUPPORT_EMMC_RPMB.
+Add the missing dependency.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 6403bc45a5..22ba385141 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -1052,21 +1052,34 @@ config CMD_MMC
+ 	help
+ 	  MMC memory mapped support.
+ 
++if CMD_MMC
++
++config CMD_BKOPS_ENABLE
++	bool "mmc bkops enable"
++	depends on CMD_MMC
++	default n
++	help
++	  Enable command for setting manual background operations handshake
++	  on a eMMC device. The feature is optionally available on eMMC devices
++	  conforming to standard >= 4.41.
++
+ config CMD_MMC_RPMB
+ 	bool "Enable support for RPMB in the mmc command"
+-	depends on CMD_MMC
++	depends on SUPPORT_EMMC_RPMB
+ 	help
+ 	  Enable the commands for reading, writing and programming the
+ 	  key for the Replay Protection Memory Block partition in eMMC.
+ 
+ config CMD_MMC_SWRITE
+ 	bool "mmc swrite"
+-	depends on CMD_MMC && MMC_WRITE
++	depends on MMC_WRITE
+ 	select IMAGE_SPARSE
+ 	help
+ 	  Enable support for the "mmc swrite" command to write Android sparse
+ 	  images to eMMC.
+ 
++endif
++
+ config CMD_MTD
+ 	bool "mtd"
+ 	depends on MTD
+@@ -1599,15 +1612,6 @@ config CMD_BSP
+ 	  option provides a way to control this. The commands that are enabled
+ 	  vary depending on the board.
+ 
+-config CMD_BKOPS_ENABLE
+-	bool "mmc bkops enable"
+-	depends on CMD_MMC
+-	default n
+-	help
+-	  Enable command for setting manual background operations handshake
+-	  on a eMMC device. The feature is optionally available on eMMC devices
+-	  conforming to standard >= 4.41.
+-
+ config CMD_BLOCK_CACHE
+ 	bool "blkcache - control and stats for block cache"
+ 	depends on BLOCK_CACHE
+-- 
+2.20.1
+
