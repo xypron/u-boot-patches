@@ -71,14 +71,10 @@ git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
 git am ../patch/0001-mmc-export-mmc_send_ext_csd.patch
 git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
-git am ../patch/0001-cmd-mmc-fix-typo-a-EMMC.patch
 git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
 git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 
 # UEFI
-git am ../patch/0001-test-py-UEFI-helloworld-requires-OF_CONTROL.patch
-git am ../patch/0001-cmd-efidebug-fix-int-to-pointer-cast.patch
-git am ../patch/0001-efi_loader-only-reserve-memory-if-fdt-node-enabled.patch
 
 # efi-2020-07
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
