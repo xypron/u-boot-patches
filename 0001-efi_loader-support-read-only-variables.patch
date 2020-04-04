@@ -64,7 +64,7 @@ index 38f75a6cfb..606ad99715 100644
  		  data_size, data);
  
 +	if (attributes)
-+		*attributes &= ~(u32)EFI_VARIABLE_MASK;
++		*attributes &= EFI_VARIABLE_MASK;
 +
  	return EFI_EXIT(efi_get_variable_int(variable_name, vendor, attributes,
  					     data_size, data));
