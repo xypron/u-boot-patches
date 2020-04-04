@@ -1,0 +1,133 @@
+From 39f134ef5f0adfb0961b6e9ccf29bf0a58bba5f7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 4 Apr 2020 10:57:27 +0200
+Subject: [PATCH 1/1] efi_loader: support read-only variables
+
+Some UEFI variables can be read only. The internal function to set and get
+UEFI variable should support this property.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_variable.h        |  2 ++
+ lib/efi_loader/efi_variable.c | 31 ++++++++++++++++++++++---------
+ 2 files changed, 24 insertions(+), 9 deletions(-)
+
+diff --git a/include/efi_variable.h b/include/efi_variable.h
+index 9d2ac60057..294cac697e 100644
+--- a/include/efi_variable.h
++++ b/include/efi_variable.h
+@@ -8,6 +8,8 @@
+ #ifndef _EFI_VARIABLE_H
+ #define _EFI_VARIABLE_H
+ 
++#define EFI_VARIABLE_READ_ONLY BIT(31)
++
+ efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 				  u32 *attributes,
+ 				  efi_uintn_t *data_size, void *data);
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 38f75a6cfb..606ad99715 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -14,8 +14,6 @@
+ #include <search.h>
+ #include <u-boot/crc.h>
+ 
+-#define READ_ONLY BIT(31)
+-
+ /*
+  * Mapping between EFI variables and u-boot variables:
+  *
+@@ -31,9 +29,10 @@
+  * The attributes are a comma separated list of these possible
+  * attributes:
+  *
+- *   + ro   - read-only
+  *   + boot - boot-services access
+  *   + run  - runtime access
++ *   + nv   - read-only
++ *   + ro   - read-only
+  *
+  * NOTE: with current implementation, no variables are available after
+  * ExitBootServices, and all are persisted (if possible).
+@@ -125,7 +124,7 @@ static const char *parse_attr(const char *str, u32 *attrp)
+ 		str++;
+ 
+ 		if ((s = prefix(str, "ro"))) {
+-			attr |= READ_ONLY;
++			attr |= EFI_VARIABLE_READ_ONLY;
+ 		} else if ((s = prefix(str, "nv"))) {
+ 			attr |= EFI_VARIABLE_NON_VOLATILE;
+ 		} else if ((s = prefix(str, "boot"))) {
+@@ -170,6 +169,9 @@ efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
+ 	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
++	if (attributes)
++		*attributes &= ~(u32)EFI_VARIABLE_MASK;
++
+ 	return EFI_EXIT(efi_get_variable_int(variable_name, vendor, attributes,
+ 					     data_size, data));
+ }
+@@ -263,7 +265,7 @@ efi_status_t efi_get_variable_int(u16 *variable_name,
+ 
+ out:
+ 	if (attributes)
+-		*attributes = attr & EFI_VARIABLE_MASK;
++		*attributes = attr;
+ 
+ 	return ret;
+ }
+@@ -471,11 +473,19 @@ efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
+ 				     const efi_guid_t *vendor, u32 attributes,
+ 				     efi_uintn_t data_size, const void *data)
+ {
++	efi_status_t ret;
++
+ 	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
+ 		  data_size, data);
+ 
+-	return EFI_EXIT(efi_set_variable_int(variable_name, vendor, attributes,
+-					     data_size, data));
++	/* Do not allow the read only flag to be set here */
++	if ((attributes & ~(u32)EFI_VARIABLE_MASK))
++		ret = EFI_INVALID_PARAMETER;
++	else
++		ret = efi_set_variable_int(variable_name, vendor, attributes,
++					   data_size, data);
++
++	return EFI_EXIT(ret);
+ }
+ 
+ /**
+@@ -517,7 +527,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 		old_val = parse_attr(old_val, &attr);
+ 
+ 		/* check read-only first */
+-		if (attr & READ_ONLY) {
++		if (attr & EFI_VARIABLE_READ_ONLY) {
+ 			ret = EFI_WRITE_PROTECTED;
+ 			goto out;
+ 		}
+@@ -572,7 +582,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 	/* store attributes */
+ 	attributes &= (EFI_VARIABLE_NON_VOLATILE |
+ 		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-		       EFI_VARIABLE_RUNTIME_ACCESS);
++		       EFI_VARIABLE_RUNTIME_ACCESS |
++		       EFI_VARIABLE_READ_ONLY);
+ 	s += sprintf(s, "{");
+ 	while (attributes) {
+ 		u32 attr = 1 << (ffs(attributes) - 1);
+@@ -583,6 +594,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 			s += sprintf(s, "boot");
+ 		else if (attr == EFI_VARIABLE_RUNTIME_ACCESS)
+ 			s += sprintf(s, "run");
++		else if (attr == EFI_VARIABLE_READ_ONLY)
++			s += sprintf(s, "ro");
+ 
+ 		attributes &= ~attr;
+ 		if (attributes)
+-- 
+2.25.1
+

@@ -1,4 +1,4 @@
-From 2c9840497d2e453caac874f2be5dbde3c1e0b606 Mon Sep 17 00:00:00 2001
+From c6be62c66c12ae9181eddbae8a243656880c4eeb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: keep attributes in efi_set_variable_int()
@@ -12,12 +12,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index a4dcf41dd2..9e308eed2c 100644
+index 606ad99715..1b5a0815e3 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -573,8 +573,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
- 		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
- 		       EFI_VARIABLE_RUNTIME_ACCESS);
+@@ -585,8 +585,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 		       EFI_VARIABLE_RUNTIME_ACCESS |
+ 		       EFI_VARIABLE_READ_ONLY);
  	s += sprintf(s, "{");
 -	while (attributes) {
 -		u32 attr = 1 << (ffs(attributes) - 1);
@@ -26,9 +26,9 @@ index a4dcf41dd2..9e308eed2c 100644
  
  		if (attr == EFI_VARIABLE_NON_VOLATILE)
  			s += sprintf(s, "nv");
-@@ -583,8 +583,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
- 		else if (attr == EFI_VARIABLE_RUNTIME_ACCESS)
- 			s += sprintf(s, "run");
+@@ -597,8 +597,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 		else if (attr == EFI_VARIABLE_READ_ONLY)
+ 			s += sprintf(s, "ro");
  
 -		attributes &= ~attr;
 -		if (attributes)
