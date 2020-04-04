@@ -96,7 +96,6 @@ git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 
 # UEFI secure boot
-git am ../patch/0001-image.h-use-uint32_t-instead-of-u32-in-android_image.patch
 git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
 git am ../patch/0001-efi_loader-add-signature-database-parser.patch
 git am ../patch/0001-efi_loader-variable-support-variable-authentication.patch
