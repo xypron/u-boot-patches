@@ -77,12 +77,12 @@ git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 # UEFI
 
 # efi-2020-07
-git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
+git am ../patch/0001-efi_loader-change-setup-sequence.patch
+git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
 git am ../patch/0001-efi_loader-export-initialization-state.patch
-git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch

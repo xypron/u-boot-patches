@@ -1,7 +1,7 @@
-From 0839c3765536bb5656d7006eb80970b4c1dc3f00 Mon Sep 17 00:00:00 2001
+From 281245c2cdb97cfb78836f53095b8a40d608ead6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
-Subject: [PATCH 13/16] efi_loader: memory buffer for variables
+Subject: [PATCH 1/1] efi_loader: memory buffer for variables
 
 Saving UEFI variable as encoded U-Boot environment variables does not allow
 support at runtime.
@@ -10,11 +10,11 @@ Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h             |  16 ++
- lib/efi_loader/Makefile            |   1 +
- lib/efi_loader/efi_variables_mem.c | 317 +++++++++++++++++++++++++++++
+ include/efi_variable.h       |  16 ++
+ lib/efi_loader/Makefile      |   1 +
+ lib/efi_loader/efi_var_mem.c | 317 +++++++++++++++++++++++++++++++++++
  3 files changed, 334 insertions(+)
- create mode 100644 lib/efi_loader/efi_variables_mem.c
+ create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 index fb8294fc2e..037d268085 100644
@@ -42,22 +42,22 @@ index fb8294fc2e..037d268085 100644
 +
  #endif
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 621a767ab3..14b210e189 100644
+index 621a767ab3..9923c835bf 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -36,6 +36,7 @@ obj-y += efi_setup.o
  obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
  obj-y += efi_variable.o
  obj-y += efi_variables_file.o
-+obj-y += efi_variables_mem.o
++obj-y += efi_var_mem.o
  obj-y += efi_watchdog.o
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
-diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
+diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..015b235a91
+index 0000000000..f70cc65f8b
 --- /dev/null
-+++ b/lib/efi_loader/efi_variables_mem.c
++++ b/lib/efi_loader/efi_var_mem.c
 @@ -0,0 +1,317 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
@@ -377,5 +377,5 @@ index 0000000000..015b235a91
 +	return ret;
 +}
 -- 
-2.20.1
+2.25.1
 

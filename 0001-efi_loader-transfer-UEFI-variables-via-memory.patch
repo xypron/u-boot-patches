@@ -1,15 +1,15 @@
-From 16082f4abc9e27aa0edf11ac8501d821800ee45a Mon Sep 17 00:00:00 2001
+From 4c8186ac2b117378ffcdae2686e1797a4bebf2af Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 26 Mar 2020 20:53:08 +0000
-Subject: [PATCH 1/1] efi_loader: transfer UEFI variables via memory
+Subject: [PATCH] efi_loader: transfer UEFI variables via memory
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h              |  5 ++++-
- lib/efi_loader/Kconfig              | 18 ++++++++++++++++++
- lib/efi_loader/efi_variable.c       | 20 +++++++++++++++++---
- lib/efi_loader/efi_variables_file.c | 12 ++++++++----
- lib/efi_loader/efi_variables_mem.c  | 24 ++++++++++++++++++++++--
+ include/efi_variable.h        |  5 ++++-
+ lib/efi_loader/Kconfig        | 18 ++++++++++++++++++
+ lib/efi_loader/efi_var_file.c | 12 ++++++++----
+ lib/efi_loader/efi_var_mem.c  | 24 ++++++++++++++++++++++--
+ lib/efi_loader/efi_variable.c | 20 +++++++++++++++++---
  5 files changed, 69 insertions(+), 10 deletions(-)
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
@@ -64,42 +64,10 @@ index 41705fc252..5489e19de3 100644
  config EFI_GET_TIME
  	bool "GetTime() runtime service"
  	depends on DM_RTC
-diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index cf8b44c535..64b6f033e8 100644
---- a/lib/efi_loader/efi_variable.c
-+++ b/lib/efi_loader/efi_variable.c
-@@ -420,10 +420,24 @@ void efi_variables_boot_exit_notify(void)
- efi_status_t efi_init_variables(void)
- {
- 	efi_status_t ret;
-+	u32 exclude;
- 
- 	ret = efi_var_mem_init();
--	if (ret != EFI_SUCCESS)
--		return ret;
- 
--	return efi_var_from_file();
-+	/*
-+	 * Do not use switch statements in runtime code. The may be
-+	 * compiled to tables leading to relocation errors.
-+	 */
-+	if (ret == EFI_VAR_IN_MEMORY) {
-+		/*
-+		 * If we found valid variables in memory,
-+		 * don't load runtime variables from file.
-+		 */
-+		exclude = EFI_VARIABLE_RUNTIME_ACCESS;
-+	} else if (ret == EFI_SUCCESS) {
-+		exclude = 0;
-+	} else {
-+		return ret;
-+	}
-+	return efi_var_from_file(exclude);
- }
-diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
+diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
 index 4a918d3fde..c5b84431ac 100644
---- a/lib/efi_loader/efi_variables_file.c
-+++ b/lib/efi_loader/efi_variables_file.c
+--- a/lib/efi_loader/efi_var_file.c
++++ b/lib/efi_loader/efi_var_file.c
 @@ -157,9 +157,11 @@ error:
   * efi_var_restore() - restore EFI variables from buffer
   *
@@ -144,10 +112,10 @@ index 4a918d3fde..c5b84431ac 100644
  		printf("Invalid EFI variables file\n");
  error:
  	free(buf);
-diff --git a/lib/efi_loader/efi_variables_mem.c b/lib/efi_loader/efi_variables_mem.c
-index a5d1b3b52b..6fd48230da 100644
---- a/lib/efi_loader/efi_variables_mem.c
-+++ b/lib/efi_loader/efi_variables_mem.c
+diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
+index 939fbaa972..1d9e037a0d 100644
+--- a/lib/efi_loader/efi_var_mem.c
++++ b/lib/efi_loader/efi_var_mem.c
 @@ -289,7 +289,7 @@ efi_var_mem_notify_virtual_address_map(struct efi_event *event, void *context)
  /**
   * efi_var_mem_init() - set-up variable list
@@ -198,6 +166,38 @@ index a5d1b3b52b..6fd48230da 100644
 -	return ret;
 +	return EFI_SUCCESS;
  }
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index cf8b44c535..64b6f033e8 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -420,10 +420,24 @@ void efi_variables_boot_exit_notify(void)
+ efi_status_t efi_init_variables(void)
+ {
+ 	efi_status_t ret;
++	u32 exclude;
+ 
+ 	ret = efi_var_mem_init();
+-	if (ret != EFI_SUCCESS)
+-		return ret;
+ 
+-	return efi_var_from_file();
++	/*
++	 * Do not use switch statements in runtime code. The may be
++	 * compiled to tables leading to relocation errors.
++	 */
++	if (ret == EFI_VAR_IN_MEMORY) {
++		/*
++		 * If we found valid variables in memory,
++		 * don't load runtime variables from file.
++		 */
++		exclude = EFI_VARIABLE_RUNTIME_ACCESS;
++	} else if (ret == EFI_SUCCESS) {
++		exclude = 0;
++	} else {
++		return ret;
++	}
++	return efi_var_from_file(exclude);
+ }
 -- 
-2.20.1
+2.25.1
 
