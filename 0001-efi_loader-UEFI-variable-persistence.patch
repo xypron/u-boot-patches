@@ -1,4 +1,4 @@
-From 1b0d7be1f00bcd33e4561b60de04aefe35a610a3 Mon Sep 17 00:00:00 2001
+From 6e7ff19242319d317e7d9bf45ac61561abf4140f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -16,14 +16,14 @@ non-volatile UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h              |  36 +++++
- lib/efi_loader/Kconfig              |   8 +
- lib/efi_loader/Makefile             |   1 +
- lib/efi_loader/efi_variable.c       |  12 +-
- lib/efi_loader/efi_variables_file.c | 235 ++++++++++++++++++++++++++++
+ include/efi_variable.h        |  36 ++++++
+ lib/efi_loader/Kconfig        |   8 ++
+ lib/efi_loader/Makefile       |   1 +
+ lib/efi_loader/efi_var_file.c | 235 ++++++++++++++++++++++++++++++++++
+ lib/efi_loader/efi_variable.c |  12 +-
  5 files changed, 291 insertions(+), 1 deletion(-)
  create mode 100644 include/efi_variable.h
- create mode 100644 lib/efi_loader/efi_variables_file.c
+ create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
@@ -98,53 +98,11 @@ index 9b3b704473..621a767ab3 100644
  obj-y += efi_watchdog.o
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
-diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index d99ad6ddae..952a0a0db7 100644
---- a/lib/efi_loader/efi_variable.c
-+++ b/lib/efi_loader/efi_variable.c
-@@ -7,6 +7,7 @@
- 
- #include <common.h>
- #include <efi_loader.h>
-+#include <efi_variable.h>
- #include <env_internal.h>
- #include <hexdump.h>
- #include <malloc.h>
-@@ -604,6 +605,11 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
- 	if (env_set(native_name, val))
- 		ret = EFI_DEVICE_ERROR;
- 
-+	/* Write non-volatile EFI variables to file */
-+	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
-+	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
-+		efi_var_to_file();
-+
- out:
- 	free(native_name);
- 	free(val);
-@@ -694,6 +700,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
-  */
- void efi_variables_boot_exit_notify(void)
- {
-+	/* Write non-volatile EFI variables to file */
-+	efi_var_to_file();
-+
-+	/* Switch variable services functions to runtime version */
- 	efi_runtime_services.get_variable = efi_get_variable_runtime;
- 	efi_runtime_services.get_next_variable_name =
- 				efi_get_next_variable_name_runtime;
-@@ -708,5 +718,5 @@ void efi_variables_boot_exit_notify(void)
-  */
- efi_status_t efi_init_variables(void)
- {
--	return EFI_SUCCESS;
-+	return efi_var_from_file();
- }
-diff --git a/lib/efi_loader/efi_variables_file.c b/lib/efi_loader/efi_variables_file.c
+diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
 new file mode 100644
 index 0000000000..4a918d3fde
 --- /dev/null
-+++ b/lib/efi_loader/efi_variables_file.c
++++ b/lib/efi_loader/efi_var_file.c
 @@ -0,0 +1,235 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
@@ -381,6 +339,48 @@ index 0000000000..4a918d3fde
 +#endif
 +	return EFI_SUCCESS;
 +}
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index d99ad6ddae..952a0a0db7 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -7,6 +7,7 @@
+ 
+ #include <common.h>
+ #include <efi_loader.h>
++#include <efi_variable.h>
+ #include <env_internal.h>
+ #include <hexdump.h>
+ #include <malloc.h>
+@@ -604,6 +605,11 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
+ 	if (env_set(native_name, val))
+ 		ret = EFI_DEVICE_ERROR;
+ 
++	/* Write non-volatile EFI variables to file */
++	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
++	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
++		efi_var_to_file();
++
+ out:
+ 	free(native_name);
+ 	free(val);
+@@ -694,6 +700,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+  */
+ void efi_variables_boot_exit_notify(void)
+ {
++	/* Write non-volatile EFI variables to file */
++	efi_var_to_file();
++
++	/* Switch variable services functions to runtime version */
+ 	efi_runtime_services.get_variable = efi_get_variable_runtime;
+ 	efi_runtime_services.get_next_variable_name =
+ 				efi_get_next_variable_name_runtime;
+@@ -708,5 +718,5 @@ void efi_variables_boot_exit_notify(void)
+  */
+ efi_status_t efi_init_variables(void)
+ {
+-	return EFI_SUCCESS;
++	return efi_var_from_file();
+ }
 -- 
-2.20.1
+2.25.1
 
