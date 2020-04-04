@@ -1,0 +1,27 @@
+From 58de4ab313700649d03bfbfb2bcdd7de2805a91d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 4 Apr 2020 10:53:01 +0200
+Subject: [PATCH 1/1] efi_loader: printenv -e should show read only flag
+
+The printenv -e command should indicate if a variable is read only.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit_efi.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index c53da6981d..e771e3b4cc 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -34,6 +34,7 @@ static const struct {
+ 	{EFI_VARIABLE_RUNTIME_ACCESS, "RT"},
+ 	{EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS, "AW"},
+ 	{EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS, "AT"},
++	{EFI_VARIABLE_READ_ONLY, "RO"},
+ };
+ 
+ static const struct {
+-- 
+2.25.1
+
