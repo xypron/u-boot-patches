@@ -1,0 +1,28 @@
+From 9bae47a2050da7cba3ecf0502606ec5dd51e743c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 5 Apr 2020 12:10:44 +0200
+Subject: [PATCH] arm: meson: imply DM_RNG
+
+All ARCH_MESON boards have a hardware random number generator. So we should
+enable building the RNG driver.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index bbb1e2738b..eee4538c7e 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -762,6 +762,7 @@ config ARCH_OMAP2PLUS
+ config ARCH_MESON
+ 	bool "Amlogic Meson"
+ 	imply DISTRO_DEFAULTS
++	imply DM_RNG
+ 	help
+ 	  Support for the Meson SoC family developed by Amlogic Inc.,
+ 	  targeted at media players and tablet computers. We currently
+-- 
+2.25.1
+

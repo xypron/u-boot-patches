@@ -1,0 +1,30 @@
+From fe068a03b2608012c61513d58ebdf5e22761a272 Mon Sep 17 00:00:00 2001
+From: Peter Robinson <pbrobinson@gmail.com>
+Date: Wed, 1 Apr 2020 11:15:01 +0100
+Subject: [PATCH] efi_loader: enable RNG if DM_RNG is enabled
+
+Enable EFI_RNG_PROTOCOL by default if DM_RNG is set.
+
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+Acked-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Remove superfluous 'if DM_RNG'
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 9890144d41..c89ce85c4a 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -126,6 +126,7 @@ config EFI_GRUB_ARM32_WORKAROUND
+ config EFI_RNG_PROTOCOL
+ 	bool "EFI_RNG_PROTOCOL support"
+ 	depends on DM_RNG
++	default y
+ 	help
+ 	  Provide a EFI_RNG_PROTOCOL implementation using the hardware random
+ 	  number generator of the platform.
+-- 
+2.25.1
+
