@@ -55,10 +55,6 @@ git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-ide-remove-duplicate-defines-from-include-ata.h.patch
 git am ../patch/0001-block-ide-use-definitions-from-include-libata.h.patch
 
-# RNG
-git am ../patch/0001-drivers-rng-enable-DM_RNG-for-ARCH_MESON-ARCH_STM32M.patch
-git am ../patch/0001-efi_loader-enable-EFI_RNG_PROTOCOL-by-default.patch
-
 # Logging
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-log-correct-CONFIG_LOG_TEST-prerequisites.patch
@@ -78,6 +74,7 @@ git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 # UEFI
 
 # efi-2020-07
+git am ../patch/0001-drivers-rng-enable-DM_RNG-for-ARCH_MESON-ARCH_STM32M.patch
 git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
