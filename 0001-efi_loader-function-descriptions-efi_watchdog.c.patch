@@ -1,0 +1,82 @@
+From a0ebd8b4e4bc741bf7302af65da4eec0ea941eb3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Apr 2020 17:51:56 +0200
+Subject: [PATCH] efi_loader: function descriptions efi_watchdog.c
+
+Correct function descriptions in efi_watchdog.c.
+Add the descriptions to the generated HTML documentation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/api/efi.rst               |  6 ++++++
+ lib/efi_loader/efi_watchdog.c | 18 +++++++++++-------
+ 2 files changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/doc/api/efi.rst b/doc/api/efi.rst
+index b9c0c6efc5..0667c3aef7 100644
+--- a/doc/api/efi.rst
++++ b/doc/api/efi.rst
+@@ -78,6 +78,12 @@ Memory services
+ .. kernel-doc:: lib/efi_loader/efi_memory.c
+    :internal:
+ 
++SetWatchdogTimer service
++~~~~~~~~~~~~~~~~~~~~~~~~
++
++.. kernel-doc:: lib/efi_loader/efi_watchdog.c
++   :internal:
++
+ Runtime services
+ ----------------
+ 
+diff --git a/lib/efi_loader/efi_watchdog.c b/lib/efi_loader/efi_watchdog.c
+index 6f69b76e4d..61ea0f7926 100644
+--- a/lib/efi_loader/efi_watchdog.c
++++ b/lib/efi_loader/efi_watchdog.c
+@@ -13,7 +13,9 @@
+ 
+ static struct efi_event *watchdog_timer_event;
+ 
+-/*
++/**
++ * efi_watchdog_timer_notify() - resets system upon watchdog event
++ *
+  * Reset the system when the watchdog event is notified.
+  *
+  * @event:	the watchdog event
+@@ -31,13 +33,13 @@ static void EFIAPI efi_watchdog_timer_notify(struct efi_event *event,
+ 	EFI_EXIT(EFI_UNSUPPORTED);
+ }
+ 
+-/*
+- * Reset the watchdog timer.
++/**
++ * efi_set_watchdog() - resets the watchdog timer
+  *
+  * This function is used by the SetWatchdogTimer service.
+  *
+  * @timeout:		seconds before reset by watchdog
+- * @return:		status code
++ * Return:		status code
+  */
+ efi_status_t efi_set_watchdog(unsigned long timeout)
+ {
+@@ -53,10 +55,12 @@ efi_status_t efi_set_watchdog(unsigned long timeout)
+ 	return r;
+ }
+ 
+-/*
+- * Initialize the EFI watchdog.
++/**
++ * efi_watchdog_register() - initializes the EFI watchdog
++ *
++ * This function is called by efi_init_obj_list().
+  *
+- * This function is called by efi_init_obj_list()
++ * Return:	status code
+  */
+ efi_status_t efi_watchdog_register(void)
+ {
+-- 
+2.25.1
+

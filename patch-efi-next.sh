@@ -81,6 +81,7 @@ git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
 # efi-2020-07
 git am ../patch/0001-efi_loader-function-descriptions-efi_unicode_collati.patch
 git am ../patch/0001-efi_loader-add-missing-doc-comments-in-efi_disk.c.patch
+git am ../patch/0001-efi_loader-function-descriptions-efi_watchdog.c.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
