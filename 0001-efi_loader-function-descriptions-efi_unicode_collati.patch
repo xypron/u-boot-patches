@@ -1,0 +1,62 @@
+From e7e7819dc3c11199f113901524e36b24674daa22 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Apr 2020 17:39:23 +0200
+Subject: [PATCH 1/1] efi_loader: function descriptions efi_unicode_collation.c
+
+Correct function descriptions in efi_unicode_collation.c
+Add the Unicode collation protocol to the generated HTML documentation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/api/efi.rst                        | 6 ++++++
+ lib/efi_loader/efi_unicode_collation.c | 6 ++----
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/doc/api/efi.rst b/doc/api/efi.rst
+index 631c0ceb1d..b9c0c6efc5 100644
+--- a/doc/api/efi.rst
++++ b/doc/api/efi.rst
+@@ -151,3 +151,9 @@ Text IO protocols
+ 
+ .. kernel-doc:: lib/efi_loader/efi_console.c
+    :internal:
++
++Unicode Collation protocol
++~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++.. kernel-doc:: lib/efi_loader/efi_unicode_collation.c
++   :internal:
+diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
+index c700be8756..6655c68092 100644
+--- a/lib/efi_loader/efi_unicode_collation.c
++++ b/lib/efi_loader/efi_unicode_collation.c
+@@ -169,8 +169,8 @@ static bool metai_match(const u16 *string, const u16 *pattern)
+  *		       case-insenitively
+  *
+  * @this:	unicode collation protocol instance
+- * @s:		string to compare
+- * @p:		pattern string
++ * @string:	string to compare
++ * @pattern:	pattern string
+  *
+  * The pattern string may use these:
+  *	- * matches >= 0 characters
+@@ -199,7 +199,6 @@ static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
+  *
+  * @this:	unicode collation protocol instance
+  * @string:	string to convert
+- * @p:		pattern string
+  *
+  * The conversion is done in place. As long as upper and lower letters use the
+  * same number of words this does not pose a problem.
+@@ -221,7 +220,6 @@ static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
+  *
+  * @this:	unicode collation protocol instance
+  * @string:	string to convert
+- * @p:		pattern string
+  *
+  * The conversion is done in place. As long as upper and lower letters use the
+  * same number of words this does not pose a problem.
+-- 
+2.25.1
+
