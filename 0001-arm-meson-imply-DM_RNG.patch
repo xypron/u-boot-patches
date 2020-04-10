@@ -1,12 +1,13 @@
-From 9bae47a2050da7cba3ecf0502606ec5dd51e743c Mon Sep 17 00:00:00 2001
+From 4b79c4facf5e428f18c4d579058d929422a56e25 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sun, 5 Apr 2020 12:10:44 +0200
-Subject: [PATCH] arm: meson: imply DM_RNG
+Date: Sun, 5 Apr 2020 12:20:23 +0200
+Subject: [PATCH 1/1] arm: meson: imply DM_RNG
 
 All ARCH_MESON boards have a hardware random number generator. So we should
 enable building the RNG driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
 ---
  arch/arm/Kconfig | 1 +
  1 file changed, 1 insertion(+)

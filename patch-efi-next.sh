@@ -32,7 +32,6 @@ git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
 git am ../patch/0001-include-ata.h-remove-invalid-links.patch
 git am ../patch/0001-cmd-fat-remove-unused-includes.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_ETHERNET.patch
-git am ../patch/0001-arm-meson-imply-DM_RNG.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -71,11 +70,13 @@ git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
 git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
 git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 
+# RNG
+git am ../patch/0001-arm-meson-imply-DM_RNG.patch
+git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
+
 # UEFI
 
 # efi-2020-07
-git am ../patch/0001-drivers-rng-enable-DM_RNG-for-ARCH_MESON-ARCH_STM32M.patch
-git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
