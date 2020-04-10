@@ -1,0 +1,46 @@
+From 5337d74109e8e244b86a3bcbe50be172f5b839a3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Apr 2020 08:58:51 +0200
+Subject: [PATCH] qemu: don't allow to select 32- and 64-bit
+
+TARGET_QEMU_ARM_64BIT and TARGET_QEMU_ARM_32BIT should be mutually
+exclusive.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/mach-qemu/Kconfig | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm/mach-qemu/Kconfig b/arch/arm/mach-qemu/Kconfig
+index a2e4b98b88..588d2d3102 100644
+--- a/arch/arm/mach-qemu/Kconfig
++++ b/arch/arm/mach-qemu/Kconfig
+@@ -9,16 +9,20 @@ config SYS_BOARD
+ config SYS_CONFIG_NAME
+ 	default "qemu-arm"
+ 
+-endif
++choice
++	prompt "QEMU ARM architecture"
++	default TARGET_QEMU_ARM_64BIT
+ 
+ config TARGET_QEMU_ARM_32BIT
+-	bool "Support qemu_arm"
+-	depends on ARCH_QEMU
++	bool "ARMv7-A, 32bit"
+ 	select ARCH_SUPPORT_PSCI
+ 	select CPU_V7A
+ 	select SYS_ARCH_TIMER
+ 
+ config TARGET_QEMU_ARM_64BIT
+-	bool "Support qemu_arm64"
+-	depends on ARCH_QEMU
++	bool "ARMv8, 64bit"
+ 	select ARM64
++
++endchoice
++
++endif
+-- 
+2.25.1
+

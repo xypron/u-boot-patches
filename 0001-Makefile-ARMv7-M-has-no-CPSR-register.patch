@@ -1,0 +1,48 @@
+From 9556a3c13f02a57d0854519869fd8400876e6414 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 10 Apr 2020 09:46:38 +0200
+Subject: [PATCH] Makefile: ARMv7-M has no CPSR register
+
+Compiling on ARMv7-M fails when trying to address the CPSR register.
+Atomic functions refer to the CPSR register if compiled with
+arch/arm/include/asm/proc-armv/system.h. On ARMv7-M we should use
+arch/arm/thumb1/include/asm/proc-armv/system.h instead.
+
+Cf. https://stackoverflow.com/questions/61097841/error-selected-processor-does-not-support-requested-special-purpose-register
+
+Reported-by: Sicris Rey Embay <sicris.embay@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 8de5ff6d94..4690eb5b87 100644
+--- a/Makefile
++++ b/Makefile
+@@ -701,13 +701,15 @@ KBUILD_CFLAGS += $(KCFLAGS)
+ # Use UBOOTINCLUDE when you must reference the include/ directory.
+ # Needed to be compatible with the O= option
+ UBOOTINCLUDE    := \
+-		-Iinclude \
+-		$(if $(KBUILD_SRC), -I$(srctree)/include) \
+-		$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
+-			$(if $(CONFIG_HAS_THUMB2),, \
+-				-I$(srctree)/arch/$(ARCH)/thumb1/include),) \
+-		-I$(srctree)/arch/$(ARCH)/include \
+-		-include $(srctree)/include/linux/kconfig.h
++	-Iinclude \
++	$(if $(KBUILD_SRC), -I$(srctree)/include) \
++	$(if $(CONFIG_$(SPL_)SYS_THUMB_BUILD), \
++		$(if $(CONFIG_HAS_THUMB2), \
++			$(if $(CONFIG_CPU_V7M), \
++				-I$(srctree)/arch/arm/thumb1/include), \
++			-I$(srctree)/arch/arm/thumb1/include)) \
++	-I$(srctree)/arch/$(ARCH)/include \
++	-include $(srctree)/include/linux/kconfig.h
+ 
+ NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+ CHECKFLAGS     += $(NOSTDINC_FLAGS)
+-- 
+2.25.1
+

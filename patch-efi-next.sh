@@ -32,6 +32,8 @@ git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
 git am ../patch/0001-include-ata.h-remove-invalid-links.patch
 git am ../patch/0001-cmd-fat-remove-unused-includes.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_ETHERNET.patch
+git am ../patch/0001-qemu-don-t-allow-to-select-32-and-64-bit.patch
+git am ../patch/0001-Makefile-ARMv7-M-has-no-CPSR-register.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
