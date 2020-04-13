@@ -21,7 +21,6 @@ git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-clk-meson-g12a-missing-break.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
