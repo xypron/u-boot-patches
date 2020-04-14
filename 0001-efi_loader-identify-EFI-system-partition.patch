@@ -1,9 +1,10 @@
-From 9b9ee058a8728f52f0da3474f84a268b280b7405 Mon Sep 17 00:00:00 2001
+From 4dadffaa20ae661bdc35cf2c348173f5038f5e8d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 15:16:31 +0100
 Subject: [PATCH 1/1] efi_loader: identify EFI system partition
 
-For capsule updates we need to identify the EFI system partition.
+In subsequent patches UEFI variables shalled be stored on the EFI system
+partition. Hence we need to identify the EFI system partition.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -12,7 +13,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 27 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 37c3f15da1..536ef84cb5 100644
+index 3f2792892f..4a45033476 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -45,6 +45,13 @@ static inline void *guidcpy(void *dst, const void *src)
@@ -30,7 +31,7 @@ index 37c3f15da1..536ef84cb5 100644
  int __efi_exit_check(void);
  const char *__efi_nesting(void);
 diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
-index fc0682bc48..2f752a5e99 100644
+index fd8fe17567..fd3df80b0b 100644
 --- a/lib/efi_loader/efi_disk.c
 +++ b/lib/efi_loader/efi_disk.c
 @@ -13,6 +13,8 @@
@@ -42,7 +43,7 @@ index fc0682bc48..2f752a5e99 100644
  const efi_guid_t efi_block_io_guid = EFI_BLOCK_IO_PROTOCOL_GUID;
  
  /**
-@@ -372,6 +374,24 @@ static efi_status_t efi_disk_add_dev(
+@@ -418,6 +420,24 @@ static efi_status_t efi_disk_add_dev(
  	diskobj->ops.media = &diskobj->media;
  	if (disk)
  		*disk = diskobj;
@@ -68,5 +69,5 @@ index fc0682bc48..2f752a5e99 100644
  }
  
 -- 
-2.20.1
+2.25.1
 

@@ -75,11 +75,11 @@ git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 
 # RNG
 git am ../patch/0001-arm-meson-imply-DM_RNG.patch
-git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
 
 # UEFI
 
 # efi-2020-07
+git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
 git am ../patch/0001-efi_loader-function-descriptions-efi_unicode_collati.patch
 git am ../patch/0001-efi_loader-add-missing-doc-comments-in-efi_disk.c.patch
 git am ../patch/0001-efi_loader-function-descriptions-efi_watchdog.c.patch
@@ -105,6 +105,7 @@ git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 
 # UEFI secure boot
+git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
 git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
 git am ../patch/0001-efi_loader-add-signature-database-parser.patch
 git am ../patch/0001-efi_loader-variable-support-variable-authentication.patch

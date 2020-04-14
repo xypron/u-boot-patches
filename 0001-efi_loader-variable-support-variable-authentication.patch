@@ -1,7 +1,7 @@
-From adf3bd5254bda08efbb60fc479877558065b5c04 Mon Sep 17 00:00:00 2001
+From a3b51bc6616dc84488da59ffc703cadeeea01dbf Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Wed, 26 Feb 2020 13:54:36 +0900
-Subject: [PATCH 1/1] efi_loader: variable: support variable authentication
+Date: Tue, 14 Apr 2020 11:51:41 +0900
+Subject: [PATCH] efi_loader: variable: support variable authentication
 
 With this commit, EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS
 is supported for authenticated variables and the system secure state
@@ -24,7 +24,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  2 files changed, 565 insertions(+), 104 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 34f7b8eec8..f461c61958 100644
+index fea2ead02e..ef8d184a6e 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -184,6 +184,7 @@ extern const efi_guid_t efi_guid_image_security_database;
@@ -35,7 +35,7 @@ index 34f7b8eec8..f461c61958 100644
  
  /* GUID of RNG protocol */
  extern const efi_guid_t efi_guid_rng_protocol;
-@@ -738,6 +739,8 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
+@@ -753,6 +754,8 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
  
  void efi_sigstore_free(struct efi_signature_store *sigstore);
  struct efi_signature_store *efi_sigstore_parse_sigdb(u16 *name);
@@ -45,7 +45,7 @@ index 34f7b8eec8..f461c61958 100644
  
  #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index c316bdfec0..c82128f0c9 100644
+index fe2f264591..adb78470f2 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -10,8 +10,14 @@
@@ -508,15 +508,15 @@ index c316bdfec0..c82128f0c9 100644
  	return EFI_EXIT(ret);
  }
  
-@@ -274,6 +588,7 @@ static efi_status_t parse_uboot_variable(char *variable,
- {
+@@ -275,6 +589,7 @@ static efi_status_t parse_uboot_variable(char *variable,
  	char *guid, *name, *end, c;
- 	unsigned long name_len;
+ 	size_t name_len;
+ 	efi_uintn_t old_variable_name_size;
 +	u64 time;
  	u16 *p;
  
  	guid = strchr(variable, '_');
-@@ -308,7 +623,7 @@ static efi_status_t parse_uboot_variable(char *variable,
+@@ -309,7 +624,7 @@ static efi_status_t parse_uboot_variable(char *variable,
  	*(name - 1) = c;
  
  	/* attributes */
@@ -525,7 +525,7 @@ index c316bdfec0..c82128f0c9 100644
  
  	return EFI_SUCCESS;
  }
-@@ -390,7 +705,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -391,7 +706,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  		list_len = hexport_r(&env_htab, '\n',
  				     H_MATCH_REGEX | H_MATCH_KEY,
  				     &efi_variables_list, 0, 1, regexlist);
@@ -534,7 +534,7 @@ index c316bdfec0..c82128f0c9 100644
  		if (list_len <= 1)
  			return EFI_EXIT(EFI_NOT_FOUND);
  
-@@ -403,143 +718,286 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -404,143 +719,286 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	return EFI_EXIT(ret);
  }
  
@@ -896,5 +896,5 @@ index c316bdfec0..c82128f0c9 100644
  
  /**
 -- 
-2.25.0
+2.25.1
 

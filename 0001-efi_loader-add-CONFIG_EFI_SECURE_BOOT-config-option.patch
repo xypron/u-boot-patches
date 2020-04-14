@@ -1,7 +1,7 @@
-From facb9e2d3c48dba4ef875b5fe8f593c99faf9c43 Mon Sep 17 00:00:00 2001
+From 3e79c71116973613223bf1fec6bd0e139812017b Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Wed, 26 Feb 2020 13:54:33 +0900
-Subject: [PATCH] efi_loader: add CONFIG_EFI_SECURE_BOOT config option
+Date: Tue, 14 Apr 2020 11:51:38 +0900
+Subject: [PATCH 1/1] efi_loader: add CONFIG_EFI_SECURE_BOOT config option
 
 Under this configuration, UEFI secure boot support will be added
 in later patches.

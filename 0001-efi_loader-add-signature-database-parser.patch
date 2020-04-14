@@ -1,6 +1,6 @@
-From 781e89fcd5056f8f5039b4850c3855d74c722784 Mon Sep 17 00:00:00 2001
+From 736d3a30b564372de82cd8f0f3e9be40f3027fdd Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Wed, 26 Feb 2020 13:54:35 +0900
+Date: Tue, 14 Apr 2020 11:51:40 +0900
 Subject: [PATCH 1/1] efi_loader: add signature database parser
 
 efi_signature_parse_sigdb() is a helper function will be used to parse
@@ -8,17 +8,16 @@ signature database variable and instantiate a signature store structure
 in later patches.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h           |   3 +
  lib/efi_loader/efi_signature.c | 226 +++++++++++++++++++++++++++++++++
  2 files changed, 229 insertions(+)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 5c8481e279..34f7b8eec8 100644
+index 8cf85d2fb7..fea2ead02e 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -735,6 +735,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
+@@ -750,6 +750,9 @@ bool efi_signature_verify_with_sigdb(struct efi_image_regions *regs,
  efi_status_t efi_image_region_add(struct efi_image_regions *regs,
  				  const void *start, const void *end,
  				  int nocheck);
@@ -29,10 +28,10 @@ index 5c8481e279..34f7b8eec8 100644
  
  #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
 diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
-index 23dac94c05..2d1f38980e 100644
+index 491fd5512d..658e3547da 100644
 --- a/lib/efi_loader/efi_signature.c
 +++ b/lib/efi_loader/efi_signature.c
-@@ -580,4 +580,230 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
+@@ -575,4 +575,230 @@ efi_status_t efi_image_region_add(struct efi_image_regions *regs,
  
  	return EFI_SUCCESS;
  }
@@ -264,5 +263,5 @@ index 23dac94c05..2d1f38980e 100644
 +}
  #endif /* CONFIG_EFI_SECURE_BOOT */
 -- 
-2.25.0
+2.25.1
 
