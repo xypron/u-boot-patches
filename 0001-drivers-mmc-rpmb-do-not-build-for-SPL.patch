@@ -1,0 +1,29 @@
+From 42768bd185bac14af43f18e5dc2f83777441ea1b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 15 Apr 2020 12:37:43 +0200
+Subject: [PATCH] drivers: mmc: rpmb: do not build for SPL
+
+RPMB support is used by the 'mmc rpmb' command and by the OP-TEE support.
+We do not need it in SPL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mmc/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/Makefile b/drivers/mmc/Makefile
+index 615b724bf0..e84c792999 100644
+--- a/drivers/mmc/Makefile
++++ b/drivers/mmc/Makefile
+@@ -38,7 +38,7 @@ obj-$(CONFIG_MMC_MXC)			+= mxcmmc.o
+ obj-$(CONFIG_MMC_MXS)			+= mxsmmc.o
+ obj-$(CONFIG_MMC_PCI)			+= pci_mmc.o
+ obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
+-obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
++obj-$(CONFIG_$(SPL_TPL_)SUPPORT_EMMC_RPMB) += rpmb.o
+ obj-$(CONFIG_MMC_SANDBOX)		+= sandbox_mmc.o
+ obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
+ obj-$(CONFIG_SH_SDHI) += sh_sdhi.o
+-- 
+2.25.1
+
