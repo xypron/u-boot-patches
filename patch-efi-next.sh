@@ -75,6 +75,11 @@ git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 # RNG
 git am ../patch/0001-arm-meson-imply-DM_RNG.patch
 
+# RSA
+git am ../patch/0001-lib-do-not-build-OID-registry-in-SPL.patch
+git am ../patch/0001-lib-date-functions-in-SPL.patch
+git am ../patch/0001-lib-image_sign_info-helper-functions-in-SPL.patch
+
 # UEFI
 
 # efi-2020-07
