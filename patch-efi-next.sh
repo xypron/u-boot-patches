@@ -23,7 +23,6 @@ git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
-git am ../patch/0001-arm-mvebu-drivers-ddr-remove-redundant-assignment.patch
 git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
 git am ../patch/0001-scripts-add-documentation-file-ref-check.patch
 git am ../patch/0001-doc-fix-references-to-driver-model.patch
