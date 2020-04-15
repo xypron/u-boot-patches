@@ -1,0 +1,43 @@
+From 1b0e30ca33a5910497e0da664e6c62934e99d2c5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 15 Apr 2020 18:31:53 +0000
+Subject: [PATCH 1/1] drivers: crypto: rsa_mod_exp: avoid DM_FLAG_PRE_RELOC
+
+Function rsa_verify_key() is not called before relocation. So there is no
+need to load the UCLASS_MOD_EXP drivers before relocation.
+
+This avoid a failure to boot for pine64-lts_defconfig with CONFIG_RSA=y.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/crypto/fsl/fsl_rsa.c            | 1 -
+ drivers/crypto/rsa_mod_exp/mod_exp_sw.c | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/drivers/crypto/fsl/fsl_rsa.c b/drivers/crypto/fsl/fsl_rsa.c
+index c5c76e319f..0cb3c6b5f2 100644
+--- a/drivers/crypto/fsl/fsl_rsa.c
++++ b/drivers/crypto/fsl/fsl_rsa.c
+@@ -52,7 +52,6 @@ U_BOOT_DRIVER(fsl_rsa_mod_exp) = {
+ 	.name	= "fsl_rsa_mod_exp",
+ 	.id	= UCLASS_MOD_EXP,
+ 	.ops	= &fsl_mod_exp_ops,
+-	.flags  = DM_FLAG_PRE_RELOC,
+ };
+ 
+ U_BOOT_DEVICE(fsl_rsa) = {
+diff --git a/drivers/crypto/rsa_mod_exp/mod_exp_sw.c b/drivers/crypto/rsa_mod_exp/mod_exp_sw.c
+index 46b9f1825c..c9b571a461 100644
+--- a/drivers/crypto/rsa_mod_exp/mod_exp_sw.c
++++ b/drivers/crypto/rsa_mod_exp/mod_exp_sw.c
+@@ -31,7 +31,6 @@ U_BOOT_DRIVER(mod_exp_sw) = {
+ 	.name	= "mod_exp_sw",
+ 	.id	= UCLASS_MOD_EXP,
+ 	.ops	= &mod_exp_ops_sw,
+-	.flags	= DM_FLAG_PRE_RELOC,
+ };
+ 
+ U_BOOT_DEVICE(mod_exp_sw) = {
+-- 
+2.20.1
+
