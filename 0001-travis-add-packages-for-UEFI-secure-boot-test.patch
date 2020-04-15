@@ -1,7 +1,7 @@
-From bf8eab448cafabd96b9d2399db94e2f0e7370126 Mon Sep 17 00:00:00 2001
+From 4b5facbc64e2d59707ecfedd6b2c2d714be16ac4 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Wed, 26 Feb 2020 13:54:48 +0900
-Subject: [PATCH 1/1] travis: add packages for UEFI secure boot test
+Date: Tue, 14 Apr 2020 11:51:53 +0900
+Subject: [PATCH] travis: add packages for UEFI secure boot test
 
 Pytest for UEFI secure boot will use several host commands.
 In particular, Test setup relies on efitools, whose version must be v1.5.2
@@ -13,16 +13,17 @@ In addition, the path, '/sbin', is added to PATH for use of sgdisk and
 mkfs.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  .travis.yml | 11 ++++++++++-
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/.travis.yml b/.travis.yml
-index 7ab855acb2..7e3ea60284 100644
+index b3253da13c..de96b0e81d 100644
 --- a/.travis.yml
 +++ b/.travis.yml
-@@ -40,6 +40,14 @@ addons:
+@@ -41,6 +41,14 @@ addons:
      - clang-7
      - srecord
      - graphviz
@@ -37,9 +38,9 @@ index 7ab855acb2..7e3ea60284 100644
  
  install:
   # Clone uboot-test-hooks
-@@ -60,10 +68,11 @@ install:
-  - mkdir ~/grub2-arm64
-  - ( cd ~/grub2-arm64; wget -O - http://download.opensuse.org/ports/aarch64/distribution/leap/42.2/repo/oss/suse/aarch64/grub2-arm64-efi-2.02~beta2-87.1.aarch64.rpm | rpm2cpio | cpio -di )
+@@ -57,10 +65,11 @@ install:
+  - grub-mkimage --prefix="" -o ~/grub_x86.efi -O i386-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
+  - grub-mkimage --prefix="" -o ~/grub_x64.efi -O x86_64-efi normal  echo lsefimmap lsefi lsefisystab efinet tftp minicmd
   - wget http://mirrors.kernel.org/ubuntu/pool/main/m/mpfr4/libmpfr4_3.1.4-1_amd64.deb && sudo dpkg -i libmpfr4_3.1.4-1_amd64.deb && rm libmpfr4_3.1.4-1_amd64.deb
 + - wget http://mirrors.kernel.org/ubuntu/pool/universe/e/efitools/efitools_1.8.1-0ubuntu2_amd64.deb && sudo dpkg -i efitools_1.8.1-0ubuntu2_amd64.deb && rm efitools_1.8.1-0ubuntu2_amd64.deb
  
@@ -51,5 +52,5 @@ index 7ab855acb2..7e3ea60284 100644
      - BUILD_DIR=build
      - HOSTCC="cc"
 -- 
-2.25.0
+2.25.1
 

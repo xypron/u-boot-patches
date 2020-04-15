@@ -1,13 +1,13 @@
-From a2a77edbc2ffab00906b2698e562f6760429b8ef Mon Sep 17 00:00:00 2001
+From c9925106ca40a53bc1bc8ad1f20a2bb3330b506d Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Fri, 7 Feb 2020 14:14:37 +0900
+Date: Tue, 14 Apr 2020 11:51:54 +0900
 Subject: [PATCH 1/1] efi_loader: add some description about UEFI secure boot
 
 A small text in docs/uefi/uefi.rst was added to explain how we can
 configure and utilise UEFI secure boot feature on U-Boot.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
  doc/uefi/uefi.rst | 77 +++++++++++++++++++++++++++++++++++++++++++++++
  1 file changed, 77 insertions(+)
@@ -101,5 +101,5 @@ index cfe2d84a4c..a35fbd331c 100644
  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 -- 
-2.25.0
+2.25.1
 
