@@ -129,6 +129,8 @@ git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-authent.patch
 git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-image.patch
 git am ../patch/0001-sandbox-add-extra-configurations-for-UEFI-and-relate.patch
 git am ../patch/0001-travis-add-packages-for-UEFI-secure-boot-test.patch
+
+git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
 exit
 
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
