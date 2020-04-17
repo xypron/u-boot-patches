@@ -22,14 +22,12 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-dm-core-remove-redundant-if-statement.patch
 git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
 git am ../patch/0001-scripts-add-documentation-file-ref-check.patch
 git am ../patch/0001-doc-fix-references-to-driver-model.patch
 git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
 git am ../patch/0001-include-ata.h-remove-invalid-links.patch
 git am ../patch/0001-cmd-fat-remove-unused-includes.patch
-git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_ETHERNET.patch
 git am ../patch/0001-qemu-don-t-allow-to-select-32-and-64-bit.patch
 git am ../patch/0001-Makefile-ARMv7-M-has-no-CPSR-register.patch
 git am ../patch/0001-board-fsl-lx2160a-unused-variable-gic_lpi_base.patch
@@ -48,9 +46,7 @@ git am ../patch/0001-drivers-mmc-rpmb-do-not-build-for-SPL.patch
 git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 
 # Sandbox
-git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
-git am ../patch/0001-sandbox-add-reserved-memory-node-in-device-tree.patch
-git am ../patch/0001-sandbox-implement-ft_board_setup.patch
+# git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 
 # IDE
@@ -59,12 +55,6 @@ git am ../patch/0001-block-ide-use-definitions-from-include-libata.h.patch
 
 # Logging
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-git am ../patch/0001-log-correct-CONFIG_LOG_TEST-prerequisites.patch
-git am ../patch/0001-log-syslog-driver.patch
-git am ../patch/0001-log-output-for-CONFIG_LOG-n.patch
-git am ../patch/0001-test-log-functions-with-CONFIG_LOG-n.patch
-git am ../patch/0001-test-log-test-syslog-logging-driver.patch
-git am ../patch/0001-configs-sandbox-enable-LOG_SYSLOG.patch
 
 # MMC
 git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
@@ -73,25 +63,20 @@ git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
 git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
 git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
 
-# RNG
-git am ../patch/0001-arm-meson-imply-DM_RNG.patch
-
 # RSA
 git am ../patch/0001-lib-do-not-build-OID-registry-in-SPL.patch
 git am ../patch/0001-lib-date-functions-in-SPL.patch
 git am ../patch/0001-lib-image_sign_info-helper-functions-in-SPL.patch
-git am ../patch/0001-drivers-crypto-rsa_mod_exp-avoid-DM_FLAG_PRE_RELOC.patch
 
 # UEFI
 
 # efi-2020-07
-git am ../patch/0001-efi_loader-enable-RNG-if-DM_RNG-is-enabled.patch
-git am ../patch/0001-efi_loader-function-descriptions-efi_unicode_collati.patch
-git am ../patch/0001-efi_loader-add-missing-doc-comments-in-efi_disk.c.patch
-git am ../patch/0001-efi_loader-function-descriptions-efi_watchdog.c.patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
+git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
+
+exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-efi_loader-support-read-only-variables.patch
 git am ../patch/0001-efi_loader-PlatformLangCodes-must-be-read-only.patch
@@ -111,26 +96,6 @@ git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 
 # UEFI secure boot
-git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
-git am ../patch/0001-efi_loader-add-signature-verification-functions.patch
-git am ../patch/0001-efi_loader-add-signature-database-parser.patch
-git am ../patch/0001-efi_loader-variable-support-variable-authentication.patch
-git am ../patch/0001-efi_loader-variable-add-secure-boot-state-transition.patch
-git am ../patch/0001-efi_loader-variable-add-VendorKeys-variable.patch
-git am ../patch/0001-efi_loader-image_loader-support-image-authentication.patch
-git am ../patch/0001-efi_loader-set-up-secure-boot.patch
-git am ../patch/0001-efi_loader-add-CONFIG_EFI_SECURE_BOOT-config-option.patch
-git am ../patch/0001-efi_loader-add-some-description-about-UEFI-secure-bo.patch
-git am ../patch/0001-cmd-env-use-appropriate-guid-for-authenticated-UEFI-.patch
-git am ../patch/0001-cmd-env-add-at-option-to-env-set-e-command.patch
-git am ../patch/0001-cmd-efidebug-add-test-bootmgr-sub-command.patch
-git am ../patch/0001-efi_loader-pytest-set-up-secure-boot-environment.patch
-git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-authent.patch
-git am ../patch/0001-efi_loader-pytest-add-UEFI-secure-boot-tests-image.patch
-git am ../patch/0001-sandbox-add-extra-configurations-for-UEFI-and-relate.patch
-git am ../patch/0001-travis-add-packages-for-UEFI-secure-boot-test.patch
-
-git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
 exit
 
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
