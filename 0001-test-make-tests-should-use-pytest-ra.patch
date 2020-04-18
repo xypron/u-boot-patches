@@ -1,0 +1,49 @@
+From 8d25da04ffb06606f6071470cd9e97f27cc112d1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 18 Apr 2020 13:13:27 +0200
+Subject: [PATCH] test: make tests should use pytest -ra
+
+By passing -ra to pytest we get a summary indicating which tests failed
+and why tests were skipped.
+
+Here is an example output:
+
+======================== short test summary info =========================
+SKIPPED [1] test/py/tests/test_efi_loader.py:81: No DHCP server available
+SKIPPED [1] test/py/tests/test_efi_loader.py:100: No static network
+configuration is defined
+SKIPPED [2] test/py/tests/test_efi_loader.py:115: Network not initialized
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/run | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/test/run b/test/run
+index d635622c10..67d51d75f7 100755
+--- a/test/run
++++ b/test/run
+@@ -19,17 +19,17 @@ run_test() {
+ failures=0
+ 
+ # Run all tests that the standard sandbox build can support
+-run_test "sandbox" ./test/py/test.py --bd sandbox --build -m "${mark_expr}"
++run_test "sandbox" ./test/py/test.py -ra --bd sandbox --build -m "${mark_expr}"
+ 
+ # Run tests which require sandbox_spl
+-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
++run_test "sandbox_spl" ./test/py/test.py -ra --bd sandbox_spl --build \
+ 	-k 'test_ofplatdata or test_handoff'
+ 
+ # Run tests for the flat-device-tree version of sandbox. This is a special
+ # build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
+ # check that functionality is the same. The standard sandbox build (above) uses
+ # CONFIG_OF_LIVE.
+-run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree --build \
++run_test "sandbox_flattree" ./test/py/test.py -ra --bd sandbox_flattree --build \
+ 	-k test_ut
+ 
+ # Set up a path to dtc (device-tree compiler) and libfdt.py, a library it
+-- 
+2.25.1
+
