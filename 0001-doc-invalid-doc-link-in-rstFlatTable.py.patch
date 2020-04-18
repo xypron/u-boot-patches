@@ -1,0 +1,29 @@
+From 1b25205ad4eafebe33235d3d4c9d7af8c474693a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 18 Apr 2020 02:11:38 +0200
+Subject: [PATCH 1/1] doc: invalid doc link in rstFlatTable.py
+
+Remove an invalid documentation link in rstFlatTable.py. This synchronizes
+the file with Linux next-20200413.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/sphinx/rstFlatTable.py | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/doc/sphinx/rstFlatTable.py b/doc/sphinx/rstFlatTable.py
+index f9a4b46dbe..2019a55f6b 100755
+--- a/doc/sphinx/rstFlatTable.py
++++ b/doc/sphinx/rstFlatTable.py
+@@ -53,8 +53,6 @@ from docutils.utils import SystemMessagePropagation
+ # common globals
+ # ==============================================================================
+ 
+-# The version numbering follows numbering of the specification
+-# (doc/books/kernel-doc-HOWTO).
+ __version__  = '1.0'
+ 
+ PY3 = sys.version_info[0] == 3
+-- 
+2.25.1
+
