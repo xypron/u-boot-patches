@@ -38,6 +38,7 @@ git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
 git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
 git am ../patch/0001-log-remove-useless-cast.patch
 git am ../patch/0001-coccinelle-adjust-NULL-check-before-free.patch
+git am ../patch/0001-usb-avoid-NULL-check-before-free.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
