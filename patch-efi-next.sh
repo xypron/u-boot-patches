@@ -36,6 +36,7 @@ git am ../patch/0001-drivers-mmc-rpmb-do-not-build-for-SPL.patch
 git am ../patch/0001-doc-invalid-doc-link-in-rstFlatTable.py.patch
 git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
 git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
+git am ../patch/0001-log-remove-useless-cast.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
