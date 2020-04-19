@@ -1,0 +1,138 @@
+From 98aaa3268ba8d9aac9fd9a4c43b64af29c0cd5a9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 19 Apr 2020 10:51:15 +0200
+Subject: [PATCH] coccinelle: check for casting malloc output
+
+Casting the (void *) output of memory allocation functions before
+assignment like in
+
+	sata->cmd_hdr_tbl_offset = (void *)malloc(length + align);
+
+is useless.
+
+Adopt the Linux kernel script
+scripts/coccinelle/api/alloc/alloc_cast.cocci.
+
+Now 'make coccicheck' generates warnings like:
+
+./drivers/ata/fsl_sata.c:143:29-33:
+WARNING: casting value returned by memory allocation function
+to (void *) is useless.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ scripts/coccinelle/api/alloc/alloc_cast.cocci | 102 ++++++++++++++++++
+ 1 file changed, 102 insertions(+)
+ create mode 100644 scripts/coccinelle/api/alloc/alloc_cast.cocci
+
+diff --git a/scripts/coccinelle/api/alloc/alloc_cast.cocci b/scripts/coccinelle/api/alloc/alloc_cast.cocci
+new file mode 100644
+index 0000000000..e336784a9f
+--- /dev/null
++++ b/scripts/coccinelle/api/alloc/alloc_cast.cocci
+@@ -0,0 +1,102 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/// Remove casting the values returned by memory allocation functions
++/// like kmalloc, kzalloc, kmem_cache_alloc, kmem_cache_zalloc etc.
++///
++//# This makes an effort to find cases of casting of values returned by
++//# malloc, calloc, kmalloc, kmalloc_array, kmalloc_node and removes
++//# the casting as it is not required. The result in the patch case may
++//# need some reformatting.
++//
++// Confidence: High
++// Copyright: (C) 2014 Himangi Saraogi
++// Copyright: (C) 2017 Himanshu Jha
++// Comments:
++// Options: --no-includes --include-headers
++//
++
++virtual context
++virtual patch
++virtual org
++virtual report
++
++@initialize:python@
++@@
++import re
++pattern = '__'
++m = re.compile(pattern)
++
++@r1 depends on context || patch@
++type T;
++@@
++
++  (T *)
++  \(malloc\|calloc\|kmalloc\|kmalloc_array\|kmalloc_node\)(...)
++
++//----------------------------------------------------------
++//  For context mode
++//----------------------------------------------------------
++
++@script:python depends on context@
++t << r1.T;
++@@
++
++if m.search(t) != None:
++        cocci.include_match(False)
++
++@depends on context && r1@
++type r1.T;
++@@
++
++* (T *)
++  \(malloc\|calloc\|kmalloc\|kmalloc_array\|kmalloc_node\)(...)
++
++//----------------------------------------------------------
++//  For patch mode
++//----------------------------------------------------------
++
++@script:python depends on patch@
++t << r1.T;
++@@
++
++if m.search(t) != None:
++        cocci.include_match(False)
++
++@depends on patch && r1@
++type r1.T;
++@@
++
++- (T *)
++  \(malloc\|calloc\|kmalloc\|kmalloc_array\|kmalloc_node\)(...)
++
++//----------------------------------------------------------
++//  For org and report mode
++//----------------------------------------------------------
++
++@r2 depends on org || report@
++type T;
++position p;
++@@
++
++ (T@p *)
++  \(malloc\|calloc\|kmalloc\|kmalloc_array\|kmalloc_node\)(...)
++
++@script:python depends on org@
++p << r2.p;
++t << r2.T;
++@@
++
++if m.search(t) != None:
++	cocci.include_match(False)
++else:
++	coccilib.org.print_safe_todo(p[0], t)
++
++@script:python depends on report@
++p << r2.p;
++t << r2.T;
++@@
++
++if m.search(t) != None:
++	cocci.include_match(False)
++else:
++	msg="WARNING: casting value returned by memory allocation function to (%s *) is useless." % (t)
++	coccilib.report.print_report(p[0], msg)
+-- 
+2.25.1
+
