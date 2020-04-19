@@ -1,0 +1,58 @@
+From a95e744852ae972a13f556cfe22f04b5ee2adcb9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 19 Apr 2020 09:11:06 +0200
+Subject: [PATCH] doc: fix references to  README.qe_firmware
+
+In two files README.qe_firmware is referenced which never made it into the
+U-Boot tree. The README is available in the Linux kernel tree.
+
+Update the references.
+
+Cc: Timur Tabi <timur@kernel.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/qe/qe.c  | 6 ++++--
+ include/fsl_qe.h | 3 ++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/qe/qe.c b/drivers/qe/qe.c
+index 24549ece65..fbad124b51 100644
+--- a/drivers/qe/qe.c
++++ b/drivers/qe/qe.c
+@@ -440,7 +440,8 @@ static void qe_upload_microcode(const void *base,
+ /*
+  * Upload a microcode to the I-RAM at a specific address.
+  *
+- * See docs/README.qe_firmware for information on QE microcode uploading.
++ * See Documentation/powerpc/qe_firmware.rst in the Linux kernel tree for
++ * information on QE microcode uploading.
+  *
+  * Currently, only version 1 is supported, so the 'version' field must be
+  * set to 1.
+@@ -579,7 +580,8 @@ int qe_upload_firmware(const struct qe_firmware *firmware)
+ /*
+  * Upload a microcode to the I-RAM at a specific address.
+  *
+- * See docs/README.qe_firmware for information on QE microcode uploading.
++ * See Documentation/powerpc/qe_firmware.rst in the Linux kernel tree for
++ * information on QE microcode uploading.
+  *
+  * Currently, only version 1 is supported, so the 'version' field must be
+  * set to 1.
+diff --git a/include/fsl_qe.h b/include/fsl_qe.h
+index d4eba82436..6e44cbdb56 100644
+--- a/include/fsl_qe.h
++++ b/include/fsl_qe.h
+@@ -227,7 +227,8 @@ typedef enum qe_clock {
+ 
+ /* Structure that defines QE firmware binary files.
+  *
+- * See doc/README.qe_firmware for a description of these fields.
++ * See Documentation/powerpc/qe_firmware.rst in the Linux kernel tree for
++ * a description of these fields.
+  */
+ struct qe_firmware {
+ 	struct qe_header {
+-- 
+2.25.1
+

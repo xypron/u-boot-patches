@@ -34,8 +34,8 @@ git am ../patch/0001-board-fsl-lx2160a-unused-variable-gic_lpi_base.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-drivers-mmc-rpmb-do-not-build-for-SPL.patch
 git am ../patch/0001-doc-invalid-doc-link-in-rstFlatTable.py.patch
-git am ../patch/0001-doc-add-missing-README.qe_firmware.patch
 git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
+git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
