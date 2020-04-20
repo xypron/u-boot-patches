@@ -1,0 +1,28 @@
+From d20214dce70182f724f7f3f1caf07b695cfc0861 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 20 Apr 2020 07:47:43 +0200
+Subject: [PATCH] rtc: ds1374: typo Watchdog
+
+%s/Watchdoc/Watchdog/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rtc/ds1374.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/ds1374.c b/drivers/rtc/ds1374.c
+index 5a2060fe75..9f2647d707 100644
+--- a/drivers/rtc/ds1374.c
++++ b/drivers/rtc/ds1374.c
+@@ -58,7 +58,7 @@
+ #define RTC_CTL_BIT_RS2			(1<<2) /* Bit 2/2 - Rate Select square wave output */
+ #define RTC_CTL_BIT_WDSTR		(1<<3) /* Bit 3 - Watchdog Reset Steering */
+ #define RTC_CTL_BIT_BBSQW		(1<<4) /* Bit 4 - Battery-Backed Square-Wave */
+-#define RTC_CTL_BIT_WD_ALM		(1<<5) /* Bit 5 - Watchdoc/Alarm Counter Select */
++#define RTC_CTL_BIT_WD_ALM		(1<<5) /* Bit 5 - Watchdog/Alarm Counter Select */
+ #define RTC_CTL_BIT_WACE		(1<<6) /* Bit 6 - Watchdog/Alarm Counter Enable WACE*/
+ #define RTC_CTL_BIT_EN_OSC		(1<<7) /* Bit 7 - Enable Oscilator */
+ 
+-- 
+2.25.1
+
