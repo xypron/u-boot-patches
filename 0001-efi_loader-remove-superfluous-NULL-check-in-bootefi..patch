@@ -1,0 +1,33 @@
+From 1e0cd1ac8366d52742593f9516c0993ae6d25b6b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 20 Apr 2020 12:44:56 +0200
+Subject: [PATCH] efi_loader: remove superfluous NULL check in bootefi.c
+
+efi_free_pool() and efi_delete_handle() both check if their argument is
+NULL. The caller should not duplicate this check.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index aaed575505..54b4b8f984 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -481,10 +481,8 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
+ 	ret = do_bootefi_exec(handle);
+ 
+ out:
+-	if (mem_handle)
+-		efi_delete_handle(mem_handle);
+-	if (file_path)
+-		efi_free_pool(file_path);
++	efi_delete_handle(mem_handle);
++	efi_free_pool(file_path);
+ 	return ret;
+ }
+ 
+-- 
+2.25.1
+

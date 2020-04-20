@@ -80,6 +80,7 @@ git am ../patch/0001-lib-image_sign_info-helper-functions-in-SPL.patch
 # UEFI
 
 # efi-2020-07
+git am ../patch/0001-efi_loader-remove-superfluous-NULL-check-in-bootefi..patch
 git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
