@@ -42,6 +42,7 @@ git am ../patch/0001-usb-avoid-NULL-check-before-free.patch
 git am ../patch/0001-usb-ether-avoid-NULL-check-before-free.patch
 git am ../patch/0001-coccinelle-check-for-casting-malloc-output.patch
 git am ../patch/0001-spl-fit-do-not-check-argument-of-free.patch
+git am ../patch/0001-doc-sphinx-refresh-parse-headers.pl-from-Linux.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
