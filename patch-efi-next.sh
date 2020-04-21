@@ -88,6 +88,7 @@ git am ../patch/0001-part-detect-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
+git am ../patch/0001-efi_loader-remove-CONFIG_EFI_SECURE_BOOT-in-efi_load.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
