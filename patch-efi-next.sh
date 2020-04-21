@@ -22,12 +22,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-README-replace-reference-to-boards.cfg.patch
-git am ../patch/0001-scripts-add-documentation-file-ref-check.patch
-git am ../patch/0001-doc-fix-references-to-driver-model.patch
-git am ../patch/0001-Kconfig-fix-typos-in-CMD_BEDBUG-description.patch
-git am ../patch/0001-include-ata.h-remove-invalid-links.patch
-git am ../patch/0001-cmd-fat-remove-unused-includes.patch
 git am ../patch/0001-qemu-don-t-allow-to-select-32-and-64-bit.patch
 git am ../patch/0001-Makefile-ARMv7-M-has-no-CPSR-register.patch
 git am ../patch/0001-board-fsl-lx2160a-unused-variable-gic_lpi_base.patch
@@ -62,10 +56,6 @@ git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
-
-# IDE
-git am ../patch/0001-ide-remove-duplicate-defines-from-include-ata.h.patch
-git am ../patch/0001-block-ide-use-definitions-from-include-libata.h.patch
 
 # Logging
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
