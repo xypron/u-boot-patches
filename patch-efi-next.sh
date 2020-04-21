@@ -45,6 +45,8 @@ git am ../patch/0001-spl-fit-do-not-check-argument-of-free.patch
 git am ../patch/0001-doc-sphinx-refresh-parse-headers.pl-from-Linux.patch
 git am ../patch/0001-lib-zlib-fix-formatting-reference.patch
 git am ../patch/0001-rtc-ds1374-typo-Watchdog.patch
+git am ../patch/0001-doc-specify-that-xelatex-is-used-as-Latex-engine.patch
+git am ../patch/0001-Add-.readthedocs.yml.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
