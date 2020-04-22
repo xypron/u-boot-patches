@@ -24,7 +24,6 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-qemu-don-t-allow-to-select-32-and-64-bit.patch
 git am ../patch/0001-Makefile-ARMv7-M-has-no-CPSR-register.patch
-git am ../patch/0001-board-fsl-lx2160a-unused-variable-gic_lpi_base.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-drivers-mmc-rpmb-do-not-build-for-SPL.patch
 git am ../patch/0001-doc-invalid-doc-link-in-rstFlatTable.py.patch
