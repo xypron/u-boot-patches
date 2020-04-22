@@ -1,0 +1,35 @@
+From dbbd0f711b2e2617fe2ab66d04b0636932e38a25 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 21 Apr 2020 18:26:52 +0200
+Subject: [PATCH 1/1] test/py: efi_secboot don't assume sbin in path
+
+For non-root users /sbin is typically not in the path. So use absolute
+paths to mkfs.vfat and sgdisk.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/py/tests/test_efi_secboot/conftest.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index e542fef6e8..40cdf15bf2 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -48,12 +48,12 @@ def efi_boot_env(request, u_boot_config):
+         # create a disk/partition
+         check_call('dd if=/dev/zero of=%s bs=1MiB count=%d'
+                             % (image_path, image_size), shell=True)
+-        check_call('sgdisk %s -n 1:0:+%dMiB'
++        check_call('/sbin/sgdisk %s -n 1:0:+%dMiB'
+                             % (image_path, part_size), shell=True)
+         # create a file system
+         check_call('dd if=/dev/zero of=%s.tmp bs=1MiB count=%d'
+                             % (image_path, part_size), shell=True)
+-        check_call('mkfs -t %s %s.tmp' % (fs_type, image_path), shell=True)
++        check_call('/sbin/mkfs.%s %s.tmp' % (fs_type, image_path), shell=True)
+         check_call('dd if=%s.tmp of=%s bs=1MiB seek=1 count=%d conv=notrunc'
+                             % (image_path, image_path, 1), shell=True)
+         check_call('rm %s.tmp' % image_path, shell=True)
+-- 
+2.26.1
+
