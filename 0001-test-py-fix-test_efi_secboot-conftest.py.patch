@@ -1,0 +1,93 @@
+From 0a6c5f6b802f41d94ce2008c6bb6962ac6adea69 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 21 Apr 2020 18:44:39 +0200
+Subject: [PATCH 2/2] test/py: fix test_efi_secboot/conftest.py
+
+If udisksctl is present
+test/py/tests/test_efi_secboot/conftest.py
+fails because the disk image is never mounted.
+
+Normal users can only mount fuse file systems. Unfortunately fusefat is
+still in an experimental state and seems not to work here correctly.
+
+So as we have to be root or use the sudo command anyway delete all coding
+referring to udisksctl.
+
+--
+
+We should not use mount point /mnt as this directory or one of its
+sub-directories might already be in use as active mount points. Instead
+create a new directory in the build root as mount point.
+
+--
+
+Remove debug print statements that have been commented out. print without
+parentheses is anyway invalid in Python 3. And pytest anyway filters out
+the output if there is no exception reported.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/py/tests/test_efi_secboot/conftest.py | 30 +++++-----------------
+ 1 file changed, 6 insertions(+), 24 deletions(-)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index 40cdf15bf2..93d308cf0d 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -43,7 +43,8 @@ def efi_boot_env(request, u_boot_config):
+         HELLO_PATH = u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi'
+ 
+     try:
+-        non_root = tool_is_in_path('udisksctl')
++        mnt_point = u_boot_config.persistent_data_dir + '/mnt_efisecure'
++        check_call('mkdir -p {}'.format(mnt_point), shell=True)
+ 
+         # create a disk/partition
+         check_call('dd if=/dev/zero of=%s bs=1MiB count=%d'
+@@ -57,25 +58,11 @@ def efi_boot_env(request, u_boot_config):
+         check_call('dd if=%s.tmp of=%s bs=1MiB seek=1 count=%d conv=notrunc'
+                             % (image_path, image_path, 1), shell=True)
+         check_call('rm %s.tmp' % image_path, shell=True)
+-        if non_root:
+-            out_data = check_output('udisksctl loop-setup -f %s -o %d'
+-                                % (image_path, 1048576), shell=True).decode()
+-            m = re.search('(?<= as )(.*)\.', out_data)
+-            loop_dev = m.group(1)
+-            # print 'loop device is: %s' % loop_dev
+-            out_data = check_output('udisksctl info -b %s'
+-                                % loop_dev, shell=True).decode()
+-            m = re.search('MountPoints:[ \t]+(.*)', out_data)
+-            mnt_point = m.group(1)
+-        else:
+-            loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
++        loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
+                                 % (part_size, image_path), shell=True).decode()
+-            mnt_point = '/mnt'
+-            check_output('sudo mount -t %s -o umask=000 %s %s'
++        check_output('sudo mount -t %s -o umask=000 %s %s'
+                                 % (fs_type, loop_dev, mnt_point), shell=True)
+ 
+-        # print 'mount point is: %s' % mnt_point
+-
+         # suffix
+         # *.key: RSA private key in PEM
+         # *.crt: X509 certificate (self-signed) in PEM
+@@ -134,13 +121,8 @@ def efi_boot_env(request, u_boot_config):
+                             % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
+                             shell=True)
+ 
+-        if non_root:
+-            check_call('udisksctl unmount -b %s' % loop_dev, shell=True)
+-            # not needed
+-            # check_call('udisksctl loop-delete -b %s' % loop_dev, shell=True)
+-        else:
+-            check_call('sudo umount %s' % loop_dev, shell=True)
+-            check_call('sudo losetup -d %s' % loop_dev, shell=True)
++        check_call('sudo umount %s' % loop_dev, shell=True)
++        check_call('sudo losetup -d %s' % loop_dev, shell=True)
+ 
+     except CalledProcessError as e:
+         pytest.skip('Setup failed: %s' % e.cmd)
+-- 
+2.26.1
+
