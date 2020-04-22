@@ -81,7 +81,11 @@ git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
 git am ../patch/0001-efi_loader-remove-CONFIG_EFI_SECURE_BOOT-in-efi_load.patch
 # test ok: #2855, d1692f83e736178bd2ab54b6e184527f224f6446
+git am ../patch/0001-MAINTAINERS-assign-test-py-tests-test_efi-to-EFI-PAY.patch
 git am ../patch/0001-test-py-efi_secboot-should-not-assume-sbin-is-in-the.patch
+
+
+exit
 git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
 

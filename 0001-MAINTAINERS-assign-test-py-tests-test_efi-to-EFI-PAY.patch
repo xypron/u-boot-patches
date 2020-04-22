@@ -1,0 +1,29 @@
+From ce2269f0c61f2db753f120e68aeec29d30ddcc60 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 22 Apr 2020 17:53:34 +0200
+Subject: [PATCH 1/1] MAINTAINERS: assign test/py/tests/test_efi*/ to EFI
+ PAYLOAD
+
+Some UEFI related files are not assigned currently. Add them to the
+EFI PAYLOAD area.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0ee358bac6..2b856057b9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -623,6 +623,7 @@ F:	include/asm-generic/pe.h
+ F:	lib/charset.c
+ F:	lib/efi*/
+ F:	test/py/tests/test_efi*
++F:	test/py/tests/test_efi*/
+ F:	test/unicode_ut.c
+ F:	cmd/bootefi.c
+ F:	cmd/efidebug.c
+-- 
+2.26.1
+
