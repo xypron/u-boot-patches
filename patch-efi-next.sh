@@ -22,11 +22,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-qemu-don-t-allow-to-select-32-and-64-bit.patch
-git am ../patch/0001-Makefile-ARMv7-M-has-no-CPSR-register.patch
-git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
-git am ../patch/0001-drivers-mmc-rpmb-do-not-build-for-SPL.patch
-git am ../patch/0001-doc-invalid-doc-link-in-rstFlatTable.py.patch
 git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
 git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
 git am ../patch/0001-log-remove-useless-cast.patch
@@ -40,7 +35,6 @@ git am ../patch/0001-lib-zlib-fix-formatting-reference.patch
 git am ../patch/0001-rtc-ds1374-typo-Watchdog.patch
 git am ../patch/0001-doc-specify-that-xelatex-is-used-as-Latex-engine.patch
 git am ../patch/0001-Add-.readthedocs.yml.patch
-git am ../patch/0001-doc-correct-detection-of-Sphinx-version.patch
 git am ../patch/0001-doc-describe-the-analysis-of-crash-dumps.patch
 
 # sct
@@ -60,18 +54,6 @@ git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 
 # Logging
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-
-# MMC
-git am ../patch/0001-mmc-EXT_CSD-registers-for-write-protection.patch
-git am ../patch/0001-mmc-export-mmc_send_ext_csd.patch
-git am ../patch/0001-cmd-mmc-display-write-protect-state-of-boot-partitio.patch
-git am ../patch/0001-cmd-mmc-provide-boot-area-protection-command.patch
-git am ../patch/0001-mmc-adjust-Kconfig-for-mmc-sub-commands.patch
-
-# RSA
-git am ../patch/0001-lib-do-not-build-OID-registry-in-SPL.patch
-git am ../patch/0001-lib-date-functions-in-SPL.patch
-git am ../patch/0001-lib-image_sign_info-helper-functions-in-SPL.patch
 
 # UEFI
 
