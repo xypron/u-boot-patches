@@ -40,6 +40,8 @@ git am ../patch/0001-lib-zlib-fix-formatting-reference.patch
 git am ../patch/0001-rtc-ds1374-typo-Watchdog.patch
 git am ../patch/0001-doc-specify-that-xelatex-is-used-as-Latex-engine.patch
 git am ../patch/0001-Add-.readthedocs.yml.patch
+git am ../patch/0001-doc-correct-detection-of-Sphinx-version.patch
+git am ../patch/0001-doc-describe-the-analysis-of-crash-dumps.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
