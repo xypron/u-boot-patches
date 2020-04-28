@@ -1,0 +1,34 @@
+From 265972b1577ddba92e6a45e907b403165690850b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 28 Apr 2020 21:35:04 +0200
+Subject: [PATCH 1/1] cmd/gpt: avoid NULL check before free()
+
+free() checks if its argument is NULL. Do not duplicate this in the calling
+code.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/gpt.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/gpt.c b/cmd/gpt.c
+index efaf1bcecb..fb58e4fdc7 100644
+--- a/cmd/gpt.c
++++ b/cmd/gpt.c
+@@ -772,11 +772,9 @@ static int do_rename_gpt_parts(struct blk_desc *dev_desc, char *subcomm,
+  out:
+ 	del_gpt_info();
+ #ifdef CONFIG_RANDOM_UUID
+-	if (str_disk_guid)
+-		free(str_disk_guid);
++	free(str_disk_guid);
+ #endif
+-	if (new_partitions)
+-		free(new_partitions);
++	free(new_partitions);
+ 	free(partitions_list);
+ 	return ret;
+ }
+-- 
+2.26.2
+
