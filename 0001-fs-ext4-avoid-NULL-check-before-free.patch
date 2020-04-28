@@ -1,0 +1,57 @@
+From 382c1f5aa383f7306861c324a8bfd22bb7d42211 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 28 Apr 2020 21:46:30 +0200
+Subject: [PATCH 1/1] fs: ext4: avoid NULL check before free()
+
+free() checks if its argument is NULL. Don't duplicate this in the calling
+code.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/ext4/ext4_journal.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/fs/ext4/ext4_journal.c b/fs/ext4/ext4_journal.c
+index f8524e5a99..0ceb73d9c9 100644
+--- a/fs/ext4/ext4_journal.c
++++ b/fs/ext4/ext4_journal.c
+@@ -107,22 +107,18 @@ void ext4fs_free_journal(void)
+ 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
+ 		if (dirty_block_ptr[i]->blknr == -1)
+ 			break;
+-		if (dirty_block_ptr[i]->buf)
+-			free(dirty_block_ptr[i]->buf);
++		free(dirty_block_ptr[i]->buf);
+ 	}
+ 
+ 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
+ 		if (journal_ptr[i]->blknr == -1)
+ 			break;
+-		if (journal_ptr[i]->buf)
+-			free(journal_ptr[i]->buf);
++		free(journal_ptr[i]->buf);
+ 	}
+ 
+ 	for (i = 0; i < MAX_JOURNAL_ENTRIES; i++) {
+-		if (journal_ptr[i])
+-			free(journal_ptr[i]);
+-		if (dirty_block_ptr[i])
+-			free(dirty_block_ptr[i]);
++		free(journal_ptr[i]);
++		free(dirty_block_ptr[i]);
+ 	}
+ 	gindex = 0;
+ 	gd_index = 0;
+@@ -272,8 +268,7 @@ void ext4fs_free_revoke_blks(void)
+ 	struct revoke_blk_list *next_node = NULL;
+ 
+ 	while (tmp_node != NULL) {
+-		if (tmp_node->content)
+-			free(tmp_node->content);
++		free(tmp_node->content);
+ 		tmp_node = tmp_node->next;
+ 	}
+ 
+-- 
+2.26.2
+
