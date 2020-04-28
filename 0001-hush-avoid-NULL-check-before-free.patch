@@ -1,0 +1,30 @@
+From a898f5d2ca11e7ad904fa4ff59fd9468f0b0c2b0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 28 Apr 2020 21:53:16 +0200
+Subject: [PATCH 1/1] hush: avoid NULL check before free()
+
+free() checks if its argument is NULL. Don't duplicate this in the calling
+code.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/cli_hush.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/common/cli_hush.c b/common/cli_hush.c
+index cf1e273485..a62af07cc5 100644
+--- a/common/cli_hush.c
++++ b/common/cli_hush.c
+@@ -1849,8 +1849,7 @@ static int run_list_real(struct pipe *pi)
+ 				continue;
+ 			} else {
+ 				/* insert new value from list for variable */
+-				if (pi->progs->argv[0])
+-					free(pi->progs->argv[0]);
++				free(pi->progs->argv[0]);
+ 				pi->progs->argv[0] = *list++;
+ #ifndef __U_BOOT__
+ 				pi->progs->glob_result.gl_pathv[0] =
+-- 
+2.26.2
+

@@ -34,6 +34,7 @@ git am ../patch/0001-Add-.readthedocs.yml.patch
 git am ../patch/0001-doc-describe-the-analysis-of-crash-dumps.patch
 git am ../patch/0001-cmd-gpt-avoid-NULL-check-before-free.patch
 git am ../patch/0001-fs-ext4-avoid-NULL-check-before-free.patch
+git am ../patch/0001-hush-avoid-NULL-check-before-free.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
