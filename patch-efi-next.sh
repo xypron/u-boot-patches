@@ -61,6 +61,7 @@ git am ../patch/0001-MAINTAINERS-assign-test-py-tests-test_efi-to-EFI-PAY.patch
 git am ../patch/0001-test-py-efi_secboot-should-not-assume-sbin-is-in-the.patch
 git am ../patch/0001-test-py-fix-test_efi_secboot-conftest.py.patch
 # test ok: #2881, b254fd385c890b77491a1f9881eb0da513ac5dc4
+git am ../patch/0001-efi_loader-fix-efidebug-boot-dump.patch
 exit
 git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
