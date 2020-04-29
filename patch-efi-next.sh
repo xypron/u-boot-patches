@@ -24,13 +24,6 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
 git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
-git am ../patch/0001-log-remove-useless-cast.patch
-git am ../patch/0001-usb-avoid-NULL-check-before-free.patch
-git am ../patch/0001-usb-ether-avoid-NULL-check-before-free.patch
-git am ../patch/0001-doc-sphinx-refresh-parse-headers.pl-from-Linux.patch
-git am ../patch/0001-lib-zlib-fix-formatting-reference.patch
-git am ../patch/0001-doc-specify-that-xelatex-is-used-as-Latex-engine.patch
-git am ../patch/0001-Add-.readthedocs.yml.patch
 git am ../patch/0001-doc-describe-the-analysis-of-crash-dumps.patch
 git am ../patch/0001-cmd-gpt-avoid-NULL-check-before-free.patch
 git am ../patch/0001-fs-ext4-avoid-NULL-check-before-free.patch
