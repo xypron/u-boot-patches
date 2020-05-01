@@ -1,7 +1,7 @@
 From 2841f9fd393b0072a950fb117852091aa2018f8f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 1 May 2020 21:59:45 +0200
-Subject: [PATCH 1/1] .readthedocs.yml: fix type docs/
+Subject: [PATCH 1/1] .readthedocs.yml: fix typo docs/
 
 Our documentation directory is doc/ and not docs/.
 
