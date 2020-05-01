@@ -50,21 +50,8 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 # UEFI
 
 # efi-2020-07
-git am ../patch/0001-efi_loader-remove-superfluous-NULL-check-in-bootefi..patch
-git am ../patch/0001-part-detect-EFI-system-partition.patch
-git am ../patch/0001-efi_loader-identify-EFI-system-partition.patch
-git am ../patch/0001-efi_loader-change-setup-sequence.patch
-git am ../patch/0001-doc-efi-rework-secure-boot-description.patch
-git am ../patch/0001-efi_loader-remove-CONFIG_EFI_SECURE_BOOT-in-efi_load.patch
-# test ok: #2855, d1692f83e736178bd2ab54b6e184527f224f6446
-git am ../patch/0001-MAINTAINERS-assign-test-py-tests-test_efi-to-EFI-PAY.patch
-git am ../patch/0001-test-py-efi_secboot-should-not-assume-sbin-is-in-the.patch
-git am ../patch/0001-test-py-fix-test_efi_secboot-conftest.py.patch
-# test ok: #2881, b254fd385c890b77491a1f9881eb0da513ac5dc4
-git am ../patch/0001-efi_loader-fix-efidebug-boot-dump.patch
-git am ../patch/0001-efi_loader-efidebug-avoid-illegal-memory-access.patch
-git am ../patch/0001-efi_loader-fix-efidebug-bootorder.patch
 exit
+git am ../patch/0001-efi_loader-change-setup-sequence.patch
 git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
 
