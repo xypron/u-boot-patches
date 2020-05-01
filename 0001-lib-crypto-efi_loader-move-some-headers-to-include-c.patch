@@ -1,0 +1,436 @@
+From 6e183d92219d77aa84a7f05d6738cbe6dd07fd28 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 21 Apr 2020 09:38:17 +0900
+Subject: [PATCH 1/1] lib/crypto, efi_loader: move some headers to
+ include/crypto
+
+Pkcs7_parse.h and x509_parser.h are used in UEFI subsystem, in particular,
+secure boot. So move them to include/crypto to avoid relative paths.
+
+Suggested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Don't include include x509_parser.h twice.
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/crypto/pkcs7_parser.h     | 69 +++++++++++++++++++++++++++++++
+ include/crypto/x509_parser.h      | 61 +++++++++++++++++++++++++++
+ lib/crypto/pkcs7_parser.c         |  4 ++
+ lib/crypto/pkcs7_parser.h         | 69 -------------------------------
+ lib/crypto/x509_cert_parser.c     |  4 ++
+ lib/crypto/x509_parser.h          | 61 ---------------------------
+ lib/crypto/x509_public_key.c      |  6 ++-
+ lib/efi_loader/efi_image_loader.c |  2 +-
+ lib/efi_loader/efi_signature.c    |  2 +-
+ lib/efi_loader/efi_variable.c     |  2 +-
+ test/lib/asn1.c                   |  4 +-
+ 11 files changed, 147 insertions(+), 137 deletions(-)
+ create mode 100644 include/crypto/pkcs7_parser.h
+ create mode 100644 include/crypto/x509_parser.h
+ delete mode 100644 lib/crypto/pkcs7_parser.h
+ delete mode 100644 lib/crypto/x509_parser.h
+
+diff --git a/include/crypto/pkcs7_parser.h b/include/crypto/pkcs7_parser.h
+new file mode 100644
+index 0000000000..b8234da45a
+--- /dev/null
++++ b/include/crypto/pkcs7_parser.h
+@@ -0,0 +1,69 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* PKCS#7 crypto data parser internal definitions
++ *
++ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
++
++#ifndef _PKCS7_PARSER_H
++#define _PKCS7_PARSER_H
++
++#include <linux/oid_registry.h>
++#include <crypto/pkcs7.h>
++#include "x509_parser.h"
++
++#define kenter(FMT, ...) \
++	pr_devel("==> %s("FMT")\n", __func__, ##__VA_ARGS__)
++#define kleave(FMT, ...) \
++	pr_devel("<== %s()"FMT"\n", __func__, ##__VA_ARGS__)
++
++struct pkcs7_signed_info {
++	struct pkcs7_signed_info *next;
++	struct x509_certificate *signer; /* Signing certificate (in msg->certs) */
++	unsigned	index;
++	bool		unsupported_crypto;	/* T if not usable due to missing crypto */
++	bool		blacklisted;
++
++	/* Message digest - the digest of the Content Data (or NULL) */
++	const void	*msgdigest;
++	unsigned	msgdigest_len;
++
++	/* Authenticated Attribute data (or NULL) */
++	unsigned	authattrs_len;
++	const void	*authattrs;
++	unsigned long	aa_set;
++#define	sinfo_has_content_type		0
++#define	sinfo_has_signing_time		1
++#define	sinfo_has_message_digest	2
++#define sinfo_has_smime_caps		3
++#define	sinfo_has_ms_opus_info		4
++#define	sinfo_has_ms_statement_type	5
++	time64_t	signing_time;
++
++	/* Message signature.
++	 *
++	 * This contains the generated digest of _either_ the Content Data or
++	 * the Authenticated Attributes [RFC2315 9.3].  If the latter, one of
++	 * the attributes contains the digest of the the Content Data within
++	 * it.
++	 *
++	 * THis also contains the issuing cert serial number and issuer's name
++	 * [PKCS#7 or CMS ver 1] or issuing cert's SKID [CMS ver 3].
++	 */
++	struct public_key_signature *sig;
++};
++
++struct pkcs7_message {
++	struct x509_certificate *certs;	/* Certificate list */
++	struct x509_certificate *crl;	/* Revocation list */
++	struct pkcs7_signed_info *signed_infos;
++	u8		version;	/* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
++	bool		have_authattrs;	/* T if have authattrs */
++
++	/* Content Data (or NULL) */
++	enum OID	data_type;	/* Type of Data */
++	size_t		data_len;	/* Length of Data */
++	size_t		data_hdrlen;	/* Length of Data ASN.1 header */
++	const void	*data;		/* Content Data (or 0) */
++};
++#endif /* _PKCS7_PARSER_H */
+diff --git a/include/crypto/x509_parser.h b/include/crypto/x509_parser.h
+new file mode 100644
+index 0000000000..4cbdc1d661
+--- /dev/null
++++ b/include/crypto/x509_parser.h
+@@ -0,0 +1,61 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/* X.509 certificate parser internal definitions
++ *
++ * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ */
++
++#ifndef _X509_PARSER_H
++#define _X509_PARSER_H
++
++#include <linux/time.h>
++#include <crypto/public_key.h>
++#include <keys/asymmetric-type.h>
++
++struct x509_certificate {
++	struct x509_certificate *next;
++	struct x509_certificate *signer;	/* Certificate that signed this one */
++	struct public_key *pub;			/* Public key details */
++	struct public_key_signature *sig;	/* Signature parameters */
++	char		*issuer;		/* Name of certificate issuer */
++	char		*subject;		/* Name of certificate subject */
++	struct asymmetric_key_id *id;		/* Issuer + Serial number */
++	struct asymmetric_key_id *skid;		/* Subject + subjectKeyId (optional) */
++	time64_t	valid_from;
++	time64_t	valid_to;
++	const void	*tbs;			/* Signed data */
++	unsigned	tbs_size;		/* Size of signed data */
++	unsigned	raw_sig_size;		/* Size of sigature */
++	const void	*raw_sig;		/* Signature data */
++	const void	*raw_serial;		/* Raw serial number in ASN.1 */
++	unsigned	raw_serial_size;
++	unsigned	raw_issuer_size;
++	const void	*raw_issuer;		/* Raw issuer name in ASN.1 */
++	const void	*raw_subject;		/* Raw subject name in ASN.1 */
++	unsigned	raw_subject_size;
++	unsigned	raw_skid_size;
++	const void	*raw_skid;		/* Raw subjectKeyId in ASN.1 */
++	unsigned	index;
++	bool		seen;			/* Infinite recursion prevention */
++	bool		verified;
++	bool		self_signed;		/* T if self-signed (check unsupported_sig too) */
++	bool		unsupported_key;	/* T if key uses unsupported crypto */
++	bool		unsupported_sig;	/* T if signature uses unsupported crypto */
++	bool		blacklisted;
++};
++
++/*
++ * x509_cert_parser.c
++ */
++extern void x509_free_certificate(struct x509_certificate *cert);
++extern struct x509_certificate *x509_cert_parse(const void *data, size_t datalen);
++extern int x509_decode_time(time64_t *_t,  size_t hdrlen,
++			    unsigned char tag,
++			    const unsigned char *value, size_t vlen);
++
++/*
++ * x509_public_key.c
++ */
++extern int x509_get_sig_params(struct x509_certificate *cert);
++extern int x509_check_for_self_signed(struct x509_certificate *cert);
++#endif /* _X509_PARSER_H */
+diff --git a/lib/crypto/pkcs7_parser.c b/lib/crypto/pkcs7_parser.c
+index f5dda1179f..0ee207b6b1 100644
+--- a/lib/crypto/pkcs7_parser.c
++++ b/lib/crypto/pkcs7_parser.c
+@@ -20,7 +20,11 @@
+ #include <linux/err.h>
+ #include <linux/oid_registry.h>
+ #include <crypto/public_key.h>
++#ifdef __UBOOT__
++#include <crypto/pkcs7_parser.h>
++#else
+ #include "pkcs7_parser.h"
++#endif
+ #include "pkcs7.asn1.h"
+ 
+ MODULE_DESCRIPTION("PKCS#7 parser");
+diff --git a/lib/crypto/pkcs7_parser.h b/lib/crypto/pkcs7_parser.h
+deleted file mode 100644
+index b8234da45a..0000000000
+--- a/lib/crypto/pkcs7_parser.h
++++ /dev/null
+@@ -1,69 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-or-later */
+-/* PKCS#7 crypto data parser internal definitions
+- *
+- * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- */
+-
+-#ifndef _PKCS7_PARSER_H
+-#define _PKCS7_PARSER_H
+-
+-#include <linux/oid_registry.h>
+-#include <crypto/pkcs7.h>
+-#include "x509_parser.h"
+-
+-#define kenter(FMT, ...) \
+-	pr_devel("==> %s("FMT")\n", __func__, ##__VA_ARGS__)
+-#define kleave(FMT, ...) \
+-	pr_devel("<== %s()"FMT"\n", __func__, ##__VA_ARGS__)
+-
+-struct pkcs7_signed_info {
+-	struct pkcs7_signed_info *next;
+-	struct x509_certificate *signer; /* Signing certificate (in msg->certs) */
+-	unsigned	index;
+-	bool		unsupported_crypto;	/* T if not usable due to missing crypto */
+-	bool		blacklisted;
+-
+-	/* Message digest - the digest of the Content Data (or NULL) */
+-	const void	*msgdigest;
+-	unsigned	msgdigest_len;
+-
+-	/* Authenticated Attribute data (or NULL) */
+-	unsigned	authattrs_len;
+-	const void	*authattrs;
+-	unsigned long	aa_set;
+-#define	sinfo_has_content_type		0
+-#define	sinfo_has_signing_time		1
+-#define	sinfo_has_message_digest	2
+-#define sinfo_has_smime_caps		3
+-#define	sinfo_has_ms_opus_info		4
+-#define	sinfo_has_ms_statement_type	5
+-	time64_t	signing_time;
+-
+-	/* Message signature.
+-	 *
+-	 * This contains the generated digest of _either_ the Content Data or
+-	 * the Authenticated Attributes [RFC2315 9.3].  If the latter, one of
+-	 * the attributes contains the digest of the the Content Data within
+-	 * it.
+-	 *
+-	 * THis also contains the issuing cert serial number and issuer's name
+-	 * [PKCS#7 or CMS ver 1] or issuing cert's SKID [CMS ver 3].
+-	 */
+-	struct public_key_signature *sig;
+-};
+-
+-struct pkcs7_message {
+-	struct x509_certificate *certs;	/* Certificate list */
+-	struct x509_certificate *crl;	/* Revocation list */
+-	struct pkcs7_signed_info *signed_infos;
+-	u8		version;	/* Version of cert (1 -> PKCS#7 or CMS; 3 -> CMS) */
+-	bool		have_authattrs;	/* T if have authattrs */
+-
+-	/* Content Data (or NULL) */
+-	enum OID	data_type;	/* Type of Data */
+-	size_t		data_len;	/* Length of Data */
+-	size_t		data_hdrlen;	/* Length of Data ASN.1 header */
+-	const void	*data;		/* Content Data (or 0) */
+-};
+-#endif /* _PKCS7_PARSER_H */
+diff --git a/lib/crypto/x509_cert_parser.c b/lib/crypto/x509_cert_parser.c
+index 4e41cffd23..18f5407a07 100644
+--- a/lib/crypto/x509_cert_parser.c
++++ b/lib/crypto/x509_cert_parser.c
+@@ -18,7 +18,11 @@
+ #include <linux/string.h>
+ #endif
+ #include <crypto/public_key.h>
++#ifdef __UBOOT__
++#include <crypto/x509_parser.h>
++#else
+ #include "x509_parser.h"
++#endif
+ #include "x509.asn1.h"
+ #include "x509_akid.asn1.h"
+ 
+diff --git a/lib/crypto/x509_parser.h b/lib/crypto/x509_parser.h
+deleted file mode 100644
+index 4cbdc1d661..0000000000
+--- a/lib/crypto/x509_parser.h
++++ /dev/null
+@@ -1,61 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-or-later */
+-/* X.509 certificate parser internal definitions
+- *
+- * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
+- * Written by David Howells (dhowells@redhat.com)
+- */
+-
+-#ifndef _X509_PARSER_H
+-#define _X509_PARSER_H
+-
+-#include <linux/time.h>
+-#include <crypto/public_key.h>
+-#include <keys/asymmetric-type.h>
+-
+-struct x509_certificate {
+-	struct x509_certificate *next;
+-	struct x509_certificate *signer;	/* Certificate that signed this one */
+-	struct public_key *pub;			/* Public key details */
+-	struct public_key_signature *sig;	/* Signature parameters */
+-	char		*issuer;		/* Name of certificate issuer */
+-	char		*subject;		/* Name of certificate subject */
+-	struct asymmetric_key_id *id;		/* Issuer + Serial number */
+-	struct asymmetric_key_id *skid;		/* Subject + subjectKeyId (optional) */
+-	time64_t	valid_from;
+-	time64_t	valid_to;
+-	const void	*tbs;			/* Signed data */
+-	unsigned	tbs_size;		/* Size of signed data */
+-	unsigned	raw_sig_size;		/* Size of sigature */
+-	const void	*raw_sig;		/* Signature data */
+-	const void	*raw_serial;		/* Raw serial number in ASN.1 */
+-	unsigned	raw_serial_size;
+-	unsigned	raw_issuer_size;
+-	const void	*raw_issuer;		/* Raw issuer name in ASN.1 */
+-	const void	*raw_subject;		/* Raw subject name in ASN.1 */
+-	unsigned	raw_subject_size;
+-	unsigned	raw_skid_size;
+-	const void	*raw_skid;		/* Raw subjectKeyId in ASN.1 */
+-	unsigned	index;
+-	bool		seen;			/* Infinite recursion prevention */
+-	bool		verified;
+-	bool		self_signed;		/* T if self-signed (check unsupported_sig too) */
+-	bool		unsupported_key;	/* T if key uses unsupported crypto */
+-	bool		unsupported_sig;	/* T if signature uses unsupported crypto */
+-	bool		blacklisted;
+-};
+-
+-/*
+- * x509_cert_parser.c
+- */
+-extern void x509_free_certificate(struct x509_certificate *cert);
+-extern struct x509_certificate *x509_cert_parse(const void *data, size_t datalen);
+-extern int x509_decode_time(time64_t *_t,  size_t hdrlen,
+-			    unsigned char tag,
+-			    const unsigned char *value, size_t vlen);
+-
+-/*
+- * x509_public_key.c
+- */
+-extern int x509_get_sig_params(struct x509_certificate *cert);
+-extern int x509_check_for_self_signed(struct x509_certificate *cert);
+-#endif /* _X509_PARSER_H */
+diff --git a/lib/crypto/x509_public_key.c b/lib/crypto/x509_public_key.c
+index 676c0df174..571af9a0ad 100644
+--- a/lib/crypto/x509_public_key.c
++++ b/lib/crypto/x509_public_key.c
+@@ -16,15 +16,17 @@
+ #include <linux/module.h>
+ #endif
+ #include <linux/kernel.h>
+-#ifndef __UBOOT__
++#ifdef __UBOOT__
++#include <crypto/x509_parser.h>
++#else
+ #include <linux/slab.h>
+ #include <keys/asymmetric-subtype.h>
+ #include <keys/asymmetric-parser.h>
+ #include <keys/system_keyring.h>
+ #include <crypto/hash.h>
+ #include "asymmetric_keys.h"
+-#endif
+ #include "x509_parser.h"
++#endif
+ 
+ /*
+  * Set up the signature parameters in an X.509 certificate.  This involves
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 6c270ce94f..5a9a6424cc 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -13,7 +13,7 @@
+ #include <malloc.h>
+ #include <pe.h>
+ #include <sort.h>
+-#include "../lib/crypto/pkcs7_parser.h"
++#include "crypto/pkcs7_parser.h"
+ 
+ const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
+ const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
+diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
+index 658e3547da..150ce41f36 100644
+--- a/lib/efi_loader/efi_signature.c
++++ b/lib/efi_loader/efi_signature.c
+@@ -10,11 +10,11 @@
+ #include <image.h>
+ #include <hexdump.h>
+ #include <malloc.h>
++#include <crypto/pkcs7_parser.h>
+ #include <linux/compat.h>
+ #include <linux/oid_registry.h>
+ #include <u-boot/rsa.h>
+ #include <u-boot/sha256.h>
+-#include "../lib/crypto/pkcs7_parser.h"
+ 
+ const efi_guid_t efi_guid_image_security_database =
+ 		EFI_IMAGE_SECURITY_DATABASE_GUID;
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 7df881a74b..0c6d1deb58 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -12,9 +12,9 @@
+ #include <malloc.h>
+ #include <rtc.h>
+ #include <search.h>
++#include <crypto/pkcs7_parser.h>
+ #include <linux/compat.h>
+ #include <u-boot/crc.h>
+-#include "../lib/crypto/pkcs7_parser.h"
+ 
+ enum efi_secure_mode {
+ 	EFI_MODE_SETUP,
+diff --git a/test/lib/asn1.c b/test/lib/asn1.c
+index d2b3f67e68..8661fdd306 100644
+--- a/test/lib/asn1.c
++++ b/test/lib/asn1.c
+@@ -13,10 +13,10 @@
+ #include <test/ut.h>
+ 
+ #ifdef CONFIG_PKCS7_MESSAGE_PARSER
+-#include "../../lib/crypto/pkcs7_parser.h"
++#include <crypto/pkcs7_parser.h>
+ #else
+ #ifdef CONFIG_X509_CERTIFICATE_PARSER
+-#include "../../lib/crypto/x509_parser.h"
++#include <crypto/x509_parser.h>
+ #endif
+ #endif
+ 
+-- 
+2.26.2
+

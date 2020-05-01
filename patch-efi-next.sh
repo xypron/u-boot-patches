@@ -48,6 +48,11 @@ git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
+git am ../patch/0001-lib-crypto-efi_loader-avoid-multiple-inclusions-of-h.patch
+git am ../patch/0001-lib-crypto-efi_loader-move-some-headers-to-include-c.patch
+git am ../patch/0001-efi_loader-fix-unreachable-statement-in-efi_sigstore.patch
+git am ../patch/0001-efi_loader-factor-out-the-common-code-from-efi_trans.patch
+git am ../patch/0001-efi_loader-disk-add-efi_disk_is_system_part.patch
 
 # efi-2020-07
 exit

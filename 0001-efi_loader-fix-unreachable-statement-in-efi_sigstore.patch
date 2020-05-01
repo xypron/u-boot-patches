@@ -1,0 +1,33 @@
+From b0f9b124cd1ee544c094903e4eff5cf6d1e32254 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 21 Apr 2020 09:38:57 +0900
+Subject: [PATCH] efi_loader: fix unreachable statement in
+ efi_sigstore_parse_siglist
+
+"if (left < esl->signature_size)" is not reachable in a while loop.
+But it is still valuable in case that a given signature database is
+somehow corrupted. So fix the while loop condition.
+
+Reported-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_signature.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_signature.c b/lib/efi_loader/efi_signature.c
+index 150ce41f36..4ad818d5ee 100644
+--- a/lib/efi_loader/efi_signature.c
++++ b/lib/efi_loader/efi_signature.c
+@@ -667,7 +667,7 @@ efi_sigstore_parse_siglist(struct efi_signature_list *esl)
+ 	esd = (struct efi_signature_data *)
+ 			((u8 *)esl + sizeof(*esl) + esl->signature_header_size);
+ 
+-	while ((left > 0) && left >= esl->signature_size) {
++	while (left > 0) {
+ 		/* Signature must exist if there is remaining data. */
+ 		if (left < esl->signature_size) {
+ 			debug("Certificate is too small\n");
+-- 
+2.26.2
+
