@@ -49,11 +49,11 @@ git am ../patch/0001-lib-crypto-efi_loader-move-some-headers-to-include-c.patch
 git am ../patch/0001-efi_loader-fix-unreachable-statement-in-efi_sigstore.patch
 git am ../patch/0001-efi_loader-factor-out-the-common-code-from-efi_trans.patch
 git am ../patch/0001-efi_loader-disk-add-efi_disk_is_system_part.patch
+git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 
 # efi-2020-07
 exit
 git am ../patch/0001-efi_loader-change-setup-sequence.patch
-git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
 
 exit
