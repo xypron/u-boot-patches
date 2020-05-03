@@ -52,6 +52,7 @@ git am ../patch/0001-efi_loader-disk-add-efi_disk_is_system_part.patch
 git am ../patch/0001-cmd-efidebug-simplify-UEFI-protocol-calls.patch
 git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
 git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
+git am ../patch/0001-efi_loader-correct-comments-for-efi_status_t.patch
 
 # efi-2020-07
 exit
