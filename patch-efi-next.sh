@@ -22,8 +22,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-test-make-tests-should-use-pytest-ra.patch
-git am ../patch/0001-doc-fix-references-to-README.qe_firmware.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -44,21 +42,9 @@ git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
-# efi-2020-07-rc2-2
-git am ../patch/0001-lib-crypto-efi_loader-avoid-multiple-inclusions-of-h.patch
-git am ../patch/0001-lib-crypto-efi_loader-move-some-headers-to-include-c.patch
-git am ../patch/0001-efi_loader-fix-unreachable-statement-in-efi_sigstore.patch
-git am ../patch/0001-efi_loader-factor-out-the-common-code-from-efi_trans.patch
-git am ../patch/0001-efi_loader-disk-add-efi_disk_is_system_part.patch
-git am ../patch/0001-cmd-efidebug-simplify-UEFI-protocol-calls.patch
-git am ../patch/0001-efi_loader-eliminate-efi_get_-non-volatile_variable.patch
-git am ../patch/0001-efi_loader-eliminate-efi_set_-non-volatile_variable.patch
-git am ../patch/0001-efi_loader-correct-comments-for-efi_status_t.patch
-git am ../patch/0001-test-stabilize-test_efi_secboot.patch
-git am ../patch/0001-efi_loader-change-setup-sequence.patch
-
 # efi-2020-07-rc2-3
 git am ../patch/0001-kbuild-efi-Avoid-rebuilding-efi-targets.patch
+
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-efi_loader-support-read-only-variables.patch
