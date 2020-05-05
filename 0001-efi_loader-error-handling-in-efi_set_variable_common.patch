@@ -1,0 +1,28 @@
+From 7aed23bcf9c5830767220883be0ef99c769de4b3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 6 May 2020 01:37:25 +0200
+Subject: [PATCH 1/1] efi_loader: error handling in efi_set_variable_common().
+
+Fix unreachable code. Free memory on error.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 58f8fae358..33df52e663 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -981,7 +981,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+ 	if (append) {
+ 		old_data = malloc(old_size);
+ 		if (!old_data) {
+-			return EFI_OUT_OF_RESOURCES;
++			ret = EFI_OUT_OF_RESOURCES;
+ 			goto err;
+ 		}
+ 		ret = EFI_CALL(efi_get_variable(variable_name, vendor,
+-- 
+2.26.2
+
