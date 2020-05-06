@@ -22,6 +22,8 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
+git am ../patch/0001-test-describe-naming-conventions-for-macro-UNIT_TEST.patch
+git am ../patch/0001-test-fix-naming-of-test-functions-in-the-log-test-su.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch

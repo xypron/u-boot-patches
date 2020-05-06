@@ -1,0 +1,83 @@
+From c8d59be69c02a9de8ab1bca2581976369a5c6f6f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 6 May 2020 18:00:57 +0200
+Subject: [PATCH 1/2] test: describe naming conventions for macro UNIT_TEST
+
+Strict naming conventions have to be followed for Python function
+generate_ut_subtest() to collect C unit tests to be executed via
+command 'ut'.
+
+Describe the requirements both on the C as well on the Python side.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/test/test.h      | 24 +++++++++++++++++++++++-
+ test/py/tests/test_ut.py | 17 ++++++++++++++++-
+ 2 files changed, 39 insertions(+), 2 deletions(-)
+
+diff --git a/include/test/test.h b/include/test/test.h
+index 2a75211008..029288de88 100644
+--- a/include/test/test.h
++++ b/include/test/test.h
+@@ -41,7 +41,29 @@ struct unit_test {
+ 	int flags;
+ };
+ 
+-/* Declare a new unit test */
++/**
++ * UNIT_TEST() - create linker generated list entry for unit a unit test
++ *
++ * The macro UNIT_TEST() is used to create a linker generated list entry. These
++ * list entries are enumerate tests that can be execute using the ut command.
++ * The list entries are used both by the implementation of the ut command as
++ * well as in a related Python test.
++ *
++ * For Python testing the subtests are collected in Python function
++ * generate_ut_subtest() by applying a regular expression to the lines of file
++ * u-boot.sym. The list entries have to follow strict naming conventions to be
++ * matched by the expression.
++ *
++ * Use UNIT_TEST(foo_test_bar, _flags, foo_test) for a test bar in test suite
++ * foo that can be executed via command 'ut foo bar' and is implemented in
++ * function foo_test_bar().
++ *
++ * @_name:	concatenation of name of the test suite, "_test_", and the name
++ *		of the test
++ * @_flags:	an integer field that can be evaluated by the test suite
++ *		implementation
++ * @_suite:	name of the test suite concatenated with "_test"
++ */
+ #define UNIT_TEST(_name, _flags, _suite)				\
+ 	ll_entry_declare(struct unit_test, _name, _suite) = {		\
+ 		.file = __FILE__,					\
+diff --git a/test/py/tests/test_ut.py b/test/py/tests/test_ut.py
+index 6c7b8dd2b3..01c2b3ffa1 100644
+--- a/test/py/tests/test_ut.py
++++ b/test/py/tests/test_ut.py
+@@ -22,7 +22,22 @@ def test_ut_dm_init(u_boot_console):
+             fh.write(data)
+ 
+ def test_ut(u_boot_console, ut_subtest):
+-    """Execute a "ut" subtest."""
++    """Execute a "ut" subtest.
++
++    The subtests are collected in function generate_ut_subtest() from linker
++    generated lists by applying a regular expression to the lines of file
++    u-boot.sym. The list entries are created using the C macro UNIT_TEST().
++
++    Strict naming conventions have to be followed to match the regular
++    expression. Use UNIT_TEST(foo_test_bar, _flags, foo_test) for a test bar in
++    test suite foo that can be executed via command 'ut foo bar' and is
++    implemented in C function foo_test_bar().
++
++    Args:
++        u_boot_console (ConsoleBase): U-Boot console
++        ut_subtest (str): test to be executed via command ut, e.g 'foo bar' to
++            execute command 'ut foo bar'
++    """
+ 
+     output = u_boot_console.run_command('ut ' + ut_subtest)
+     assert output.endswith('Failures: 0')
+-- 
+2.26.2
+
