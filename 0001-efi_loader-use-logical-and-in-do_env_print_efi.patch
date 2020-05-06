@@ -1,0 +1,29 @@
+From ddc70cf9ed3a28f0c838be7efc23e02d0e484678 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 6 May 2020 02:01:34 +0200
+Subject: [PATCH 1/1] efi_loader: use logical and in do_env_print_efi()
+
+If we want to check if two booleans are true, we should use a logical
+conjunction (&&) and not a bitwise and-operator (&).
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/nvedit_efi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/nvedit_efi.c b/cmd/nvedit_efi.c
+index 837e39e021..6f69a84fea 100644
+--- a/cmd/nvedit_efi.c
++++ b/cmd/nvedit_efi.c
+@@ -298,7 +298,7 @@ int do_env_print_efi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 				return CMD_RET_USAGE;
+ 
+ 			/* -a already specified */
+-			if (!default_guid & guid_any)
++			if (!default_guid && guid_any)
+ 				return CMD_RET_USAGE;
+ 
+ 			argc--;
+-- 
+2.26.2
+
