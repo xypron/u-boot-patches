@@ -50,6 +50,7 @@ git am ../patch/0001-efi_loader-remove-redundant-assignment-in-dp_fill.patch
 git am ../patch/0001-efi_loader-error-handling-in-efi_set_variable_common.patch
 git am ../patch/0001-efi_loader-do-not-unnecessarily-use-EFI_CALL.patch
 git am ../patch/0001-efi_loader-use-logical-and-in-do_env_print_efi.patch
+git am ../patch/0001-efi_loader-put-device-tree-into-EfiACPIReclaimMemory.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
