@@ -53,6 +53,7 @@ git am ../patch/0001-efi_loader-use-logical-and-in-do_env_print_efi.patch
 git am ../patch/0001-efi_loader-put-device-tree-into-EfiACPIReclaimMemory.patch
 git am ../patch/0001-efi_loader-efi_variable_parse_signature-returns-NULL.patch
 git am ../patch/0001-efi_loader-pkcs7_parse_message-returns-error-pointer.patch
+git am ../patch/0001-efi_loader-crypto-pkcs7_parser.h-is-not-a-local-incl.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch

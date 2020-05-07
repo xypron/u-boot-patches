@@ -1,7 +1,7 @@
-From f9e31cd3ba94c8b65902f1e7c286a9f246725102 Mon Sep 17 00:00:00 2001
+From d4aecbaf05155a19be4d4c60e934badb4dd4a56e Mon Sep 17 00:00:00 2001
 From: Patrick Wildt <patrick@blueri.se>
 Date: Thu, 7 May 2020 02:17:14 +0200
-Subject: [PATCH 1/1] efi_loader: pkcs7_parse_message() returns error pointer
+Subject: [PATCH] efi_loader: pkcs7_parse_message() returns error pointer
 
 Since pkcs7_parse_message() returns an error pointer, we must not
 check for NULL.  We have to explicitly set msg to NULL in the error
@@ -9,16 +9,25 @@ case, otherwise the call to pkcs7_free_message() on the goto err
 path will assume it's a valid object.
 
 Signed-off-by: Patrick Wildt <patrick@blueri.se>
+Add missing include linux/err.h
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_image_loader.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_image_loader.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 5a9a6424cc..43a53d3dd1 100644
+index 5a9a6424cc..ac4f65c9d8 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
-@@ -538,8 +538,9 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+@@ -14,6 +14,7 @@
+ #include <pe.h>
+ #include <sort.h>
+ #include "crypto/pkcs7_parser.h"
++#include <linux/err.h>
+ 
+ const efi_guid_t efi_global_variable_guid = EFI_GLOBAL_VARIABLE_GUID;
+ const efi_guid_t efi_guid_device_path = EFI_DEVICE_PATH_PROTOCOL_GUID;
+@@ -538,8 +539,9 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
  		}
  		msg = pkcs7_parse_message((void *)wincert + sizeof(*wincert),
  					  wincert->dwLength - sizeof(*wincert));
