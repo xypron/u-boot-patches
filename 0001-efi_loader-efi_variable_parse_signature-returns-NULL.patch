@@ -1,0 +1,34 @@
+From 731e36ae3aa8bfee9ec26a17d4a8f3847f84a625 Mon Sep 17 00:00:00 2001
+From: Patrick Wildt <patrick@blueri.se>
+Date: Thu, 7 May 2020 02:13:18 +0200
+Subject: [PATCH 1/1] efi_loader: efi_variable_parse_signature() returns NULL
+ on error
+
+efi_variable_parse_signature() returns NULL on error, so IS_ERR()
+is an incorrect check.  The goto err leads to pkcs7_free_message(),
+which works fine on a NULL ptr.
+
+Signed-off-by: Patrick Wildt <patrick@blueri.se>
+Reviewed-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ lib/efi_loader/efi_variable.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 58f8fae358..c5fe896de2 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -519,9 +519,8 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
+ 	var_sig = efi_variable_parse_signature(auth->auth_info.cert_data,
+ 					       auth->auth_info.hdr.dwLength
+ 						   - sizeof(auth->auth_info));
+-	if (IS_ERR(var_sig)) {
++	if (!var_sig) {
+ 		debug("Parsing variable's signature failed\n");
+-		var_sig = NULL;
+ 		goto err;
+ 	}
+ 
+-- 
+2.26.2
+
