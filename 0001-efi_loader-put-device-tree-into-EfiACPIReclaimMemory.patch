@@ -1,7 +1,7 @@
-From 45efc19680448118cb410df94c9cd7a08fe85b00 Mon Sep 17 00:00:00 2001
+From 42a426e027df472714e8d6209cafac291935c331 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 6 May 2020 20:32:31 +0200
-Subject: [PATCH 1/1] efi_loader: put device tree into EfiACPIReclaimMemory
+Subject: [PATCH v2 1/1] efi_loader: put device tree into EfiACPIReclaimMemory
 
 According to the UEFI spec ACPI tables should be placed in
 EfiACPIReclaimMemory. Let's do the same with the device tree.
@@ -10,8 +10,12 @@ Suggested-by: Ard Biesheuvel <ardb@kernel.org>
 Cc: Grant Likely <grant.likely@arm.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+v2:
+	adjust the unit test
+---
+ cmd/bootefi.c                          | 4 ++--
+ lib/efi_selftest/efi_selftest_memory.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index 54b4b8f984..06573b14e9 100644
@@ -33,6 +37,22 @@ index 54b4b8f984..06573b14e9 100644
  					 &new_fdt_addr);
  		if (ret != EFI_SUCCESS) {
  			printf("ERROR: Failed to reserve space for FDT\n");
+diff --git a/lib/efi_selftest/efi_selftest_memory.c b/lib/efi_selftest/efi_selftest_memory.c
+index e71732dc6d..4d32a28006 100644
+--- a/lib/efi_selftest/efi_selftest_memory.c
++++ b/lib/efi_selftest/efi_selftest_memory.c
+@@ -176,9 +176,9 @@ static int execute(void)
+ 	/* Check memory reservation for the device tree */
+ 	if (fdt_addr &&
+ 	    find_in_memory_map(map_size, memory_map, desc_size, fdt_addr,
+-			       EFI_BOOT_SERVICES_DATA) != EFI_ST_SUCCESS) {
++			       EFI_ACPI_RECLAIM_MEMORY) != EFI_ST_SUCCESS) {
+ 		efi_st_error
+-			("Device tree not marked as boot services data\n");
++			("Device tree not marked as ACPI reclaim memory\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+ 	return EFI_ST_SUCCESS;
 -- 
 2.26.2
 
