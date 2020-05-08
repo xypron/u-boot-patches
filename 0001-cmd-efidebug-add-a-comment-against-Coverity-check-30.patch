@@ -1,0 +1,33 @@
+From 483c1ea9b6c6d43293c369e25ba964478bd2919c Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 8 May 2020 14:50:18 +0900
+Subject: [PATCH] cmd: efidebug: add a comment against Coverity check (300329)
+
+The check here, "Null pointer dereferences," is a false positive.
+So leave a comment.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reported-by: Coverity (CID 300329)
+---
+ cmd/efidebug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 5e3bf16573..668e5c4e87 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -480,6 +480,11 @@ static int do_efi_show_memmap(cmd_tbl_t *cmdtp, int flag,
+ 	       EFI_PHYS_ADDR_WIDTH - 5, spc, EFI_PHYS_ADDR_WIDTH - 3, spc);
+ 	printf("================ %.*s %.*s ==========\n",
+ 	       EFI_PHYS_ADDR_WIDTH, sep, EFI_PHYS_ADDR_WIDTH, sep);
++	/*
++	 * Coverity check: dereferencing null pointer "map."
++	 * This is a false positive as memmap will always be
++	 * populated by allocate_pool() above.
++	 */
+ 	for (i = 0, map = memmap; i < map_size / sizeof(*map); map++, i++) {
+ 		if (map->type < ARRAY_SIZE(efi_mem_type_string))
+ 			type = efi_mem_type_string[map->type];
+-- 
+2.26.2
+

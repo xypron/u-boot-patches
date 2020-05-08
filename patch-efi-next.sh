@@ -56,6 +56,12 @@ git am ../patch/0001-efi_loader-efi_variable_parse_signature-returns-NULL.patch
 git am ../patch/0001-efi_loader-pkcs7_parse_message-returns-error-pointer.patch
 git am ../patch/0001-efi_loader-crypto-pkcs7_parser.h-is-not-a-local-incl.patch
 
+# efi-2020-07-rc2-4
+git am ../patch/0001-efi_loader-image_loader-fix-a-Coverity-check-against.patch
+git am ../patch/0001-efi_loader-variable-check-a-return-value-of-uuid__st.patch
+git am ../patch/0001-cmd-efidebug-fix-a-wrong-handling-of-arguments.patch
+git am ../patch/0001-cmd-efidebug-add-a-comment-against-Coverity-check-30.patch
+
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-efi_loader-support-read-only-variables.patch

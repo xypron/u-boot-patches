@@ -1,4 +1,4 @@
-From 42a426e027df472714e8d6209cafac291935c331 Mon Sep 17 00:00:00 2001
+From 3155a4335a61765237dfe5c7f6a01fb896f83987 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 6 May 2020 20:32:31 +0200
 Subject: [PATCH v2 1/1] efi_loader: put device tree into EfiACPIReclaimMemory
@@ -11,7 +11,7 @@ Cc: Grant Likely <grant.likely@arm.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v2:
-	adjust the unit test
+	Adjust the related unit test.
 ---
  cmd/bootefi.c                          | 4 ++--
  lib/efi_selftest/efi_selftest_memory.c | 4 ++--
