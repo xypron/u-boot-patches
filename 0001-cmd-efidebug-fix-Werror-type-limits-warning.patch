@@ -1,0 +1,36 @@
+From ccb73ae711ca02d4be47f865765257e871fe09ab Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 May 2020 17:59:19 +0200
+Subject: [PATCH 1/1] cmd: efidebug: fix -Werror=type-limits warning
+
+Compiling with -Wtype-limits yields:
+
+cmd/efidebug.c:968:32: error: comparison is always false due to limited
+range of data type [-Werror=type-limits]
+  968 |  if (*endp != '\0' || bootnext > 0xffff) {
+      |
+
+Remove the superfluous check.
+
+Fixes: 59df7e7e77e7 ("cmd: add efidebug command")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index d8a76d78a3..85ba9f11f8 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -965,7 +965,7 @@ static int do_efi_boot_next(cmd_tbl_t *cmdtp, int flag,
+ 		return CMD_RET_USAGE;
+ 
+ 	bootnext = (u16)simple_strtoul(argv[1], &endp, 16);
+-	if (*endp != '\0' || bootnext > 0xffff) {
++	if (*endp != '\0') {
+ 		printf("invalid value: %s\n", argv[1]);
+ 		r = CMD_RET_FAILURE;
+ 		goto out;
+-- 
+2.26.2
+

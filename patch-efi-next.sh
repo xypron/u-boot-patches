@@ -57,6 +57,7 @@ git am ../patch/0001-charset-Add-support-for-calculating-bytes-occupied-b.patch
 git am ../patch/0001-test-unit-test-for-u16_strsize.patch
 git am ../patch/0001-lib-charset-correct-function-descriptions.patch
 git am ../patch/0001-doc-add-Unicode-functions-to-API-description.patch
+git am ../patch/0001-cmd-efidebug-fix-Werror-type-limits-warning.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
