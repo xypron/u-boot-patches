@@ -27,6 +27,7 @@ git am ../patch/0001-tools-mkimage-use-fall-through-as-needed.patch
 git am ../patch/0001-tools-ftdgrep-use-fall-through-as-needed.patch
 git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
 git am ../patch/0001-common-board_f-avoid-Wtype-limits-warning.patch
+git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch

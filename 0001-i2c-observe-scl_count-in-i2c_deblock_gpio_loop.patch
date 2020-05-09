@@ -1,0 +1,40 @@
+From 78d27d81346d56c7d90c033a519ffa246b88d391 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 May 2020 18:10:00 +0200
+Subject: [PATCH 1/1] i2c: observe scl_count in i2c_deblock_gpio_loop()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When compiling with -Wtype-limits we see this error:
+
+drivers/i2c/i2c-uclass.c: In function ‘i2c_deblock_gpio_loop’:
+drivers/i2c/i2c-uclass.c:517:21: error: comparison of
+unsigned expression >= 0 is always true [-Werror=type-limits]
+  517 |  while (scl_count-- >= 0) {
+      |
+
+Don't loop forever.
+
+Fixes: 1f746a2c82b1 ("i2c: Make deblock delay and SCL clock configurable")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/i2c/i2c-uclass.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-uclass.c b/drivers/i2c/i2c-uclass.c
+index e9ec388576..9b2727cfd8 100644
+--- a/drivers/i2c/i2c-uclass.c
++++ b/drivers/i2c/i2c-uclass.c
+@@ -514,7 +514,7 @@ int i2c_deblock_gpio_loop(struct gpio_desc *sda_pin,
+ 	udelay(delay);
+ 
+ 	/*  Toggle SCL until slave release SDA */
+-	while (scl_count-- >= 0) {
++	for (; scl_count; --scl_count) {
+ 		i2c_gpio_set_pin(scl_pin, 1);
+ 		udelay(delay);
+ 		i2c_gpio_set_pin(scl_pin, 0);
+-- 
+2.26.2
+
