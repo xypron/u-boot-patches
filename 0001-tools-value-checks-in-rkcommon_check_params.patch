@@ -1,4 +1,4 @@
-From 3b8dc653e7b913513ca96dda7e441533bfb55c09 Mon Sep 17 00:00:00 2001
+From cf9c243d85bf4c4999b4915fcaac953abb8ffe0e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 9 May 2020 17:22:27 +0200
 Subject: [PATCH 1/1] tools: value checks in rkcommon_check_params()
