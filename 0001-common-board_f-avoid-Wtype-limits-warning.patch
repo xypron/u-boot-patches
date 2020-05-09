@@ -1,4 +1,4 @@
-From 1ae11690db8e63d7e3a7d3f48fe82d61ede76845 Mon Sep 17 00:00:00 2001
+From b918d071c44b4b6b8dca45bdf4bb6dfb69457c97 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 9 May 2020 17:53:54 +0200
 Subject: [PATCH 1/1] common/board_f: avoid -Wtype-limits warning
