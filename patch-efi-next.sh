@@ -24,6 +24,7 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-Makefile-add-file-defconfig-to-clean-target.patch
 git am ../patch/0001-tools-mkimage-use-fall-through-as-needed.patch
+git am ../patch/0001-tools-ftdgrep-use-fall-through-as-needed.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
