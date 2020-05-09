@@ -1,0 +1,39 @@
+From 928c252aa036443886327c7bd6eaf2816cec6d94 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 May 2020 09:00:59 +0200
+Subject: [PATCH 1/1] doc: add Unicode functions to API description
+
+Add include/charset.h to generated HTML documentation
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/api/index.rst   | 1 +
+ doc/api/unicode.rst | 7 +++++++
+ 2 files changed, 8 insertions(+)
+ create mode 100644 doc/api/unicode.rst
+
+diff --git a/doc/api/index.rst b/doc/api/index.rst
+index d484c066c5..2578abd40e 100644
+--- a/doc/api/index.rst
++++ b/doc/api/index.rst
+@@ -9,3 +9,4 @@ U-Boot API documentation
+    efi
+    linker_lists
+    serial
++   unicode
+diff --git a/doc/api/unicode.rst b/doc/api/unicode.rst
+new file mode 100644
+index 0000000000..3fb6745f84
+--- /dev/null
++++ b/doc/api/unicode.rst
+@@ -0,0 +1,7 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++Unicode support
++===============
++
++.. kernel-doc:: include/charset.h
++   :internal:
+-- 
+2.26.2
+

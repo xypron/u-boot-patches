@@ -23,6 +23,7 @@ git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-Makefile-add-file-defconfig-to-clean-target.patch
+git am ../patch/0001-tools-mkimage-use-fall-through-as-needed.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -50,6 +51,11 @@ git am ../patch/0001-efi_loader-variable-check-a-return-value-of-uuid__st.patch
 git am ../patch/0001-cmd-efidebug-fix-a-wrong-handling-of-arguments.patch
 git am ../patch/0001-cmd-efidebug-add-a-comment-against-Coverity-check-30.patch
 git am ../patch/0001-efi_selftest-add-unit-test-functions-to-HTML-documen.patch
+
+git am ../patch/0001-charset-Add-support-for-calculating-bytes-occupied-b.patch
+git am ../patch/0001-test-unit-test-for-u16_strsize.patch
+git am ../patch/0001-lib-charset-correct-function-descriptions.patch
+git am ../patch/0001-doc-add-Unicode-functions-to-API-description.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch

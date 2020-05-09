@@ -1,0 +1,36 @@
+From 18a5111ba55c17a8f803cf0fe8aa4de5a99c54bf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 9 May 2020 09:16:49 +0200
+Subject: [PATCH 1/1] test: unit test for u16_strsize()
+
+Provide a test for new Unicode library function u16_strsize().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/unicode_ut.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/test/unicode_ut.c b/test/unicode_ut.c
+index 4d99c20bc0..d8b4aa9b44 100644
+--- a/test/unicode_ut.c
++++ b/test/unicode_ut.c
+@@ -581,6 +581,16 @@ static int unicode_test_u16_strncmp(struct unit_test_state *uts)
+ }
+ UNICODE_TEST(unicode_test_u16_strncmp);
+ 
++static int unicode_test_u16_strsize(struct unit_test_state *uts)
++{
++	ut_asserteq_64(u16_strsize(c1), 14);
++	ut_asserteq_64(u16_strsize(c2), 18);
++	ut_asserteq_64(u16_strsize(c3), 8);
++	ut_asserteq_64(u16_strsize(c4), 14);
++	return 0;
++}
++UNICODE_TEST(unicode_test_u16_strsize);
++
+ int do_ut_unicode(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ {
+ 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
+-- 
+2.26.2
+
