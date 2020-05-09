@@ -22,8 +22,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-test-describe-naming-conventions-for-macro-UNIT_TEST.patch
-git am ../patch/0001-test-fix-naming-of-test-functions-in-the-log-test-su.patch
 git am ../patch/0001-Makefile-add-file-defconfig-to-clean-target.patch
 
 # sct
@@ -45,16 +43,6 @@ git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
-# efi-2020-07-rc2-3
-git am ../patch/0001-kbuild-efi-Avoid-rebuilding-efi-targets.patch
-git am ../patch/0001-efi_loader-remove-redundant-assignment-in-dp_fill.patch
-git am ../patch/0001-efi_loader-error-handling-in-efi_set_variable_common.patch
-git am ../patch/0001-efi_loader-do-not-unnecessarily-use-EFI_CALL.patch
-git am ../patch/0001-efi_loader-use-logical-and-in-do_env_print_efi.patch
-git am ../patch/0001-efi_loader-put-device-tree-into-EfiACPIReclaimMemory.patch
-git am ../patch/0001-efi_loader-efi_variable_parse_signature-returns-NULL.patch
-git am ../patch/0001-efi_loader-pkcs7_parse_message-returns-error-pointer.patch
-git am ../patch/0001-efi_loader-crypto-pkcs7_parser.h-is-not-a-local-incl.patch
 
 # efi-2020-07-rc2-4
 git am ../patch/0001-efi_loader-image_loader-fix-a-Coverity-check-against.patch
