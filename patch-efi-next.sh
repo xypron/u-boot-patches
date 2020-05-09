@@ -61,6 +61,7 @@ git am ../patch/0001-efi_loader-image_loader-fix-a-Coverity-check-against.patch
 git am ../patch/0001-efi_loader-variable-check-a-return-value-of-uuid__st.patch
 git am ../patch/0001-cmd-efidebug-fix-a-wrong-handling-of-arguments.patch
 git am ../patch/0001-cmd-efidebug-add-a-comment-against-Coverity-check-30.patch
+git am ../patch/0001-efi_selftest-add-unit-test-functions-to-HTML-documen.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
