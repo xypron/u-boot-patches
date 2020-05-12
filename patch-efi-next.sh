@@ -28,8 +28,6 @@ git am ../patch/0001-tools-ftdgrep-use-fall-through-as-needed.patch
 git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
 git am ../patch/0001-common-board_f-avoid-Wtype-limits-warning.patch
 git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
-git am ../patch/0001-common-board_f-avoid-Wtype-limits-warning.patch
-git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
@@ -51,18 +49,7 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
 
-# efi-2020-07-rc2-4
-git am ../patch/0001-efi_loader-image_loader-fix-a-Coverity-check-against.patch
-git am ../patch/0001-efi_loader-variable-check-a-return-value-of-uuid__st.patch
-git am ../patch/0001-cmd-efidebug-fix-a-wrong-handling-of-arguments.patch
-git am ../patch/0001-cmd-efidebug-add-a-comment-against-Coverity-check-30.patch
-git am ../patch/0001-efi_selftest-add-unit-test-functions-to-HTML-documen.patch
-
-git am ../patch/0001-charset-Add-support-for-calculating-bytes-occupied-b.patch
-git am ../patch/0001-test-unit-test-for-u16_strsize.patch
-git am ../patch/0001-lib-charset-correct-function-descriptions.patch
-git am ../patch/0001-doc-add-Unicode-functions-to-API-description.patch
-git am ../patch/0001-cmd-efidebug-fix-Werror-type-limits-warning.patch
+# efi-2020-07-rc2-3
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
