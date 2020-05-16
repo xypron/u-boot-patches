@@ -22,11 +22,7 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-Makefile-add-file-defconfig-to-clean-target.patch
-git am ../patch/0001-tools-mkimage-use-fall-through-as-needed.patch
-git am ../patch/0001-tools-ftdgrep-use-fall-through-as-needed.patch
 git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
-git am ../patch/0001-common-board_f-avoid-Wtype-limits-warning.patch
 git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
 
 # sct
