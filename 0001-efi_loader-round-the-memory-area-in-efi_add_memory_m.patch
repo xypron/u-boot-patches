@@ -1,4 +1,4 @@
-From 25697edb0eb5a03b4402b21460a09fc92f569cc5 Mon Sep 17 00:00:00 2001
+From fd31eec27b3cbb014dcd8858a7644cb7bc6167f2 Mon Sep 17 00:00:00 2001
 From: Michael Walle <michael@walle.cc>
 Date: Sun, 17 May 2020 12:29:19 +0200
 Subject: [PATCH 1/1] efi_loader: round the memory area in efi_add_memory_map()
@@ -15,7 +15,7 @@ efi_add_memory_map_pg() and make it static to prevent further misuse
 outside the module.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/arm/cpu/armv8/fsl-layerscape/cpu.c | 10 ++---
  arch/arm/cpu/armv8/fsl-layerscape/fdt.c |  5 +--
@@ -187,7 +187,7 @@ index 8333ddc44c..c6e7a35338 100644
  
  	return 0;
 diff --git a/drivers/video/sunxi/sunxi_display.c b/drivers/video/sunxi/sunxi_display.c
-index 40ee009f62..bfa486e7e2 100644
+index 40ee009f62..c4c1d1b8d3 100644
 --- a/drivers/video/sunxi/sunxi_display.c
 +++ b/drivers/video/sunxi/sunxi_display.c
 @@ -1196,10 +1196,8 @@ void *video_hw_init(void)
@@ -198,7 +198,7 @@ index 40ee009f62..bfa486e7e2 100644
 -			   ALIGN(sunxi_display.fb_size, EFI_PAGE_SIZE) >>
 -			   EFI_PAGE_SHIFT,
 -			   EFI_RESERVED_MEMORY_TYPE, false);
-+	efi_add_memory_map(gd->fb_base, sunxi_display.fb_size
++	efi_add_memory_map(gd->fb_base, sunxi_display.fb_size,
 +			   EFI_RESERVED_MEMORY_TYPE);
  #endif
  
