@@ -1,0 +1,364 @@
+From 580de6f1d82a85001fb22f4120f910dd33f02c86 Mon Sep 17 00:00:00 2001
+From: Michael Walle <michael@walle.cc>
+Date: Sat, 16 May 2020 18:56:19 +0200
+Subject: [PATCH] efi_loader: round the memory area in efi_add_memory_map()
+
+Virtually all callers of this function do the rounding on their own.
+Some do it right, some don't. Instead of doing this in each caller,
+do the rounding in efi_add_memory_map(). Change the size parameter
+to bytes instead of pages and remove aligning and size calculation in
+all callers.
+
+There is no more need to make the original efi_add_memory_map() (which
+takes pages as size) available outside the module. Thus rename it to
+efi_add_memory_map_pg() and make it static to prevent further misuse
+outside the module.
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+Rebased
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/cpu/armv8/fsl-layerscape/cpu.c | 10 ++---
+ arch/arm/cpu/armv8/fsl-layerscape/fdt.c |  5 +--
+ arch/arm/mach-meson/board-common.c      |  7 +---
+ arch/x86/lib/e820.c                     |  6 +--
+ board/raspberrypi/rpi/rpi.c             |  4 +-
+ cmd/bootefi.c                           |  8 +---
+ drivers/video/meson/meson_vpu.c         |  4 +-
+ drivers/video/sunxi/sunxi_de2.c         |  6 +--
+ drivers/video/sunxi/sunxi_display.c     |  6 +--
+ include/efi_loader.h                    |  3 +-
+ lib/efi_loader/efi_memory.c             | 53 ++++++++++++++++++-------
+ lib/efi_loader/efi_runtime.c            |  3 +-
+ 12 files changed, 61 insertions(+), 54 deletions(-)
+
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/cpu.c b/arch/arm/cpu/armv8/fsl-layerscape/cpu.c
+index b3f5c2f641..2cf3f4bb98 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/cpu.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/cpu.c
+@@ -1529,9 +1529,8 @@ int dram_init_banksize(void)
+ void efi_add_known_memory(void)
+ {
+ 	int i;
+-	phys_addr_t ram_start, start;
++	phys_addr_t ram_start;
+ 	phys_size_t ram_size;
+-	u64 pages;
+ 
+ 	/* Add RAM */
+ 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+@@ -1549,11 +1548,8 @@ void efi_add_known_memory(void)
+ 		    gd->arch.resv_ram < ram_start + ram_size)
+ 			ram_size = gd->arch.resv_ram - ram_start;
+ #endif
+-		start = (ram_start + EFI_PAGE_MASK) & ~EFI_PAGE_MASK;
+-		pages = (ram_size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+-
+-		efi_add_memory_map(start, pages, EFI_CONVENTIONAL_MEMORY,
+-				   false);
++		efi_add_memory_map(ram_start, ram_size,
++				   EFI_CONVENTIONAL_MEMORY);
+ 	}
+ }
+ #endif
+diff --git a/arch/arm/cpu/armv8/fsl-layerscape/fdt.c b/arch/arm/cpu/armv8/fsl-layerscape/fdt.c
+index 3bbad827cb..0696ea6d35 100644
+--- a/arch/arm/cpu/armv8/fsl-layerscape/fdt.c
++++ b/arch/arm/cpu/armv8/fsl-layerscape/fdt.c
+@@ -146,9 +146,8 @@ remove_psci_node:
+ 	fdt_add_mem_rsv(blob, (uintptr_t)&secondary_boot_code,
+ 			*boot_code_size);
+ #if CONFIG_IS_ENABLED(EFI_LOADER)
+-	efi_add_memory_map((uintptr_t)&secondary_boot_code,
+-			   ALIGN(*boot_code_size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+-			   EFI_RESERVED_MEMORY_TYPE, false);
++	efi_add_memory_map((uintptr_t)&secondary_boot_code, *boot_code_size,
++			   EFI_RESERVED_MEMORY_TYPE);
+ #endif
+ }
+ #endif
+diff --git a/arch/arm/mach-meson/board-common.c b/arch/arm/mach-meson/board-common.c
+index bc4c92074c..747791b10e 100644
+--- a/arch/arm/mach-meson/board-common.c
++++ b/arch/arm/mach-meson/board-common.c
+@@ -69,11 +69,8 @@ void meson_board_add_reserved_memory(void *fdt, u64 start, u64 size)
+ 	if (ret)
+ 		printf("Could not reserve zone @ 0x%llx\n", start);
+ 
+-	if (IS_ENABLED(CONFIG_EFI_LOADER)) {
+-		efi_add_memory_map(start,
+-				   ALIGN(size, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+-				   EFI_RESERVED_MEMORY_TYPE, false);
+-	}
++	if (IS_ENABLED(CONFIG_EFI_LOADER))
++		efi_add_memory_map(start, size, EFI_RESERVED_MEMORY_TYPE);
+ }
+ 
+ int meson_generate_serial_ethaddr(void)
+diff --git a/arch/x86/lib/e820.c b/arch/x86/lib/e820.c
+index 26da4d2f27..1f20c5c8c6 100644
+--- a/arch/x86/lib/e820.c
++++ b/arch/x86/lib/e820.c
+@@ -41,7 +41,7 @@ void efi_add_known_memory(void)
+ {
+ 	struct e820_entry e820[E820MAX];
+ 	unsigned int i, num;
+-	u64 start, pages, ram_top;
++	u64 start, ram_top;
+ 	int type;
+ 
+ 	num = install_e820_map(ARRAY_SIZE(e820), e820);
+@@ -77,9 +77,7 @@ void efi_add_known_memory(void)
+ 							start + e820[i].size,
+ 							ram_top);
+ 		} else {
+-			pages = ALIGN(e820[i].size, EFI_PAGE_SIZE)
+-				>> EFI_PAGE_SHIFT;
+-			efi_add_memory_map(start, pages, type, false);
++			efi_add_memory_map(start, e820[i].size, type);
+ 		}
+ 	}
+ }
+diff --git a/board/raspberrypi/rpi/rpi.c b/board/raspberrypi/rpi/rpi.c
+index 0206a093d4..45caa4d49e 100644
+--- a/board/raspberrypi/rpi/rpi.c
++++ b/board/raspberrypi/rpi/rpi.c
+@@ -489,8 +489,8 @@ int ft_board_setup(void *blob, bd_t *bd)
+ 
+ #ifdef CONFIG_EFI_LOADER
+ 	/* Reserve the spin table */
+-	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES,
+-			   EFI_RESERVED_MEMORY_TYPE, 0);
++	efi_add_memory_map(0, CONFIG_RPI_EFI_NR_SPIN_PAGES << EFI_PAGE_SHIFT,
++			   EFI_RESERVED_MEMORY_TYPE);
+ #endif
+ 
+ 	return 0;
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 06573b14e9..9849eb4f99 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -151,14 +151,10 @@ done:
+ 
+ static void efi_reserve_memory(u64 addr, u64 size)
+ {
+-	u64 pages;
+-
+ 	/* Convert from sandbox address space. */
+ 	addr = (uintptr_t)map_sysmem(addr, 0);
+-	pages = efi_size_in_pages(size + (addr & EFI_PAGE_MASK));
+-	addr &= ~EFI_PAGE_MASK;
+-	if (efi_add_memory_map(addr, pages, EFI_RESERVED_MEMORY_TYPE,
+-			       false) != EFI_SUCCESS)
++	if (efi_add_memory_map(addr, size,
++			       EFI_RESERVED_MEMORY_TYPE) != EFI_SUCCESS)
+ 		printf("Reserved memory mapping failed addr %llx size %llx\n",
+ 		       addr, size);
+ }
+diff --git a/drivers/video/meson/meson_vpu.c b/drivers/video/meson/meson_vpu.c
+index aa8c0a962f..ed47192bf6 100644
+--- a/drivers/video/meson/meson_vpu.c
++++ b/drivers/video/meson/meson_vpu.c
+@@ -195,8 +195,8 @@ void meson_vpu_rsv_fb(void *fdt)
+ 		return;
+ 
+ #if defined(CONFIG_EFI_LOADER)
+-	efi_add_memory_map(meson_fb.base, meson_fb.fb_size >> EFI_PAGE_SHIFT,
+-			   EFI_RESERVED_MEMORY_TYPE, false);
++	efi_add_memory_map(meson_fb.base, meson_fb.fb_size,
++			   EFI_RESERVED_MEMORY_TYPE);
+ #endif
+ #if defined(CONFIG_VIDEO_DT_SIMPLEFB)
+ 	meson_vpu_setup_simplefb(fdt);
+diff --git a/drivers/video/sunxi/sunxi_de2.c b/drivers/video/sunxi/sunxi_de2.c
+index 8333ddc44c..c6e7a35338 100644
+--- a/drivers/video/sunxi/sunxi_de2.c
++++ b/drivers/video/sunxi/sunxi_de2.c
+@@ -224,9 +224,9 @@ static int sunxi_de2_init(struct udevice *dev, ulong fbbase,
+ 
+ #ifdef CONFIG_EFI_LOADER
+ 	efi_add_memory_map(fbbase,
+-			   ALIGN(timing.hactive.typ * timing.vactive.typ *
+-			   (1 << l2bpp) / 8, EFI_PAGE_SIZE) >> EFI_PAGE_SHIFT,
+-			   EFI_RESERVED_MEMORY_TYPE, false);
++			   timing.hactive.typ * timing.vactive.typ *
++			   (1 << l2bpp) / 8,
++			   EFI_RESERVED_MEMORY_TYPE);
+ #endif
+ 
+ 	return 0;
+diff --git a/drivers/video/sunxi/sunxi_display.c b/drivers/video/sunxi/sunxi_display.c
+index 40ee009f62..bfa486e7e2 100644
+--- a/drivers/video/sunxi/sunxi_display.c
++++ b/drivers/video/sunxi/sunxi_display.c
+@@ -1196,10 +1196,8 @@ void *video_hw_init(void)
+ 	sunxi_engines_init();
+ 
+ #ifdef CONFIG_EFI_LOADER
+-	efi_add_memory_map(gd->fb_base,
+-			   ALIGN(sunxi_display.fb_size, EFI_PAGE_SIZE) >>
+-			   EFI_PAGE_SHIFT,
+-			   EFI_RESERVED_MEMORY_TYPE, false);
++	efi_add_memory_map(gd->fb_base, sunxi_display.fb_size
++			   EFI_RESERVED_MEMORY_TYPE);
+ #endif
+ 
+ 	fb_dma_addr = gd->fb_base - CONFIG_SYS_SDRAM_BASE;
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 0e924ad109..75c20e4679 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -545,8 +545,7 @@ efi_status_t efi_get_memory_map(efi_uintn_t *memory_map_size,
+ 				efi_uintn_t *descriptor_size,
+ 				uint32_t *descriptor_version);
+ /* Adds a range into the EFI memory map */
+-efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+-				bool overlap_only_ram);
++efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type);
+ /* Adds a conventional range into the EFI memory map */
+ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+ 					     u64 ram_top);
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 97d90f069a..f4a239a478 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -229,7 +229,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+ }
+ 
+ /**
+- * efi_add_memory_map() - add memory area to the memory map
++ * efi_add_memory_map_pg() - add pages to the memory map
+  *
+  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
+  * @pages:		number of pages to add
+@@ -237,8 +237,9 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+  * @overlap_only_ram:	the memory area must overlap existing
+  * Return:		status code
+  */
+-efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+-				bool overlap_only_ram)
++static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
++					  int memory_type,
++					  bool overlap_only_ram)
+ {
+ 	struct list_head *lhandle;
+ 	struct efi_mem_list *newlist;
+@@ -343,6 +344,27 @@ efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+ 	return EFI_SUCCESS;
+ }
+ 
++/**
++ * efi_add_memory_map() - add memory area to the memory map
++ *
++ * @start:		start address of the memory area
++ * @size:		length in bytes of the memory area
++ * @memory_type:	type of memory added
++ * Return:		status code
++ *
++ * This function automatically aligns the start and size of the memory area
++ * to EFI_PAGE_SIZE.
++ */
++efi_status_t efi_add_memory_map(u64 start, u64 size, int memory_type)
++{
++	u64 pages;
++
++	pages = efi_size_in_pages(size + (start & EFI_PAGE_MASK));
++	start &= ~EFI_PAGE_MASK;
++
++	return efi_add_memory_map_pg(start, pages, memory_type, false);
++}
++
+ /**
+  * efi_check_allocated() - validate address to be freed
+  *
+@@ -469,7 +491,8 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
+ 	}
+ 
+ 	/* Reserve that map in our memory maps */
+-	if (efi_add_memory_map(addr, pages, memory_type, true) != EFI_SUCCESS)
++	ret = efi_add_memory_map_pg(addr, pages, memory_type, true);
++	if (ret != EFI_SUCCESS)
+ 		/* Map would overlap, bail out */
+ 		return  EFI_OUT_OF_RESOURCES;
+ 
+@@ -514,7 +537,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+ 		return EFI_INVALID_PARAMETER;
+ 	}
+ 
+-	ret = efi_add_memory_map(memory, pages, EFI_CONVENTIONAL_MEMORY, false);
++	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
++				    false);
+ 	/* Merging of adjacent free regions is missing */
+ 
+ 	if (ret != EFI_SUCCESS)
+@@ -680,8 +704,8 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+ 
+ 	pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
+ 
+-	efi_add_memory_map(ram_start, pages,
+-			   EFI_CONVENTIONAL_MEMORY, false);
++	efi_add_memory_map_pg(ram_start, pages,
++			      EFI_CONVENTIONAL_MEMORY, false);
+ 
+ 	/*
+ 	 * Boards may indicate to the U-Boot memory core that they
+@@ -691,14 +715,14 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+ 	 */
+ 	if (ram_top < ram_start) {
+ 		/* ram_top is before this region, reserve all */
+-		efi_add_memory_map(ram_start, pages,
+-				   EFI_BOOT_SERVICES_DATA, true);
++		efi_add_memory_map_pg(ram_start, pages,
++				      EFI_BOOT_SERVICES_DATA, true);
+ 	} else if ((ram_top >= ram_start) && (ram_top < ram_end)) {
+ 		/* ram_top is inside this region, reserve parts */
+ 		pages = (ram_end - ram_top) >> EFI_PAGE_SHIFT;
+ 
+-		efi_add_memory_map(ram_top, pages,
+-				   EFI_BOOT_SERVICES_DATA, true);
++		efi_add_memory_map_pg(ram_top, pages,
++				      EFI_BOOT_SERVICES_DATA, true);
+ 	}
+ 
+ 	return EFI_SUCCESS;
+@@ -743,7 +767,8 @@ static void add_u_boot_and_runtime(void)
+ 		       uboot_stack_size) & ~EFI_PAGE_MASK;
+ 	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
+ 		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+-	efi_add_memory_map(uboot_start, uboot_pages, EFI_LOADER_DATA, false);
++	efi_add_memory_map_pg(uboot_start, uboot_pages, EFI_LOADER_DATA,
++			      false);
+ 
+ #if defined(__aarch64__)
+ 	/*
+@@ -762,8 +787,8 @@ static void add_u_boot_and_runtime(void)
+ 	runtime_end = (ulong)&__efi_runtime_stop;
+ 	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
+ 	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
+-	efi_add_memory_map(runtime_start, runtime_pages,
+-			   EFI_RUNTIME_SERVICES_CODE, false);
++	efi_add_memory_map_pg(runtime_start, runtime_pages,
++			      EFI_RUNTIME_SERVICES_CODE, false);
+ }
+ 
+ int efi_memory_init(void)
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 6a25acbbcd..a28b291927 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -784,11 +784,10 @@ out:
+ efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+ {
+ 	struct efi_runtime_mmio_list *newmmio;
+-	u64 pages = (len + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
+ 	uint64_t addr = *(uintptr_t *)mmio_ptr;
+ 	efi_status_t ret;
+ 
+-	ret = efi_add_memory_map(addr, pages, EFI_MMAP_IO, false);
++	ret = efi_add_memory_map(addr, len, EFI_MMAP_IO);
+ 	if (ret != EFI_SUCCESS)
+ 		return EFI_OUT_OF_RESOURCES;
+ 
+-- 
+2.26.2
+
