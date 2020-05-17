@@ -1,7 +1,7 @@
-From 580de6f1d82a85001fb22f4120f910dd33f02c86 Mon Sep 17 00:00:00 2001
+From 25697edb0eb5a03b4402b21460a09fc92f569cc5 Mon Sep 17 00:00:00 2001
 From: Michael Walle <michael@walle.cc>
-Date: Sat, 16 May 2020 18:56:19 +0200
-Subject: [PATCH] efi_loader: round the memory area in efi_add_memory_map()
+Date: Sun, 17 May 2020 12:29:19 +0200
+Subject: [PATCH 1/1] efi_loader: round the memory area in efi_add_memory_map()
 
 Virtually all callers of this function do the rounding on their own.
 Some do it right, some don't. Instead of doing this in each caller,
@@ -15,7 +15,6 @@ efi_add_memory_map_pg() and make it static to prevent further misuse
 outside the module.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
-Rebased
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/arm/cpu/armv8/fsl-layerscape/cpu.c | 10 ++---
@@ -28,9 +27,9 @@ Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  drivers/video/sunxi/sunxi_de2.c         |  6 +--
  drivers/video/sunxi/sunxi_display.c     |  6 +--
  include/efi_loader.h                    |  3 +-
- lib/efi_loader/efi_memory.c             | 53 ++++++++++++++++++-------
+ lib/efi_loader/efi_memory.c             | 54 ++++++++++++++++++-------
  lib/efi_loader/efi_runtime.c            |  3 +-
- 12 files changed, 61 insertions(+), 54 deletions(-)
+ 12 files changed, 62 insertions(+), 54 deletions(-)
 
 diff --git a/arch/arm/cpu/armv8/fsl-layerscape/cpu.c b/arch/arm/cpu/armv8/fsl-layerscape/cpu.c
 index b3f5c2f641..2cf3f4bb98 100644
@@ -219,7 +218,7 @@ index 0e924ad109..75c20e4679 100644
  efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
  					     u64 ram_top);
 diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
-index 97d90f069a..f4a239a478 100644
+index 97d90f069a..c0cf1d9126 100644
 --- a/lib/efi_loader/efi_memory.c
 +++ b/lib/efi_loader/efi_memory.c
 @@ -229,7 +229,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
@@ -243,7 +242,7 @@ index 97d90f069a..f4a239a478 100644
  {
  	struct list_head *lhandle;
  	struct efi_mem_list *newlist;
-@@ -343,6 +344,27 @@ efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
+@@ -343,6 +344,28 @@ efi_status_t efi_add_memory_map(uint64_t start, uint64_t pages, int memory_type,
  	return EFI_SUCCESS;
  }
  
@@ -253,6 +252,7 @@ index 97d90f069a..f4a239a478 100644
 + * @start:		start address of the memory area
 + * @size:		length in bytes of the memory area
 + * @memory_type:	type of memory added
++ *
 + * Return:		status code
 + *
 + * This function automatically aligns the start and size of the memory area
@@ -271,7 +271,7 @@ index 97d90f069a..f4a239a478 100644
  /**
   * efi_check_allocated() - validate address to be freed
   *
-@@ -469,7 +491,8 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
+@@ -469,7 +492,8 @@ efi_status_t efi_allocate_pages(int type, int memory_type,
  	}
  
  	/* Reserve that map in our memory maps */
@@ -281,7 +281,7 @@ index 97d90f069a..f4a239a478 100644
  		/* Map would overlap, bail out */
  		return  EFI_OUT_OF_RESOURCES;
  
-@@ -514,7 +537,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+@@ -514,7 +538,8 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
  		return EFI_INVALID_PARAMETER;
  	}
  
@@ -291,7 +291,7 @@ index 97d90f069a..f4a239a478 100644
  	/* Merging of adjacent free regions is missing */
  
  	if (ret != EFI_SUCCESS)
-@@ -680,8 +704,8 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+@@ -680,8 +705,8 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
  
  	pages = (ram_end - ram_start) >> EFI_PAGE_SHIFT;
  
@@ -302,7 +302,7 @@ index 97d90f069a..f4a239a478 100644
  
  	/*
  	 * Boards may indicate to the U-Boot memory core that they
-@@ -691,14 +715,14 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
+@@ -691,14 +716,14 @@ efi_status_t efi_add_conventional_memory_map(u64 ram_start, u64 ram_end,
  	 */
  	if (ram_top < ram_start) {
  		/* ram_top is before this region, reserve all */
@@ -321,7 +321,7 @@ index 97d90f069a..f4a239a478 100644
  	}
  
  	return EFI_SUCCESS;
-@@ -743,7 +767,8 @@ static void add_u_boot_and_runtime(void)
+@@ -743,7 +768,8 @@ static void add_u_boot_and_runtime(void)
  		       uboot_stack_size) & ~EFI_PAGE_MASK;
  	uboot_pages = ((uintptr_t)map_sysmem(gd->ram_top - 1, 0) -
  		       uboot_start + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT;
@@ -331,7 +331,7 @@ index 97d90f069a..f4a239a478 100644
  
  #if defined(__aarch64__)
  	/*
-@@ -762,8 +787,8 @@ static void add_u_boot_and_runtime(void)
+@@ -762,8 +788,8 @@ static void add_u_boot_and_runtime(void)
  	runtime_end = (ulong)&__efi_runtime_stop;
  	runtime_end = (runtime_end + runtime_mask) & ~runtime_mask;
  	runtime_pages = (runtime_end - runtime_start) >> EFI_PAGE_SHIFT;
