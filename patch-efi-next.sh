@@ -45,8 +45,7 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
 
-# efi-2020-07-rc2-3
-git am ../patch/0001-efi_loader-round-the-memory-area-in-efi_add_memory_m.patch
+# efi-2020-07-rc3-2
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
