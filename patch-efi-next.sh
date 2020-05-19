@@ -47,6 +47,7 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # efi-2020-07-rc3-2
 git am ../patch/0001-efi_loader-Remove-unnecessary-debug.patch
+git am ../patch/0001-efi_loader-add-EFI_MEMORY_SP-to-memory-attributes.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
