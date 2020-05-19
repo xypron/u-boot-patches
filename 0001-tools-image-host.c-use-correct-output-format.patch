@@ -1,0 +1,64 @@
+From fcaa493df133ff4fa058ae1deeae09941fde318f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 19 May 2020 18:17:05 +0200
+Subject: [PATCH] tools: image-host.c: use correct output format
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When building on a 32bit host the following warning occurs:
+
+tools/image-host.c: In function ‘fit_image_read_data’:
+tools/image-host.c:296:56: warning: format ‘%ld’ expects argument of
+type ‘long int’, but argument 3 has type ‘__off64_t’
+{aka ‘long long int’} [-Wformat=]
+   printf("File %s don't have the expected size (size=%ld, expected=%d)\n",
+                                                      ~~^
+                                                      %lld
+          filename, sbuf.st_size, expected_size);
+                    ~~~~~~~~~~~~
+tools/image-host.c:311:62: warning: format ‘%ld’ expects argument of
+type ‘long int’, but argument 4 has type ‘__off64_t’
+{aka ‘long long int’} [-Wformat=]
+   printf("Can't read all file %s (read %zd bytes, expexted %ld)\n",
+                                                            ~~^
+                                                            %lld
+          filename, n, sbuf.st_size);
+                       ~~~~~~~~~~~~
+
+Fix the format strings.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ tools/image-host.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/image-host.c b/tools/image-host.c
+index 9a83b7f675..10e66cdaa2 100644
+--- a/tools/image-host.c
++++ b/tools/image-host.c
+@@ -293,8 +293,8 @@ static int fit_image_read_data(char *filename, unsigned char *data,
+ 
+ 	/* Check file size */
+ 	if (sbuf.st_size != expected_size) {
+-		printf("File %s don't have the expected size (size=%ld, expected=%d)\n",
+-		       filename, sbuf.st_size, expected_size);
++		printf("File %s don't have the expected size (size=%lld, expected=%d)\n",
++		       filename, (long long int)sbuf.st_size, expected_size);
+ 		goto err;
+ 	}
+ 
+@@ -308,8 +308,8 @@ static int fit_image_read_data(char *filename, unsigned char *data,
+ 
+ 	/* Check that we have read all the file */
+ 	if (n != sbuf.st_size) {
+-		printf("Can't read all file %s (read %zd bytes, expexted %ld)\n",
+-		       filename, n, sbuf.st_size);
++		printf("Can't read all file %s (read %zd bytes, expexted %lld)\n",
++		       filename, n, (long long int)sbuf.st_size);
+ 		goto err;
+ 	}
+ 
+-- 
+2.26.2
+
