@@ -1,0 +1,50 @@
+From d4fa54a4b3485924488ca31a4a7f9f71b2d7e1bf Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 20 May 2020 21:27:29 +0200
+Subject: [PATCH 1/1] efi_loader: initialize root node first
+
+With commit 16ad946f41d3 ("efi_loader: change setup sequence") the
+detection of block device was moved to the start of the initialization
+sequence. In the case of virtio devices to two handles with the same device
+path being created.
+
+The root node handle should be created before anything else.
+
+Reported-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 16ad946f41d3 ("efi_loader: change setup sequence")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_setup.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index 26a7423203..dd0c53fc23 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -135,6 +135,11 @@ efi_status_t efi_init_obj_list(void)
+ 	/* On ARM switch from EL3 or secure mode to EL2 or non-secure mode */
+ 	switch_to_non_secure_mode();
+ 
++	/* Initialize root node */
++	ret = efi_root_node_register();
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ #ifdef CONFIG_PARTITIONS
+ 	ret = efi_disk_register();
+ 	if (ret != EFI_SUCCESS)
+@@ -175,11 +180,6 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+-	/* Initialize root node */
+-	ret = efi_root_node_register();
+-	if (ret != EFI_SUCCESS)
+-		goto out;
+-
+ 	/* Initialize EFI driver uclass */
+ 	ret = efi_driver_init();
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.26.2
+
