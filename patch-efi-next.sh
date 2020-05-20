@@ -52,6 +52,7 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-efi_loader-Remove-unnecessary-debug.patch
 git am ../patch/0001-efi_loader-add-EFI_MEMORY_SP-to-memory-attributes.patch
 git am ../patch/0001-efi_loader-initialize-root-node-first.patch
+git am ../patch/0001-efi_loader-device-path-for-SATA-devices.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch

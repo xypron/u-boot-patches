@@ -1,0 +1,115 @@
+From 2736a1f00590810f4d2691e30cad9d4387e61e1c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 20 May 2020 23:12:02 +0200
+Subject: [PATCH 1/1] efi_loader: device path for SATA devices
+
+Provide device path nodes for SATA devices.
+
+This avoids creation of two handles with the same device path indicating
+our root node.
+
+This is what the device paths for a SATA drive with four partitions could
+like:
+
+/VenHw(..)/Sata(0x0,0xffff,0x0)
+/VenHw(..)/Sata(0x0,0xffff,0x0)/HD(1,MBR,0x81ea591f,0x800,0x63ff830)
+/VenHw(..)/Sata(0x0,0xffff,0x0)/HD(2,MBR,0x81ea591f,0x6400800,0x9ff830)
+/VenHw(..)/Sata(0x0,0xffff,0x0)/HD(3,MBR,0x81ea591f,0x6e00800,0x16ef2ab0)
+/VenHw(..)/Sata(0x0,0xffff,0x0)/HD(4,MBR,0x81ea591f,0x1dcf3800,0x1dcedab0)
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h                        |  8 ++++++++
+ lib/efi_loader/efi_device_path.c         | 21 +++++++++++++++++++++
+ lib/efi_loader/efi_device_path_to_text.c | 10 ++++++++++
+ 3 files changed, 39 insertions(+)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index 77d6bf2660..759d911875 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -457,6 +457,7 @@ struct efi_device_path_acpi_path {
+ #  define DEVICE_PATH_SUB_TYPE_MSG_USB		0x05
+ #  define DEVICE_PATH_SUB_TYPE_MSG_MAC_ADDR	0x0b
+ #  define DEVICE_PATH_SUB_TYPE_MSG_USB_CLASS	0x0f
++#  define DEVICE_PATH_SUB_TYPE_MSG_SATA		0x12
+ #  define DEVICE_PATH_SUB_TYPE_MSG_NVME		0x17
+ #  define DEVICE_PATH_SUB_TYPE_MSG_SD		0x1a
+ #  define DEVICE_PATH_SUB_TYPE_MSG_MMC		0x1d
+@@ -480,6 +481,13 @@ struct efi_device_path_usb {
+ 	u8 usb_interface;
+ } __packed;
+ 
++struct efi_device_path_sata {
++	struct efi_device_path dp;
++	u16 hba_port;
++	u16 port_multiplier_port;
++	u16 logical_unit_number;
++} __packed;
++
+ struct efi_device_path_mac_addr {
+ 	struct efi_device_path dp;
+ 	struct efi_mac_addr mac;
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index 1606c830b8..ac248e0ce1 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -456,6 +456,11 @@ __maybe_unused static unsigned int dp_size(struct udevice *dev)
+ 			return dp_size(dev->parent) +
+ 				sizeof(struct efi_device_path_sd_mmc_path);
+ #endif
++#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
++		case UCLASS_AHCI:
++			return dp_size(dev->parent) +
++				sizeof(struct efi_device_path_sata);
++#endif
+ #if defined(CONFIG_NVME)
+ 		case UCLASS_NVME:
+ 			return dp_size(dev->parent) +
+@@ -621,6 +626,22 @@ __maybe_unused static void *dp_fill(void *buf, struct udevice *dev)
+ 			return &sddp[1];
+ 			}
+ #endif
++#if defined(CONFIG_AHCI) || defined(CONFIG_SATA)
++		case UCLASS_AHCI: {
++			struct efi_device_path_sata *dp =
++				dp_fill(buf, dev->parent);
++			struct blk_desc *desc = dev_get_uclass_platdata(dev);
++
++			dp->dp.type     = DEVICE_PATH_TYPE_MESSAGING_DEVICE;
++			dp->dp.sub_type = DEVICE_PATH_SUB_TYPE_MSG_SATA;
++			dp->dp.length   = sizeof(*dp);
++			dp->hba_port = desc->devnum;
++			/* default 0xffff implies no port multiplier */
++			dp->port_multiplier_port = 0xffff;
++			dp->logical_unit_number = desc->lun;
++			return &dp[1];
++			}
++#endif
+ #if defined(CONFIG_NVME)
+ 		case UCLASS_NVME: {
+ 			struct efi_device_path_nvme *dp =
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index af1adbb71e..ef9d8a58ed 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -148,6 +148,16 @@ static char *dp_msging(char *s, struct efi_device_path *dp)
+ 
+ 		break;
+ 	}
++	case DEVICE_PATH_SUB_TYPE_MSG_SATA: {
++		struct efi_device_path_sata *sdp =
++			(struct efi_device_path_sata *) dp;
++
++		s += sprintf(s, "Sata(0x%x,0x%x,0x%x)",
++			     sdp->hba_port,
++			     sdp->port_multiplier_port,
++			     sdp->logical_unit_number);
++		break;
++	}
+ 	case DEVICE_PATH_SUB_TYPE_MSG_NVME: {
+ 		struct efi_device_path_nvme *ndp =
+ 			(struct efi_device_path_nvme *)dp;
+-- 
+2.26.2
+
