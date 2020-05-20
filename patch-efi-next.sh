@@ -26,6 +26,7 @@ git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
 git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-MAINTAINERS-add-doc-driver-model-to-DRIVER-MODEL.patch
+git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
