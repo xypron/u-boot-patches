@@ -54,6 +54,7 @@ git am ../patch/0001-efi_loader-add-EFI_MEMORY_SP-to-memory-attributes.patch
 git am ../patch/0001-efi_loader-initialize-root-node-first.patch
 git am ../patch/0001-efi_loader-device-path-for-virtio-block-devices.patch
 git am ../patch/0001-efi_loader-device-path-for-SATA-devices.patch
+git am ../patch/0001-efi_loader-check-device-path-is-not-installed-twice.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
