@@ -11,6 +11,7 @@ block devices.
 Update a comment for the installation of the simple file system
 protocol.
 
+Reported-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_disk.c | 25 ++++++++++++++++++-------
