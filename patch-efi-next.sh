@@ -27,6 +27,7 @@ git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-MAINTAINERS-add-doc-driver-model-to-DRIVER-MODEL.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-doc-dfu-describe-eMMC-partition-number-parameter.patch
+git am ../patch/0001-doc-dfu-add-DFU-to-HTML-documentation.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
