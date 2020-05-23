@@ -22,7 +22,6 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
-git am ../patch/0001-tools-value-checks-in-rkcommon_check_params.patch
 git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-MAINTAINERS-add-doc-driver-model-to-DRIVER-MODEL.patch
@@ -48,13 +47,7 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
 
-# efi-2020-07-rc3-2
-git am ../patch/0001-efi_loader-Remove-unnecessary-debug.patch
-git am ../patch/0001-efi_loader-add-EFI_MEMORY_SP-to-memory-attributes.patch
-git am ../patch/0001-efi_loader-initialize-root-node-first.patch
-git am ../patch/0001-efi_loader-device-path-for-virtio-block-devices.patch
-git am ../patch/0001-efi_loader-device-path-for-SATA-devices.patch
-git am ../patch/0001-efi_loader-check-device-path-is-not-installed-twice.patch
+# efi-2020-07-rc3-3
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
