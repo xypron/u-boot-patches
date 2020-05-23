@@ -29,6 +29,7 @@ git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-doc-dfu-describe-eMMC-partition-number-parameter.patch
 git am ../patch/0001-doc-dfu-add-DFU-to-HTML-documentation.patch
 git am ../patch/0001-doc-dfu-fix-typos-in-README.dfu.patch
+git am ../patch/0001-doc-dfu-describe-more-DFU-functions.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
