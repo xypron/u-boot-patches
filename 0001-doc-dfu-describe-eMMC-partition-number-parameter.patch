@@ -8,6 +8,7 @@ In dfu_alt_info for eMMC the eMMC partition number can be specified.
 The separator in dfu_alt_info is a semicolon not a comma.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Lukasz Majewski <lukma@denx.de>
 ---
  doc/README.dfu | 21 +++++++++++++++------
  1 file changed, 15 insertions(+), 6 deletions(-)

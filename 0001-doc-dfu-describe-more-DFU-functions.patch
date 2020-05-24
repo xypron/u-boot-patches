@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: dfu: describe more DFU functions
 Add some of the missing DFU function descriptions.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Lukasz Majewski <lukma@denx.de>
 ---
  include/dfu.h | 178 ++++++++++++++++++++++++++++++++++++++++++++++++--
  1 file changed, 174 insertions(+), 4 deletions(-)
