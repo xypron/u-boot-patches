@@ -1,0 +1,31 @@
+From b4f62906af7f4b4882ecffc805c45bb5487b4985 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 24 May 2020 11:58:11 +0200
+Subject: [PATCH 1/1] MAINTAINERS: add dfu.h and dfu.rst to DFU
+
+include/dfu.h and doc/api/dfu.rst belong to the device firmware update
+sub-system. So let's add them to DFU in MAINTAINERS.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8add9d4c2a..9fa88fc900 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -600,8 +600,10 @@ F:	cmd/usb_*.c
+ F:	common/dfu.c
+ F:	common/update.c
+ F:	common/usb_storage.c
++F:	doc/api/dfu.rst
+ F:	drivers/dfu/
+ F:	drivers/usb/gadget/
++F:	include/dfu.h
+ 
+ DRIVER MODEL
+ M:	Simon Glass <sjg@chromium.org>
+-- 
+2.26.2
+
