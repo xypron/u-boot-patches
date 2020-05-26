@@ -52,7 +52,8 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # UEFI
 
-# efi-2020-07-rc3-3
+# efi-2020-07-rc4
+git am ../patch/0001-common-update_tftp-remove-unnecessary-build-check.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
