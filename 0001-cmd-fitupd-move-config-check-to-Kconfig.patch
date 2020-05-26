@@ -1,0 +1,51 @@
+From 639c1b400afee0e420fb1d8ad9eaf94c509e183d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 26 May 2020 18:23:34 +0200
+Subject: [PATCH] cmd: fitupd: move config check to Kconfig
+
+Configuration checks should not be in the C files but in the Kconfig files.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+@Lukasz, @Tom
+No board seems to be using the 'fitupd' command anymore. Shouldn't we
+simply remove it? 'dfu tftp' offers a similar functionality.
+
+Best regards
+
+Heinrich
+---
+ cmd/Kconfig  | 1 +
+ cmd/fitupd.c | 4 ----
+ 2 files changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 153864c587..192b3b262f 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -491,6 +491,7 @@ config CMD_SPL_WRITE_SIZE
+ 
+ config CMD_FITUPD
+ 	bool "fitImage update command"
++	depends on UPDATE_TFTP
+ 	help
+ 	  Implements the 'fitupd' command, which allows to automatically
+ 	  store software updates present on a TFTP server in NOR Flash
+diff --git a/cmd/fitupd.c b/cmd/fitupd.c
+index f6270d9c15..0f490c58fc 100644
+--- a/cmd/fitupd.c
++++ b/cmd/fitupd.c
+@@ -8,10 +8,6 @@
+ #include <command.h>
+ #include <net.h>
+ 
+-#if !defined(CONFIG_UPDATE_TFTP)
+-#error "CONFIG_UPDATE_TFTP required"
+-#endif
+-
+ static int do_fitupd(struct cmd_tbl *cmdtp, int flag, int argc,
+ 		     char *const argv[])
+ {
+-- 
+2.26.2
+

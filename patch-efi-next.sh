@@ -25,6 +25,7 @@ git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-i2c-observe-scl_count-in-i2c_deblock_gpio_loop.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
+git am ../patch/0001-cmd-fitupd-move-config-check-to-Kconfig.patch
 
 # sct
 # git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
