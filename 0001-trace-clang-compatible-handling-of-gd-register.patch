@@ -1,0 +1,51 @@
+From 1c8618527ad57c6a21ca35dbb3e88b1ef6f26b6f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 27 May 2020 07:17:21 +0200
+Subject: [PATCH 1/1] trace: clang compatible handling of gd register
+
+On ARM systems gd is stored in register r9 or x18. When compiling with
+clang gd is defined as a macro calling function gd_ptr(). So we can not
+make assignments to gd.
+
+Use function set_gd() for setting the register on ARM.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/trace.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/lib/trace.c b/lib/trace.c
+index ea8c8e0d40..831283c283 100644
+--- a/lib/trace.c
++++ b/lib/trace.c
+@@ -57,12 +57,12 @@ static inline uintptr_t __attribute__((no_instrument_function))
+ 	return offset / FUNC_SITE_SIZE;
+ }
+ 
+-#ifdef CONFIG_EFI_LOADER
++#if defined(CONFIG_EFI_LOADER) && defined(CONFIG_ARM)
+ 
+ /**
+  * trace_gd - the value of the gd register
+  */
+-static volatile void *trace_gd;
++static volatile gd_t *trace_gd;
+ 
+ /**
+  * trace_save_gd() - save the value of the gd register
+@@ -82,10 +82,10 @@ static void __attribute__((no_instrument_function)) trace_save_gd(void)
+  */
+ static void __attribute__((no_instrument_function)) trace_swap_gd(void)
+ {
+-	volatile void *temp_gd = trace_gd;
++	volatile gd_t *temp_gd = trace_gd;
+ 
+ 	trace_gd = gd;
+-	gd = temp_gd;
++	set_gd(temp_gd);
+ }
+ 
+ #else
+-- 
+2.26.2
+

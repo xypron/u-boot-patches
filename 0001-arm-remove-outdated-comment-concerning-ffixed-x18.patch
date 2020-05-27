@@ -1,0 +1,30 @@
+From 380ee991d38eeb634293afc0b8318eca5e0fb6c2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 27 May 2020 07:46:51 +0200
+Subject: [PATCH] arm: remove outdated comment concerning -ffixed-x18
+
+Clang 9 supports -ffixed-x18.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/include/asm/global_data.h | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/arch/arm/include/asm/global_data.h b/arch/arm/include/asm/global_data.h
+index 7c0905d240..2aafc6d206 100644
+--- a/arch/arm/include/asm/global_data.h
++++ b/arch/arm/include/asm/global_data.h
+@@ -96,10 +96,6 @@ static inline gd_t *get_gd(void)
+ 	gd_t *gd_ptr;
+ 
+ #ifdef CONFIG_ARM64
+-	/*
+-	 * Make will already error that reserving x18 is not supported at the
+-	 * time of writing, clang: error: unknown argument: '-ffixed-x18'
+-	 */
+ 	__asm__ volatile("mov %0, x18\n" : "=r" (gd_ptr));
+ #else
+ 	__asm__ volatile("mov %0, r9\n" : "=r" (gd_ptr));
+-- 
+2.26.2
+

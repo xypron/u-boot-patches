@@ -2,11 +2,7 @@ git am --abort || true
 
 set -e
 
-# Needs rebase
-# git am ../patch/0001-configs-qemu-enable-CONFIG_UNIT_TEST.patch
-
 # Xypron specific patches
-# git am ../patch/0001-tinker-rk3288_defconfig-Xypron-specific-settings.patch
 # git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
 
 # git am ../patch/0001-Test-vexpress-only.patch
@@ -27,29 +23,22 @@ git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-cmd-fitupd-move-config-check-to-Kconfig.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
-
-# sct
-# git am ../patch/0001-efi_loader-provide-PEI-services-table.patch
-
-# Clean up load image
-# git am ../patch/0001-cmd-bootefi-move-bootefi_test_prepare-forward.patch
-
-# efishell
-# must rebase: git am ../patch/0001-efi_loader-bootmgr-load-options.patch
-
-git am ../patch/0001-net-sun8i_emac-increase-_sun8i_emac_eth_init-timeout.patch
+git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 
-# Logging
-git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
+# Clang
+git am ../patch/0001-efi_loader-allow-compiling-with-clang.patch
+git am ../patch/0001-trace-clang-compatible-handling-of-gd-register.patch
+git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
+git am ../patch/0001-arm-remove-outdated-comment-concerning-ffixed-x18.patch
+git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
 # efi-2020-07-rc4
-git am ../patch/0001-common-update_tftp-remove-unnecessary-build-check.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
