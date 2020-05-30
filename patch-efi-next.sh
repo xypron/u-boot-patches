@@ -40,6 +40,7 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # efi-2020-07-rc4
 git am ../patch/0001-efi_loader-allow-compiling-with-clang.patch
 git am ../patch/0001-efi_loader-function-descriptions-efi_image_loader.c.patch
+git am ../patch/0001-efi_loader-function-description-cmp_pe_section.patch
 git am ../patch/0001-efi_loader-signature-move-efi_guid_cert_type_pkcs7-t.patch
 
 exit
