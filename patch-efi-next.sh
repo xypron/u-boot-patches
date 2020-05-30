@@ -39,6 +39,7 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc4
+git am ../patch/0001-efi_loader-function-descriptions-efi_image_loader.c.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
