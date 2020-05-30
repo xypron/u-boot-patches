@@ -1,0 +1,49 @@
+From 79464384dfd3b3b901a440790d5e02274953ae9c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 30 May 2020 07:35:59 +0200
+Subject: [PATCH 1/1] efi_loader: simplify PE consistency check
+
+Knowing that at least one section header follows the optional header we
+only need to check for the length of the 64bit header which is longer than
+the 32bit header.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_image_loader.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 5dd601908d..1210200314 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -635,21 +635,18 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 		goto err;
+ 	}
+ 
+-	/* assume sizeof(IMAGE_NT_HEADERS32) <= sizeof(IMAGE_NT_HEADERS64) */
+-	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS32)) {
++	/*
++	 * Check if the image section header fits into the file. Knowing that at
++	 * least one section header follows we only need to check for the length
++	 * of the 64bit header which is longer than the 32bit header.
++	 */
++	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64)) {
+ 		printf("%s: Invalid offset for Extended Header\n", __func__);
+ 		ret = EFI_LOAD_ERROR;
+ 		goto err;
+ 	}
+ 
+ 	nt = (void *) ((char *)efi + dos->e_lfanew);
+-	if ((nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) &&
+-	    (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64))) {
+-		printf("%s: Invalid offset for Extended Header\n", __func__);
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
+-	}
+-
+ 	if (nt->Signature != IMAGE_NT_SIGNATURE) {
+ 		printf("%s: Invalid NT Signature\n", __func__);
+ 		ret = EFI_LOAD_ERROR;
+-- 
+2.26.2
+
