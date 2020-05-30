@@ -23,6 +23,7 @@ git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-cmd-fitupd-move-config-check-to-Kconfig.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
+git am ../patch/0001-test-py-use-actual-core-count-for-parallel-builds.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
