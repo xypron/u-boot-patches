@@ -30,7 +30,6 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 
 # Clang
-git am ../patch/0001-efi_loader-allow-compiling-with-clang.patch
 git am ../patch/0001-trace-clang-compatible-handling-of-gd-register.patch
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-arm-remove-outdated-comment-concerning-ffixed-x18.patch
@@ -39,7 +38,9 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc4
+git am ../patch/0001-efi_loader-allow-compiling-with-clang.patch
 git am ../patch/0001-efi_loader-function-descriptions-efi_image_loader.c.patch
+git am ../patch/0001-efi_loader-signature-move-efi_guid_cert_type_pkcs7-t.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
