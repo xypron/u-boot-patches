@@ -1,0 +1,74 @@
+From 60f9479960220126b24c9f58d400eb4c72a6cb6c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 31 May 2020 14:14:44 +0000
+Subject: [PATCH 1/1] log: don't show function by default
+
+The name of the function emitting a log message may be of interest for a
+developer but is distracting for normal users. See the example below:
+
+    try_load_entry() Booting: Debian
+
+Make the default format for log messages customizable. By default show
+only the message text.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/Kconfig | 18 ++++++++++++++++++
+ include/log.h  | 12 +++++++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/common/Kconfig b/common/Kconfig
+index 7872bc46cd..60cae77f20 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -792,6 +792,24 @@ config TPL_LOG_CONSOLE
+ 
+ endif
+ 
++config LOGF_FILE
++	bool "Show source file name in log messages by default"
++	help
++	  Show the source file name in log messages by default. This value
++	  can be overridden using the 'log format' command.
++
++config LOGF_LINE
++	bool "Show source line number in log messages by default"
++	help
++	  Show the source line number in log messages by default. This value
++	  can be overridden using the 'log format' command.
++
++config LOGF_FUNC
++	bool "Show function name in log messages by default"
++	help
++	  Show the function name in log messages by default. This value can
++	  be overridden using the 'log format' command.
++
+ config LOG_ERROR_RETURN
+ 	bool "Log all functions which return an error"
+ 	help
+diff --git a/include/log.h b/include/log.h
+index df65398c04..b45a4565a3 100644
+--- a/include/log.h
++++ b/include/log.h
+@@ -411,7 +411,17 @@ enum log_fmt {
+ 	LOGF_MSG,
+ 
+ 	LOGF_COUNT,
+-	LOGF_DEFAULT = (1 << LOGF_FUNC) | (1 << LOGF_MSG),
++	LOGF_DEFAULT =
++#ifdef CONFIG_LOGF_FILE
++		(1 << LOGF_FILE) |
++#endif
++#ifdef CONFIG_LOGF_LINE
++		(1 << LOGF_LINE) |
++#endif
++#ifdef CONFIG_LOGF_FUNC
++		(1 << LOGF_FUNC) |
++#endif
++		(1 << LOGF_MSG);
+ 	LOGF_ALL = 0x3f,
+ };
+ 
+-- 
+2.20.1
+
