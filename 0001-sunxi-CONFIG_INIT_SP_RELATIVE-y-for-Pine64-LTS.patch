@@ -1,0 +1,29 @@
+From cb87910095750b3c213389fd1598d5255299528b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 31 May 2020 10:36:41 +0000
+Subject: [PATCH 1/1] sunxi: CONFIG_INIT_SP_RELATIVE=y for Pine64 LTS
+
+Booting pine64-lts_defconfig with either of CONFIG_RSA=y or CONFIG_LOG=y
+fails if CONFIG_INIT_SP_RELATIVE is not set.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/pine64-lts_defconfig | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/configs/pine64-lts_defconfig b/configs/pine64-lts_defconfig
+index ef108a1a31..b03bef01b1 100644
+--- a/configs/pine64-lts_defconfig
++++ b/configs/pine64-lts_defconfig
+@@ -1,5 +1,8 @@
+ CONFIG_ARM=y
++CONFIG_INIT_SP_RELATIVE=y
+ CONFIG_ARCH_SUNXI=y
++CONFIG_SYS_MALLOC_F_LEN=0x8000
++CONFIG_SPL_SYS_MALLOC_F_LEN=0x400
+ CONFIG_SPL=y
+ CONFIG_MACH_SUN50I=y
+ CONFIG_SUNXI_DRAM_LPDDR3_STOCK=y
+-- 
+2.20.1
+
