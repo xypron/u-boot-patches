@@ -27,6 +27,7 @@ git am ../patch/0001-test-py-use-actual-core-count-for-parallel-builds.patch
 git am ../patch/0001-doc-move-README.log-to-HTML-documentation.patch
 git am ../patch/0001-virtio-VIRTIO_RNG-depends-on-DM_RNG.patch
 git am ../patch/0001-sunxi-CONFIG_INIT_SP_RELATIVE-y-for-Pine64-LTS.patch
+git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
 
 # Sandbox
