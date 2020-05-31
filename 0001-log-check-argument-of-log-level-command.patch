@@ -1,0 +1,42 @@
+From f8d0d60e76e51297ecd3644ffeefe1c71b0c1af1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 31 May 2020 13:41:28 +0000
+Subject: [PATCH 1/1] log: check argument of 'log level' command
+
+Check that the argument provided to the 'log level' command is in the range
+between zero and CONFIG_LOG_MAX_LEVEL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/log.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/cmd/log.c b/cmd/log.c
+index 664f7bd7ac..78352b2cb9 100644
+--- a/cmd/log.c
++++ b/cmd/log.c
+@@ -14,10 +14,18 @@ static char log_fmt_chars[LOGF_COUNT] = "clFLfm";
+ static int do_log_level(struct cmd_tbl *cmdtp, int flag, int argc,
+ 			char *const argv[])
+ {
+-	if (argc > 1)
+-		gd->default_log_level = simple_strtol(argv[1], NULL, 10);
+-	else
++	if (argc > 1) {
++		long log_level = simple_strtol(argv[1], NULL, 10);
++
++		if (log_level < 0 || log_level > _LOG_MAX_LEVEL) {
++			printf("Only log levels <= %d are supported\n",
++			       _LOG_MAX_LEVEL);
++			return CMD_RET_FAILURE;
++		}
++		gd->default_log_level = log_level;
++	} else {
+ 		printf("Default log level: %d\n", gd->default_log_level);
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.20.1
+
