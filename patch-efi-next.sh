@@ -31,6 +31,7 @@ git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-smbios-empty-strings-in-smbios_add_string.patch
+git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch

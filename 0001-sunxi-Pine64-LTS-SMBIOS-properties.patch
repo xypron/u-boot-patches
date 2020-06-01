@@ -1,0 +1,32 @@
+From 0c220220b3a104293f169e9270bdf2f93436fa43 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 1 Jun 2020 15:49:14 +0200
+Subject: [PATCH 1/1] sunxi: Pine64-LTS: SMBIOS properties
+
+Provide accurate values of the manufacturer and the product name.
+
+PINE Microsystems Inc. is referred to on https://www.pine64.org/contact/.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/pine64-lts_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/pine64-lts_defconfig b/configs/pine64-lts_defconfig
+index ef108a1a31..a8ff34a376 100644
+--- a/configs/pine64-lts_defconfig
++++ b/configs/pine64-lts_defconfig
+@@ -8,8 +8,10 @@ CONFIG_DRAM_ZQ=3881949
+ CONFIG_MMC0_CD_PIN=""
+ CONFIG_MMC_SUNXI_SLOT_EXTRA=2
+ CONFIG_SPL_SPI_SUNXI=y
++CONFIG_SMBIOS_PRODUCT_NAME="PINE A64-LTS"
+ # CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
+ CONFIG_DEFAULT_DEVICE_TREE="sun50i-a64-pine64-lts"
+ CONFIG_SUN8I_EMAC=y
+ CONFIG_USB_EHCI_HCD=y
+ CONFIG_USB_OHCI_HCD=y
++CONFIG_SMBIOS_MANUFACTURER="PINE Microsystems Inc."
+-- 
+2.26.2
+
