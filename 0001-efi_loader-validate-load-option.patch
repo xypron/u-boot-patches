@@ -12,6 +12,14 @@ data.
 As a by-product we get a partial validation of the load option.
 Checking the length of the device path remains to be implemented.
 
+Some Coverity defects identified the load options as user input because
+get_unaligned_le32() and get_unaligned_le16() is called. But non of these
+Coverity defects can be resolved without marking functions with Coverity
+specific tags.
+
+Reported-by: Coverity (CID 303760)
+Reported-by: Coverity (CID 303768)
+Reported-by: Coverity (CID 303776)
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/efidebug.c               | 21 +++++++++++-----
