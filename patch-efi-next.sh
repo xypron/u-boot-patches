@@ -44,7 +44,8 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
-# efi-2020-07-rc4
+# efi-2020-07-rc4-2
+git am ../patch/0001-efi_loader-comments-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
