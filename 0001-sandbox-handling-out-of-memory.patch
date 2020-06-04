@@ -1,0 +1,32 @@
+From 55a4d2463dc38b75f083d8974fe928baec328d4c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 4 Jun 2020 19:21:15 +0200
+Subject: [PATCH 1/1] sandbox: handling out of memory
+
+assert() only works in debug mode. So checking a successful memory
+allocation should not use assert().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/state.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/sandbox/cpu/state.c b/arch/sandbox/cpu/state.c
+index 1f794123b3..34b6fff7e7 100644
+--- a/arch/sandbox/cpu/state.c
++++ b/arch/sandbox/cpu/state.c
+@@ -378,7 +378,10 @@ int state_init(void)
+ 
+ 	state->ram_size = CONFIG_SYS_SDRAM_SIZE;
+ 	state->ram_buf = os_malloc(state->ram_size);
+-	assert(state->ram_buf);
++	if (!state->ram_buf) {
++		printf("Out of memory\n");
++		os_exit(1);
++	}
+ 
+ 	state_reset_for_test(state);
+ 	/*
+-- 
+2.26.2
+
