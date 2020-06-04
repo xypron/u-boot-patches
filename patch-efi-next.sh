@@ -20,10 +20,8 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
-git am ../patch/0001-cmd-fitupd-move-config-check-to-Kconfig.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-git am ../patch/0001-test-py-use-actual-core-count-for-parallel-builds.patch
 git am ../patch/0001-doc-move-README.log-to-HTML-documentation.patch
 git am ../patch/0001-virtio-VIRTIO_RNG-depends-on-DM_RNG.patch
 git am ../patch/0001-sunxi-CONFIG_INIT_SP_RELATIVE-y-for-Pine64-LTS.patch
@@ -47,13 +45,15 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc4
-git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-validate-load-option.patch
 git am ../patch/0001-efi_loader-allow-compiling-with-clang.patch
 git am ../patch/0001-efi_loader-function-descriptions-efi_image_loader.c.patch
 git am ../patch/0001-efi_loader-function-description-cmp_pe_section.patch
 git am ../patch/0001-efi_loader-simplify-PE-consistency-check.patch
 git am ../patch/0001-efi_loader-signature-move-efi_guid_cert_type_pkcs7-t.patch
+
+# efi-2020-10
+git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
