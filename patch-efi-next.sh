@@ -23,7 +23,6 @@ git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-doc-move-README.log-to-HTML-documentation.patch
-git am ../patch/0001-virtio-VIRTIO_RNG-depends-on-DM_RNG.patch
 git am ../patch/0001-sunxi-CONFIG_INIT_SP_RELATIVE-y-for-Pine64-LTS.patch
 git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
@@ -46,6 +45,8 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc4-2
+git am ../patch/0001-smbios-empty-strings-in-smbios_add_string.patch
+git am ../patch/0001-virtio-VIRTIO_RNG-depends-on-DM_RNG.patch
 git am ../patch/0001-efi_loader-comments-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.patch
 
 # efi-2020-10

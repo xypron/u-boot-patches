@@ -1,6 +1,6 @@
-From 5558981233f4224e0e608cde5d7545d5c3cc7375 Mon Sep 17 00:00:00 2001
+From ddcb7cc7337611d0fe4a78e07362d12cbe9b7584 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Mon, 1 Jun 2020 15:17:24 +0200
+Date: Mon, 1 Jun 2020 15:44:00 +0200
 Subject: [PATCH 1/1] smbios: empty strings in smbios_add_string()
 
 smbios_add_string() cannot deal with empty strings. This leads to incorrect
@@ -22,7 +22,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 2 insertions(+)
 
 diff --git a/lib/smbios.c b/lib/smbios.c
-index 7b74971f68..a8c8519dcf 100644
+index 7b74971f68..11790443e1 100644
 --- a/lib/smbios.c
 +++ b/lib/smbios.c
 @@ -31,6 +31,8 @@ static int smbios_add_string(char *start, const char *str)
