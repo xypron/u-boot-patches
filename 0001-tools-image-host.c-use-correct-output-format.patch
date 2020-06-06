@@ -44,7 +44,7 @@ index 9a83b7f675..10e66cdaa2 100644
 -		printf("File %s don't have the expected size (size=%ld, expected=%d)\n",
 -		       filename, sbuf.st_size, expected_size);
 +		printf("File %s don't have the expected size (size=%lld, expected=%d)\n",
-+		       filename, (long long int)sbuf.st_size, expected_size);
++		       filename, (long long)sbuf.st_size, expected_size);
  		goto err;
  	}
  
@@ -55,7 +55,7 @@ index 9a83b7f675..10e66cdaa2 100644
 -		printf("Can't read all file %s (read %zd bytes, expexted %ld)\n",
 -		       filename, n, sbuf.st_size);
 +		printf("Can't read all file %s (read %zd bytes, expexted %lld)\n",
-+		       filename, n, (long long int)sbuf.st_size);
++		       filename, n, (long long)sbuf.st_size);
  		goto err;
  	}
  
