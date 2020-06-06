@@ -1,0 +1,36 @@
+From 66197d697fcd6e7372c9f1be2e2e14f32ef52779 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 6 Jun 2020 08:31:13 +0200
+Subject: [PATCH 1/1] arm: sunxi: use CONFIG_INIT_SP_RELATIVE on ARM64
+
+ARM64 sunxi boards fail to boot if CONFIG_INIT_SP_RELATIVE is not set and
+configuration options are selected which require memory before
+relocation. This includes CONFIG_LOG and CONFIG_RSA.
+
+The observed error behavior is that after SPL loads TF-A BL31 and BL31
+loads main U-Boot a crash occurs and the system falls back to SPL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+This patch replaces
+[PATCH 1/1] sunxi: CONFIG_INIT_SP_RELATIVE=y for Pine64 LTS
+https://lists.denx.de/pipermail/u-boot/2020-May/414344.html
+---
+ arch/arm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 21df1c415f..b95d0f386a 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -1008,6 +1008,7 @@ config ARCH_SUNXI
+ 	select DM_SCSI if SCSI
+ 	select DM_SERIAL
+ 	select DM_USB if DISTRO_DEFAULTS
++	select INIT_SP_RELATIVE if ARM64
+ 	select OF_BOARD_SETUP
+ 	select OF_CONTROL
+ 	select OF_SEPARATE
+-- 
+2.26.2
+

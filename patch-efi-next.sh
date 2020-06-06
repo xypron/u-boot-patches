@@ -23,7 +23,7 @@ git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-doc-move-README.log-to-HTML-documentation.patch
-git am ../patch/0001-sunxi-CONFIG_INIT_SP_RELATIVE-y-for-Pine64-LTS.patch
+git am ../patch/0001-arm-sunxi-use-CONFIG_INIT_SP_RELATIVE-on-ARM64.patch
 git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
