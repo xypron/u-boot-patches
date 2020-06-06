@@ -32,6 +32,7 @@ git am ../patch/0001-sandbox-handling-out-of-memory.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 
 git am ../patch/0001-xtensa-define-__raw_writeq-__raw_readq.patch
+git am ../patch/0001-nios2-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # Sandbox
