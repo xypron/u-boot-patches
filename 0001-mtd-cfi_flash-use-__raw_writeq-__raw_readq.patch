@@ -1,0 +1,40 @@
+From 85b2fe9a05bf8423e3bdb013121f60d5ecb65e34 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 6 Jun 2020 23:11:39 +0200
+Subject: [PATCH 1/1] mtd: cfi_flash: use __raw_writeq(), __raw_readq()
+
+Functions __raw_writeq(), __raw_readq() are available for all
+architectures. So let's use them.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mtd/cfi_flash.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mtd/cfi_flash.c b/drivers/mtd/cfi_flash.c
+index b7289ba539..e31e07ca80 100644
+--- a/drivers/mtd/cfi_flash.c
++++ b/drivers/mtd/cfi_flash.c
+@@ -155,8 +155,7 @@ __maybe_weak void flash_write32(u32 value, void *addr)
+ 
+ __maybe_weak void flash_write64(u64 value, void *addr)
+ {
+-	/* No architectures currently implement __raw_writeq() */
+-	*(volatile u64 *)addr = value;
++	__raw_writeq(value, addr);
+ }
+ 
+ __maybe_weak u8 flash_read8(void *addr)
+@@ -176,8 +175,7 @@ __maybe_weak u32 flash_read32(void *addr)
+ 
+ __maybe_weak u64 flash_read64(void *addr)
+ {
+-	/* No architectures currently implement __raw_readq() */
+-	return *(volatile u64 *)addr;
++	return __raw_readq(addr);
+ }
+ 
+ /*-----------------------------------------------------------------------
+-- 
+2.26.2
+

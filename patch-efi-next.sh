@@ -30,6 +30,7 @@ git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-sandbox-handling-out-of-memory.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
+git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
