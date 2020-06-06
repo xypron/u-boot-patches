@@ -48,6 +48,9 @@ git am ../patch/0001-smbios-empty-strings-in-smbios_add_string.patch
 git am ../patch/0001-virtio-VIRTIO_RNG-depends-on-DM_RNG.patch
 git am ../patch/0001-efi_loader-comments-EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL.patch
 
+# efi-2020-07-rc4-3
+git am ../patch/0001-efi_loader-printf-code-in-efi_image_parse.patch
+
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 
