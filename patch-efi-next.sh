@@ -30,6 +30,7 @@ git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-config-qemu-increase-SYS_MALLOC_F_LEN.patch
+git am ../patch/0001-arm-wandboard-move-CONFIG_MXC_UART-to-defconfig.patch
 
 git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
