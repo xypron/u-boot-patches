@@ -1,0 +1,74 @@
+From 82a3c81dd353236eed46c17b07506d2268d6f78e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 18:32:56 +0200
+Subject: [PATCH 1/1] sandbox: make RAM size configurable
+
+Up to now the RAM size of the sandbox is hard coded as 128 MiB. This does
+not allow testing the correct handling of addresses outside the 32bit
+range. 128 MiB is also rather small when tracing functions where the trace
+is written to RAM.
+
+Provide configuration variable CONFIG_SANDBOX_RAM_SIZE_MB to set the RAM
+size in MiB. It defaults to 128 MiB with a minimum of 64 MiB.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/Kconfig             | 10 ++++++++++
+ arch/sandbox/include/asm/state.h |  2 +-
+ include/configs/sandbox.h        |  5 ++++-
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/arch/sandbox/Kconfig b/arch/sandbox/Kconfig
+index 2a08533c4b..65f988e736 100644
+--- a/arch/sandbox/Kconfig
++++ b/arch/sandbox/Kconfig
+@@ -15,6 +15,16 @@ config SANDBOX64
+ 	select PHYS_64BIT
+ 	select HOST_64BIT
+ 
++config SANDBOX_RAM_SIZE_MB
++	int "RAM size in MiB"
++	default 128
++	range 64 4095 if !SANDBOX64
++	range 64 268435456 if SANDBOX64
++	help
++	  Memory size of the sandbox in MiB. The default value is 128 MiB.
++	  The minimum value is 64 MiB. The maximum value is 4095 MiB for the
++	  32bit sandbox.
++
+ config SANDBOX_SPL
+ 	bool "Enable SPL for sandbox"
+ 	select SUPPORT_SPL
+diff --git a/arch/sandbox/include/asm/state.h b/arch/sandbox/include/asm/state.h
+index 705645d714..1bfad305f1 100644
+--- a/arch/sandbox/include/asm/state.h
++++ b/arch/sandbox/include/asm/state.h
+@@ -73,7 +73,7 @@ struct sandbox_state {
+ 	char **argv;			/* Command line arguments */
+ 	const char *jumped_fname;	/* Jumped from previous U_Boot */
+ 	uint8_t *ram_buf;		/* Emulated RAM buffer */
+-	unsigned int ram_size;		/* Size of RAM buffer */
++	unsigned long ram_size;		/* Size of RAM buffer */
+ 	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
+ 	bool ram_buf_rm;		/* Remove RAM buffer file after read */
+ 	bool write_ram_buf;		/* Write RAM buffer on exit */
+diff --git a/include/configs/sandbox.h b/include/configs/sandbox.h
+index 2a81f3a9bc..3d46ee0d46 100644
+--- a/include/configs/sandbox.h
++++ b/include/configs/sandbox.h
+@@ -47,8 +47,11 @@
+ #define CONFIG_PHYSMEM
+ 
+ /* Size of our emulated memory */
++#define SB_CONCAT(x, y) x ## y
++#define SB_TO_UL(s) SB_CONCAT(s, UL)
+ #define CONFIG_SYS_SDRAM_BASE		0
+-#define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
++#define CONFIG_SYS_SDRAM_SIZE \
++		(SB_TO_UL(CONFIG_SANDBOX_RAM_SIZE_MB) << 20)
+ #define CONFIG_SYS_MONITOR_BASE	0
+ 
+ #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
+-- 
+2.26.2
+

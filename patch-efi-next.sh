@@ -28,7 +28,6 @@ git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
-git am ../patch/0001-sandbox-handling-out-of-memory.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-config-qemu-increase-SYS_MALLOC_F_LEN.patch
 
@@ -45,6 +44,8 @@ git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-sandbox-spi-sandbox_sf_state_name-is-required.patch
+git am ../patch/0001-sandbox-handling-out-of-memory.patch
+git am ../patch/0001-sandbox-make-RAM-size-configurable.patch
 
 # Clang
 git am ../patch/0001-trace-clang-compatible-handling-of-gd-register.patch
