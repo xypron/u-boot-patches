@@ -1,0 +1,45 @@
+From fe80bf6f6bb33da1a7ddac310e4cad2819befcd8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 09:38:10 +0200
+Subject: [PATCH] nds32: define __raw_writeq(), __raw_readq()
+
+Add the missing definitions of __raw_writeq(), __raw_readq().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/nds32/include/asm/io.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/nds32/include/asm/io.h b/arch/nds32/include/asm/io.h
+index fdfc574afc..4cf8a1a437 100644
+--- a/arch/nds32/include/asm/io.h
++++ b/arch/nds32/include/asm/io.h
+@@ -66,10 +66,12 @@ static inline phys_addr_t map_to_sysmem(const void *ptr)
+ #define __arch_getb(a)			(*(unsigned char *)(a))
+ #define __arch_getw(a)			(*(unsigned short *)(a))
+ #define __arch_getl(a)			(*(unsigned int *)(a))
++#define __arch_getq(a)			(*(unsigned long long *)(a))
+ 
+ #define __arch_putb(v, a)		(*(unsigned char *)(a) = (v))
+ #define __arch_putw(v, a)		(*(unsigned short *)(a) = (v))
+ #define __arch_putl(v, a)		(*(unsigned int *)(a) = (v))
++#define __arch_putq(v, a)		(*(unsigned long long *)(a) = (v))
+ 
+ extern void __raw_writesb(unsigned int addr, const void *data, int bytelen);
+ extern void __raw_writesw(unsigned int addr, const void *data, int wordlen);
+@@ -82,10 +84,12 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
+ #define __raw_writeb(v, a)		__arch_putb(v, a)
+ #define __raw_writew(v, a)		__arch_putw(v, a)
+ #define __raw_writel(v, a)		__arch_putl(v, a)
++#define __raw_writeq(v, a)		__arch_putq(v, a)
+ 
+ #define __raw_readb(a)			__arch_getb(a)
+ #define __raw_readw(a)			__arch_getw(a)
+ #define __raw_readl(a)			__arch_getl(a)
++#define __raw_readq(a)			__arch_getq(a)
+ 
+ /*
+  * TODO: The kernel offers some more advanced versions of barriers, it might
+-- 
+2.26.2
+
