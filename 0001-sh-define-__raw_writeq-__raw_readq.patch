@@ -1,0 +1,54 @@
+From 9714d2db438c82be14d973d3d5fce4b660d42c4b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 11:33:34 +0200
+Subject: [PATCH 1/1] sh: define __raw_writeq(), __raw_readq()
+
+Add the missing definitions of __raw_writeq(), __raw_readq().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sh/include/asm/io.h | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/arch/sh/include/asm/io.h b/arch/sh/include/asm/io.h
+index be1ff4ad70..f45371cc59 100644
+--- a/arch/sh/include/asm/io.h
++++ b/arch/sh/include/asm/io.h
+@@ -30,13 +30,15 @@
+  * read/writes.  We define __arch_*[bl] here, and leave __arch_*w
+  * to the architecture specific code.
+  */
+-#define __arch_getb(a)			(*(volatile unsigned char *)(a))
+-#define __arch_getw(a)			(*(volatile unsigned short *)(a))
+-#define __arch_getl(a)			(*(volatile unsigned int *)(a))
++#define __arch_getb(a)		(*(volatile unsigned char *)(a))
++#define __arch_getw(a)		(*(volatile unsigned short *)(a))
++#define __arch_getl(a)		(*(volatile unsigned int *)(a))
++#define __arch_getq(a)		(*(volatile unsigned long long *)(a))
+ 
+-#define __arch_putb(v, a)		(*(volatile unsigned char *)(a) = (v))
+-#define __arch_putw(v, a)		(*(volatile unsigned short *)(a) = (v))
+-#define __arch_putl(v, a)		(*(volatile unsigned int *)(a) = (v))
++#define __arch_putb(v, a)	(*(volatile unsigned char *)(a) = (v))
++#define __arch_putw(v, a)	(*(volatile unsigned short *)(a) = (v))
++#define __arch_putl(v, a)	(*(volatile unsigned int *)(a) = (v))
++#define __arch_putq(v, a)	(*(volatile unsigned long long *)(a) = (v))
+ 
+ extern void __raw_writesb(unsigned int addr, const void *data, int bytelen);
+ extern void __raw_writesw(unsigned int addr, const void *data, int wordlen);
+@@ -49,10 +51,12 @@ extern void __raw_readsl(unsigned int addr, void *data, int longlen);
+ #define __raw_writeb(v, a)		__arch_putb(v, a)
+ #define __raw_writew(v, a)		__arch_putw(v, a)
+ #define __raw_writel(v, a)		__arch_putl(v, a)
++#define __raw_writeq(v, a)		__arch_putq(v, a)
+ 
+ #define __raw_readb(a)			__arch_getb(a)
+ #define __raw_readw(a)			__arch_getw(a)
+ #define __raw_readl(a)			__arch_getl(a)
++#define __raw_readq(a)			__arch_getq(a)
+ 
+ /*
+  * The compiler seems to be incapable of optimising constants
+-- 
+2.26.2
+
