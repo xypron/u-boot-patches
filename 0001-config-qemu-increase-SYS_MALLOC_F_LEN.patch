@@ -1,0 +1,39 @@
+From 697ac067abf3abb09321e4d1bb0ed23efac27dc0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 11:45:30 +0200
+Subject: [PATCH 1/1] config: qemu: increase SYS_MALLOC_F_LEN
+
+Several configutation options require additional memory before relocation:
+
+* CONSOLE_RECORD
+* LOG
+* RSA
+
+The current default of 0x400 is too small to encompass them all. Increase
+the value of SYS_MALLOC_F_LEN to 0x2000 for ARCH_QEMU.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+There is a similar patch for ARCH_SUNXI still pending:
+arm: sunxi: increase SYS_MALLOC_F_LEN
+https://lists.denx.de/pipermail/u-boot/2020-June/415227.html
+---
+ Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Kconfig b/Kconfig
+index 13204e2384..798a8e4d42 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -146,7 +146,7 @@ config SYS_MALLOC_F_LEN
+ 	default 0x2000 if (ARCH_IMX8 || ARCH_IMX8M || ARCH_MX7 || \
+ 			   ARCH_MX7ULP || ARCH_MX6 || ARCH_MX5 || \
+ 			   ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A || \
+-			   ARCH_LS1046A || ARCH_SUNXI)
++			   ARCH_LS1046A || ARCH_QEMU || ARCH_SUNXI)
+ 	default 0x400
+ 	help
+ 	  Before relocation, memory is very limited on many platforms. Still,
+-- 
+2.26.2
+
