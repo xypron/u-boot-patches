@@ -1,0 +1,42 @@
+From a274e05d4cc8cc2254f74ceec8afdd0f3986d3f4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 09:32:50 +0200
+Subject: [PATCH] powerpc: define __raw_writeq(), __raw_readq()
+
+Add the missing definitions of __raw_writeq(), __raw_readq().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/powerpc/include/asm/io.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 6d76e3e99c..77a53d9680 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -143,6 +143,10 @@ static inline unsigned int __raw_readl(const volatile void __iomem *addr)
+ {
+ 	return *(volatile unsigned int *)PCI_FIX_ADDR(addr);
+ }
++static inline unsigned int __raw_readq(const volatile void __iomem *addr)
++{
++	return *(volatile unsigned long long *)PCI_FIX_ADDR(addr);
++}
+ static inline void __raw_writeb(unsigned char v, volatile void __iomem *addr)
+ {
+ 	*(volatile unsigned char *)PCI_FIX_ADDR(addr) = v;
+@@ -155,6 +159,11 @@ static inline void __raw_writel(unsigned int v, volatile void __iomem *addr)
+ {
+ 	*(volatile unsigned int *)PCI_FIX_ADDR(addr) = v;
+ }
++static inline void __raw_writeq(unsigned long long v,
++				volatile void __iomem *addr)
++{
++	*(volatile unsigned long long *)PCI_FIX_ADDR(addr) = v;
++}
+ 
+ /*
+  * 8, 16 and 32 bit, big and little endian I/O operations, with barrier.
+-- 
+2.26.2
+
