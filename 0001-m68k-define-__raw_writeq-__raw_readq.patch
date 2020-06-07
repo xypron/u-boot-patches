@@ -1,4 +1,4 @@
-From 19debab71e0b9f1f41e41fe7bc620c9ba4019ab5 Mon Sep 17 00:00:00 2001
+From e61da10b4703f5c35c20dae503b49a9887617b23 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 7 Jun 2020 11:23:40 +0200
 Subject: [PATCH 1/1] m68k: define __raw_writeq(), __raw_readq()
@@ -23,7 +23,7 @@ index 35ad4a1c04..71b65524af 100644
  #define __raw_writeb(b,addr) ((*(volatile u8 *) (addr)) = (b))
  #define __raw_writew(w,addr) ((*(volatile u16 *) (addr)) = (w))
  #define __raw_writel(l,addr) ((*(volatile u32 *) (addr)) = (l))
-+#define __raw_writeq(l,addr) ((*(volatile u64 *) (addr)) = (l))
++#define __raw_writeq(q,addr) ((*(volatile u64 *) (addr)) = (q))
  
  #define readb(addr)		in_8((volatile u8 *)(addr))
  #define writeb(b,addr)		out_8((volatile u8 *)(addr), (b))
