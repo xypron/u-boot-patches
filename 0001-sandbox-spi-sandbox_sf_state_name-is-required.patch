@@ -1,0 +1,65 @@
+From 72d8ef71446a3e8ba700aea98216fe7bfa374ed9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 7 Jun 2020 09:09:56 +0200
+Subject: [PATCH 1/1] sandbox: spi: sandbox_sf_state_name() is required
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Compiling drivers/mtd/spi/sandbox.c fails when compiled with
+CONFIG_LOG=n:
+
+In file included from include/common.h:20,
+                 from drivers/mtd/spi/sandbox.c:13:
+drivers/mtd/spi/sandbox.c:295:15: error: format ‘%s’ expects argument of
+type ‘char *’, but argument 7 has type ‘int’ [-Werror=format=]
+  295 |   log_content(" cmd: transition to %s state\n",
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+include/linux/printk.h:37:21: note: in definition of macro ‘pr_fmt’
+   37 | #define pr_fmt(fmt) fmt
+      |                     ^~~
+include/log.h:128:30: note: in expansion of macro ‘log_nop’
+  128 | #define log_content(_fmt...) log_nop(LOG_CATEGORY, \
+      |                              ^~~~~~~
+drivers/mtd/spi/sandbox.c:295:3: note: in expansion of macro
+‘log_content’
+  295 |   log_content(" cmd: transition to %s state\n",
+      |   ^~~~~~~~~~~
+drivers/mtd/spi/sandbox.c:295:37: note: format string is defined here
+  295 |   log_content(" cmd: transition to %s state\n",
+      |                                    ~^
+      |                                     |
+      |                                     char *
+      |                                    %d
+
+Supply function sandbox_sf_state_name() independent of CONFIG_LOG.
+
+Fixes: c3aed5db591e ("sandbox: spi: Add more logging")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mtd/spi/sandbox.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/mtd/spi/sandbox.c b/drivers/mtd/spi/sandbox.c
+index 8cbe97ee20..0b602dc914 100644
+--- a/drivers/mtd/spi/sandbox.c
++++ b/drivers/mtd/spi/sandbox.c
+@@ -44,7 +44,6 @@ enum sandbox_sf_state {
+ 	SF_WRITE_STATUS, /* write the flash's status register */
+ };
+ 
+-#if CONFIG_IS_ENABLED(LOG)
+ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
+ {
+ 	static const char * const states[] = {
+@@ -53,7 +52,6 @@ static const char *sandbox_sf_state_name(enum sandbox_sf_state state)
+ 	};
+ 	return states[state];
+ }
+-#endif /* LOG */
+ 
+ /* Bits for the status register */
+ #define STAT_WIP	(1 << 0)
+-- 
+2.26.2
+

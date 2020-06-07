@@ -38,6 +38,7 @@ git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
+git am ../patch/0001-sandbox-spi-sandbox_sf_state_name-is-required.patch
 
 # Clang
 git am ../patch/0001-trace-clang-compatible-handling-of-gd-register.patch
