@@ -27,6 +27,7 @@ git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-log-clean-up-Kconfig.patch
 git am ../patch/0001-log-check-argument-of-log-level-command.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
+git am ../patch/0001-log-use-BIT-instead-of-1.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-config-qemu-increase-SYS_MALLOC_F_LEN.patch
