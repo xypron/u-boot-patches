@@ -56,9 +56,7 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
-# efi-2020-07-rc5
-git am ../patch/0001-doc-random-number-generation.patch
-git am ../patch/0001-efi_loader-printf-code-in-efi_image_parse.patch
+# efi-2020-07-rc5-2
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
