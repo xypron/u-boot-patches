@@ -1,0 +1,118 @@
+From 76dcf2ac4b3f3c8e42ff7cff3c73b50ef1c52b32 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 17 Jun 2020 10:53:29 +0200
+Subject: [PATCH for v2020.10 1/1] cmd: drop fitupd command
+
+The `fitupd' command is not used by any board. The `dfu tftp' command
+provides the same capabilities.
+
+So let's drop the `fitupd' command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig        |  7 -------
+ cmd/Makefile       |  1 -
+ cmd/fitupd.c       | 30 ------------------------------
+ doc/README.dfutftp |  2 --
+ doc/README.update  |  5 -----
+ 5 files changed, 45 deletions(-)
+ delete mode 100644 cmd/fitupd.c
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 192b3b262f..8c0204c32c 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -489,13 +489,6 @@ config CMD_SPL_WRITE_SIZE
+ 	  flash used by Falcon-mode boot. See the documentation until CMD_SPL
+ 	  for detail.
+ 
+-config CMD_FITUPD
+-	bool "fitImage update command"
+-	depends on UPDATE_TFTP
+-	help
+-	  Implements the 'fitupd' command, which allows to automatically
+-	  store software updates present on a TFTP server in NOR Flash
+-
+ config CMD_THOR_DOWNLOAD
+ 	bool "thor - TIZEN 'thor' download"
+ 	select DFU
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 974ad48b0a..dd7a00482b 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -61,7 +61,6 @@ obj-$(CONFIG_CMD_EXT4) += ext4.o
+ obj-$(CONFIG_CMD_EXT2) += ext2.o
+ obj-$(CONFIG_CMD_FAT) += fat.o
+ obj-$(CONFIG_CMD_FDT) += fdt.o
+-obj-$(CONFIG_CMD_FITUPD) += fitupd.o
+ obj-$(CONFIG_CMD_FLASH) += flash.o
+ obj-$(CONFIG_CMD_FPGA) += fpga.o
+ obj-$(CONFIG_CMD_FPGAD) += fpgad.o
+diff --git a/cmd/fitupd.c b/cmd/fitupd.c
+deleted file mode 100644
+index 0f490c58fc..0000000000
+--- a/cmd/fitupd.c
++++ /dev/null
+@@ -1,30 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * (C) Copyright 2011
+- * Andreas Pretzsch, carpe noctem engineering, apr@cn-eng.de
+- */
+-
+-#include <common.h>
+-#include <command.h>
+-#include <net.h>
+-
+-static int do_fitupd(struct cmd_tbl *cmdtp, int flag, int argc,
+-		     char *const argv[])
+-{
+-	ulong addr = 0UL;
+-
+-	if (argc > 2)
+-		return CMD_RET_USAGE;
+-
+-	if (argc == 2)
+-		addr = simple_strtoul(argv[1], NULL, 16);
+-
+-	return update_tftp(addr, NULL, NULL);
+-}
+-
+-U_BOOT_CMD(fitupd, 2, 0, do_fitupd,
+-	"update from FIT image",
+-	"[addr]\n"
+-	"\t- run update from FIT image at addr\n"
+-	"\t  or from tftp 'updatefile'"
+-);
+diff --git a/doc/README.dfutftp b/doc/README.dfutftp
+index 127d2d6abc..a3341bbb61 100644
+--- a/doc/README.dfutftp
++++ b/doc/README.dfutftp
+@@ -42,8 +42,6 @@ for USB based DFU (CONFIG_DFU_*) and DFU TFTP update
+ The "dfu" command has been extended to support transfer via TFTP - one
+ needs to type for example "dfu tftp 0 mmc 0"
+ 
+-This feature does not depend on "fitupd" command enabled.
+-
+ As of this writing (SHA1:8d77576371381ade83de475bb639949b44941e8c v2015.10-rc2)
+ the update.c code is not enabled (CONFIG_UPDATE_TFTP) by any board in the
+ contemporary u-boot tree.
+diff --git a/doc/README.update b/doc/README.update
+index d37f2c4d4a..bf4379279e 100644
+--- a/doc/README.update
++++ b/doc/README.update
+@@ -51,11 +51,6 @@ the mkimage tool. dtc tool with support for binary includes, e.g. in version
+ to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
+ images.
+ 
+-This mechanism can be also triggered by the command "fitupd".
+-If an optional, non-zero address is provided as argument, the TFTP transfer
+-is skipped and the image at this address is used.
+-The fitupd command is enabled by CONFIG_CMD_FITUPD.
+-
+ 
+ Example .its files
+ ------------------
+-- 
+2.27.0
+
