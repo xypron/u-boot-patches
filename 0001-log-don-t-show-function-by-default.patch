@@ -1,7 +1,7 @@
-From 653c4581f58e4fb9f396fc002f7bd93caaa16f75 Mon Sep 17 00:00:00 2001
+From 23e75805e47a5acd0ca0207032209c6a127fc959 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 31 May 2020 14:14:44 +0000
-Subject: [PATCH 1/1] log: don't show function by default
+Subject: [PATCH v4 1/2] log: don't show function by default
 
 The name of the function emitting a log message may be of interest for a
 developer but is distracting for normal users. See the example below:
@@ -13,19 +13,25 @@ only the message text.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v4:
+	leave an empty line in enum log_fmt before composite values
+	rebase on origin/master
+v3:
+	replace #ifdef by IS_ENABLED()
+---
  cmd/log.c                 |  4 ++--
  common/Kconfig            | 18 ++++++++++++++++++
  common/log.c              |  2 +-
- include/log.h             | 19 +++++++++++++++++--
+ include/log.h             | 18 +++++++++++++++++-
  test/log/syslog_test.c    | 20 ++++++++++++++------
  test/py/tests/test_log.py |  2 ++
- 6 files changed, 54 insertions(+), 11 deletions(-)
+ 6 files changed, 54 insertions(+), 10 deletions(-)
 
 diff --git a/cmd/log.c b/cmd/log.c
-index 78352b2cb9..6afe6ead25 100644
+index 664f7bd7ac..6b7103550d 100644
 --- a/cmd/log.c
 +++ b/cmd/log.c
-@@ -39,7 +39,7 @@ static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
+@@ -31,7 +31,7 @@ static int do_log_format(struct cmd_tbl *cmdtp, int flag, int argc,
  		const char *str = argv[1];
  
  		if (!strcmp(str, "default")) {
@@ -34,7 +40,7 @@ index 78352b2cb9..6afe6ead25 100644
  		} else if (!strcmp(str, "all")) {
  			gd->log_fmt = LOGF_ALL;
  		} else {
-@@ -139,7 +139,7 @@ static char log_help_text[] =
+@@ -131,7 +131,7 @@ static char log_help_text[] =
  	"log format <fmt> - set log output format. <fmt> is a string where\n"
  	"\teach letter indicates something that should be displayed:\n"
  	"\tc=category, l=level, F=file, L=line number, f=function, m=msg\n"
@@ -44,12 +50,12 @@ index 78352b2cb9..6afe6ead25 100644
  		"output a log record"
  	;
 diff --git a/common/Kconfig b/common/Kconfig
-index 7872bc46cd..60cae77f20 100644
+index 2d86dd7e63..efd103b8cb 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -792,6 +792,24 @@ config TPL_LOG_CONSOLE
- 
- endif
+@@ -775,6 +775,24 @@ config TPL_LOG_CONSOLE
+ 	  log message is shown - other details like level, category, file and
+ 	  line number are omitted.
  
 +config LOGF_FILE
 +	bool "Show source file name in log messages by default"
@@ -69,9 +75,9 @@ index 7872bc46cd..60cae77f20 100644
 +	  Show the function name in log messages by default. This value can
 +	  be overridden using the 'log format' command.
 +
- config LOG_ERROR_RETURN
- 	bool "Log all functions which return an error"
- 	help
+ config LOG_SYSLOG
+ 	bool "Log output to syslog server"
+ 	depends on LOG && NET
 diff --git a/common/log.c b/common/log.c
 index c5b9b489ca..9005b3afb2 100644
 --- a/common/log.c
@@ -86,7 +92,7 @@ index c5b9b489ca..9005b3afb2 100644
  	return 0;
  }
 diff --git a/include/log.h b/include/log.h
-index df65398c04..21f9b75278 100644
+index df65398c04..2859ce1f2e 100644
 --- a/include/log.h
 +++ b/include/log.h
 @@ -12,6 +12,7 @@
@@ -97,17 +103,15 @@ index df65398c04..21f9b75278 100644
  #include <linux/list.h>
  
  struct cmd_tbl;
-@@ -409,9 +410,7 @@ enum log_fmt {
- 	LOGF_LINE,
- 	LOGF_FUNC,
+@@ -411,7 +412,6 @@ enum log_fmt {
  	LOGF_MSG,
--
+ 
  	LOGF_COUNT,
 -	LOGF_DEFAULT = (1 << LOGF_FUNC) | (1 << LOGF_MSG),
  	LOGF_ALL = 0x3f,
  };
  
-@@ -460,4 +459,20 @@ static inline int log_init(void)
+@@ -460,4 +460,20 @@ static inline int log_init(void)
  }
  #endif
  

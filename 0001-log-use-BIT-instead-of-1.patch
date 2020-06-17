@@ -1,11 +1,17 @@
-From 1a14bac765803d690638942dded2c31f535f7879 Mon Sep 17 00:00:00 2001
+From cb27eccd79fbf4741c1b49dad8211a1bdf48daaa Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 15 Jun 2020 07:50:11 +0200
-Subject: [PATCH] log: use BIT() instead of 1 <<
+Subject: [PATCH v4 2/2] log: use BIT() instead of 1 <<
 
 Use the BIT() macro when creating a bitmask for the logging fields.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+v4:
+	no change
+v3:
+	new patch
 ---
  common/log_console.c | 14 +++++++-------
  common/log_syslog.c  | 14 +++++++-------
