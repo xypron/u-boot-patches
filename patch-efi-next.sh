@@ -60,18 +60,20 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc5-2
-git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_commo.patch
-git am ../patch/0001-efi_loader-export-initialization-state.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
+
+git am ../patch/0001-efi_loader-export-initialization-state.patch
+git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
+git am ../patch/0001-efi_loader-simplify-efi_set_variable_common.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
 git am ../patch/0001-efi_loader-support-read-only-variables.patch
 git am ../patch/0001-efi_loader-PlatformLangCodes-must-be-read-only.patch
 git am ../patch/0001-efi_loader-printenv-e-should-show-read-only-flag.patch
-git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
+
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch

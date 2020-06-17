@@ -25,21 +25,27 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 294cac697e..da7beb2e03 100644
---- a/include/efi_variable.h
+new file mode 100644
+index 0000000000..9d2ac60057
+--- /dev/null
 +++ b/include/efi_variable.h
-@@ -8,8 +8,33 @@
- #ifndef _EFI_VARIABLE_H
- #define _EFI_VARIABLE_H
- 
+@@ -0,0 +8,37 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * File interface for UEFI variables
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt
++ */
++
++#ifndef _EFI_VARIABLE_H
++#define _EFI_VARIABLE_H
++
 +#define EFI_VAR_FILE_NAME "ubootefi.var"
 +
 +#define EFI_VAR_BUF_SIZE 0x4000
 +
 +#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
 +
- #define EFI_VARIABLE_READ_ONLY BIT(31)
- 
 +struct efi_var_entry {
 +	u32 length;
 +	u32 attr;
@@ -59,9 +65,8 @@ index 294cac697e..da7beb2e03 100644
 +
 +efi_status_t efi_var_from_file(void);
 +
- efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
- 				  u32 *attributes,
- 				  efi_uintn_t *data_size, void *data);
++
++#endif
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index e10ca05549..41705fc252 100644
 --- a/lib/efi_loader/Kconfig
@@ -86,10 +91,11 @@ index 9b3b704473..b808fdc983 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -35,6 +35,7 @@ obj-y += efi_runtime.o
- obj-y += efi_setup.o
- obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
+ obj-y += efi_variable_tee.o
+ else
  obj-y += efi_variable.o
 +obj-y += efi_var_file.o
+ endif
  obj-y += efi_watchdog.o
  obj-$(CONFIG_LCD) += efi_gop.o
  obj-$(CONFIG_DM_VIDEO) += efi_gop.o
@@ -338,18 +344,18 @@ diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
 index 1b5a0815e3..6fc96fcfb5 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -618,6 +618,11 @@ efi_status_t efi_set_variable_int(u16 *variable_name,
- 	if (env_set(native_name, val))
- 		ret = EFI_DEVICE_ERROR;
+@@ -618,6 +618,11 @@ efi_status_t efi_set_variable_common(u16 *variable_name,
+ 		}
+ 	}
  
 +	/* Write non-volatile EFI variables to file */
 +	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
 +	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
 +		efi_var_to_file();
 +
- out:
+ err:
  	free(native_name);
- 	free(val);
+ 	free(old_data);
 @@ -708,6 +713,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
   */
  void efi_variables_boot_exit_notify(void)
@@ -362,10 +368,10 @@ index 1b5a0815e3..6fc96fcfb5 100644
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
 @@ -722,5 +731,5 @@ void efi_variables_boot_exit_notify(void)
-  */
- efi_status_t efi_init_variables(void)
- {
--	return EFI_SUCCESS;
+ 
+ 	ret = efi_init_secure_state();
+ 
+-	return ret;
 +	return efi_var_from_file();
  }
 -- 
