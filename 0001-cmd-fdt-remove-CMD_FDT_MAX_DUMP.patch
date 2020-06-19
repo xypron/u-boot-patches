@@ -1,0 +1,79 @@
+From c14b7d02ed1effe85ed13f2a350846e7781c7480 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 19 Jun 2020 19:31:18 +0200
+Subject: [PATCH 1/1] cmd: fdt: remove CMD_FDT_MAX_DUMP
+
+When printing the device tree we want to get an output that can be used as
+input for the device tree compiler. This requires that we do not write
+bogus lines like
+
+    pcie@10000000 {
+            interrupt-map = * 0x4000127c [0x00000280];
+
+For instance the QEMU virt device has a property interrupt-map with 640
+bytes which exceeds CMD_FDT_MAX_DUMP=64.
+
+So lets do away with the artificial limitation to 64 bytes.
+
+As indicated in commit f0a29d43313c ("fdt: Limit printed hex in fdt print
+and list commands") if a device tree contains binary blobs, it may still
+be desirable to limit the output length. Provide environment variable
+fdt_max_dump for this purpose.
+
+Fixes: 5d927b428622 ("Kconfig: Drop CONFIG_CMD_FDT_MAX_DUMP")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/fdt.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/cmd/fdt.c b/cmd/fdt.c
+index 99b1b5b3fc..89ab572d8d 100644
+--- a/cmd/fdt.c
++++ b/cmd/fdt.c
+@@ -21,7 +21,6 @@
+ 
+ #define MAX_LEVEL	32		/* how deeply nested we will go */
+ #define SCRATCHPAD	1024		/* bytes of scratchpad memory */
+-#define CMD_FDT_MAX_DUMP 64
+ 
+ /*
+  * Global data (for the gd->bd)
+@@ -934,11 +933,17 @@ static int is_printable_string(const void *data, int len)
+ static void print_data(const void *data, int len)
+ {
+ 	int j;
++	const char *env_max_dump;
++	ulong max_dump = ULONG_MAX;
+ 
+ 	/* no data, don't print */
+ 	if (len == 0)
+ 		return;
+ 
++	env_max_dump = env_get("fdt_max_dump");
++	if (env_max_dump)
++		max_dump = simple_strtoul(env_max_dump, NULL, 16);
++
+ 	/*
+ 	 * It is a string, but it may have multiple strings (embedded '\0's).
+ 	 */
+@@ -957,7 +962,7 @@ static void print_data(const void *data, int len)
+ 	}
+ 
+ 	if ((len %4) == 0) {
+-		if (len > CMD_FDT_MAX_DUMP)
++		if (len > max_dump)
+ 			printf("* 0x%p [0x%08x]", data, len);
+ 		else {
+ 			const __be32 *p;
+@@ -969,7 +974,7 @@ static void print_data(const void *data, int len)
+ 			printf(">");
+ 		}
+ 	} else { /* anything else... hexdump */
+-		if (len > CMD_FDT_MAX_DUMP)
++		if (len > max_dump)
+ 			printf("* 0x%p [0x%08x]", data, len);
+ 		else {
+ 			const u8 *s;
+-- 
+2.27.0
+
