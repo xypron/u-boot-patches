@@ -54,8 +54,8 @@ index 2d86dd7e63..efd103b8cb 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
 @@ -775,6 +775,24 @@ config TPL_LOG_CONSOLE
- 	  log message is shown - other details like level, category, file and
- 	  line number are omitted.
+ 
+ endif
  
 +config LOGF_FILE
 +	bool "Show source file name in log messages by default"
@@ -75,9 +75,9 @@ index 2d86dd7e63..efd103b8cb 100644
 +	  Show the function name in log messages by default. This value can
 +	  be overridden using the 'log format' command.
 +
- config LOG_SYSLOG
- 	bool "Log output to syslog server"
- 	depends on LOG && NET
+ config LOG_ERROR_RETURN
+ 	bool "Log all functions which return an error"
+ 	help
 diff --git a/common/log.c b/common/log.c
 index c5b9b489ca..9005b3afb2 100644
 --- a/common/log.c
