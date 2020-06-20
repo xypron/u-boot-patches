@@ -1,4 +1,4 @@
-From a393c8283da3891b48889cdb8d4e8bf1b16e7aeb Mon Sep 17 00:00:00 2001
+From ce85538e5dff320d705c63621746cbd411c43b92 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Jun 2020 12:08:34 +0200
 Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
@@ -16,13 +16,61 @@ read-only variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ include/efi_variable.h               |  40 +++++++
  lib/efi_loader/Makefile              |   1 +
  lib/efi_loader/efi_variable.c        | 171 ++++++++-------------------
  lib/efi_loader/efi_variable_common.c |  78 ++++++++++++
  lib/efi_loader/efi_variable_tee.c    |  75 ++++--------
- 4 files changed, 147 insertions(+), 178 deletions(-)
+ 5 files changed, 187 insertions(+), 178 deletions(-)
+ create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variable_common.c
 
+diff --git a/include/efi_variable.h b/include/efi_variable.h
+new file mode 100644
+index 0000000000..784dbd9cf4
+--- /dev/null
++++ b/include/efi_variable.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#ifndef _EFI_VARIABLE_H
++#define _EFI_VARIABLE_H
++
++#define EFI_VARIABLE_READ_ONLY BIT(31)
++
++/**
++ * efi_get_variable() - retrieve value of a UEFI variable
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer to which the variable value is copied
++ * @data:		buffer to which the variable value is copied
++ * Return:		status code
++ */
++efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
++				  u32 *attributes, efi_uintn_t *data_size,
++				  void *data);
++
++/**
++ * efi_set_variable() - set value of a UEFI variable
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer with the variable value
++ * @data:		buffer with the variable value
++ * @ro_check:		check the read only read only bit in attributes
++ * Return:		status code
++ */
++efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
++				  u32 attributes, efi_uintn_t data_size,
++				  const void *data, bool ro_check);
++
++#endif
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
 index 57c7e66ea0..16b93ef7f0 100644
 --- a/lib/efi_loader/Makefile
