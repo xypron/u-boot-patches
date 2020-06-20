@@ -1,9 +1,9 @@
-From 0a37fcbbb55246459d01fd4e4c8336c76bbc872c Mon Sep 17 00:00:00 2001
+From b4cb993d92ac1479e46cee8f57a13048a19fa65f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 17 Jun 2020 14:41:45 +0200
-Subject: [PATCH] efi_loader: simplify efi_set_variable_common()
+Subject: [PATCH 1/1] efi_loader: simplify efi_set_variable_int()
 
-Reduce the code size by simplifying efi_set_variable_common().
+Reduce the code size by simplifying efi_set_variable_int().
 The size of u-boot.bin is reduced by 138 bytes for qemu_arm64_defconfig.
 
 The internal representation of UEFI variables will have a trailing comma if
@@ -15,14 +15,14 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 11 insertions(+), 25 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index e097670e28..693529ff83 100644
+index 85df1427bc..907f621a3b 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -1011,32 +1011,18 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -964,32 +964,18 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  	/*
  	 * store attributes
  	 */
--	attributes &= (READ_ONLY |
+-	attributes &= (EFI_VARIABLE_READ_ONLY |
 -		       EFI_VARIABLE_NON_VOLATILE |
 -		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
 -		       EFI_VARIABLE_RUNTIME_ACCESS |
@@ -31,7 +31,7 @@ index e097670e28..693529ff83 100644
 -	while (attributes) {
 -		attr = 1 << (ffs(attributes) - 1);
 -
--		if (attr == READ_ONLY) {
+-		if (attr == EFI_VARIABLE_READ_ONLY) {
 -			s += sprintf(s, "ro");
 -		} else if (attr == EFI_VARIABLE_NON_VOLATILE) {
 -			s += sprintf(s, "nv");
@@ -48,7 +48,7 @@ index e097670e28..693529ff83 100644
 -		attributes &= ~attr;
 -		if (attributes)
 -			s += sprintf(s, ",");
-+	if (attributes & READ_ONLY)
++	if (attributes & EFI_VARIABLE_READ_ONLY)
 +		s += sprintf(s, "ro,");
 +	if (attributes & EFI_VARIABLE_NON_VOLATILE)
 +		s += sprintf(s, "nv,");

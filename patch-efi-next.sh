@@ -67,6 +67,7 @@ git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 
 git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
+git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-simplify-efi_set_variable_common.patch
 
 exit
