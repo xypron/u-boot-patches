@@ -1,7 +1,7 @@
-From ce85538e5dff320d705c63621746cbd411c43b92 Mon Sep 17 00:00:00 2001
+From aa1b79072554367d888b108bbcd1b6163fc20174 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Jun 2020 12:08:34 +0200
-Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
+Subject: [PATCH v2 1/1] efi_loader: prepare for read only OP-TEE variables
 
 We currently have two implementations of UEFI variables:
 
@@ -16,12 +16,16 @@ read-only variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2:
+	add missing efi_variable.h
+	consider attributes==NULL in efi_variable_get()
+---
  include/efi_variable.h               |  40 +++++++
  lib/efi_loader/Makefile              |   1 +
  lib/efi_loader/efi_variable.c        | 171 ++++++++-------------------
- lib/efi_loader/efi_variable_common.c |  78 ++++++++++++
+ lib/efi_loader/efi_variable_common.c |  79 +++++++++++++
  lib/efi_loader/efi_variable_tee.c    |  75 ++++--------
- 5 files changed, 187 insertions(+), 178 deletions(-)
+ 5 files changed, 188 insertions(+), 178 deletions(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variable_common.c
 
@@ -412,10 +416,10 @@ index e097670e28..85df1427bc 100644
   *
 diff --git a/lib/efi_loader/efi_variable_common.c b/lib/efi_loader/efi_variable_common.c
 new file mode 100644
-index 0000000000..7edf5568c4
+index 0000000000..e6a39fceac
 --- /dev/null
 +++ b/lib/efi_loader/efi_variable_common.c
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,79 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * UEFI runtime variable services
@@ -456,7 +460,8 @@ index 0000000000..7edf5568c4
 +				   data_size, data);
 +
 +	/* Remove EFI_VARIABLE_READ_ONLY flag */
-+	*attributes &= EFI_VARIABLE_MASK;
++	if (attributes)
++		*attributes &= EFI_VARIABLE_MASK;
 +
 +	return EFI_EXIT(ret);
 +}
