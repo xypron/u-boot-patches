@@ -1,0 +1,32 @@
+From 8fd055eaef0a34d6c6d0cd7ca97d1a5212d62655 Mon Sep 17 00:00:00 2001
+From: Bin Meng <bin.meng@windriver.com>
+Date: Mon, 22 Jun 2020 23:50:50 -0700
+Subject: [PATCH 1/1] cmd: bootefi: Fix fdt_size variable type in
+ efi_carve_out_dt_rsv()
+
+Variable fdt_size should be of type 'fdt_size_t', not 'fdt_addr_t'.
+
+Fixes 0d7c2913fdf7: ("cmd: bootefi: Honor the address & size cells properties correctly")
+Signed-off-by: Bin Meng <bin.meng@windriver.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index ac713cad1b..8269153973 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -189,7 +189,8 @@ static void efi_carve_out_dt_rsv(void *fdt)
+ 	if (nodeoffset >= 0) {
+ 		subnode = fdt_first_subnode(fdt, nodeoffset);
+ 		while (subnode >= 0) {
+-			fdt_addr_t fdt_addr, fdt_size;
++			fdt_addr_t fdt_addr;
++			fdt_size_t fdt_size;
+ 
+ 			/* check if this subnode has a reg property */
+ 			fdt_addr = fdtdec_get_addr_size_auto_parent(
+-- 
+2.27.0
+

@@ -61,7 +61,8 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
-# efi-2020-07-rc5-2
+# efi-2020-07-rc6
+git am ../patch/0001-cmd-bootefi-Fix-fdt_size-variable-type-in-efi_carve_.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
@@ -69,7 +70,6 @@ git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
-git am ../patch/0001-efi_loader-simplify-efi_set_variable_common.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
