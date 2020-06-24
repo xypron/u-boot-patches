@@ -63,6 +63,8 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # efi-2020-07-rc6
 git am ../patch/0001-cmd-bootefi-Fix-fdt_size-variable-type-in-efi_carve_.patch
+git am ../patch/0001-efi_loader-type-of-efi_secure_mode.patch
+git am ../patch/0001-efi_loader-size-of-secure-boot-variables.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch

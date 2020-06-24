@@ -1,7 +1,7 @@
-From aa1b79072554367d888b108bbcd1b6163fc20174 Mon Sep 17 00:00:00 2001
+From 544c9920fba3717617c7fe1f80b5dff3306ed38c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 20 Jun 2020 12:08:34 +0200
-Subject: [PATCH v2 1/1] efi_loader: prepare for read only OP-TEE variables
+Date: Mon, 22 Jun 2020 18:10:27 +0200
+Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
 
 We currently have two implementations of UEFI variables:
 
@@ -15,10 +15,6 @@ Provide a common interface for both implementations that allows handling
 read-only variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
----
-v2:
-	add missing efi_variable.h
-	consider attributes==NULL in efi_variable_get()
 ---
  include/efi_variable.h               |  40 +++++++
  lib/efi_loader/Makefile              |   1 +
@@ -88,7 +84,7 @@ index 57c7e66ea0..16b93ef7f0 100644
  obj-y += efi_variable_tee.o
  else
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index e097670e28..85df1427bc 100644
+index 6271dbcf41..3200b9d5a5 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -7,6 +7,7 @@
@@ -108,7 +104,7 @@ index e097670e28..85df1427bc 100644
  #include <u-boot/crc.h>
  
 @@ -30,20 +30,6 @@ static bool efi_secure_boot;
- static int efi_secure_mode;
+ static enum efi_secure_mode efi_secure_mode;
  static u8 efi_vendor_keys;
  
 -#define READ_ONLY BIT(31)
@@ -137,14 +133,14 @@ index e097670e28..85df1427bc 100644
  		} else if ((s = prefix(str, "nv"))) {
  			attr |= EFI_VARIABLE_NON_VOLATILE;
  		} else if ((s = prefix(str, "boot"))) {
-@@ -202,29 +188,29 @@ static efi_status_t efi_set_secure_state(int sec_boot, int setup_mode,
+@@ -202,29 +188,29 @@ static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
  
  	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
  		     EFI_VARIABLE_RUNTIME_ACCESS |
 -		     READ_ONLY;
 -	ret = efi_set_variable_common(L"SecureBoot", &efi_global_variable_guid,
--				      attributes, sizeof(sec_boot), &sec_boot,
--				      false);
+-				      attributes, sizeof(secure_boot),
+-				      &secure_boot, false);
 +		     EFI_VARIABLE_READ_ONLY;
 +	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
 +				   attributes, sizeof(sec_boot), &sec_boot,

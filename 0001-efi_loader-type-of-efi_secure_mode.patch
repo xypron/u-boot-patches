@@ -1,0 +1,29 @@
+From fb0bbb10946ce7bc6e0da7a89ada6776327f3973 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 24 Jun 2020 12:14:49 +0200
+Subject: [PATCH 1/1] efi_loader: type of efi_secure_mode
+
+Variable efi_secure_mode is meant to hold a value of enum efi_secure_mode.
+So it should not be defined as int but as enum efi_secure_mode.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index e097670e28..4d275b23ce 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -27,7 +27,7 @@ enum efi_secure_mode {
+ };
+ 
+ static bool efi_secure_boot;
+-static int efi_secure_mode;
++static enum efi_secure_mode efi_secure_mode;
+ static u8 efi_vendor_keys;
+ 
+ #define READ_ONLY BIT(31)
+-- 
+2.27.0
+
