@@ -72,6 +72,9 @@ git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
+git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
+git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
+git am ../patch/0001-efi_loader-simplify-boot-manager.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
