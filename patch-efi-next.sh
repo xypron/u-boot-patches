@@ -30,7 +30,6 @@ git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-log-use-BIT-instead-of-1.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
-git am ../patch/0001-arm-wandboard-move-CONFIG_MXC_UART-to-defconfig.patch
 git am ../patch/0001-cmd-fdt-remove-CMD_FDT_MAX_DUMP.patch
 git am ../patch/0001-gitlab-show-skipped-Python-tests.patch
 git am ../patch/0001-riscv-use-log-functions-in-fdt_fixup.patch
@@ -63,9 +62,6 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # UEFI
 
 # efi-2020-07-rc6
-git am ../patch/0001-cmd-bootefi-Fix-fdt_size-variable-type-in-efi_carve_.patch
-git am ../patch/0001-efi_loader-type-of-efi_secure_mode.patch
-git am ../patch/0001-efi_loader-size-of-secure-boot-variables.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
