@@ -1,0 +1,77 @@
+From 31846bfae247fd95606d1ed7445ab56fcb96a546 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 26 Jun 2020 06:24:30 +0200
+Subject: [PATCH 1/1] riscv: use log functions in fdt_fixup
+
+Replace printf() and debug() by log_err() and log_debug().
+
+"No reserved memory region found in source FDT\n" is not an error but a
+debug information.
+
+%s/can not/cannot/ - use the more common spelling.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/lib/fdt_fixup.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/lib/fdt_fixup.c b/arch/riscv/lib/fdt_fixup.c
+index 6db48ad04a..c1dc247cf7 100644
+--- a/arch/riscv/lib/fdt_fixup.c
++++ b/arch/riscv/lib/fdt_fixup.c
+@@ -37,7 +37,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
+ 
+ 	offset = fdt_path_offset(src, "/reserved-memory");
+ 	if (offset < 0) {
+-		printf("No reserved memory region found in source FDT\n");
++		log_debug("No reserved memory region found in source FDT\n");
+ 		return 0;
+ 	}
+ 
+@@ -48,7 +48,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
+ 							  "reg", 0, &size,
+ 							  false);
+ 		if (addr == FDT_ADDR_T_NONE) {
+-			debug("failed to read address/size for %s\n", name);
++			log_debug("failed to read address/size for %s\n", name);
+ 			continue;
+ 		}
+ 		strncpy(basename, name, max_len);
+@@ -63,7 +63,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
+ 		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
+ 						 &phandle);
+ 		if (err < 0) {
+-			printf("failed to add reserved memory: %d\n", err);
++			log_err("failed to add reserved memory: %d\n", err);
+ 			return err;
+ 		}
+ 		if (!fdt_getprop(src, node, "no-map", NULL))
+@@ -109,7 +109,7 @@ int board_fix_fdt(void *fdt)
+ 
+ 	err = riscv_board_reserved_mem_fixup(fdt);
+ 	if (err < 0) {
+-		printf("failed to fixup DT for reserved memory: %d\n", err);
++		log_err("failed to fixup DT for reserved memory: %d\n", err);
+ 		return err;
+ 	}
+ 
+@@ -127,14 +127,14 @@ int arch_fixup_fdt(void *blob)
+ 	size = fdt_totalsize(blob);
+ 	err  = fdt_open_into(blob, blob, size + 32);
+ 	if (err < 0) {
+-		printf("Device Tree can't be expanded to accommodate new node");
++		log_err("Device Tree can't be expanded to accommodate new node");
+ 		return err;
+ 	}
+ 	chosen_offset = fdt_path_offset(blob, "/chosen");
+ 	if (chosen_offset < 0) {
+ 		err = fdt_add_subnode(blob, 0, "chosen");
+ 		if (err < 0) {
+-			printf("chosen node can not be added\n");
++			log_err("chosen node cannot be added\n");
+ 			return err;
+ 		}
+ 	}
+-- 
+2.27.0
+
