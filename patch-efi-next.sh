@@ -33,6 +33,7 @@ git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-cmd-fdt-remove-CMD_FDT_MAX_DUMP.patch
 git am ../patch/0001-gitlab-show-skipped-Python-tests.patch
 git am ../patch/0001-riscv-use-log-functions-in-fdt_fixup.patch
+git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 
 git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
