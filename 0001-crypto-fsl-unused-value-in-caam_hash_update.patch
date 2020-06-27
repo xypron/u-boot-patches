@@ -1,0 +1,30 @@
+From 17d55d2f3e48aac4ad71ca2d2e0030e5030008b1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 27 Jun 2020 10:10:43 +0200
+Subject: [PATCH 1/1] crypto/fsl: unused value in caam_hash_update()
+
+The value 0 assigned to final is overwritten before ever being used.
+
+Remove the assignment.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/crypto/fsl/fsl_hash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/fsl/fsl_hash.c b/drivers/crypto/fsl/fsl_hash.c
+index 953deec9ff..61f953e8a6 100644
+--- a/drivers/crypto/fsl/fsl_hash.c
++++ b/drivers/crypto/fsl/fsl_hash.c
+@@ -86,7 +86,7 @@ static int caam_hash_update(void *hash_ctx, const void *buf,
+ 			    unsigned int size, int is_last,
+ 			    enum caam_hash_algos caam_algo)
+ {
+-	uint32_t final = 0;
++	uint32_t final;
+ 	phys_addr_t addr = virt_to_phys((void *)buf);
+ 	struct sha_ctx *ctx = hash_ctx;
+ 
+-- 
+2.20.1
+
