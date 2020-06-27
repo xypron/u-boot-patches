@@ -73,6 +73,7 @@ git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
 git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
 git am ../patch/0001-efi_loader-simplify-boot-manager.patch
+git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 
 exit
 git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
@@ -80,7 +81,6 @@ git am ../patch/0001-efi_loader-support-read-only-variables.patch
 git am ../patch/0001-efi_loader-PlatformLangCodes-must-be-read-only.patch
 git am ../patch/0001-efi_loader-printenv-e-should-show-read-only-flag.patch
 
-git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
 git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch

@@ -1,4 +1,4 @@
-From 0ad19b0079ecec7a616dddbc56229650912f214c Mon Sep 17 00:00:00 2001
+From 9b0ddc43cdef4ede4b3e5ef5be9e13076c98f1cb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -25,21 +25,13 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-new file mode 100644
-index 0000000000..9d2ac60057
---- /dev/null
+index 3dd2dd3047..347abfb480 100644
+--- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -0,0 +8,37 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * File interface for UEFI variables
-+ *
-+ * Copyright (c) 2020, Heinrich Schuchardt
-+ */
-+
-+#ifndef _EFI_VARIABLE_H
-+#define _EFI_VARIABLE_H
-+
+@@ -78,4 +78,29 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+ 					 u64 *remaining_variable_storage_size,
+ 					 u64 *maximum_variable_size);
+ 
 +#define EFI_VAR_FILE_NAME "ubootefi.var"
 +
 +#define EFI_VAR_BUF_SIZE 0x4000
@@ -65,10 +57,9 @@ index 0000000000..9d2ac60057
 +
 +efi_status_t efi_var_from_file(void);
 +
-+
-+#endif
+ #endif
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index e10ca05549..41705fc252 100644
+index 6c9df3a767..4324694d48 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -27,6 +27,14 @@ config EFI_LOADER
@@ -87,10 +78,10 @@ index e10ca05549..41705fc252 100644
  	bool "GetTime() runtime service"
  	depends on DM_RTC
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 9b3b704473..b808fdc983 100644
+index 16b93ef7f0..f4fbe9046d 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -35,6 +35,7 @@ obj-y += efi_runtime.o
+@@ -40,6 +40,7 @@ ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
  obj-y += efi_variable_tee.o
  else
  obj-y += efi_variable.o
@@ -98,10 +89,9 @@ index 9b3b704473..b808fdc983 100644
  endif
  obj-y += efi_watchdog.o
  obj-$(CONFIG_LCD) += efi_gop.o
- obj-$(CONFIG_DM_VIDEO) += efi_gop.o
 diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
 new file mode 100644
-index 0000000000..4a918d3fde
+index 0000000000..76d8bf2009
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_file.c
 @@ -0,0 +1,235 @@
@@ -286,7 +276,7 @@ index 0000000000..4a918d3fde
 +		if (var->attr & EFI_VARIABLE_NON_VOLATILE && var->length) {
 +			ret = efi_set_variable_int(var->name, &var->guid,
 +						   var->attr, var->length,
-+						   data);
++						   data, true);
 +			if (ret != EFI_SUCCESS)
 +				printf("Failed to set EFI variable %ls\n",
 +				       var->name);
@@ -341,10 +331,10 @@ index 0000000000..4a918d3fde
 +	return EFI_SUCCESS;
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 1b5a0815e3..6fc96fcfb5 100644
+index 5e56c20349..c1bf145b04 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -618,6 +618,11 @@ efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1025,6 +1025,11 @@ out:
  		}
  	}
  
@@ -356,7 +346,7 @@ index 1b5a0815e3..6fc96fcfb5 100644
  err:
  	free(native_name);
  	free(old_data);
-@@ -708,6 +713,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+@@ -1120,6 +1125,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
   */
  void efi_variables_boot_exit_notify(void)
  {
@@ -367,7 +357,7 @@ index 1b5a0815e3..6fc96fcfb5 100644
  	efi_runtime_services.get_variable = efi_get_variable_runtime;
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
-@@ -722,5 +731,5 @@ void efi_variables_boot_exit_notify(void)
+@@ -1141,5 +1150,5 @@ efi_status_t efi_init_variables(void)
  
  	ret = efi_init_secure_state();
  
@@ -375,5 +365,5 @@ index 1b5a0815e3..6fc96fcfb5 100644
 +	return efi_var_from_file();
  }
 -- 
-2.25.1
+2.27.0
 
