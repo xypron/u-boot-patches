@@ -1,4 +1,4 @@
-From 9b0ddc43cdef4ede4b3e5ef5be9e13076c98f1cb Mon Sep 17 00:00:00 2001
+From 322f4ede8b18a42655ebf546a66c4042fc95353e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -16,19 +16,19 @@ non-volatile UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h        |  25 ++++
+ include/efi_variable.h        |  43 ++++++
  lib/efi_loader/Kconfig        |   8 ++
  lib/efi_loader/Makefile       |   1 +
- lib/efi_loader/efi_var_file.c | 235 ++++++++++++++++++++++++++++++++++
+ lib/efi_loader/efi_var_file.c | 238 ++++++++++++++++++++++++++++++++++
  lib/efi_loader/efi_variable.c |  11 +-
- 5 files changed, 279 insertions(+), 1 deletion(-)
+ 5 files changed, 300 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 3dd2dd3047..347abfb480 100644
+index 3dd2dd3047..cfe5f20a6c 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -78,4 +78,29 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+@@ -78,4 +78,47 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  					 u64 *remaining_variable_storage_size,
  					 u64 *maximum_variable_size);
  
@@ -53,8 +53,26 @@ index 3dd2dd3047..347abfb480 100644
 +	struct efi_var_entry var[0];
 +};
 +
++/**
++ * efi_var_to_file() - save non-volatile variables as file
++ *
++ * File ubootefi.var is created on the EFI system partion.
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_to_file(void);
 +
++/**
++ * efi_var_from_file() - read variables from file
++ *
++ * File ubootefi.var is read from the EFI system partitions and the variables
++ * stored in the file are created.
++ *
++ * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
++ * is returned.
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_from_file(void);
 +
  #endif
@@ -91,10 +109,10 @@ index 16b93ef7f0..f4fbe9046d 100644
  obj-$(CONFIG_LCD) += efi_gop.o
 diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
 new file mode 100644
-index 0000000000..76d8bf2009
+index 0000000000..09a032a3ce
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_file.c
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,238 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -102,9 +120,12 @@ index 0000000000..76d8bf2009
 + * Copyright (c) 2020, Heinrich Schuchardt
 + */
 +
++#define LOG_CATEGORY LOGC_EFI
++
 +#include <common.h>
 +#include <charset.h>
 +#include <fs.h>
++#include <log.h>
 +#include <malloc.h>
 +#include <mapmem.h>
 +#include <efi_loader.h>
@@ -125,14 +146,16 @@ index 0000000000..76d8bf2009
 +	char part_str[PART_STR_LEN];
 +	int r;
 +
-+	if (!efi_system_partition.if_type)
-+		return EFI_NOT_FOUND;
++	if (!efi_system_partition.if_type) {
++		log_err("No EFI system partition\n");
++		return EFI_DEVICE_ERROR;
++	}
 +	snprintf(part_str, PART_STR_LEN, "%u:%u",
 +		 efi_system_partition.devnum, efi_system_partition.part);
 +	r = fs_set_blk_dev(blk_get_if_type_name(efi_system_partition.if_type),
 +			   part_str, FS_TYPE_ANY);
 +	if (r) {
-+		printf("Cannot read EFI system partition\n");
++		log_err("Cannot read EFI system partition\n");
 +		return EFI_DEVICE_ERROR;
 +	}
 +	return EFI_SUCCESS;
@@ -238,11 +261,11 @@ index 0000000000..76d8bf2009
 +
 +	r = fs_write(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, len, &actlen);
 +	if (r || len != actlen)
-+		ret =  EFI_DEVICE_ERROR;
++		ret = EFI_DEVICE_ERROR;
 +
 +error:
 +	if (ret != EFI_SUCCESS)
-+		printf("Failed to persist EFI variables\n");
++		log_err("Failed to persist EFI variables\n");
 +	free(buf);
 +	return ret;
 +#else
@@ -264,7 +287,7 @@ index 0000000000..76d8bf2009
 +	if (buf->reserved || buf->magic != EFI_VAR_FILE_MAGIC ||
 +	    buf->crc32 != crc32(0, (u8 *)buf->var,
 +				buf->length - sizeof(struct efi_var_file))) {
-+		printf("Invalid EFI variables file\n");
++		log_err("Invalid EFI variables file\n");
 +		return EFI_INVALID_PARAMETER;
 +	}
 +
@@ -278,9 +301,9 @@ index 0000000000..76d8bf2009
 +						   var->attr, var->length,
 +						   data, true);
 +			if (ret != EFI_SUCCESS)
-+				printf("Failed to set EFI variable %ls\n",
-+				       var->name);
-+			}
++				log_err("Failed to set EFI variable %ls\n",
++					var->name);
++		}
 +		var = (struct efi_var_entry *)
 +		      ALIGN((uintptr_t)data + var->length, 8);
 +	}
@@ -294,7 +317,7 @@ index 0000000000..76d8bf2009
 + * stored in the file are created.
 + *
 + * In case the file does not exist yet or a variable cannot be set EFI_SUCCESS
-+ * is returned
++ * is returned.
 + *
 + * Return:	status code
 + */
@@ -308,30 +331,28 @@ index 0000000000..76d8bf2009
 +
 +	buf = calloc(1, EFI_VAR_BUF_SIZE);
 +	if (!buf) {
-+		printf("Out of memory\n");
++		log_err("Out of memory\n");
 +		return EFI_OUT_OF_RESOURCES;
 +	}
 +
 +	ret = efi_set_blk_dev_to_system_partition();
-+	if (ret != EFI_SUCCESS) {
-+		printf("No EFI system partition\n");
++	if (ret != EFI_SUCCESS)
 +		goto error;
-+	}
 +	r = fs_read(EFI_VAR_FILE_NAME, map_to_sysmem(buf), 0, EFI_VAR_BUF_SIZE,
 +		    &len);
 +	if (r || len < sizeof(struct efi_var_file)) {
-+		printf("Failed to load EFI variables\n");
++		log_err("Failed to load EFI variables\n");
 +		goto error;
 +	}
 +	if (buf->length != len || efi_var_restore(buf) != EFI_SUCCESS)
-+		printf("Invalid EFI variables file\n");
++		log_err("Invalid EFI variables file\n");
 +error:
 +	free(buf);
 +#endif
 +	return EFI_SUCCESS;
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 5e56c20349..c1bf145b04 100644
+index 28d59dc739..1f224743a2 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -1025,6 +1025,11 @@ out:

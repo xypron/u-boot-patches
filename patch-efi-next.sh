@@ -73,7 +73,7 @@ git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
 git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
 git am ../patch/0001-efi_loader-simplify-boot-manager.patch
-git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_commo.patch
+git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 
 exit
