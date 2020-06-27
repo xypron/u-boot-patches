@@ -36,6 +36,7 @@ git am ../patch/0001-riscv-use-log-functions-in-fdt_fixup.patch
 git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
+git am ../patch/0001-fs-error-handling-in-do_load.patch
 
 git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
@@ -73,6 +74,7 @@ git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
+git am ../patch/0001-efi_loader-separate-UEFI-variable-API-from-implememe.patch
 git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
 git am ../patch/0001-efi_loader-simplify-boot-manager.patch
 git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
