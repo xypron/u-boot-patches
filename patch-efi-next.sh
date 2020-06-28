@@ -81,6 +81,7 @@ git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
+git am ../patch/0001-efi_loader-new-function-efi_memcpy_runtime.patch
 git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
 
 exit

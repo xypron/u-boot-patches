@@ -1,4 +1,4 @@
-From 7c4d54bcba6cb7a5f6fb5764762273a05b6aa179 Mon Sep 17 00:00:00 2001
+From 5d3712193f2e9ba3595f91851dc36c135737c80a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -10,22 +10,20 @@ Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h       |  16 ++
+ include/efi_variable.h       |  14 ++
  lib/efi_loader/Makefile      |   1 +
- lib/efi_loader/efi_var_mem.c | 317 +++++++++++++++++++++++++++++++++++
- 3 files changed, 334 insertions(+)
+ lib/efi_loader/efi_var_mem.c | 298 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 313 insertions(+)
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 238b5595d5..fad553d8c1 100644
+index 238b5595d5..7d36813894 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -121,4 +121,20 @@ efi_status_t efi_var_to_file(void);
+@@ -121,4 +121,18 @@ efi_status_t efi_var_to_file(void);
   */
  efi_status_t efi_var_from_file(void);
  
-+void efi_var_mem_memcpy(void *dest, const void *src, size_t n);
-+
 +efi_status_t efi_var_mem_init(void);
 +
 +struct efi_var_entry *efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
@@ -55,10 +53,10 @@ index f4fbe9046d..0ff37beac2 100644
  else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..f70cc65f8b
+index 0000000000..f16de53735
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_mem.c
-@@ -0,0 +1,317 @@
+@@ -0,0 +1,298 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -73,25 +71,6 @@ index 0000000000..f70cc65f8b
 +
 +static struct efi_var_file __efi_runtime_data *efi_var_buf;
 +static struct efi_var_entry __efi_runtime_data *efi_current_var;
-+
-+/**
-+ * memcpy() - copy memory area
-+ *
-+ * At runtime memcpy() is not available.
-+ *
-+ * @dest:	destination buffer
-+ * @src:	source buffer
-+ * @n:		number of bytes to copy
-+ * Return:	pointer to destination buffer
-+ */
-+void __efi_runtime efi_var_mem_memcpy(void *dest, const void *src, size_t n)
-+{
-+	u8 *d = dest;
-+	const u8 *s = src;
-+
-+	for (; n; --n)
-+		*d++ = *s++;
-+}
 +
 +/**
 + * efi_var_mem_compare() - compare GUID and name with a variable
@@ -258,11 +237,11 @@ index 0000000000..f70cc65f8b
 +	var->attr = attributes;
 +	var->length = size1 + size2;
 +
-+	efi_var_mem_memcpy(&var->guid, vendor, sizeof(efi_guid_t));
-+	efi_var_mem_memcpy(var->name, variable_name,
++	efi_memcpy_runtime(&var->guid, vendor, sizeof(efi_guid_t));
++	efi_memcpy_runtime(var->name, variable_name,
 +			   sizeof(u16) * var_name_len);
-+	efi_var_mem_memcpy(data, data1, size1);
-+	efi_var_mem_memcpy((u8 *)data + size1, data2, size2);
++	efi_memcpy_runtime(data, data1, size1);
++	efi_memcpy_runtime((u8 *)data + size1, data2, size2);
 +
 +	var = (struct efi_var_entry *)
 +	      ALIGN((uintptr_t)data + var->length, 8);
