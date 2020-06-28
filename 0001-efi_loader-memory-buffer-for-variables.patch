@@ -1,4 +1,4 @@
-From 5d3712193f2e9ba3595f91851dc36c135737c80a Mon Sep 17 00:00:00 2001
+From 4a824ee7cadfba69fa710638a978389794ec7e6a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -10,32 +10,70 @@ Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h       |  14 ++
+ include/efi_variable.h       |  52 +++++++
  lib/efi_loader/Makefile      |   1 +
- lib/efi_loader/efi_var_mem.c | 298 +++++++++++++++++++++++++++++++++++
+ lib/efi_loader/efi_var_mem.c | 260 +++++++++++++++++++++++++++++++++++
  3 files changed, 313 insertions(+)
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 238b5595d5..7d36813894 100644
+index 238b5595d5..97c3e64580 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -121,4 +121,18 @@ efi_status_t efi_var_to_file(void);
+@@ -121,4 +121,56 @@ efi_status_t efi_var_to_file(void);
   */
  efi_status_t efi_var_from_file(void);
  
++/**
++ * efi_var_mem_init() - set-up variable list
++ *
++ * Return:	status code
++ */
 +efi_status_t efi_var_mem_init(void);
 +
++/**
++ * efi_var_mem_find() - find a variable in the list
++ *
++ * @guid:	GUID of the variable
++ * @name:	name of the variable
++ * @next:	on exit pointer to the next variable after the found one
++ * Return:	found variable
++ */
 +struct efi_var_entry *efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
 +				       struct efi_var_entry **next);
 +
++/**
++ * efi_var_mem_del() - delete a variable from the list of variables
++ *
++ * @var:	variable to delete
++ */
 +void efi_var_mem_del(struct efi_var_entry *var);
 +
++/**
++ * efi_var_mem_ins() - append a variable to the list of variables
++ *
++ * The variable is appended without checking if a variable of the same name
++ * already exists. The two data buffers are concatenated.
++ *
++ * @name:	variable name
++ * @vendor:	GUID
++ * @attributes:	variable attributes
++ * @size1:	size of the first data buffer
++ * @data1:	first data buffer
++ * @size2:	size of the second data field
++ * @data2:	second data buffer
++ * Result:	status code
++ */
 +efi_status_t efi_var_mem_ins(u16 *variable_name,
 +			     const efi_guid_t *vendor, u32 attributes,
 +			     const efi_uintn_t size1, const void *data1,
 +			     const efi_uintn_t size2, const void *data2);
 +
++/**
++ * efi_var_mem_free() - determine free memory for variables
++ *
++ * Return:	maximum data size plus variable name size
++ */
 +u64 efi_var_mem_free(void);
 +
  #endif
@@ -53,10 +91,10 @@ index f4fbe9046d..0ff37beac2 100644
  else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..f16de53735
+index 0000000000..f9fef78c75
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_mem.c
-@@ -0,0 +1,298 @@
+@@ -0,0 +1,260 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -110,14 +148,6 @@ index 0000000000..f16de53735
 +	return match;
 +}
 +
-+/**
-+ * efi_var_mem_find() - find a variable in the list
-+ *
-+ * @guid:	GUID of the variable
-+ * @name:	name of the variable
-+ * @next:	on exit pointer to the next variable after the found one
-+ * Return:	found variable
-+ */
 +struct efi_var_entry __efi_runtime
 +*efi_var_mem_find(const efi_guid_t *guid, const u16 *name,
 +		  struct efi_var_entry **next)
@@ -164,11 +194,6 @@ index 0000000000..f16de53735
 +	return NULL;
 +}
 +
-+/**
-+ * efi_var_mem_del() - delete a variable from the list of variables
-+ *
-+ * @var:	variable to delete
-+ */
 +void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 +{
 +	u16 *data = var->name;
@@ -198,21 +223,6 @@ index 0000000000..f16de53735
 +				   sizeof(struct efi_var_file));
 +}
 +
-+/**
-+ * efi_var_mem_ins() - append a variable to the list of variables
-+ *
-+ * The variable is appended without checking if a variable of the same name
-+ * already exists. The two data buffers are concatenated.
-+ *
-+ * @name:	variable name
-+ * @vendor:	GUID
-+ * @attributes:	variable attributes
-+ * @size1:	size of the first data buffer
-+ * @data1:	first data buffer
-+ * @size2:	size of the second data field
-+ * @data2:	second data buffer
-+ * Result:	status code
-+ */
 +efi_status_t __efi_runtime efi_var_mem_ins(
 +				u16 *variable_name,
 +				const efi_guid_t *vendor, u32 attributes,
@@ -253,11 +263,6 @@ index 0000000000..f16de53735
 +	return EFI_SUCCESS;
 +}
 +
-+/**
-+ * efi_var_mem_free() - determine free memory for variables
-+ *
-+ * Return:	maximum data size plus variable name size
-+ */
 +u64 __efi_runtime efi_var_mem_free(void)
 +{
 +	return EFI_VAR_BUF_SIZE - efi_var_buf->length -
@@ -319,11 +324,6 @@ index 0000000000..f16de53735
 +	efi_convert_pointer(0, (void **)&efi_var_buf);
 +}
 +
-+/**
-+ * efi_var_mem_init() - set-up variable list
-+ *
-+ * Return:	status code
-+ */
 +efi_status_t efi_var_mem_init(void)
 +{
 +	u64 memory;
