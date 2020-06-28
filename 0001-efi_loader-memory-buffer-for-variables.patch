@@ -1,4 +1,4 @@
-From 723ff533195b519ac8c5781d6f67f823093f9dfe Mon Sep 17 00:00:00 2001
+From 7c4d54bcba6cb7a5f6fb5764762273a05b6aa179 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -17,11 +17,11 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index da7beb2e03..31835fad02 100644
+index 238b5595d5..fad553d8c1 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -35,6 +35,22 @@ efi_status_t efi_var_to_file(void);
- 
+@@ -121,4 +121,20 @@ efi_status_t efi_var_to_file(void);
+  */
  efi_status_t efi_var_from_file(void);
  
 +void efi_var_mem_memcpy(void *dest, const void *src, size_t n);
@@ -40,21 +40,19 @@ index da7beb2e03..31835fad02 100644
 +
 +u64 efi_var_mem_free(void);
 +
- efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
- 				  u32 *attributes,
- 				  efi_uintn_t *data_size, void *data);
+ #endif
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index b808fdc983..9956b00bf5 100644
+index f4fbe9046d..0ff37beac2 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
-@@ -36,6 +36,7 @@ obj-y += efi_setup.o
+@@ -36,6 +36,7 @@ obj-y += efi_runtime.o
+ obj-y += efi_setup.o
  obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
- obj-y += efi_variable.o
- obj-y += efi_var_file.o
+ obj-y += efi_variable_common.o
 +obj-y += efi_var_mem.o
- obj-y += efi_watchdog.o
- obj-$(CONFIG_LCD) += efi_gop.o
- obj-$(CONFIG_DM_VIDEO) += efi_gop.o
+ ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
+ obj-y += efi_variable_tee.o
+ else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
 index 0000000000..f70cc65f8b
@@ -379,5 +377,5 @@ index 0000000000..f70cc65f8b
 +	return ret;
 +}
 -- 
-2.25.1
+2.27.0
 
