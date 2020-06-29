@@ -1,4 +1,4 @@
-From 4a824ee7cadfba69fa710638a978389794ec7e6a Mon Sep 17 00:00:00 2001
+From a368c79cdcdd8c7fbc305d042969ea288678839f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -12,8 +12,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_variable.h       |  52 +++++++
  lib/efi_loader/Makefile      |   1 +
- lib/efi_loader/efi_var_mem.c | 260 +++++++++++++++++++++++++++++++++++
- 3 files changed, 313 insertions(+)
+ lib/efi_loader/efi_var_mem.c | 267 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 320 insertions(+)
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
@@ -91,10 +91,10 @@ index f4fbe9046d..0ff37beac2 100644
  else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..f9fef78c75
+index 0000000000..1a952dfe0f
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_mem.c
-@@ -0,0 +1,260 @@
+@@ -0,0 +1,267 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -308,8 +308,15 @@ index 0000000000..f9fef78c75
 +static void EFIAPI __efi_runtime
 +efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
 +{
++	EFI_ENTRY("%p, %p", event, context);
++
++	/* Write non-volatile EFI variables to file */
++	efi_var_to_file();
++
 +	/* Delete boot service only variables */
 +	efi_var_mem_bs_del();
++
++	EFI_EXIT(EFI_SUCCESS);
 +}
 +
 +/**
