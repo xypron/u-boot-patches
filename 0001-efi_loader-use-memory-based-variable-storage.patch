@@ -14,26 +14,6 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  lib/efi_loader/efi_variable.c | 579 ++++++++--------------------------
  2 files changed, 139 insertions(+), 447 deletions(-)
 
-diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
-index f70cc65f8b..939fbaa972 100644
---- a/lib/efi_loader/efi_var_mem.c
-+++ b/lib/efi_loader/efi_var_mem.c
-@@ -263,8 +263,15 @@ static void efi_var_mem_bs_del(void)
- static void EFIAPI __efi_runtime
- efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
- {
-+	EFI_ENTRY("%p, %p", event, context);
-+
-+	/* Write non-volatile EFI variables to file */
-+	efi_var_to_file();
-+
- 	/* Delete boot service only variables */
- 	efi_var_mem_bs_del();
-+
-+	EFI_EXIT(EFI_SUCCESS);
- }
- 
- /**
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
 index fcfbb06408..678cdfb44c 100644
 --- a/lib/efi_loader/efi_variable.c
