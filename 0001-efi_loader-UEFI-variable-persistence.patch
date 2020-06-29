@@ -1,15 +1,12 @@
-From 322f4ede8b18a42655ebf546a66c4042fc95353e Mon Sep 17 00:00:00 2001
+From 08b7685cd2d124917f7685811cc3a3c293c9a14f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
 
 Persist non-volatile UEFI variables in a file on the EFI system partition.
 
-The file is written:
-
-* whenever a non-volatile UEFI variable is changed after initialization
-  of the UEFI sub-system.
-* upon ExitBootServices()
+The file is written whenever a non-volatile UEFI variable is changed after
+initialization of the UEFI sub-system.
 
 The file is read during the UEFI sub-system initialization to restore
 non-volatile UEFI variables.
@@ -20,12 +17,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  lib/efi_loader/Kconfig        |   8 ++
  lib/efi_loader/Makefile       |   1 +
  lib/efi_loader/efi_var_file.c | 238 ++++++++++++++++++++++++++++++++++
- lib/efi_loader/efi_variable.c |  11 +-
- 5 files changed, 300 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_variable.c |   8 +-
+ 5 files changed, 297 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 3dd2dd3047..cfe5f20a6c 100644
+index 258979d2a5..238b5595d5 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
 @@ -78,4 +78,47 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
@@ -352,7 +349,7 @@ index 0000000000..09a032a3ce
 +	return EFI_SUCCESS;
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 28d59dc739..1f224743a2 100644
+index 222115248e..07f970f683 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -1025,6 +1025,11 @@ out:
@@ -367,18 +364,15 @@ index 28d59dc739..1f224743a2 100644
  err:
  	free(native_name);
  	free(old_data);
-@@ -1120,6 +1125,10 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+@@ -1120,6 +1125,7 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
   */
  void efi_variables_boot_exit_notify(void)
  {
-+	/* Write non-volatile EFI variables to file */
-+	efi_var_to_file();
-+
 +	/* Switch variable services functions to runtime version */
  	efi_runtime_services.get_variable = efi_get_variable_runtime;
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
-@@ -1141,5 +1150,5 @@ efi_status_t efi_init_variables(void)
+@@ -1141,5 +1147,5 @@ efi_status_t efi_init_variables(void)
  
  	ret = efi_init_secure_state();
  
