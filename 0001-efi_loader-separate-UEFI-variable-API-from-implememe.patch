@@ -1,4 +1,4 @@
-From 8792b2c2b8e393fe45036ee06cf65b03319ceabb Mon Sep 17 00:00:00 2001
+From 94b3656b4cae79faacd6d6db64c5ed8dd65db156 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 26 Jun 2020 17:57:48 +0200
 Subject: [PATCH 1/1] efi_loader: separate UEFI variable API from
@@ -12,11 +12,11 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_variable.h               | 39 +++++++++++++++++
  lib/efi_loader/efi_variable.c        | 57 +++++++++++--------------
  lib/efi_loader/efi_variable_common.c | 62 ++++++++++++++++++++++++++++
- lib/efi_loader/efi_variable_tee.c    | 53 ++++--------------------
- 4 files changed, 133 insertions(+), 78 deletions(-)
+ lib/efi_loader/efi_variable_tee.c    | 55 ++++--------------------
+ 4 files changed, 134 insertions(+), 79 deletions(-)
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 53f45b519a..3dd2dd3047 100644
+index 5c7f6efc09..258979d2a5 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
 @@ -39,4 +39,43 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
@@ -270,7 +270,7 @@ index b3ca50a38e..a13a968111 100644
 +	return EFI_EXIT(ret);
 +}
 diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
-index 2513878c82..72d469e3f0 100644
+index 2513878c82..d7a65d748b 100644
 --- a/lib/efi_loader/efi_variable_tee.c
 +++ b/lib/efi_loader/efi_variable_tee.c
 @@ -312,23 +312,9 @@ out:
@@ -360,6 +360,15 @@ index 2513878c82..72d469e3f0 100644
  	payload_size = sizeof(*mm_query_info);
  	comm_buf = setup_mm_hdr((void **)&mm_query_info, payload_size,
  				SMM_VARIABLE_FUNCTION_QUERY_VARIABLE_INFO,
+@@ -499,7 +462,7 @@ efi_query_variable_info(u32 attributes, u64 *max_variable_storage_size,
+ 
+ out:
+ 	free(comm_buf);
+-	return EFI_EXIT(ret);
++	return ret;
+ }
+ 
+ /**
 -- 
 2.27.0
 
