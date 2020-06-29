@@ -65,7 +65,8 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
-# efi-2020-07-rc6
+# efi-2020-07-rc6-2
+git am ../patch/0001-efi_loader-fix-incorrect-use-of-EFI_EXIT.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
