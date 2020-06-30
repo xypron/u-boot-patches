@@ -70,6 +70,7 @@ git am ../patch/0001-efi_loader-fix-incorrect-use-of-EFI_EXIT.patch
 
 # efi-2020-10
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
+git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
 
 git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
@@ -84,14 +85,10 @@ git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
 git am ../patch/0001-efi_loader-new-function-efi_memcpy_runtime.patch
 git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
+git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 
 exit
-git am ../patch/0001-efi_loader-eliminate-EFI_CALL-for-variable-access.patch
-git am ../patch/0001-efi_loader-support-read-only-variables.patch
-git am ../patch/0001-efi_loader-PlatformLangCodes-must-be-read-only.patch
-git am ../patch/0001-efi_loader-printenv-e-should-show-read-only-flag.patch
 
-git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
 git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
 exit
