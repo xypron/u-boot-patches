@@ -1,4 +1,4 @@
-From 5e2e0488be80f0dfe2aef58fe2aad31eacdc75dc Mon Sep 17 00:00:00 2001
+From f24b88ee1141c58f7730da10f9967e711b62e343 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 26 Jun 2020 06:24:30 +0200
 Subject: [PATCH v2 1/1] riscv: use log functions in fdt_fixup
@@ -14,12 +14,13 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
 v2:
 	define the log category as LOGC_ARCH
+	rebase the patch upon "Assorted fixes related to reserved memory"
 ---
  arch/riscv/lib/fdt_fixup.c | 14 ++++++++------
  1 file changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/arch/riscv/lib/fdt_fixup.c b/arch/riscv/lib/fdt_fixup.c
-index 6db48ad04a..9fb9367a94 100644
+index fab93873d5..2780475c5d 100644
 --- a/arch/riscv/lib/fdt_fixup.c
 +++ b/arch/riscv/lib/fdt_fixup.c
 @@ -4,6 +4,8 @@
@@ -41,8 +42,8 @@ index 6db48ad04a..9fb9367a94 100644
  	}
  
 @@ -48,7 +50,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
- 							  "reg", 0, &size,
- 							  false);
+ 							"reg", 0, &size,
+ 							false);
  		if (addr == FDT_ADDR_T_NONE) {
 -			debug("failed to read address/size for %s\n", name);
 +			log_debug("failed to read address/size for %s\n", name);
@@ -52,7 +53,7 @@ index 6db48ad04a..9fb9367a94 100644
 @@ -63,7 +65,7 @@ int riscv_fdt_copy_resv_mem_node(const void *src, void *dst)
  		err = fdtdec_add_reserved_memory(dst, basename, &pmp_mem,
  						 &phandle);
- 		if (err < 0) {
+ 		if (err < 0 && err != -FDT_ERR_EXISTS) {
 -			printf("failed to add reserved memory: %d\n", err);
 +			log_err("failed to add reserved memory: %d\n", err);
  			return err;
