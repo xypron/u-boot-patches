@@ -1,4 +1,4 @@
-From 08b7685cd2d124917f7685811cc3a3c293c9a14f Mon Sep 17 00:00:00 2001
+From 6f8dbb15a09d00f3254b13573c117c6d54325ca3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -17,8 +17,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  lib/efi_loader/Kconfig        |   8 ++
  lib/efi_loader/Makefile       |   1 +
  lib/efi_loader/efi_var_file.c | 238 ++++++++++++++++++++++++++++++++++
- lib/efi_loader/efi_variable.c |   8 +-
- 5 files changed, 297 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_variable.c |  10 +-
+ 5 files changed, 299 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
@@ -349,7 +349,7 @@ index 0000000000..09a032a3ce
 +	return EFI_SUCCESS;
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 222115248e..07f970f683 100644
+index 28d59dc739..5d239c042a 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -1025,6 +1025,11 @@ out:
@@ -372,9 +372,12 @@ index 222115248e..07f970f683 100644
  	efi_runtime_services.get_variable = efi_get_variable_runtime;
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
-@@ -1141,5 +1147,5 @@ efi_status_t efi_init_variables(void)
+@@ -1140,6 +1146,8 @@ efi_status_t efi_init_variables(void)
+ 	efi_status_t ret;
  
  	ret = efi_init_secure_state();
++	if (ret != EFI_SUCCESS)
++		return ret;
  
 -	return ret;
 +	return efi_var_from_file();
