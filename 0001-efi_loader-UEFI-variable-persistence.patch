@@ -1,4 +1,4 @@
-From 6f8dbb15a09d00f3254b13573c117c6d54325ca3 Mon Sep 17 00:00:00 2001
+From c0d5470131c46a602826d8413ec7d863a575b659 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
 Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
@@ -13,19 +13,19 @@ non-volatile UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h        |  43 ++++++
+ include/efi_variable.h        |  60 +++++++++
  lib/efi_loader/Kconfig        |   8 ++
  lib/efi_loader/Makefile       |   1 +
  lib/efi_loader/efi_var_file.c | 238 ++++++++++++++++++++++++++++++++++
  lib/efi_loader/efi_variable.c |  10 +-
- 5 files changed, 299 insertions(+), 1 deletion(-)
+ 5 files changed, 316 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 258979d2a5..238b5595d5 100644
+index 258979d2a5..fe54088b4a 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -78,4 +78,47 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+@@ -78,4 +78,64 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  					 u64 *remaining_variable_storage_size,
  					 u64 *maximum_variable_size);
  
@@ -33,21 +33,38 @@ index 258979d2a5..238b5595d5 100644
 +
 +#define EFI_VAR_BUF_SIZE 0x4000
 +
-+#define EFI_VAR_FILE_MAGIC 0x7261566966456255 /* UbEfiVar */
++#define EFI_VAR_FILE_MAGIC 0x0161566966456255 /* UbEfiVa, version 1 */
 +
++/**
++ * struct efi_var_entry - UEFI variable file entry
++ *
++ * @length:	length of enty, multiple of 8
++ * @attr:	variable attributes
++ * @guid:	vendor GUID
++ * @name:	UTF16 variable name
++ */
 +struct efi_var_entry {
 +	u32 length;
 +	u32 attr;
 +	efi_guid_t guid;
-+	u16 name[0];
++	u16 name[];
 +};
 +
++/**
++ * struct efi_var_file - file for storing UEFI variables
++ *
++ * @reserved:	unused, may be overwritten by memory probing
++ * @magic:	identifies file format
++ * @length:	length including header
++ * @crc32:	CRC32 without header
++ * @var:	variables
++ */
 +struct efi_var_file {
-+	u64 reserved; /* May be overwritten by memory probing */
++	u64 reserved;
 +	u64 magic;
 +	u32 length;
 +	u32 crc32;
-+	struct efi_var_entry var[0];
++	struct efi_var_entry var[];
 +};
 +
 +/**
