@@ -69,6 +69,7 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 git am ../patch/0001-efi_loader-fix-incorrect-use-of-EFI_EXIT.patch
 
 # efi-2020-10
+git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
 
