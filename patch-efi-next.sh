@@ -70,6 +70,9 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # efi-2020-07-rc6-2
 
 # efi-2020-10
+git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
+git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
+
 git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
 git am ../patch/0001-test-provide-tests-for-efi_image_region_add.patch
 git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
