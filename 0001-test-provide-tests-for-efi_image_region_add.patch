@@ -1,6 +1,6 @@
-From af81788a601751fdc53de88d1bcd60fcc189ca3e Mon Sep 17 00:00:00 2001
+From f5591e9ac9da5895f974326597866e2491345886 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Wed, 1 Jul 2020 19:40:06 +0200
+Date: Wed, 1 Jul 2020 20:01:53 +0200
 Subject: [PATCH 1/1] test: provide tests for efi_image_region_add()
 
 Provide unit tests for efi_image_region_add().
@@ -9,12 +9,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS                 |   1 +
  test/lib/Makefile           |   1 +
- test/lib/efi_image_region.c | 165 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 167 insertions(+)
+ test/lib/efi_image_region.c | 163 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 165 insertions(+)
  create mode 100644 test/lib/efi_image_region.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index db8cecd5e0..b515bf3d93 100644
+index 0623da095f..a4b581eb3a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
 @@ -633,6 +633,7 @@ F:	include/pe.h
@@ -39,10 +39,10 @@ index ce9ae4a9be..6ccc2c41bc 100644
  obj-y += string.o
 diff --git a/test/lib/efi_image_region.c b/test/lib/efi_image_region.c
 new file mode 100644
-index 0000000000..fe4f12d99f
+index 0000000000..cc7bfd7bf6
 --- /dev/null
 +++ b/test/lib/efi_image_region.c
-@@ -0,0 +1,165 @@
+@@ -0,0 +1,163 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * (C) Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -59,7 +59,7 @@ index 0000000000..fe4f12d99f
 +static int lib_test_efi_image_region_add(struct unit_test_state *uts)
 +{
 +	struct efi_image_regions *regs;
-+	
++
 +	regs = calloc(sizeof(*regs) +
 +		      sizeof(struct image_region) * UT_REG_CAPACITY, 1);
 +	ut_assert(regs);
@@ -107,9 +107,8 @@ index 0000000000..fe4f12d99f
 +	ut_asserteq_ptr((void *)0x1f00, regs->reg[4].data);
 +	ut_asserteq(0x0101, regs->reg[4].size);
 +
-+
 +	free(regs);
-+	
++
 +	return 0;
 +}
 +
@@ -118,7 +117,7 @@ index 0000000000..fe4f12d99f
 +static int lib_test_efi_image_region_sort(struct unit_test_state *uts)
 +{
 +	struct efi_image_regions *regs;
-+	
++
 +	regs = calloc(sizeof(*regs) +
 +		      sizeof(struct image_region) * UT_REG_CAPACITY, 1);
 +	ut_assert(regs);
@@ -127,8 +126,8 @@ index 0000000000..fe4f12d99f
 +
 +	ut_asserteq(0, regs->num);
 +	ut_asserteq_64(EFI_INVALID_PARAMETER,
-+		       efi_image_region_add(regs, (void *)0x4000, (void *)0x3000,
-+		    			 0));
++		       efi_image_region_add(regs, (void *)0x4000,
++					    (void *)0x3000, 0));
 +	ut_asserteq(0, regs->num);
 +	ut_asserteq_64(EFI_SUCCESS,
 +		       efi_image_region_add(regs, (void *)0x3100,
@@ -180,7 +179,7 @@ index 0000000000..fe4f12d99f
 +	ut_asserteq(6, regs->num);
 +	ut_asserteq_64(EFI_OUT_OF_RESOURCES,
 +		       efi_image_region_add(regs, (void *)0x6000,
-+		       			    (void *)0x0100, 0));
++					    (void *)0x0100, 0));
 +	ut_asserteq(6, regs->num);
 +
 +	ut_asserteq_ptr((void *)0x1000, regs->reg[0].data);
@@ -201,9 +200,8 @@ index 0000000000..fe4f12d99f
 +	ut_asserteq_ptr((void *)0x4000, regs->reg[5].data);
 +	ut_asserteq(0x0e00, regs->reg[5].size);
 +
-+
 +	free(regs);
-+	
++
 +	return 0;
 +}
 +
