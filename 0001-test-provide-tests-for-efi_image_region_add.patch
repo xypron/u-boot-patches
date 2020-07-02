@@ -1,4 +1,4 @@
-From f5591e9ac9da5895f974326597866e2491345886 Mon Sep 17 00:00:00 2001
+From 8b1061665bba4fa8c1a580e793f0ac9646f5cbc7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 Jul 2020 20:01:53 +0200
 Subject: [PATCH 1/1] test: provide tests for efi_image_region_add()
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 test/lib/efi_image_region.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 0623da095f..a4b581eb3a 100644
+index db8cecd5e0..b515bf3d93 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
 @@ -633,6 +633,7 @@ F:	include/pe.h
@@ -39,7 +39,7 @@ index ce9ae4a9be..6ccc2c41bc 100644
  obj-y += string.o
 diff --git a/test/lib/efi_image_region.c b/test/lib/efi_image_region.c
 new file mode 100644
-index 0000000000..cc7bfd7bf6
+index 0000000000..0b888f8433
 --- /dev/null
 +++ b/test/lib/efi_image_region.c
 @@ -0,0 +1,163 @@
@@ -87,7 +87,7 @@ index 0000000000..cc7bfd7bf6
 +		       efi_image_region_add(regs, (void *)0x4000,
 +					    (void *)0x4e00, 1));
 +	ut_asserteq(4, regs->num);
-+	ut_asserteq_64(EFI_INVALID_PARAMETER,
++	ut_asserteq_64(EFI_SUCCESS,
 +		       efi_image_region_add(regs, (void *)0x1f00,
 +					    (void *)0x2001, 1));
 +	ut_asserteq(5, regs->num);
