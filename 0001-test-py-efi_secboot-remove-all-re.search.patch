@@ -7,7 +7,7 @@ Currently, we don't use any regular expression in matching outputs from
 U-Boot. Since its use is just redundant, we can remove all.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  .../py/tests/test_efi_secboot/test_authvar.py | 73 +++++++++----------
  test/py/tests/test_efi_secboot/test_signed.py | 34 ++++-----

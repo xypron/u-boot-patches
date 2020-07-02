@@ -77,24 +77,6 @@ index 5d99b8b718..ac5a780fdb 100644
                              % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
                              shell=True)
  
-diff --git a/test/py/tests/test_efi_secboot/test_authvar.py b/test/py/tests/test_efi_secboot/test_authvar.py
-index 9912694a3e..e28bb280e6 100644
---- a/test/py/tests/test_efi_secboot/test_authvar.py
-+++ b/test/py/tests/test_efi_secboot/test_authvar.py
-@@ -111,11 +111,12 @@ class TestEfiAuthVar(object):
-                 'setenv -e -nv -bs -rt -i 4000000,$filesize db'])
-             assert(re.search('Failed to set EFI variable', ''.join(output)))
- 
-+            # We cannot load the variable twice with the same time stamp.
-             output = u_boot_console.run_command_list([
-                 'fatload host 0:1 4000000 db.auth',
-                 'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
-                 'printenv -e -n -guid d719b2cb-3d3a-4596-a3bc-dad00e67656f db'])
--            assert(not re.search('Failed to set EFI variable', ''.join(output)))
-+            assert(re.search('Failed to set EFI variable', ''.join(output)))
-             assert(re.search('db:', ''.join(output)))
- 
-             output = u_boot_console.run_command(
 -- 
 2.27.0
 

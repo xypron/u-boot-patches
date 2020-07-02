@@ -8,7 +8,7 @@ and it ends up being the exact same as (1f).
 So correct it as "dbx" test case.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/test_authvar.py | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
