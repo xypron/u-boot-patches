@@ -74,6 +74,7 @@ git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
 git am ../patch/0001-test-provide-tests-for-efi_image_region_add.patch
 git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
 git am ../patch/0001-efi_loader-time-based-authentication.patch
+git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
 
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
