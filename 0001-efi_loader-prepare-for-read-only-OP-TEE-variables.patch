@@ -1,4 +1,4 @@
-From 4f2d7e536aaf1c1bb94fc7675d1ede1f09a9abe5 Mon Sep 17 00:00:00 2001
+From ea9190ae2f649f97225338ed342beb463826b45a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 22 Jun 2020 18:10:27 +0200
 Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
@@ -19,21 +19,21 @@ related definitions into new include efi_variable.h instead of efi_loader.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h               |  42 +++++++
+ include/efi_variable.h               |  43 +++++++
  lib/efi_loader/Makefile              |   1 +
- lib/efi_loader/efi_variable.c        | 173 ++++++++-------------------
+ lib/efi_loader/efi_variable.c        | 175 ++++++++-------------------
  lib/efi_loader/efi_variable_common.c |  78 ++++++++++++
  lib/efi_loader/efi_variable_tee.c    |  75 ++++--------
- 5 files changed, 190 insertions(+), 179 deletions(-)
+ 5 files changed, 191 insertions(+), 181 deletions(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_variable_common.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
-index 0000000000..5c7f6efc09
+index 0000000000..6789118eba
 --- /dev/null
 +++ b/include/efi_variable.h
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,43 @@
 +/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -54,11 +54,12 @@ index 0000000000..5c7f6efc09
 + * @attributes:		attributes of the variable
 + * @data_size:		size of the buffer to which the variable value is copied
 + * @data:		buffer to which the variable value is copied
++ * @timep:		authentication time (seconds since start of epoch)
 + * Return:		status code
 + */
 +efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 +				  u32 *attributes, efi_uintn_t *data_size,
-+				  void *data);
++				  void *data, u64 *timep);
 +
 +/**
 + * efi_set_variable() - set value of a UEFI variable
@@ -89,7 +90,7 @@ index 57c7e66ea0..16b93ef7f0 100644
  obj-y += efi_variable_tee.o
  else
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 6271dbcf41..b7d542d9de 100644
+index 4524f44c01..8e42019dbc 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -7,6 +7,7 @@
@@ -108,7 +109,7 @@ index 6271dbcf41..b7d542d9de 100644
  #include <linux/compat.h>
  #include <u-boot/crc.h>
  
-@@ -30,20 +30,6 @@ static bool efi_secure_boot;
+@@ -30,21 +30,6 @@ static bool efi_secure_boot;
  static enum efi_secure_mode efi_secure_mode;
  static u8 efi_vendor_keys;
  
@@ -117,7 +118,8 @@ index 6271dbcf41..b7d542d9de 100644
 -static efi_status_t efi_get_variable_common(u16 *variable_name,
 -					    const efi_guid_t *vendor,
 -					    u32 *attributes,
--					    efi_uintn_t *data_size, void *data);
+-					    efi_uintn_t *data_size, void *data,
+-					    u64 *timep);
 -
 -static efi_status_t efi_set_variable_common(u16 *variable_name,
 -					    const efi_guid_t *vendor,
@@ -129,7 +131,7 @@ index 6271dbcf41..b7d542d9de 100644
  /*
   * Mapping between EFI variables and u-boot variables:
   *
-@@ -154,7 +140,7 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
+@@ -155,7 +140,7 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
  		str++;
  
  		if ((s = prefix(str, "ro"))) {
@@ -138,7 +140,7 @@ index 6271dbcf41..b7d542d9de 100644
  		} else if ((s = prefix(str, "nv"))) {
  			attr |= EFI_VARIABLE_NON_VOLATILE;
  		} else if ((s = prefix(str, "boot"))) {
-@@ -202,29 +188,29 @@ static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
+@@ -203,29 +188,29 @@ static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
  
  	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
  		     EFI_VARIABLE_RUNTIME_ACCESS |
@@ -182,7 +184,7 @@ index 6271dbcf41..b7d542d9de 100644
  err:
  	return ret;
  }
-@@ -234,7 +220,7 @@ err:
+@@ -235,7 +220,7 @@ err:
   * @mode:	new state
   *
   * Depending on @mode, secure boot related variables are updated.
@@ -191,7 +193,7 @@ index 6271dbcf41..b7d542d9de 100644
   * is called here.
   *
   * Return:	status code
-@@ -252,10 +238,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+@@ -253,10 +238,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
  
  		efi_secure_boot = true;
  	} else if (mode == EFI_MODE_AUDIT) {
@@ -206,18 +208,18 @@ index 6271dbcf41..b7d542d9de 100644
  		if (ret != EFI_SUCCESS)
  			goto err;
  
-@@ -307,8 +293,8 @@ static efi_status_t efi_init_secure_state(void)
+@@ -308,8 +293,8 @@ static efi_status_t efi_init_secure_state(void)
  	 */
  
  	size = 0;
 -	ret = efi_get_variable_common(L"PK", &efi_global_variable_guid,
--				      NULL, &size, NULL);
+-				      NULL, &size, NULL, NULL);
 +	ret = efi_get_variable_int(L"PK", &efi_global_variable_guid,
-+				   NULL, &size, NULL);
++				   NULL, &size, NULL, NULL);
  	if (ret == EFI_BUFFER_TOO_SMALL) {
  		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
  			mode = EFI_MODE_USER;
-@@ -325,13 +311,13 @@ static efi_status_t efi_init_secure_state(void)
+@@ -326,13 +311,13 @@ static efi_status_t efi_init_secure_state(void)
  
  	ret = efi_transfer_secure_state(mode);
  	if (ret == EFI_SUCCESS)
@@ -238,21 +240,22 @@ index 6271dbcf41..b7d542d9de 100644
  
  err:
  	return ret;
-@@ -593,10 +579,9 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
+@@ -598,11 +583,9 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
  }
  #endif /* CONFIG_EFI_SECURE_BOOT */
  
 -static efi_status_t efi_get_variable_common(u16 *variable_name,
 -					    const efi_guid_t *vendor,
 -					    u32 *attributes,
--					    efi_uintn_t *data_size, void *data)
+-					    efi_uintn_t *data_size, void *data,
+-					    u64 *timep)
 +efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 +				  u32 *attributes, efi_uintn_t *data_size,
-+				  void *data)
++				  void *data, u64 *timep)
  {
  	char *native_name;
  	efi_status_t ret;
-@@ -674,40 +659,11 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
+@@ -683,40 +666,11 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
  
  out:
  	if (attributes)
@@ -287,14 +290,14 @@ index 6271dbcf41..b7d542d9de 100644
 -		  data_size, data);
 -
 -	ret = efi_get_variable_common(variable_name, vendor, attributes,
--				      data_size, data);
+-				      data_size, data, NULL);
 -	return EFI_EXIT(ret);
 -}
 -
  static char *efi_variables_list;
  static char *efi_cur_variable;
  
-@@ -871,12 +827,9 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -880,12 +834,9 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	return EFI_EXIT(ret);
  }
  
@@ -310,14 +313,14 @@ index 6271dbcf41..b7d542d9de 100644
  {
  	char *native_name = NULL, *old_data = NULL, *val = NULL, *s;
  	efi_uintn_t old_size;
-@@ -899,15 +852,15 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -908,15 +859,15 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	/* check if a variable exists */
  	old_size = 0;
  	attr = 0;
 -	ret = efi_get_variable_common(variable_name, vendor, &attr,
--				      &old_size, NULL);
+-				      &old_size, NULL, &time);
 +	ret = efi_get_variable_int(variable_name, vendor, &attr,
-+				   &old_size, NULL);
++				   &old_size, NULL, &time);
  	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
  	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
  	delete = !append && (!data_size || !attributes);
@@ -329,7 +332,7 @@ index 6271dbcf41..b7d542d9de 100644
  			ret = EFI_WRITE_PROTECTED;
  			goto err;
  		}
-@@ -915,8 +868,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -924,8 +875,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  		/* attributes won't be changed */
  		if (!delete &&
  		    ((ro_check && attr != attributes) ||
@@ -340,18 +343,18 @@ index 6271dbcf41..b7d542d9de 100644
  			ret = EFI_INVALID_PARAMETER;
  			goto err;
  		}
-@@ -990,8 +943,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -999,8 +950,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  			ret = EFI_OUT_OF_RESOURCES;
  			goto err;
  		}
 -		ret = efi_get_variable_common(variable_name, vendor,
--					      &attr, &old_size, old_data);
+-					      &attr, &old_size, old_data, NULL);
 +		ret = efi_get_variable_int(variable_name, vendor,
-+					   &attr, &old_size, old_data);
++					   &attr, &old_size, old_data, NULL);
  		if (ret != EFI_SUCCESS)
  			goto err;
  	} else {
-@@ -1011,7 +964,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1020,7 +971,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	/*
  	 * store attributes
  	 */
@@ -360,7 +363,7 @@ index 6271dbcf41..b7d542d9de 100644
  		       EFI_VARIABLE_NON_VOLATILE |
  		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
  		       EFI_VARIABLE_RUNTIME_ACCESS |
-@@ -1020,7 +973,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1029,7 +980,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	while (attributes) {
  		attr = 1 << (ffs(attributes) - 1);
  
@@ -369,7 +372,7 @@ index 6271dbcf41..b7d542d9de 100644
  			s += sprintf(s, "ro");
  		} else if (attr == EFI_VARIABLE_NON_VOLATILE) {
  			s += sprintf(s, "nv");
-@@ -1074,12 +1027,12 @@ out:
+@@ -1083,12 +1034,12 @@ out:
  		/* update VendorKeys */
  		if (vendor_keys_modified & efi_vendor_keys) {
  			efi_vendor_keys = 0;
@@ -384,7 +387,7 @@ index 6271dbcf41..b7d542d9de 100644
  						sizeof(efi_vendor_keys),
  						&efi_vendor_keys,
  						false);
-@@ -1096,36 +1049,6 @@ err:
+@@ -1105,36 +1056,6 @@ err:
  	return ret;
  }
  
@@ -423,7 +426,7 @@ index 6271dbcf41..b7d542d9de 100644
   *
 diff --git a/lib/efi_loader/efi_variable_common.c b/lib/efi_loader/efi_variable_common.c
 new file mode 100644
-index 0000000000..b3ca50a38e
+index 0000000000..6a4efa3f27
 --- /dev/null
 +++ b/lib/efi_loader/efi_variable_common.c
 @@ -0,0 +1,78 @@
@@ -463,7 +466,7 @@ index 0000000000..b3ca50a38e
 +		  data_size, data);
 +
 +	ret = efi_get_variable_int(variable_name, vendor, attributes,
-+				   data_size, data);
++				   data_size, data, NULL);
 +
 +	/* Remove EFI_VARIABLE_READ_ONLY flag */
 +	if (attributes)
@@ -506,7 +509,7 @@ index 0000000000..b3ca50a38e
 +	return EFI_EXIT(ret);
 +}
 diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
-index cacc76e23d..2513878c82 100644
+index cacc76e23d..d5a28163f5 100644
 --- a/lib/efi_loader/efi_variable_tee.c
 +++ b/lib/efi_loader/efi_variable_tee.c
 @@ -10,6 +10,7 @@
@@ -541,7 +544,7 @@ index cacc76e23d..2513878c82 100644
 -				     void *data)
 +efi_status_t efi_get_variable_int(u16 *variable_name, const efi_guid_t *vendor,
 +				  u32 *attributes, efi_uintn_t *data_size,
-+				  void *data)
++				  void *data, u64 *timep)
  {
  	struct smm_variable_access *var_acc;
  	efi_uintn_t payload_size;
