@@ -1,4 +1,4 @@
-From 7b517e114bb382f22c6f6c9d1585c7c18f4c86cc Mon Sep 17 00:00:00 2001
+From 308082612be815b84d17258fc66d3aa6a517bbe3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 24 Jun 2020 19:09:18 +0200
 Subject: [PATCH 1/1] efi_loader: simplify boot manager
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 12 insertions(+), 16 deletions(-)
 
 diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
-index e268e9c4b8..87b8345965 100644
+index e268e9c4b8..e03198b57a 100644
 --- a/lib/efi_loader/efi_bootmgr.c
 +++ b/lib/efi_loader/efi_bootmgr.c
 @@ -12,6 +12,7 @@
@@ -35,11 +35,11 @@ index e268e9c4b8..87b8345965 100644
  
  	*size = 0;
 -	EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
-+	ret = efi_get_variable_int(name, vendor, NULL, size, buf);
++	ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
  	if (ret == EFI_BUFFER_TOO_SMALL) {
  		buf = malloc(*size);
 -		EFI_CALL(ret = rs->get_variable(name, v, NULL, size, buf));
-+		ret = efi_get_variable_int(name, vendor, NULL, size, buf);
++		ret = efi_get_variable_int(name, vendor, NULL, size, buf, NULL);
  	}
  
  	if (ret != EFI_SUCCESS) {
@@ -68,7 +68,7 @@ index e268e9c4b8..87b8345965 100644
 -					NULL, &size, &bootnext));
 +	ret = efi_get_variable_int(L"BootNext",
 +				   &efi_global_variable_guid,
-+				   NULL, &size, &bootnext);
++				   NULL, &size, &bootnext, NULL);
  	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
  		/* BootNext does exist here */
  		if (ret == EFI_BUFFER_TOO_SMALL || size != sizeof(u16))

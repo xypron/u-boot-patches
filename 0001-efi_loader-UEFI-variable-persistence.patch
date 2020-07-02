@@ -1,7 +1,7 @@
-From c0d5470131c46a602826d8413ec7d863a575b659 Mon Sep 17 00:00:00 2001
+From 27eeb0af05651df1e6a1875b121dd6e7793951ba Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Mar 2020 18:21:58 +0000
-Subject: [PATCH 1/1] efi_loader: UEFI variable persistence
+Subject: [PATCH] efi_loader: UEFI variable persistence
 
 Persist non-volatile UEFI variables in a file on the EFI system partition.
 
@@ -13,19 +13,19 @@ non-volatile UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h        |  60 +++++++++
+ include/efi_variable.h        |  62 +++++++++
  lib/efi_loader/Kconfig        |   8 ++
  lib/efi_loader/Makefile       |   1 +
- lib/efi_loader/efi_var_file.c | 238 ++++++++++++++++++++++++++++++++++
+ lib/efi_loader/efi_var_file.c | 239 ++++++++++++++++++++++++++++++++++
  lib/efi_loader/efi_variable.c |  10 +-
- 5 files changed, 316 insertions(+), 1 deletion(-)
+ 5 files changed, 319 insertions(+), 1 deletion(-)
  create mode 100644 lib/efi_loader/efi_var_file.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 258979d2a5..fe54088b4a 100644
+index 3ba274fce1..01054209c4 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -78,4 +78,64 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+@@ -79,4 +79,66 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  					 u64 *remaining_variable_storage_size,
  					 u64 *maximum_variable_size);
  
@@ -40,12 +40,14 @@ index 258979d2a5..fe54088b4a 100644
 + *
 + * @length:	length of enty, multiple of 8
 + * @attr:	variable attributes
++ * @time:	authentication time (seconds since start of epoch)
 + * @guid:	vendor GUID
 + * @name:	UTF16 variable name
 + */
 +struct efi_var_entry {
 +	u32 length;
 +	u32 attr;
++	u64 time;
 +	efi_guid_t guid;
 +	u16 name[];
 +};
@@ -123,10 +125,10 @@ index 16b93ef7f0..f4fbe9046d 100644
  obj-$(CONFIG_LCD) += efi_gop.o
 diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
 new file mode 100644
-index 0000000000..09a032a3ce
+index 0000000000..b1b7532495
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_file.c
-@@ -0,0 +1,238 @@
+@@ -0,0 +1,239 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -225,7 +227,8 @@ index 0000000000..09a032a3ce
 +		data = (u8 *)var->name + old_var_name_length;
 +		data_length = (uintptr_t)buf + len - (uintptr_t)data;
 +		ret = efi_get_variable_int(var->name, &var->guid,
-+					   &var->attr, &data_length, data);
++					   &var->attr, &data_length, data,
++					   &var->time);
 +		if (ret != EFI_SUCCESS) {
 +			free(buf);
 +			return ret;
@@ -366,10 +369,10 @@ index 0000000000..09a032a3ce
 +	return EFI_SUCCESS;
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 28d59dc739..5d239c042a 100644
+index 89450896f2..6a6f27e684 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -1025,6 +1025,11 @@ out:
+@@ -1032,6 +1032,11 @@ out:
  		}
  	}
  
@@ -381,7 +384,7 @@ index 28d59dc739..5d239c042a 100644
  err:
  	free(native_name);
  	free(old_data);
-@@ -1120,6 +1125,7 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
+@@ -1127,6 +1132,7 @@ efi_set_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
   */
  void efi_variables_boot_exit_notify(void)
  {
@@ -389,7 +392,7 @@ index 28d59dc739..5d239c042a 100644
  	efi_runtime_services.get_variable = efi_get_variable_runtime;
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
-@@ -1140,6 +1146,8 @@ efi_status_t efi_init_variables(void)
+@@ -1147,6 +1153,8 @@ efi_status_t efi_init_variables(void)
  	efi_status_t ret;
  
  	ret = efi_init_secure_state();
