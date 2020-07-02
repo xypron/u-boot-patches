@@ -1,7 +1,7 @@
-From 0af732be068262029b3fa9240becef08260c6bfb Mon Sep 17 00:00:00 2001
+From 999bf596b88616e19bb988144dfbdc3859a72c97 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 1 Jul 2020 12:44:00 +0200
-Subject: [PATCH 1/1] efi_loader: add missing validation of timestamp
+Subject: [PATCH] efi_loader: add missing validation of timestamp
 
 The UEFI specification requires that when UEFI variables are set using time
 based authentication we have to check that unused fields of the timestamp
@@ -13,7 +13,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 6271dbcf41..364feeec40 100644
+index c262cb5972..c9bb281e31 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -480,11 +480,15 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
@@ -22,8 +22,8 @@ index 6271dbcf41..364feeec40 100644
  
 +	memcpy(&timestamp, &auth->time_stamp, sizeof(timestamp));
 +	if (timestamp.pad1 || timestamp.nanosecond || timestamp.timezone ||
-+	   timestamp.daylight || timestamp.pad2)
-+	      goto err;
++	    timestamp.daylight || timestamp.pad2)
++		goto err;
 +
  	*data += sizeof(auth->time_stamp) + auth->auth_info.hdr.dwLength;
  	*data_size -= (sizeof(auth->time_stamp)
