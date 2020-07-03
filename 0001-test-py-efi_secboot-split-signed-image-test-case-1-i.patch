@@ -11,7 +11,7 @@ In addition, one corner case is added to case-2; a image is signed
 but a corresponding certificate is not yet installed in "db."
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/test_signed.py | 66 +++++++++++--------
  1 file changed, 38 insertions(+), 28 deletions(-)
