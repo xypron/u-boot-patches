@@ -1,6 +1,6 @@
-From 7aff37afc7926b3da8f4e4fc366660b04966b489 Mon Sep 17 00:00:00 2001
+From bdd825bfae3f385bc82290201a8bd691c50b60d5 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Fri, 29 May 2020 15:41:26 +0900
+Date: Tue, 9 Jun 2020 14:09:43 +0900
 Subject: [PATCH 1/1] test/py: efi_secboot: fix test case 1g of test_authvar
 
 In the test case (1g) of test_authvar, "db" is mistakenly used,
@@ -14,7 +14,7 @@ Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/test/py/tests/test_efi_secboot/test_authvar.py b/test/py/tests/test_efi_secboot/test_authvar.py
-index 5b7fb8f51c..07cfb46941 100644
+index 766ed92836..148aa3123e 100644
 --- a/test/py/tests/test_efi_secboot/test_authvar.py
 +++ b/test/py/tests/test_efi_secboot/test_authvar.py
 @@ -106,16 +106,16 @@ class TestEfiAuthVar(object):
