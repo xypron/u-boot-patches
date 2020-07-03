@@ -52,8 +52,8 @@ index 6685253856..984db38c92 100644
  
 -		if ((start >= reg->data && start < reg->data + reg->size) ||
 -		    (end > reg->data && end < reg->data + reg->size)) {
--			debug("%s: new region already part of another\n",
--			      __func__);
+-			EFI_PRINT("%s: new region already part of another\n",
+-				  __func__);
 -			return EFI_INVALID_PARAMETER;
 -		}
 -
@@ -68,7 +68,7 @@ index 6685253856..984db38c92 100644
  		}
 +
 +		/* new data overlapping registered region */
-+		debug("%s: new region already part of another\n", __func__);
++		EFI_PRINT("%s: new region already part of another\n", __func__);
 +		return EFI_INVALID_PARAMETER;
  	}
  

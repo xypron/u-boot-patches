@@ -78,6 +78,7 @@ git am ../patch/0001-efi_loader-image_loader-replace-debug-to-EFI_PRINT.patch
 
 git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
 git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
+git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
 git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
 
 git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
