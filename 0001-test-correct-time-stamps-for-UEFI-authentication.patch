@@ -10,9 +10,6 @@ stamps when generating out test data.
 Using parameter -t for sign-efi-sig-list gives reproducible results and
 avoids sleep statements.
 
-In test_authvar.py test 1g loading a variable with the same time stamp
-fails. Correct the expected result.
-
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/conftest.py     | 16 ++++++++--------

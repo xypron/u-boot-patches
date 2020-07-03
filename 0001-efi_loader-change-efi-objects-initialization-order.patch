@@ -1,0 +1,43 @@
+From 55f111c6e43f6a601007fe3556f384ff411d6027 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 9 Jun 2020 14:09:31 +0900
+Subject: [PATCH 1/1] efi_loader: change efi objects initialization order
+
+The simplest solution to revert the commit b32ac16f9a32 ("test/py: fix
+test_efi_secboot/conftest.py") is to move efi_console_register()
+forward before efi_disk_register().
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_setup.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index dd0c53fc23..671f6da12b 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -140,6 +140,10 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
++	ret = efi_console_register();
++	if (ret != EFI_SUCCESS)
++		goto out;
++
+ #ifdef CONFIG_PARTITIONS
+ 	ret = efi_disk_register();
+ 	if (ret != EFI_SUCCESS)
+@@ -185,9 +189,6 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+-	ret = efi_console_register();
+-	if (ret != EFI_SUCCESS)
+-		goto out;
+ #if defined(CONFIG_LCD) || defined(CONFIG_DM_VIDEO)
+ 	ret = efi_gop_register();
+ 	if (ret != EFI_SUCCESS)
+-- 
+2.27.0
+

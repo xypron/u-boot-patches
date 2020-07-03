@@ -70,14 +70,19 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 # efi-2020-07-rc6-2
 
 # efi-2020-10
+git am ../patch/0001-efi_loader-change-efi-objects-initialization-order.patch
+git am ../patch/0001-Revert-test-stabilize-test_efi_secboot.patch
+git am ../patch/0001-efi_loader-signature-replace-debug-to-EFI_PRINT.patch
+git am ../patch/0001-efi_loader-variable-replace-debug-to-EFI_PRINT.patch
+
 git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
 git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
+git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
 
 git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
 git am ../patch/0001-test-provide-tests-for-efi_image_region_add.patch
 git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
 git am ../patch/0001-efi_loader-time-based-authentication.patch
-git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
 
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
