@@ -74,6 +74,7 @@ git am ../patch/0001-efi_loader-change-efi-objects-initialization-order.patch
 git am ../patch/0001-Revert-test-stabilize-test_efi_secboot.patch
 git am ../patch/0001-efi_loader-signature-replace-debug-to-EFI_PRINT.patch
 git am ../patch/0001-efi_loader-variable-replace-debug-to-EFI_PRINT.patch
+git am ../patch/0001-efi_loader-image_loader-replace-debug-to-EFI_PRINT.patch
 
 git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
 git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
