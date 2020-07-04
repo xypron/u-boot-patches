@@ -69,28 +69,26 @@ git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # efi-2020-07-rc6-2
 
-# efi-2020-10
+# efi-2020-10-rc1
 git am ../patch/0001-efi_loader-change-efi-objects-initialization-order.patch
 git am ../patch/0001-Revert-test-stabilize-test_efi_secboot.patch
 git am ../patch/0001-efi_loader-signature-replace-debug-to-EFI_PRINT.patch
 git am ../patch/0001-efi_loader-variable-replace-debug-to-EFI_PRINT.patch
 git am ../patch/0001-efi_loader-image_loader-replace-debug-to-EFI_PRINT.patch
-
 git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
 git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
 git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
 git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
-
 git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
 git am ../patch/0001-test-provide-tests-for-efi_image_region_add.patch
 git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
 git am ../patch/0001-efi_loader-time-based-authentication.patch
-
 git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
 git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
-
 git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
+
+# efi-2020-10-rc1-2
 git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
 git am ../patch/0001-efi_loader-separate-UEFI-variable-API-from-implememe.patch
