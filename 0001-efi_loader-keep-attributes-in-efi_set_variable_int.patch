@@ -1,10 +1,10 @@
-From 0fadd733e4e5da71a11fb0b0ef8dbda8780f3d1b Mon Sep 17 00:00:00 2001
+From bb22115730d886477d8af36ddda5b470088a2944 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 17 Jun 2020 12:20:46 +0200
-Subject: [PATCH] efi_loader: keep attributes in efi_set_variable_int
+Subject: [PATCH 1/1] efi_loader: keep attributes in efi_set_variable_int
 
 Do not change the value of parameter attributes in function
-efi_set_variable_common(). This allows to use it later.
+efi_set_variable_int(). This allows to use it later.
 
 Do not use variable attr for different purposes but declare separate
 variables (attr and old_attr).
@@ -15,10 +15,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 12 insertions(+), 12 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index d2814427e7..89450896f2 100644
+index 6706438b26..a7de0b4022 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -826,7 +826,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -827,7 +827,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  	efi_uintn_t old_size;
  	bool append, delete;
  	u64 time = 0;
@@ -27,7 +27,7 @@ index d2814427e7..89450896f2 100644
  	efi_status_t ret = EFI_SUCCESS;
  
  	if (!variable_name || !*variable_name || !vendor ||
-@@ -842,8 +842,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -843,8 +843,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  
  	/* check if a variable exists */
  	old_size = 0;
@@ -38,7 +38,7 @@ index d2814427e7..89450896f2 100644
  				   &old_size, NULL, &time);
  	append = !!(attributes & EFI_VARIABLE_APPEND_WRITE);
  	attributes &= ~(u32)EFI_VARIABLE_APPEND_WRITE;
-@@ -851,15 +851,15 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -852,15 +852,15 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  
  	/* check attributes */
  	if (old_size) {
@@ -57,7 +57,7 @@ index d2814427e7..89450896f2 100644
  				    != (attributes & ~(u32)EFI_VARIABLE_READ_ONLY))))) {
  			ret = EFI_INVALID_PARAMETER;
  			goto err;
-@@ -901,7 +901,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -902,7 +902,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  		    EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS) {
  			ret = efi_variable_authenticate(variable_name, vendor,
  							&data_size, &data,
@@ -66,7 +66,7 @@ index d2814427e7..89450896f2 100644
  							&time);
  			if (ret != EFI_SUCCESS)
  				goto err;
-@@ -935,7 +935,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -936,7 +936,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  			goto err;
  		}
  		ret = efi_get_variable_int(variable_name, vendor,
@@ -75,7 +75,7 @@ index d2814427e7..89450896f2 100644
  		if (ret != EFI_SUCCESS)
  			goto err;
  	} else {
-@@ -961,8 +961,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -962,8 +962,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  		       EFI_VARIABLE_RUNTIME_ACCESS |
  		       EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS);
  	s += sprintf(s, "{");
@@ -86,7 +86,7 @@ index d2814427e7..89450896f2 100644
  
  		if (attr == EFI_VARIABLE_READ_ONLY) {
  			s += sprintf(s, "ro");
-@@ -978,8 +978,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -979,8 +979,8 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  			s = bin2hex(s, (u8 *)&time, sizeof(time));
  		}
  
