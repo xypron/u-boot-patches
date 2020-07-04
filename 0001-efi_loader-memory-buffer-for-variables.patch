@@ -1,7 +1,7 @@
-From e358c11141e7a6f7808bf17007a05d8df2f8be4c Mon Sep 17 00:00:00 2001
+From bae87569199778bd8b38004094fa770aadec6be3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
-Subject: [PATCH 1/1] efi_loader: memory buffer for variables
+Subject: [PATCH] efi_loader: memory buffer for variables
 
 Saving UEFI variable as encoded U-Boot environment variables does not allow
 support at runtime.
@@ -10,17 +10,17 @@ Provide functions to manage a memory buffer with UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h       |  52 +++++++
+ include/efi_variable.h       |  54 +++++++
  lib/efi_loader/Makefile      |   1 +
- lib/efi_loader/efi_var_mem.c | 264 +++++++++++++++++++++++++++++++++++
- 3 files changed, 317 insertions(+)
+ lib/efi_loader/efi_var_mem.c | 266 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 321 insertions(+)
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 238b5595d5..97c3e64580 100644
+index 01054209c4..675ec9e2ed 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -121,4 +121,56 @@ efi_status_t efi_var_to_file(void);
+@@ -141,4 +141,58 @@ efi_status_t efi_var_to_file(void);
   */
  efi_status_t efi_var_from_file(void);
  
@@ -62,12 +62,14 @@ index 238b5595d5..97c3e64580 100644
 + * @data1:	first data buffer
 + * @size2:	size of the second data field
 + * @data2:	second data buffer
++ * @time:	time of authentication (as seconds since start of epoch)
 + * Result:	status code
 + */
 +efi_status_t efi_var_mem_ins(u16 *variable_name,
 +			     const efi_guid_t *vendor, u32 attributes,
 +			     const efi_uintn_t size1, const void *data1,
-+			     const efi_uintn_t size2, const void *data2);
++			     const efi_uintn_t size2, const void *data2,
++			     const u64 time);
 +
 +/**
 + * efi_var_mem_free() - determine free memory for variables
@@ -91,10 +93,10 @@ index f4fbe9046d..0ff37beac2 100644
  else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..75f8561954
+index 0000000000..36662f0f93
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_mem.c
-@@ -0,0 +1,264 @@
+@@ -0,0 +1,266 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -227,7 +229,8 @@ index 0000000000..75f8561954
 +				u16 *variable_name,
 +				const efi_guid_t *vendor, u32 attributes,
 +				const efi_uintn_t size1, const void *data1,
-+				const efi_uintn_t size2, const void *data2)
++				const efi_uintn_t size2, const void *data2,
++				const u64 time)
 +{
 +	u16 *data;
 +	struct efi_var_entry *var;
@@ -246,6 +249,7 @@ index 0000000000..75f8561954
 +
 +	var->attr = attributes;
 +	var->length = size1 + size2;
++	var->time = time;
 +
 +	efi_memcpy_runtime(&var->guid, vendor, sizeof(efi_guid_t));
 +	efi_memcpy_runtime(var->name, variable_name,
