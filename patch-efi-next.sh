@@ -96,6 +96,7 @@ git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
 git am ../patch/0001-efi_loader-simplify-boot-manager.patch
 git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
 git am ../patch/0001-efi_loader-value-of-VendorKeys.patch
+git am ../patch/0001-efi_loader-read-only-AuditMode-and-DeployedMode.patch
 git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
 git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
 git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch

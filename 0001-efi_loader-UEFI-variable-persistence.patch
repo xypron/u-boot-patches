@@ -373,7 +373,7 @@ index 89450896f2..6a6f27e684 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -1032,6 +1032,11 @@ out:
- 		}
+ 			ret = EFI_SUCCESS;
  	}
  
 +	/* Write non-volatile EFI variables to file */
