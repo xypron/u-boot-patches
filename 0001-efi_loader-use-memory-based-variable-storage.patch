@@ -1,4 +1,4 @@
-From 7cfa5e917f5409dae2ae8580f7c47ddc06c25dca Mon Sep 17 00:00:00 2001
+From 677670745560f8f817bbfe58f22c15e554b23ae3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 4 Jul 2020 18:34:15 +0200
 Subject: [PATCH 1/1] efi_loader: use memory based variable storage
@@ -10,11 +10,11 @@ Use a memory buffer for storing UEFI variables.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_variable.c | 581 ++++++----------------------------
- 1 file changed, 89 insertions(+), 492 deletions(-)
+ lib/efi_loader/efi_variable.c | 582 ++++++----------------------------
+ 1 file changed, 89 insertions(+), 493 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 8ecffb63fb..811f58dd6c 100644
+index 8ecffb63fb..f2c5daf973 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -30,145 +30,6 @@ static bool efi_secure_boot;
@@ -550,7 +550,7 @@ index 8ecffb63fb..811f58dd6c 100644
  
  			/* last chance to check for delete */
  			if (!data_size)
-@@ -916,134 +594,43 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -916,134 +594,42 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  		    (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
  		     EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
  			EFI_PRINT("Secure boot is not configured\n");
@@ -565,6 +565,7 @@ index 8ecffb63fb..811f58dd6c 100644
 -		/* !old_size case has been handled before */
 -		val = NULL;
 +		/* EFI_NOT_FOUND has been handled before */
++		efi_var_mem_del(var);
  		ret = EFI_SUCCESS;
  		goto out;
  	}
@@ -589,8 +590,10 @@ index 8ecffb63fb..811f58dd6c 100644
 +				      time);
  	} else {
 -		old_size = 0;
--	}
--
++		ret = efi_var_mem_ins(variable_name, vendor, attributes,
++				      data_size, data, 0, NULL, time);
+ 	}
+ 
 -	val = malloc(2 * old_size + 2 * data_size
 -		     + strlen("{ro,run,boot,nv,time=0123456701234567}(blob)")
 -		     + 1);
@@ -630,12 +633,10 @@ index 8ecffb63fb..811f58dd6c 100644
 -		attr_rem &= ~attr;
 -		if (attr_rem)
 -			s += sprintf(s, ",");
-+		ret = efi_var_mem_ins(variable_name, vendor, attributes,
-+				      data_size, data, 0, NULL, time);
- 	}
+-	}
 -	s += sprintf(s, "}");
 -	s += sprintf(s, "(blob)");
- 
+-
 -	/* store payload: */
 -	if (append)
 -		s = bin2hex(s, old_data, old_size);
@@ -684,8 +685,7 @@ index 8ecffb63fb..811f58dd6c 100644
 -			ret = EFI_SUCCESS;
 -		}
 -	}
-+	efi_var_mem_del(var);
- 
+-
  	/* Write non-volatile EFI variables to file */
  	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
  	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
@@ -701,7 +701,7 @@ index 8ecffb63fb..811f58dd6c 100644
  }
  
  efi_status_t efi_query_variable_info_int(u32 attributes,
-@@ -1051,7 +638,13 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+@@ -1051,7 +637,13 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  					 u64 *remaining_variable_storage_size,
  					 u64 *maximum_variable_size)
  {
@@ -716,7 +716,7 @@ index 8ecffb63fb..811f58dd6c 100644
  }
  
  /**
-@@ -1153,6 +746,10 @@ efi_status_t efi_init_variables(void)
+@@ -1153,6 +745,10 @@ efi_status_t efi_init_variables(void)
  {
  	efi_status_t ret;
  
