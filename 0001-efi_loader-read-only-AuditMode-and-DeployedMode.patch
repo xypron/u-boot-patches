@@ -1,4 +1,4 @@
-From 293ac84a3863c699fe84fdea1beb5643af0314c5 Mon Sep 17 00:00:00 2001
+From b83c63399d61c90c74277e7544f162a62bc08c04 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 4 Jul 2020 18:34:15 +0200
 Subject: [PATCH 1/1] efi_loader: read-only AuditMode and DeployedMode
@@ -8,14 +8,14 @@ conforming to the UEFI specification.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_variable.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ lib/efi_loader/efi_variable.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 662d1501ef..31eb27f8a0 100644
+index e3b29663a0..b84b86672a 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -183,32 +183,37 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
+@@ -183,32 +183,36 @@ static const char *parse_attr(const char *str, u32 *attrp, u64 *timep)
  static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
  					 u8 audit_mode, u8 deployed_mode)
  {
@@ -25,8 +25,7 @@ index 662d1501ef..31eb27f8a0 100644
 +				  EFI_VARIABLE_RUNTIME_ACCESS |
 +				  EFI_VARIABLE_READ_ONLY;
 +	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
-+				  EFI_VARIABLE_RUNTIME_ACCESS |
-+				  EFI_VARIABLE_READ_ONLY;
++				  EFI_VARIABLE_RUNTIME_ACCESS;
  
 -	attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
 -		     EFI_VARIABLE_RUNTIME_ACCESS |
