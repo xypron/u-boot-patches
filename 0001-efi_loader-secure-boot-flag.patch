@@ -1,0 +1,55 @@
+From ac8482240251f1902ed2c4c8c0843ea904f070e7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 5 Jul 2020 02:29:50 +0200
+Subject: [PATCH 1/1] efi_loader: secure boot flag
+
+In audit mode the UEFI variable SecureBoot is set to zero but the
+efi_secure_boot flag is set to true.
+
+The efi_secure_boot flag should match the UEFIvariable SecureBoot.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index b84b86672a..f8a50bb1be 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -190,6 +190,8 @@ static efi_status_t efi_set_secure_state(u8 secure_boot, u8 setup_mode,
+ 	const u32 attributes_rw = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 				  EFI_VARIABLE_RUNTIME_ACCESS;
+ 
++	efi_secure_boot = secure_boot;
++
+ 	ret = efi_set_variable_int(L"SecureBoot", &efi_global_variable_guid,
+ 				   attributes_ro, sizeof(secure_boot),
+ 				   &secure_boot, false);
+@@ -240,8 +242,6 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+ 		ret = efi_set_secure_state(1, 0, 0, 1);
+ 		if (ret != EFI_SUCCESS)
+ 			goto err;
+-
+-		efi_secure_boot = true;
+ 	} else if (mode == EFI_MODE_AUDIT) {
+ 		ret = efi_set_variable_int(L"PK", &efi_global_variable_guid,
+ 					   EFI_VARIABLE_BOOTSERVICE_ACCESS |
+@@ -253,14 +253,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+ 		ret = efi_set_secure_state(0, 1, 1, 0);
+ 		if (ret != EFI_SUCCESS)
+ 			goto err;
+-
+-		efi_secure_boot = true;
+ 	} else if (mode == EFI_MODE_USER) {
+ 		ret = efi_set_secure_state(1, 0, 0, 0);
+ 		if (ret != EFI_SUCCESS)
+ 			goto err;
+-
+-		efi_secure_boot = true;
+ 	} else if (mode == EFI_MODE_SETUP) {
+ 		ret = efi_set_secure_state(0, 1, 0, 0);
+ 		if (ret != EFI_SUCCESS)
+-- 
+2.27.0
+
