@@ -377,7 +377,7 @@ index 89450896f2..6a6f27e684 100644
  	}
  
 +	/* Write non-volatile EFI variables to file */
-+	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
++	if (attributes & EFI_VARIABLE_NON_VOLATILE &&
 +	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
 +		efi_var_to_file();
 +

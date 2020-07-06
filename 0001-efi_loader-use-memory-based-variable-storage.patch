@@ -1,7 +1,7 @@
-From fe7149c2682ec86f97cbdbd6dd69371aa2186500 Mon Sep 17 00:00:00 2001
+From 3214f3b46382941db91d0436523af94c8ee73d52 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 4 Jul 2020 18:34:15 +0200
-Subject: [PATCH 1/1] efi_loader: use memory based variable storage
+Subject: [PATCH] efi_loader: use memory based variable storage
 
 Saving UEFI variable as encoded U-Boot environment variables does not allow
 implement run-time support.
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 93 insertions(+), 463 deletions(-)
 
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 31eb27f8a0..4683d10c0d 100644
+index f2f787fc8d..13123e7e41 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -30,145 +30,6 @@ static bool efi_secure_boot;
@@ -163,7 +163,7 @@ index 31eb27f8a0..4683d10c0d 100644
  /**
   * efi_set_secure_state - modify secure boot state variables
   * @secure_boot:	value of SecureBoot
-@@ -573,296 +434,114 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
+@@ -568,296 +429,115 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
  }
  #endif /* CONFIG_EFI_SECURE_BOOT */
  
@@ -382,13 +382,13 @@ index 31eb27f8a0..4683d10c0d 100644
 -		ret = efi_to_native(&native_name, variable_name, vendor);
 -		if (ret)
 -			return ret;
--
++	efi_var_mem_find(vendor, variable_name, &var);
+ 
 -		name_len = strlen(native_name);
 -		for (variable = efi_variables_list; variable && *variable;) {
 -			if (!strncmp(variable, native_name, name_len) &&
 -			    variable[name_len] == '=')
 -				break;
-+	efi_var_mem_find(vendor, variable_name, &var);
 +	if (!var)
 +		return EFI_NOT_FOUND;
  
@@ -514,7 +514,7 @@ index 31eb27f8a0..4683d10c0d 100644
  	}
  
  	if (((!u16_strcmp(variable_name, L"PK") ||
-@@ -874,27 +553,26 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -869,27 +549,26 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  		/* authentication is mandatory */
  		if (!(attributes &
  		      EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
@@ -550,7 +550,7 @@ index 31eb27f8a0..4683d10c0d 100644
  
  			/* last chance to check for delete */
  			if (!data_size)
-@@ -905,105 +583,47 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -900,105 +579,46 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
  		    (EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS |
  		     EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)) {
  			EFI_PRINT("Secure boot is not configured\n");
@@ -560,12 +560,12 @@ index 31eb27f8a0..4683d10c0d 100644
  		}
  	}
  
- 	/* delete a variable */
+-	/* delete a variable */
++	efi_var_mem_del(var);
  	if (delete) {
 -		/* !old_size case has been handled before */
 -		val = NULL;
 +		/* EFI_NOT_FOUND has been handled before */
-+		efi_var_mem_del(var);
  		ret = EFI_SUCCESS;
  		goto out;
  	}
@@ -590,8 +590,10 @@ index 31eb27f8a0..4683d10c0d 100644
 +				      time);
  	} else {
 -		old_size = 0;
--	}
--
++		ret = efi_var_mem_ins(variable_name, vendor, attributes,
++				      data_size, data, 0, NULL, time);
+ 	}
+ 
 -	val = malloc(2 * old_size + 2 * data_size
 -		     + strlen("{ro,run,boot,nv,time=0123456701234567}(blob)")
 -		     + 1);
@@ -631,12 +633,10 @@ index 31eb27f8a0..4683d10c0d 100644
 -		attr_rem &= ~attr;
 -		if (attr_rem)
 -			s += sprintf(s, ",");
-+		ret = efi_var_mem_ins(variable_name, vendor, attributes,
-+				      data_size, data, 0, NULL, time);
- 	}
+-	}
 -	s += sprintf(s, "}");
 -	s += sprintf(s, "(blob)");
- 
+-
 -	/* store payload: */
 -	if (append)
 -		s = bin2hex(s, old_data, old_size);
@@ -662,7 +662,7 @@ index 31eb27f8a0..4683d10c0d 100644
 +		ret = EFI_SUCCESS;
  
  	/* Write non-volatile EFI variables to file */
- 	if (attributes && EFI_VARIABLE_NON_VOLATILE &&
+ 	if (attributes & EFI_VARIABLE_NON_VOLATILE &&
  	    ret == EFI_SUCCESS && efi_obj_list_initialized == EFI_SUCCESS)
  		efi_var_to_file();
  
@@ -676,7 +676,7 @@ index 31eb27f8a0..4683d10c0d 100644
  }
  
  efi_status_t efi_query_variable_info_int(u32 attributes,
-@@ -1011,7 +631,13 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
+@@ -1006,7 +626,13 @@ efi_status_t efi_query_variable_info_int(u32 attributes,
  					 u64 *remaining_variable_storage_size,
  					 u64 *maximum_variable_size)
  {
@@ -691,7 +691,7 @@ index 31eb27f8a0..4683d10c0d 100644
  }
  
  /**
-@@ -1113,6 +739,10 @@ efi_status_t efi_init_variables(void)
+@@ -1108,6 +734,10 @@ efi_status_t efi_init_variables(void)
  {
  	efi_status_t ret;
  
