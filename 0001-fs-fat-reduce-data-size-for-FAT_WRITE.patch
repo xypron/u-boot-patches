@@ -1,0 +1,51 @@
+From 72f65941ded7d02f985d7c7d3c7e78136f334c32 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 6 Jul 2020 07:48:14 +0200
+Subject: [PATCH 1/1] fs/fat: reduce data size for FAT_WRITE
+
+Allocated tmpbuf_cluster dynamically to reduce the data size added by
+compiling with CONFIG_FAT_WRITE.
+
+Reported-by: Tom Rini <trini@konsulko.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 59cc0bae94..188de882b8 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -491,8 +491,6 @@ flush_dir(fat_itr *itr)
+ 			   nsects * mydata->sect_size);
+ }
+ 
+-static __u8 tmpbuf_cluster[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
+-
+ /*
+  * Read and modify data on existing and consecutive cluster blocks
+  */
+@@ -500,6 +498,7 @@ static int
+ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
+ 		loff_t size, loff_t *gotsize)
+ {
++	static u8 *tmpbuf_cluster;
+ 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+ 	__u32 startsect;
+ 	loff_t wsize;
+@@ -509,6 +508,12 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
+ 	if (!size)
+ 		return 0;
+ 
++	if (!tmpbuf_cluster) {
++		tmpbuf_cluster = memalign(ARCH_DMA_MINALIGN, MAX_CLUSTSIZE);
++		if (!tmpbuf_cluster)
++			return -1;
++	}
++
+ 	assert(pos < bytesperclust);
+ 	startsect = clust_to_sect(mydata, clustnum);
+ 
+-- 
+2.27.0
+
