@@ -1,4 +1,4 @@
-From f61bea4c5e4f4a50fab5f670fb1c39c1f73c7db2 Mon Sep 17 00:00:00 2001
+From 2fe07a51f39a57c080bba18a611476120a9c6002 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 24 Mar 2020 19:54:53 +0000
 Subject: [PATCH 1/1] efi_loader: enable UEFI variables at runtime
@@ -7,12 +7,12 @@ Enable UEFI variables at runtime.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_runtime.c  | 2 ++
- lib/efi_loader/efi_variable.c | 6 ++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ lib/efi_loader/efi_runtime.c  |  2 ++
+ lib/efi_loader/efi_variable.c | 14 ++++++++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index 3df1224ab1..d2030ecacb 100644
+index 5b6506fbdc..91a4551448 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -121,6 +121,8 @@ efi_status_t efi_init_runtime_supported(void)
@@ -25,20 +25,28 @@ index 3df1224ab1..d2030ecacb 100644
  				EFI_RT_SUPPORTED_CONVERT_POINTER;
  
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 13123e7e41..c472a054d0 100644
+index 13123e7e41..c8fbcf396b 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -672,7 +672,8 @@ static efi_status_t __efi_runtime EFIAPI
+@@ -672,7 +672,16 @@ static efi_status_t __efi_runtime EFIAPI
  efi_get_variable_runtime(u16 *variable_name, const efi_guid_t *vendor,
  			 u32 *attributes, efi_uintn_t *data_size, void *data)
  {
 -	return EFI_UNSUPPORTED;
-+	return efi_get_variable_int(variable_name, vendor, attributes,
-+				    data_size, data, NULL);
++	efi_status_t ret;
++
++	ret = efi_get_variable_int(variable_name, vendor, attributes,
++				   data_size, data, NULL);
++
++	/* Remove EFI_VARIABLE_READ_ONLY flag */
++	if (attributes)
++		*attributes &= EFI_VARIABLE_MASK;
++
++	return ret;
  }
  
  /**
-@@ -688,7 +689,8 @@ static efi_status_t __efi_runtime EFIAPI
+@@ -688,7 +697,8 @@ static efi_status_t __efi_runtime EFIAPI
  efi_get_next_variable_name_runtime(efi_uintn_t *variable_name_size,
  				   u16 *variable_name, efi_guid_t *vendor)
  {

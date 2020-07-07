@@ -1,0 +1,59 @@
+From 69ccdba41ae2acd9ede539d9c48fd8ccefeffbab Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 16 Jun 2020 14:26:48 +0900
+Subject: [PATCH 1/1] lib: rsa: export rsa_verify_with_pkey()
+
+This function will be used to implement public_key_verify_signature()
+in a later patch. rsa_verify() is not suitable here because calculation
+of message digest is not necessary.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/u-boot/rsa.h | 3 +++
+ lib/rsa/rsa-verify.c | 8 ++++----
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/include/u-boot/rsa.h b/include/u-boot/rsa.h
+index 2d3024d8b7..eab6bfafa4 100644
+--- a/include/u-boot/rsa.h
++++ b/include/u-boot/rsa.h
+@@ -98,6 +98,9 @@ int rsa_verify(struct image_sign_info *info,
+ 	       const struct image_region region[], int region_count,
+ 	       uint8_t *sig, uint sig_len);
+ 
++int rsa_verify_with_pkey(struct image_sign_info *info,
++			 const void *hash, uint8_t *sig, uint sig_len);
++
+ int padding_pkcs_15_verify(struct image_sign_info *info,
+ 			   uint8_t *msg, int msg_len,
+ 			   const uint8_t *hash, int hash_len);
+diff --git a/lib/rsa/rsa-verify.c b/lib/rsa/rsa-verify.c
+index 1d55b997e3..d0e863f9b0 100644
+--- a/lib/rsa/rsa-verify.c
++++ b/lib/rsa/rsa-verify.c
+@@ -374,8 +374,8 @@ static int rsa_verify_key(struct image_sign_info *info,
+  *
+  * Return	0 if verified, -ve on error
+  */
+-static int rsa_verify_with_pkey(struct image_sign_info *info,
+-				const void *hash, uint8_t *sig, uint sig_len)
++int rsa_verify_with_pkey(struct image_sign_info *info,
++			 const void *hash, uint8_t *sig, uint sig_len)
+ {
+ 	struct key_prop *prop;
+ 	int ret;
+@@ -395,8 +395,8 @@ static int rsa_verify_with_pkey(struct image_sign_info *info,
+ 	return ret;
+ }
+ #else
+-static int rsa_verify_with_pkey(struct image_sign_info *info,
+-				const void *hash, uint8_t *sig, uint sig_len)
++int rsa_verify_with_pkey(struct image_sign_info *info,
++			 const void *hash, uint8_t *sig, uint sig_len)
+ {
+ 	return -EACCES;
+ }
+-- 
+2.27.0
+
