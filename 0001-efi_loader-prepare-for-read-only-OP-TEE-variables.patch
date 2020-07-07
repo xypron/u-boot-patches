@@ -1,4 +1,4 @@
-From ea9190ae2f649f97225338ed342beb463826b45a Mon Sep 17 00:00:00 2001
+From e869fac301bdca7a071be80e4da4157d7c6b8c0e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 22 Jun 2020 18:10:27 +0200
 Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
@@ -19,14 +19,14 @@ related definitions into new include efi_variable.h instead of efi_loader.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_variable.h               |  43 +++++++
- lib/efi_loader/Makefile              |   1 +
- lib/efi_loader/efi_variable.c        | 175 ++++++++-------------------
- lib/efi_loader/efi_variable_common.c |  78 ++++++++++++
- lib/efi_loader/efi_variable_tee.c    |  75 ++++--------
+ include/efi_variable.h            |  43 ++++++++
+ lib/efi_loader/Makefile           |   1 +
+ lib/efi_loader/efi_var_common.c   |  78 +++++++++++++
+ lib/efi_loader/efi_variable.c     | 175 ++++++++----------------------
+ lib/efi_loader/efi_variable_tee.c |  75 ++++---------
  5 files changed, 191 insertions(+), 181 deletions(-)
  create mode 100644 include/efi_variable.h
- create mode 100644 lib/efi_loader/efi_variable_common.c
+ create mode 100644 lib/efi_loader/efi_var_common.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
@@ -89,8 +89,92 @@ index 57c7e66ea0..16b93ef7f0 100644
  ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
  obj-y += efi_variable_tee.o
  else
+diff --git a/lib/efi_loader/efi_var_common.c b/lib/efi_loader/efi_var_common.c
+new file mode 100644
+index 0000000000..6a4efa3f27
+--- /dev/null
++++ b/lib/efi_loader/efi_var_common.c
+@@ -0,0 +1,78 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * UEFI runtime variable services
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <efi_loader.h>
++#include <efi_variable.h>
++
++/**
++ * efi_efi_get_variable() - retrieve value of a UEFI variable
++ *
++ * This function implements the GetVariable runtime service.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer to which the variable value is copied
++ * @data:		buffer to which the variable value is copied
++ * Return:		status code
++ */
++efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
++				     const efi_guid_t *vendor, u32 *attributes,
++				     efi_uintn_t *data_size, void *data)
++{
++	efi_status_t ret;
++
++	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
++		  data_size, data);
++
++	ret = efi_get_variable_int(variable_name, vendor, attributes,
++				   data_size, data, NULL);
++
++	/* Remove EFI_VARIABLE_READ_ONLY flag */
++	if (attributes)
++		*attributes &= EFI_VARIABLE_MASK;
++
++	return EFI_EXIT(ret);
++}
++
++/**
++ * efi_set_variable() - set value of a UEFI variable
++ *
++ * This function implements the SetVariable runtime service.
++ *
++ * See the Unified Extensible Firmware Interface (UEFI) specification for
++ * details.
++ *
++ * @variable_name:	name of the variable
++ * @vendor:		vendor GUID
++ * @attributes:		attributes of the variable
++ * @data_size:		size of the buffer with the variable value
++ * @data:		buffer with the variable value
++ * Return:		status code
++ */
++efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
++				     const efi_guid_t *vendor, u32 attributes,
++				     efi_uintn_t data_size, const void *data)
++{
++	efi_status_t ret;
++
++	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
++		  data_size, data);
++
++	/* Make sure that the EFI_VARIABLE_READ_ONLY flag is not set */
++	if (attributes & ~(u32)EFI_VARIABLE_MASK)
++		ret = EFI_INVALID_PARAMETER;
++	else
++		ret = efi_set_variable_int(variable_name, vendor, attributes,
++					   data_size, data, true);
++
++	return EFI_EXIT(ret);
++}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 4524f44c01..8e42019dbc 100644
+index efaba869ef..6ec1f97326 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -7,6 +7,7 @@
@@ -193,7 +277,7 @@ index 4524f44c01..8e42019dbc 100644
   * is called here.
   *
   * Return:	status code
-@@ -253,10 +238,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
+@@ -254,10 +239,10 @@ static efi_status_t efi_transfer_secure_state(enum efi_secure_mode mode)
  
  		efi_secure_boot = true;
  	} else if (mode == EFI_MODE_AUDIT) {
@@ -208,7 +292,7 @@ index 4524f44c01..8e42019dbc 100644
  		if (ret != EFI_SUCCESS)
  			goto err;
  
-@@ -308,8 +293,8 @@ static efi_status_t efi_init_secure_state(void)
+@@ -309,8 +294,8 @@ static efi_status_t efi_init_secure_state(void)
  	 */
  
  	size = 0;
@@ -219,7 +303,7 @@ index 4524f44c01..8e42019dbc 100644
  	if (ret == EFI_BUFFER_TOO_SMALL) {
  		if (IS_ENABLED(CONFIG_EFI_SECURE_BOOT))
  			mode = EFI_MODE_USER;
-@@ -326,13 +311,13 @@ static efi_status_t efi_init_secure_state(void)
+@@ -327,13 +312,13 @@ static efi_status_t efi_init_secure_state(void)
  
  	ret = efi_transfer_secure_state(mode);
  	if (ret == EFI_SUCCESS)
@@ -240,7 +324,7 @@ index 4524f44c01..8e42019dbc 100644
  
  err:
  	return ret;
-@@ -598,11 +583,9 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
+@@ -599,11 +584,9 @@ static efi_status_t efi_variable_authenticate(u16 *variable,
  }
  #endif /* CONFIG_EFI_SECURE_BOOT */
  
@@ -255,7 +339,7 @@ index 4524f44c01..8e42019dbc 100644
  {
  	char *native_name;
  	efi_status_t ret;
-@@ -683,40 +666,11 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
+@@ -684,40 +667,11 @@ static efi_status_t efi_get_variable_common(u16 *variable_name,
  
  out:
  	if (attributes)
@@ -297,7 +381,7 @@ index 4524f44c01..8e42019dbc 100644
  static char *efi_variables_list;
  static char *efi_cur_variable;
  
-@@ -880,12 +834,9 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -881,12 +835,9 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	return EFI_EXIT(ret);
  }
  
@@ -313,7 +397,7 @@ index 4524f44c01..8e42019dbc 100644
  {
  	char *native_name = NULL, *old_data = NULL, *val = NULL, *s;
  	efi_uintn_t old_size;
-@@ -908,15 +859,15 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -909,15 +860,15 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	/* check if a variable exists */
  	old_size = 0;
  	attr = 0;
@@ -332,7 +416,7 @@ index 4524f44c01..8e42019dbc 100644
  			ret = EFI_WRITE_PROTECTED;
  			goto err;
  		}
-@@ -924,8 +875,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -925,8 +876,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  		/* attributes won't be changed */
  		if (!delete &&
  		    ((ro_check && attr != attributes) ||
@@ -343,7 +427,7 @@ index 4524f44c01..8e42019dbc 100644
  			ret = EFI_INVALID_PARAMETER;
  			goto err;
  		}
-@@ -999,8 +950,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1000,8 +951,8 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  			ret = EFI_OUT_OF_RESOURCES;
  			goto err;
  		}
@@ -354,7 +438,7 @@ index 4524f44c01..8e42019dbc 100644
  		if (ret != EFI_SUCCESS)
  			goto err;
  	} else {
-@@ -1020,7 +971,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1021,7 +972,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	/*
  	 * store attributes
  	 */
@@ -363,7 +447,7 @@ index 4524f44c01..8e42019dbc 100644
  		       EFI_VARIABLE_NON_VOLATILE |
  		       EFI_VARIABLE_BOOTSERVICE_ACCESS |
  		       EFI_VARIABLE_RUNTIME_ACCESS |
-@@ -1029,7 +980,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
+@@ -1030,7 +981,7 @@ static efi_status_t efi_set_variable_common(u16 *variable_name,
  	while (attributes) {
  		attr = 1 << (ffs(attributes) - 1);
  
@@ -372,7 +456,7 @@ index 4524f44c01..8e42019dbc 100644
  			s += sprintf(s, "ro");
  		} else if (attr == EFI_VARIABLE_NON_VOLATILE) {
  			s += sprintf(s, "nv");
-@@ -1083,12 +1034,12 @@ out:
+@@ -1084,12 +1035,12 @@ out:
  		/* update VendorKeys */
  		if (vendor_keys_modified & efi_vendor_keys) {
  			efi_vendor_keys = 0;
@@ -387,7 +471,7 @@ index 4524f44c01..8e42019dbc 100644
  						sizeof(efi_vendor_keys),
  						&efi_vendor_keys,
  						false);
-@@ -1105,36 +1056,6 @@ err:
+@@ -1106,36 +1057,6 @@ err:
  	return ret;
  }
  
@@ -424,90 +508,6 @@ index 4524f44c01..8e42019dbc 100644
  /**
   * efi_query_variable_info() - get information about EFI variables
   *
-diff --git a/lib/efi_loader/efi_variable_common.c b/lib/efi_loader/efi_variable_common.c
-new file mode 100644
-index 0000000000..6a4efa3f27
---- /dev/null
-+++ b/lib/efi_loader/efi_variable_common.c
-@@ -0,0 +1,78 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * UEFI runtime variable services
-+ *
-+ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
-+ */
-+
-+#include <common.h>
-+#include <efi_loader.h>
-+#include <efi_variable.h>
-+
-+/**
-+ * efi_efi_get_variable() - retrieve value of a UEFI variable
-+ *
-+ * This function implements the GetVariable runtime service.
-+ *
-+ * See the Unified Extensible Firmware Interface (UEFI) specification for
-+ * details.
-+ *
-+ * @variable_name:	name of the variable
-+ * @vendor:		vendor GUID
-+ * @attributes:		attributes of the variable
-+ * @data_size:		size of the buffer to which the variable value is copied
-+ * @data:		buffer to which the variable value is copied
-+ * Return:		status code
-+ */
-+efi_status_t EFIAPI efi_get_variable(u16 *variable_name,
-+				     const efi_guid_t *vendor, u32 *attributes,
-+				     efi_uintn_t *data_size, void *data)
-+{
-+	efi_status_t ret;
-+
-+	EFI_ENTRY("\"%ls\" %pUl %p %p %p", variable_name, vendor, attributes,
-+		  data_size, data);
-+
-+	ret = efi_get_variable_int(variable_name, vendor, attributes,
-+				   data_size, data, NULL);
-+
-+	/* Remove EFI_VARIABLE_READ_ONLY flag */
-+	if (attributes)
-+		*attributes &= EFI_VARIABLE_MASK;
-+
-+	return EFI_EXIT(ret);
-+}
-+
-+/**
-+ * efi_set_variable() - set value of a UEFI variable
-+ *
-+ * This function implements the SetVariable runtime service.
-+ *
-+ * See the Unified Extensible Firmware Interface (UEFI) specification for
-+ * details.
-+ *
-+ * @variable_name:	name of the variable
-+ * @vendor:		vendor GUID
-+ * @attributes:		attributes of the variable
-+ * @data_size:		size of the buffer with the variable value
-+ * @data:		buffer with the variable value
-+ * Return:		status code
-+ */
-+efi_status_t EFIAPI efi_set_variable(u16 *variable_name,
-+				     const efi_guid_t *vendor, u32 attributes,
-+				     efi_uintn_t data_size, const void *data)
-+{
-+	efi_status_t ret;
-+
-+	EFI_ENTRY("\"%ls\" %pUl %x %zu %p", variable_name, vendor, attributes,
-+		  data_size, data);
-+
-+	/* Make sure that the EFI_VARIABLE_READ_ONLY flag is not set */
-+	if (attributes & ~(u32)EFI_VARIABLE_MASK)
-+		ret = EFI_INVALID_PARAMETER;
-+	else
-+		ret = efi_set_variable_int(variable_name, vendor, attributes,
-+					   data_size, data, true);
-+
-+	return EFI_EXIT(ret);
-+}
 diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
 index cacc76e23d..d5a28163f5 100644
 --- a/lib/efi_loader/efi_variable_tee.c
