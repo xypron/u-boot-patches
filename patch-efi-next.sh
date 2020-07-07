@@ -19,13 +19,9 @@ git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
-git am ../patch/0001-doc-driver-model-there-is-no-UCLASS_SATA.patch
 git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-git am ../patch/0001-doc-move-README.log-to-HTML-documentation.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
-git am ../patch/0001-log-clean-up-Kconfig.patch
-git am ../patch/0001-log-check-argument-of-log-level-command.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
 git am ../patch/0001-log-use-BIT-instead-of-1.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
@@ -63,27 +59,6 @@ git am ../patch/0001-arm-remove-outdated-comment-concerning-ffixed-x18.patch
 git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
-
-# efi-2020-07-rc6-2
-
-# efi-2020-10-rc1
-git am ../patch/0001-efi_loader-change-efi-objects-initialization-order.patch
-git am ../patch/0001-Revert-test-stabilize-test_efi_secboot.patch
-git am ../patch/0001-efi_loader-signature-replace-debug-to-EFI_PRINT.patch
-git am ../patch/0001-efi_loader-variable-replace-debug-to-EFI_PRINT.patch
-git am ../patch/0001-efi_loader-image_loader-replace-debug-to-EFI_PRINT.patch
-git am ../patch/0001-test-py-efi_secboot-remove-all-re.search.patch
-git am ../patch/0001-test-py-efi_secboot-fix-test-case-1g-of-test_authvar.patch
-git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
-git am ../patch/0001-test-correct-time-stamps-for-UEFI-authentication.patch
-git am ../patch/0001-efi_loader-fix-efi_image_region_add.patch
-git am ../patch/0001-test-provide-tests-for-efi_image_region_add.patch
-git am ../patch/0001-efi_loader-add-missing-validation-of-timestamp.patch
-git am ../patch/0001-efi_loader-time-based-authentication.patch
-git am ../patch/0001-efi_loader-use-log-function-in-boot-manager.patch
-git am ../patch/0001-efi_loader-rtc_mktime-called-twice.patch
-git am ../patch/0001-efi_loader-export-initialization-state.patch
-git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 
 # efi-2020-10-rc1-2
 git am ../patch/0001-lib-rsa-fix-allocated-size-for-rr-and-rrtmp-in-rsa_g.patch
