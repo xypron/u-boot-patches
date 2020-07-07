@@ -86,6 +86,7 @@ git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 
 # efi-2020-10-rc1-2
+git am ../patch/0001-efi_loader-avoid-NULL-deref-in-efi_convert_pointer.patch
 git am ../patch/0001-fs-fat-reduce-data-size-for-FAT_WRITE.patch
 git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch

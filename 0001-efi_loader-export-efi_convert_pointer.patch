@@ -42,7 +42,7 @@ index 6a25acbbcd..67fa693e41 100644
 +__efi_runtime efi_status_t EFIAPI
 +efi_convert_pointer(efi_uintn_t debug_disposition, void **address)
  {
- 	efi_physical_addr_t addr = (uintptr_t)*address;
+ 	efi_physical_addr_t addr;
  	efi_uintn_t i;
  	efi_status_t ret = EFI_NOT_FOUND;
  
