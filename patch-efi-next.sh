@@ -86,6 +86,8 @@ git am ../patch/0001-efi_loader-export-initialization-state.patch
 git am ../patch/0001-efi_loader-imply-FAT-FAT_WRITE.patch
 
 # efi-2020-10-rc1-2
+git am ../patch/0001-lib-rsa-fix-allocated-size-for-rr-and-rrtmp-in-rsa_g.patch
+git am ../patch/0001-efi_loader-cleanup-for-tee-backed-variables.patch
 git am ../patch/0001-efi_loader-wrong-printf-format-in-efi_image_parse.patch
 git am ../patch/0001-efi_loader-fix-efi_get_child_controllers.patch
 git am ../patch/0001-efi_loader-avoid-NULL-deref-in-efi_convert_pointer.patch

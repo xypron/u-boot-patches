@@ -1,0 +1,76 @@
+From 9ec2db634b2b4067eed798106644d588782ee2af Mon Sep 17 00:00:00 2001
+From: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Date: Thu, 18 Jun 2020 16:23:24 +0200
+Subject: [PATCH v7 1/1] lib: rsa: fix allocated size for rr and rrtmp in
+ rsa_gen_key_prop()
+
+When calculating rrtmp/rr rsa_gen_key_prop() tries to make
+(((rlen + 31) >> 5) + 1) steps in the rr uint32_t array and
+(((rlen + 7) >> 3) + 1) / 4 steps in uint32_t rrtmp[]
+with rlen being num_bits * 2
+
+On a 4096bit key this comes down to to 257 uint32_t elements
+in rr and 256 elements in rrtmp but with the current allocation
+rr and rrtmp only have 129 uint32_t elements.
+
+On 2048bit keys this works by chance as the defined max_rsa_size=4096
+allocates a suitable number of elements, but with an actual 4096bit key
+this results in other memory parts getting overwritten.
+
+So as suggested by Heinrich Schuchardt just use the actual bit-size
+of the key as base for the size calculation, in turn making the code
+compatible to any future keysizes.
+
+Suggested-by: Heinrich Schuchardt <xypron.debian@gmx.de>
+Signed-off-by: Heiko Stuebner <heiko.stuebner@theobroma-systems.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+
+rrtmp needs 2 + (((*prop)->num_bits * 2) >> 5) array elements.
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v7:
+	rrtmp needs one more u32.
+	There is no label out. It is called err.
+---
+ lib/rsa/rsa-keyprop.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/lib/rsa/rsa-keyprop.c b/lib/rsa/rsa-keyprop.c
+index 9464df0093..e991031ec0 100644
+--- a/lib/rsa/rsa-keyprop.c
++++ b/lib/rsa/rsa-keyprop.c
+@@ -654,14 +654,10 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
+ {
+ 	struct rsa_key rsa_key;
+ 	uint32_t *n = NULL, *rr = NULL, *rrtmp = NULL;
+-	const int max_rsa_size = 4096;
+ 	int rlen, i, ret;
+ 
+ 	*prop = calloc(sizeof(**prop), 1);
+-	n = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
+-	rr = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
+-	rrtmp = calloc(sizeof(uint32_t), 1 + (max_rsa_size >> 5));
+-	if (!(*prop) || !n || !rr || !rrtmp) {
++	if (!(*prop)) {
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
+@@ -682,6 +678,14 @@ int rsa_gen_key_prop(const void *key, uint32_t keylen, struct key_prop **prop)
+ 	}
+ 	memcpy((void *)(*prop)->modulus, &rsa_key.n[i], rsa_key.n_sz - i);
+ 
++	n = calloc(sizeof(uint32_t), 1 + ((*prop)->num_bits >> 5));
++	rr = calloc(sizeof(uint32_t), 1 + (((*prop)->num_bits * 2) >> 5));
++	rrtmp = calloc(sizeof(uint32_t), 2 + (((*prop)->num_bits * 2) >> 5));
++	if (!n || !rr || !rrtmp) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
+ 	/* exponent */
+ 	(*prop)->public_exponent = calloc(1, sizeof(uint64_t));
+ 	if (!(*prop)->public_exponent) {
+-- 
+2.27.0
+
