@@ -1,4 +1,4 @@
-From 66fe90005a1b6d00b91b14e65b410d361cbcebe3 Mon Sep 17 00:00:00 2001
+From 5a0e96c762f838b3cea7d097b42f7242b92f701f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Mar 2020 09:07:50 +0100
 Subject: [PATCH 1/1] efi_loader: memory buffer for variables
@@ -12,8 +12,8 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_variable.h       |  54 +++++++
  lib/efi_loader/Makefile      |   1 +
- lib/efi_loader/efi_var_mem.c | 266 +++++++++++++++++++++++++++++++++++
- 3 files changed, 321 insertions(+)
+ lib/efi_loader/efi_var_mem.c | 267 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 322 insertions(+)
  create mode 100644 lib/efi_loader/efi_var_mem.c
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
@@ -93,10 +93,10 @@ index c87b82db32..f81ec8d277 100644
  else
 diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
 new file mode 100644
-index 0000000000..36662f0f93
+index 0000000000..03ad93109e
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_mem.c
-@@ -0,0 +1,266 @@
+@@ -0,0 +1,267 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * File interface for UEFI variables
@@ -198,13 +198,14 @@ index 0000000000..36662f0f93
 +
 +void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
 +{
-+	u16 *data = var->name;
++	u16 *data;
 +	struct efi_var_entry *next, *last;
 +	u64 *from, *to;
 +
 +	if (!var)
 +		return;
 +
++	data = var->name;
 +	last = (struct efi_var_entry *)
 +	       ((uintptr_t)efi_var_buf + efi_var_buf->length);
 +	if (var < efi_current_var)
