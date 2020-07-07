@@ -1,4 +1,4 @@
-From 5bb5e37597c2b52e1f2f04ea26b137c27e9a78a0 Mon Sep 17 00:00:00 2001
+From 1a61df78cb21f1b913a1f460cb3caf2d263fa524 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 22 Jun 2020 18:10:27 +0200
 Subject: [PATCH 1/1] efi_loader: prepare for read only OP-TEE variables
@@ -19,15 +19,29 @@ related definitions into new include efi_variable.h instead of efi_loader.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ doc/api/efi.rst                   |   2 +
  include/efi_variable.h            |  43 ++++++++
  lib/efi_loader/Makefile           |   1 +
  lib/efi_loader/efi_var_common.c   |  78 +++++++++++++
  lib/efi_loader/efi_variable.c     | 175 ++++++++----------------------
  lib/efi_loader/efi_variable_tee.c |  75 ++++---------
- 5 files changed, 191 insertions(+), 181 deletions(-)
+ 6 files changed, 193 insertions(+), 181 deletions(-)
  create mode 100644 include/efi_variable.h
  create mode 100644 lib/efi_loader/efi_var_common.c
 
+diff --git a/doc/api/efi.rst b/doc/api/efi.rst
+index d5114f05b3..cb2a1c897e 100644
+--- a/doc/api/efi.rst
++++ b/doc/api/efi.rst
+@@ -93,6 +93,8 @@ Runtime services
+ Variable services
+ ~~~~~~~~~~~~~~~~~
+ 
++.. kernel-doc:: include/efi_variable.h
++   :internal:
+ .. kernel-doc:: lib/efi_loader/efi_variable.c
+    :internal:
+ 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 new file mode 100644
 index 0000000000..6789118eba
