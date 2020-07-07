@@ -1,0 +1,42 @@
+From fe8b475202b65568dc09c5bc056a0fc1dc63ce27 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 7 Jul 2020 07:23:44 +0200
+Subject: [PATCH 1/1] efi_loader: wrong printf format in efi_image_parse
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit 1b6c08548c85 ("efi_loader: image_loader: replace debug to
+EFI_PRINT") leads to a build warning on 32bit systems:
+
+lib/efi_loader/efi_image_loader.c: In function ‘efi_image_parse’:
+include/efi_loader.h:123:8: warning: format ‘%lu’ expects argument
+of type ‘long unsigned int’, but argument 8 has
+type ‘size_t’ {aka ‘unsigned int’} [-Wformat=]
+
+Use %zu for printing size_t.
+
+Fixes: 1b6c08548c85 ("efi_loader: image_loader: replace debug to
+EFI_PRINT")
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_image_loader.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 06a2ebdb90..b9daf8499d 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -369,7 +369,7 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+ 
+ 	/* 3. Extra data excluding Certificates Table */
+ 	if (bytes_hashed + authsz < len) {
+-		EFI_PRINT("extra data for hash: %lu\n",
++		EFI_PRINT("extra data for hash: %zu\n",
+ 			  len - (bytes_hashed + authsz));
+ 		efi_image_region_add(regs, efi + bytes_hashed,
+ 				     efi + len - authsz, 0);
+-- 
+2.27.0
+
