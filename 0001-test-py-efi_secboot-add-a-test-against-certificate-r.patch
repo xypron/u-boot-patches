@@ -1,0 +1,79 @@
+From d666c9f943ed33820540a302e33f61d1a41dd621 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 8 Jul 2020 14:02:01 +0900
+Subject: [PATCH] test/py: efi_secboot: add a test against certificate
+ revocation
+
+Revocation database (dbx) may have not only certificates, but also
+message digests of certificates with revocation time
+(EFI_CERT_X509_SHA256_GUILD).
+
+In this test case, if the database has such a digest and if the value
+matches to a certificate that created a given image's signature,
+authentication should fail.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ test/py/tests/test_efi_secboot/conftest.py    |  6 ++++-
+ test/py/tests/test_efi_secboot/test_signed.py | 26 +++++++++++++++++++
+ 2 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index c0ee8be9f7..e7e583bebc 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -106,12 +106,16 @@ def efi_boot_env(request, u_boot_config):
+         # db1-update
+         check_call('cd %s; %ssign-efi-sig-list -t "2020-04-06" -a -c KEK.crt -k KEK.key db db1.esl db1-update.auth'
+                    % (mnt_point, EFITOOLS_PATH), shell=True)
+-        # dbx
++        ## dbx (TEST_dbx certificate)
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_dbx/ -keyout dbx.key -out dbx.crt -nodes -days 365'
+                    % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s dbx.crt dbx.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx.esl dbx.auth'
+                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                    shell=True)
++        ## dbx_hash (digest of TEST_db certificate)
++        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
+ 
+         # Copy image
+         check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
+diff --git a/test/py/tests/test_efi_secboot/test_signed.py b/test/py/tests/test_efi_secboot/test_signed.py
+index 8ea45c8486..6dabecb669 100644
+--- a/test/py/tests/test_efi_secboot/test_signed.py
++++ b/test/py/tests/test_efi_secboot/test_signed.py
+@@ -121,3 +121,29 @@ class TestEfiSignedImage(object):
+                 'efidebug test bootmgr'])
+             assert '\'HELLO\' failed' in ''.join(output)
+             assert 'efi_start_image() returned: 26' in ''.join(output)
++
++    def test_efi_signed_image_auth4(self, u_boot_console, efi_boot_env):
++        """
++        Test Case 4 - revoked by dbx (digest of TEST_db certificate in dbx)
++        """
++        u_boot_console.restart_uboot()
++        disk_img = efi_boot_env
++        with u_boot_console.log.section('Test Case 4'):
++            # Test Case 4, rejected by dbx
++            output = u_boot_console.run_command_list([
++                'host bind 0 %s' % disk_img,
++                'fatload host 0:1 4000000 dbx_hash.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
++                'fatload host 0:1 4000000 db.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
++                'fatload host 0:1 4000000 KEK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
++                'fatload host 0:1 4000000 PK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
++            assert 'Failed to set EFI variable' not in ''.join(output)
++            output = u_boot_console.run_command_list([
++                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
++                'efidebug boot next 1',
++                'efidebug test bootmgr'])
++            assert '\'HELLO\' failed' in ''.join(output)
++            assert 'efi_start_image() returned: 26' in ''.join(output)
+-- 
+2.27.0
+

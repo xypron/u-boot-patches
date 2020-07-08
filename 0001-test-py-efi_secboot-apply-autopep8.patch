@@ -1,0 +1,293 @@
+From 936630355382f999323b121426a104ab4e886e14 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 8 Jul 2020 14:01:58 +0900
+Subject: [PATCH 1/1] test/py: efi_secboot: apply autopep8
+
+Python's autopep8 can automatically correct some of warnings from pylint
+and rewrite the code in a pretty print format. So just do it.
+
+Suggested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ test/py/tests/test_efi_secboot/conftest.py    | 74 ++++++++++---------
+ test/py/tests/test_efi_secboot/defs.py        | 14 ++--
+ .../py/tests/test_efi_secboot/test_authvar.py |  1 +
+ test/py/tests/test_efi_secboot/test_signed.py |  1 +
+ .../tests/test_efi_secboot/test_unsigned.py   | 37 +++++-----
+ 5 files changed, 67 insertions(+), 60 deletions(-)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index ac5a780fdb..82bc8886c4 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -10,6 +10,8 @@ from subprocess import call, check_call, check_output, CalledProcessError
+ from defs import *
+ 
+ # from test/py/conftest.py
++
++
+ def tool_is_in_path(tool):
+     for path in os.environ["PATH"].split(os.pathsep):
+         fn = os.path.join(path, tool)
+@@ -20,13 +22,15 @@ def tool_is_in_path(tool):
+ #
+ # Fixture for UEFI secure boot test
+ #
++
++
+ @pytest.fixture(scope='session')
+ def efi_boot_env(request, u_boot_config):
+     """Set up a file system to be used in UEFI secure boot test.
+ 
+     Args:
+         request: Pytest request object.
+-	u_boot_config: U-boot configuration.
++        u_boot_config: U-boot configuration.
+ 
+     Return:
+         A path to disk image to be used for testing
+@@ -48,20 +52,20 @@ def efi_boot_env(request, u_boot_config):
+ 
+         # create a disk/partition
+         check_call('dd if=/dev/zero of=%s bs=1MiB count=%d'
+-                            % (image_path, image_size), shell=True)
++                   % (image_path, image_size), shell=True)
+         check_call('sgdisk %s -n 1:0:+%dMiB'
+-                            % (image_path, part_size), shell=True)
++                   % (image_path, part_size), shell=True)
+         # create a file system
+         check_call('dd if=/dev/zero of=%s.tmp bs=1MiB count=%d'
+-                            % (image_path, part_size), shell=True)
++                   % (image_path, part_size), shell=True)
+         check_call('mkfs -t %s %s.tmp' % (fs_type, image_path), shell=True)
+         check_call('dd if=%s.tmp of=%s bs=1MiB seek=1 count=%d conv=notrunc'
+-                            % (image_path, image_path, 1), shell=True)
++                   % (image_path, image_path, 1), shell=True)
+         check_call('rm %s.tmp' % image_path, shell=True)
+         loop_dev = check_output('sudo losetup -o 1MiB --sizelimit %dMiB --show -f %s | tr -d "\n"'
+                                 % (part_size, image_path), shell=True).decode()
+         check_output('sudo mount -t %s -o umask=000 %s %s'
+-                                % (fs_type, loop_dev, mnt_point), shell=True)
++                     % (fs_type, loop_dev, mnt_point), shell=True)
+ 
+         # suffix
+         # *.key: RSA private key in PEM
+@@ -73,53 +77,53 @@ def efi_boot_env(request, u_boot_config):
+         # *.efi.signed: signed UEFI image
+ 
+         # Create signature database
+-        ## PK
++        # PK
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_PK/ -keyout PK.key -out PK.crt -nodes -days 365'
+-                            % mnt_point, shell=True)
++                   % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s PK.crt PK.esl; %ssign-efi-sig-list -t "2020-04-01" -c PK.crt -k PK.key PK PK.esl PK.auth'
+-                            % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+-                            shell=True)
+-        ## PK_null for deletion
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
++        # PK_null for deletion
+         check_call('cd %s; touch PK_null.esl; %ssign-efi-sig-list -t "2020-04-02" -c PK.crt -k PK.key PK PK_null.esl PK_null.auth'
+-                            % (mnt_point, EFITOOLS_PATH), shell=True)
+-        ## KEK
++                   % (mnt_point, EFITOOLS_PATH), shell=True)
++        # KEK
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_KEK/ -keyout KEK.key -out KEK.crt -nodes -days 365'
+-                            % mnt_point, shell=True)
++                   % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s KEK.crt KEK.esl; %ssign-efi-sig-list -t "2020-04-03" -c PK.crt -k PK.key KEK KEK.esl KEK.auth'
+-                            % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+-                            shell=True)
+-        ## db
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
++        # db
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db/ -keyout db.key -out db.crt -nodes -days 365'
+-                            % mnt_point, shell=True)
++                   % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s db.crt db.esl; %ssign-efi-sig-list -t "2020-04-04" -c KEK.crt -k KEK.key db db.esl db.auth'
+-                            % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+-                            shell=True)
+-        ## db1
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
++        # db1
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_db1/ -keyout db1.key -out db1.crt -nodes -days 365'
+-                            % mnt_point, shell=True)
++                   % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s db1.crt db1.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key db db1.esl db1.auth'
+-                            % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+-                            shell=True)
+-        ## db1-update
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
++        # db1-update
+         check_call('cd %s; %ssign-efi-sig-list -t "2020-04-06" -a -c KEK.crt -k KEK.key db db1.esl db1-update.auth'
+-                            % (mnt_point, EFITOOLS_PATH), shell=True)
+-        ## dbx
++                   % (mnt_point, EFITOOLS_PATH), shell=True)
++        # dbx
+         check_call('cd %s; openssl req -x509 -sha256 -newkey rsa:2048 -subj /CN=TEST_dbx/ -keyout dbx.key -out dbx.crt -nodes -days 365'
+-                            % mnt_point, shell=True)
++                   % mnt_point, shell=True)
+         check_call('cd %s; %scert-to-efi-sig-list -g %s dbx.crt dbx.esl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx.esl dbx.auth'
+-                            % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+-                            shell=True)
++                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
++                   shell=True)
+ 
+         # Copy image
+         check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
+ 
+-        ## Sign image
++        # Sign image
+         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
+-                            % mnt_point, shell=True)
+-        ## Digest image
++                   % mnt_point, shell=True)
++        # Digest image
+         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
+-                            % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
+-                            shell=True)
++                   % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
++                   shell=True)
+ 
+         check_call('sudo umount %s' % loop_dev, shell=True)
+         check_call('sudo losetup -d %s' % loop_dev, shell=True)
+diff --git a/test/py/tests/test_efi_secboot/defs.py b/test/py/tests/test_efi_secboot/defs.py
+index d6222809c5..099f453979 100644
+--- a/test/py/tests/test_efi_secboot/defs.py
++++ b/test/py/tests/test_efi_secboot/defs.py
+@@ -1,21 +1,21 @@
+ # SPDX-License-Identifier:      GPL-2.0+
+ 
+ # Disk image name
+-EFI_SECBOOT_IMAGE_NAME='test_efi_secboot.img'
++EFI_SECBOOT_IMAGE_NAME = 'test_efi_secboot.img'
+ 
+ # Size in MiB
+-EFI_SECBOOT_IMAGE_SIZE=16
+-EFI_SECBOOT_PART_SIZE=8
++EFI_SECBOOT_IMAGE_SIZE = 16
++EFI_SECBOOT_PART_SIZE = 8
+ 
+ # Partition file system type
+-EFI_SECBOOT_FS_TYPE='vfat'
++EFI_SECBOOT_FS_TYPE = 'vfat'
+ 
+ # Owner guid
+-GUID='11111111-2222-3333-4444-123456789abc'
++GUID = '11111111-2222-3333-4444-123456789abc'
+ 
+ # v1.5.1 or earlier of efitools has a bug in sha256 calculation, and
+ # you need build a newer version on your own.
+-EFITOOLS_PATH=''
++EFITOOLS_PATH = ''
+ 
+ # Hello World application for sandbox
+-HELLO_PATH=''
++HELLO_PATH = ''
+diff --git a/test/py/tests/test_efi_secboot/test_authvar.py b/test/py/tests/test_efi_secboot/test_authvar.py
+index 148aa3123e..359adba4b4 100644
+--- a/test/py/tests/test_efi_secboot/test_authvar.py
++++ b/test/py/tests/test_efi_secboot/test_authvar.py
+@@ -11,6 +11,7 @@ This test verifies variable authentication
+ import pytest
+ from defs import *
+ 
++
+ @pytest.mark.boardspec('sandbox')
+ @pytest.mark.buildconfigspec('efi_secure_boot')
+ @pytest.mark.buildconfigspec('cmd_fat')
+diff --git a/test/py/tests/test_efi_secboot/test_signed.py b/test/py/tests/test_efi_secboot/test_signed.py
+index 19d78b1b64..6d4b03ef41 100644
+--- a/test/py/tests/test_efi_secboot/test_signed.py
++++ b/test/py/tests/test_efi_secboot/test_signed.py
+@@ -11,6 +11,7 @@ This test verifies image authentication for signed images.
+ import pytest
+ from defs import *
+ 
++
+ @pytest.mark.boardspec('sandbox')
+ @pytest.mark.buildconfigspec('efi_secure_boot')
+ @pytest.mark.buildconfigspec('cmd_efidebug')
+diff --git a/test/py/tests/test_efi_secboot/test_unsigned.py b/test/py/tests/test_efi_secboot/test_unsigned.py
+index c42c5ddc47..3748b51ee7 100644
+--- a/test/py/tests/test_efi_secboot/test_unsigned.py
++++ b/test/py/tests/test_efi_secboot/test_unsigned.py
+@@ -11,6 +11,7 @@ This test verifies image authentication for unsigned images.
+ import pytest
+ from defs import *
+ 
++
+ @pytest.mark.boardspec('sandbox')
+ @pytest.mark.buildconfigspec('efi_secure_boot')
+ @pytest.mark.buildconfigspec('cmd_efidebug')
+@@ -28,10 +29,10 @@ class TestEfiUnsignedImage(object):
+             # Test Case 1
+             output = u_boot_console.run_command_list([
+                 'host bind 0 %s' % disk_img,
+-		'fatload host 0:1 4000000 KEK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+-		'fatload host 0:1 4000000 PK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
++                'fatload host 0:1 4000000 KEK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
++                'fatload host 0:1 4000000 PK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+             assert(not 'Failed to set EFI variable' in ''.join(output))
+ 
+             output = u_boot_console.run_command_list([
+@@ -55,12 +56,12 @@ class TestEfiUnsignedImage(object):
+             # Test Case 2
+             output = u_boot_console.run_command_list([
+                 'host bind 0 %s' % disk_img,
+-		'fatload host 0:1 4000000 db_hello.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
+-		'fatload host 0:1 4000000 KEK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+-		'fatload host 0:1 4000000 PK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
++                'fatload host 0:1 4000000 db_hello.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
++                'fatload host 0:1 4000000 KEK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
++                'fatload host 0:1 4000000 PK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+             assert(not 'Failed to set EFI variable' in ''.join(output))
+ 
+             output = u_boot_console.run_command_list([
+@@ -79,12 +80,12 @@ class TestEfiUnsignedImage(object):
+             # Test Case 3a, rejected by dbx
+             output = u_boot_console.run_command_list([
+                 'host bind 0 %s' % disk_img,
+-		'fatload host 0:1 4000000 db_hello.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
+-		'fatload host 0:1 4000000 KEK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
+-		'fatload host 0:1 4000000 PK.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
++                'fatload host 0:1 4000000 db_hello.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx',
++                'fatload host 0:1 4000000 KEK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
++                'fatload host 0:1 4000000 PK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
+             assert(not 'Failed to set EFI variable' in ''.join(output))
+ 
+             output = u_boot_console.run_command_list([
+@@ -101,8 +102,8 @@ class TestEfiUnsignedImage(object):
+         with u_boot_console.log.section('Test Case 3b'):
+             # Test Case 3b, rejected by dbx even if db allows
+             output = u_boot_console.run_command_list([
+-		'fatload host 0:1 4000000 db_hello.auth',
+-		'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
++                'fatload host 0:1 4000000 db_hello.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db'])
+             assert(not 'Failed to set EFI variable' in ''.join(output))
+ 
+             output = u_boot_console.run_command_list([
+-- 
+2.27.0
+

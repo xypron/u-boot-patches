@@ -1,0 +1,107 @@
+From 38d5d42d64d3986b1ec21b86db28b8a50944003c Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 8 Jul 2020 14:02:03 +0900
+Subject: [PATCH 1/1] test/py: efi_secboot: add a test for verifying with
+ digest of signed image
+
+Signature database (db or dbx) may have not only certificates that contain
+a public key for RSA decryption, but also digests of signed images.
+
+In this test case, if database has an image's digest (EFI_CERT_SHA256_GUID)
+and if the value matches to a hash value calculated from image's binary,
+authentication should pass in case of db, and fail in case of dbx.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ test/py/tests/test_efi_secboot/conftest.py    | 10 ++++
+ test/py/tests/test_efi_secboot/test_signed.py | 49 +++++++++++++++++++
+ 2 files changed, 59 insertions(+)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index c7da1a6e29..553550ee02 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -120,6 +120,10 @@ def efi_boot_env(request, u_boot_config):
+         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
+                    % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
+                    shell=True)
++        ## dbx_db (with TEST_db certificate)
++        check_call('cd %s; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx db.esl dbx_db.auth'
++                   % (mnt_point, EFITOOLS_PATH),
++                   shell=True)
+ 
+         # Copy image
+         check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
+@@ -134,6 +138,12 @@ def efi_boot_env(request, u_boot_config):
+         check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
+                    % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
+                    shell=True)
++        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi.signed db_hello_signed.hash; %ssign-efi-sig-list -c KEK.crt -k KEK.key db db_hello_signed.hash db_hello_signed.auth'
++                   % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
++                   shell=True)
++        check_call('cd %s; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx db_hello_signed.hash dbx_hello_signed.auth'
++                   % (mnt_point, EFITOOLS_PATH),
++                   shell=True)
+ 
+         check_call('sudo umount %s' % loop_dev, shell=True)
+         check_call('sudo losetup -d %s' % loop_dev, shell=True)
+diff --git a/test/py/tests/test_efi_secboot/test_signed.py b/test/py/tests/test_efi_secboot/test_signed.py
+index 1a31a57e12..7531bbac6a 100644
+--- a/test/py/tests/test_efi_secboot/test_signed.py
++++ b/test/py/tests/test_efi_secboot/test_signed.py
+@@ -198,3 +198,52 @@ class TestEfiSignedImage(object):
+                 'efidebug test bootmgr'])
+             assert '\'HELLO\' failed' in ''.join(output)
+             assert 'efi_start_image() returned: 26' in ''.join(output)
++
++    def test_efi_signed_image_auth6(self, u_boot_console, efi_boot_env):
++        """
++        Test Case 6 - using digest of signed image in database
++        """
++        u_boot_console.restart_uboot()
++        disk_img = efi_boot_env
++        with u_boot_console.log.section('Test Case 6a'):
++            # Test Case 6a, verified by image's digest in db
++            output = u_boot_console.run_command_list([
++                'host bind 0 %s' % disk_img,
++                'fatload host 0:1 4000000 db_hello_signed.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
++                'fatload host 0:1 4000000 KEK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize KEK',
++                'fatload host 0:1 4000000 PK.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize PK'])
++            assert 'Failed to set EFI variable' not in ''.join(output)
++            output = u_boot_console.run_command_list([
++                'efidebug boot add 1 HELLO host 0:1 /helloworld.efi.signed ""',
++                'efidebug boot next 1',
++                'bootefi bootmgr'])
++            assert 'Hello, world!' in ''.join(output)
++
++        with u_boot_console.log.section('Test Case 6b'):
++            # Test Case 6b, rejected by TEST_db certificate in dbx
++            output = u_boot_console.run_command_list([
++                'fatload host 0:1 4000000 dbx_db.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx'])
++            assert 'Failed to set EFI variable' not in ''.join(output)
++            output = u_boot_console.run_command_list([
++                'efidebug boot next 1',
++                'efidebug test bootmgr'])
++            assert '\'HELLO\' failed' in ''.join(output)
++            assert 'efi_start_image() returned: 26' in ''.join(output)
++
++        with u_boot_console.log.section('Test Case 6c'):
++            # Test Case 6c, rejected by image's digest in dbx
++            output = u_boot_console.run_command_list([
++                'fatload host 0:1 4000000 db.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize db',
++                'fatload host 0:1 4000000 dbx_hello_signed.auth',
++                'setenv -e -nv -bs -rt -at -i 4000000,$filesize dbx'])
++            assert 'Failed to set EFI variable' not in ''.join(output)
++            output = u_boot_console.run_command_list([
++                'efidebug boot next 1',
++                'efidebug test bootmgr'])
++            assert '\'HELLO\' failed' in ''.join(output)
++            assert 'efi_start_image() returned: 26' in ''.join(output)
+-- 
+2.27.0
+

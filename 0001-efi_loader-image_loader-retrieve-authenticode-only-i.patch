@@ -1,0 +1,77 @@
+From fb70c57582e43b25af250adc8c78f77c886e2d9b Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Wed, 8 Jul 2020 14:01:53 +0900
+Subject: [PATCH 1/1] efi_loader: image_loader: retrieve authenticode only if
+ it exists
+
+Since the certificate table, which is indexed by
+IMAGE_DIRECTORY_ENTRY_SECURITY and contains authenticode in PE image,
+doesn't always exist, we should make sure that we will retrieve its pointer
+only if it exists.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ lib/efi_loader/efi_image_loader.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
+
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 8f1b069f04..cbdef304b1 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -267,6 +267,8 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+ 
+ 	dos = (void *)efi;
+ 	nt = (void *)(efi + dos->e_lfanew);
++	authoff = 0;
++	authsz = 0;
+ 
+ 	/*
+ 	 * Count maximum number of regions to be digested.
+@@ -305,25 +307,36 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+ 			efi_image_region_add(regs,
+ 					     &opt->DataDirectory[ctidx] + 1,
+ 					     efi + opt->SizeOfHeaders, 0);
++
++			authoff = opt->DataDirectory[ctidx].VirtualAddress;
++			authsz = opt->DataDirectory[ctidx].Size;
+ 		}
+ 
+ 		bytes_hashed = opt->SizeOfHeaders;
+ 		align = opt->FileAlignment;
+-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
+-		authsz = opt->DataDirectory[ctidx].Size;
+ 	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
+ 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
+ 
++		/* Skip CheckSum */
+ 		efi_image_region_add(regs, efi, &opt->CheckSum, 0);
+-		efi_image_region_add(regs, &opt->Subsystem,
+-				     &opt->DataDirectory[ctidx], 0);
+-		efi_image_region_add(regs, &opt->DataDirectory[ctidx] + 1,
+-				     efi + opt->SizeOfHeaders, 0);
++		if (nt->OptionalHeader.NumberOfRvaAndSizes <= ctidx) {
++			efi_image_region_add(regs,
++					     &opt->Subsystem,
++					     efi + opt->SizeOfHeaders, 0);
++		} else {
++			/* Skip Certificates Table */
++			efi_image_region_add(regs, &opt->Subsystem,
++					     &opt->DataDirectory[ctidx], 0);
++			efi_image_region_add(regs,
++					     &opt->DataDirectory[ctidx] + 1,
++					     efi + opt->SizeOfHeaders, 0);
++
++			authoff = opt->DataDirectory[ctidx].VirtualAddress;
++			authsz = opt->DataDirectory[ctidx].Size;
++		}
+ 
+ 		bytes_hashed = opt->SizeOfHeaders;
+ 		align = opt->FileAlignment;
+-		authoff = opt->DataDirectory[ctidx].VirtualAddress;
+-		authsz = opt->DataDirectory[ctidx].Size;
+ 	} else {
+ 		EFI_PRINT("%s: Invalid optional header magic %x\n", __func__,
+ 			  nt->OptionalHeader.Magic);
+-- 
+2.27.0
+

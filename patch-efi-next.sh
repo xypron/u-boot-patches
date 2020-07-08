@@ -58,6 +58,22 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc1-2
 git am ../patch/0001-lib-crypto-use-qualified-path-for-x509_parser.h.patch
+
+git am ../patch/0001-efi_loader-image_loader-add-a-check-against-certific.patch
+git am ../patch/0001-efi_loader-image_loader-retrieve-authenticode-only-i.patch
+git am ../patch/0001-efi_loader-signature-fix-a-size-check-against-revoca.patch
+git am ../patch/0001-efi_loader-signature-make-efi_hash_regions-more-gene.patch
+git am ../patch/0001-efi_loader-image_loader-verification-for-all-signatu.patch
+git am ../patch/0001-efi_loader-image_loader-add-digest-based-verificatio.patch
+git am ../patch/0001-test-py-efi_secboot-apply-autopep8.patch
+git am ../patch/0001-test-py-efi_secboot-more-fixes-against-pylint.patch
+git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
+git am ../patch/0001-test-py-efi_secboot-add-a-test-against-certificate-r.patch
+git am ../patch/0001-test-py-efi_secboot-add-a-test-for-multiple-signatur.patch
+git am ../patch/0001-test-py-efi_secboot-add-a-test-for-verifying-with-di.patch
+
+git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
+
 git am ../patch/0001-lib-rsa-fix-allocated-size-for-rr-and-rrtmp-in-rsa_g.patch
 git am ../patch/0001-efi_loader-cleanup-for-tee-backed-variables.patch
 git am ../patch/0001-efi_loader-wrong-printf-format-in-efi_image_parse.patch
@@ -81,10 +97,8 @@ git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
 git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
 git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
+exit
 
-git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
-exit
-exit
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 
