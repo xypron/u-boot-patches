@@ -19,7 +19,6 @@ git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
-git am ../patch/0001-fs-fat_write-fix-short-name-creation.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-log-don-t-show-function-by-default.patch
@@ -53,10 +52,7 @@ git am ../patch/0001-sandbox-handling-out-of-memory.patch
 git am ../patch/0001-sandbox-make-RAM-size-configurable.patch
 
 # Clang
-git am ../patch/0001-trace-clang-compatible-handling-of-gd-register.patch
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
-git am ../patch/0001-arm-remove-outdated-comment-concerning-ffixed-x18.patch
-git am ../patch/0001-arm-use-correct-argument-size-of-special-registers.patch
 
 # UEFI
 
