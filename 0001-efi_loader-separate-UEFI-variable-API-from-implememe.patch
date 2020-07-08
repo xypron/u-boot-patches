@@ -1,4 +1,4 @@
-From eb2abb1d4b8802d3ca5d58176b3a703632a0c2d3 Mon Sep 17 00:00:00 2001
+From ae48cc17561b9400c5aa53853cb65a43d90730a7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 26 Jun 2020 17:57:48 +0200
 Subject: [PATCH 1/1] efi_loader: separate UEFI variable API from
@@ -11,9 +11,9 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_variable.h            | 39 +++++++++++++++++++
  lib/efi_loader/efi_var_common.c   | 62 +++++++++++++++++++++++++++++++
- lib/efi_loader/efi_variable.c     | 57 ++++++++++++----------------
+ lib/efi_loader/efi_variable.c     | 56 ++++++++++++----------------
  lib/efi_loader/efi_variable_tee.c | 55 +++++----------------------
- 4 files changed, 134 insertions(+), 79 deletions(-)
+ 4 files changed, 133 insertions(+), 79 deletions(-)
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 index 6789118eba..3ba274fce1 100644
@@ -134,7 +134,7 @@ index 6a4efa3f27..1e2be1135b 100644
 +	return EFI_EXIT(ret);
 +}
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 6ec1f97326..6706438b26 100644
+index 6ec1f97326..36bac86702 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -745,23 +745,9 @@ static efi_status_t parse_uboot_variable(char *variable,
@@ -259,18 +259,17 @@ index 6ec1f97326..6706438b26 100644
  			u32 attributes,
  			u64 *maximum_variable_storage_size,
  			u64 *remaining_variable_storage_size,
-@@ -1144,6 +1132,9 @@ void efi_variables_boot_exit_notify(void)
+@@ -1144,6 +1132,8 @@ void efi_variables_boot_exit_notify(void)
  	efi_runtime_services.get_next_variable_name =
  				efi_get_next_variable_name_runtime;
  	efi_runtime_services.set_variable = efi_set_variable_runtime;
-+	efi_runtime_services.set_variable = efi_set_variable_runtime;
 +	efi_runtime_services.query_variable_info =
 +				efi_query_variable_info_runtime;
  	efi_update_table_header_crc32(&efi_runtime_services.hdr);
  }
  
 diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
-index d5a28163f5..abe7941cbc 100644
+index 1d6d4fe807..ff90aa8e81 100644
 --- a/lib/efi_loader/efi_variable_tee.c
 +++ b/lib/efi_loader/efi_variable_tee.c
 @@ -312,23 +312,9 @@ out:
@@ -300,7 +299,7 @@ index d5a28163f5..abe7941cbc 100644
  {
  	struct smm_variable_getnext *var_getnext;
  	efi_uintn_t payload_size;
-@@ -339,8 +325,6 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -338,8 +324,6 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  	u8 *comm_buf = NULL;
  	efi_status_t ret;
  
@@ -309,7 +308,7 @@ index d5a28163f5..abe7941cbc 100644
  	if (!variable_name_size || !variable_name || !guid) {
  		ret = EFI_INVALID_PARAMETER;
  		goto out;
-@@ -398,7 +382,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
+@@ -396,7 +380,7 @@ efi_status_t EFIAPI efi_get_next_variable_name(efi_uintn_t *variable_name_size,
  
  out:
  	free(comm_buf);
@@ -318,7 +317,7 @@ index d5a28163f5..abe7941cbc 100644
  }
  
  efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
-@@ -450,37 +434,16 @@ out:
+@@ -448,37 +432,16 @@ out:
  	return ret;
  }
  
@@ -360,7 +359,7 @@ index d5a28163f5..abe7941cbc 100644
  	payload_size = sizeof(*mm_query_info);
  	comm_buf = setup_mm_hdr((void **)&mm_query_info, payload_size,
  				SMM_VARIABLE_FUNCTION_QUERY_VARIABLE_INFO,
-@@ -499,7 +462,7 @@ efi_query_variable_info(u32 attributes, u64 *max_variable_storage_size,
+@@ -497,7 +460,7 @@ efi_query_variable_info(u32 attributes, u64 *max_variable_storage_size,
  
  out:
  	free(comm_buf);
@@ -370,5 +369,5 @@ index d5a28163f5..abe7941cbc 100644
  
  /**
 -- 
-2.27.0
+2.20.1
 
