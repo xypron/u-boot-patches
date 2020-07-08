@@ -51,7 +51,7 @@ git am ../patch/0001-sandbox-spi-sandbox_sf_state_name-is-required.patch
 git am ../patch/0001-sandbox-handling-out-of-memory.patch
 git am ../patch/0001-sandbox-make-RAM-size-configurable.patch
 
-# Clang
+# FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
