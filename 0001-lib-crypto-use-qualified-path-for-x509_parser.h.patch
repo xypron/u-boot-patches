@@ -1,0 +1,28 @@
+From 4f81dd60af92c2c545079f17a19a5e6dd16448d4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 8 Jul 2020 07:48:06 +0200
+Subject: [PATCH 1/1] lib/crypto: use qualified path for x509_parser.h
+
+Use the path relative to /include for x509_parser.h in pkcs7_parser.h.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/crypto/pkcs7_parser.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/crypto/pkcs7_parser.h b/include/crypto/pkcs7_parser.h
+index b8234da45a..906033a90e 100644
+--- a/include/crypto/pkcs7_parser.h
++++ b/include/crypto/pkcs7_parser.h
+@@ -10,7 +10,7 @@
+ 
+ #include <linux/oid_registry.h>
+ #include <crypto/pkcs7.h>
+-#include "x509_parser.h"
++#include <crypto/x509_parser.h>
+ 
+ #define kenter(FMT, ...) \
+ 	pr_devel("==> %s("FMT")\n", __func__, ##__VA_ARGS__)
+-- 
+2.27.0
+

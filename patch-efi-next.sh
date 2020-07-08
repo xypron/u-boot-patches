@@ -57,6 +57,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1-2
+git am ../patch/0001-lib-crypto-use-qualified-path-for-x509_parser.h.patch
 git am ../patch/0001-lib-rsa-fix-allocated-size-for-rr-and-rrtmp-in-rsa_g.patch
 git am ../patch/0001-efi_loader-cleanup-for-tee-backed-variables.patch
 git am ../patch/0001-efi_loader-wrong-printf-format-in-efi_image_parse.patch
