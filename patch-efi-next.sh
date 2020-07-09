@@ -74,7 +74,6 @@ git am ../patch/0001-test-py-efi_secboot-add-a-test-for-verifying-with-di.patch
 
 git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
 
-git am ../patch/0001-lib-rsa-fix-allocated-size-for-rr-and-rrtmp-in-rsa_g.patch
 git am ../patch/0001-efi_loader-cleanup-for-tee-backed-variables.patch
 git am ../patch/0001-efi_loader-wrong-printf-format-in-efi_image_parse.patch
 git am ../patch/0001-efi_loader-fix-efi_get_child_controllers.patch
