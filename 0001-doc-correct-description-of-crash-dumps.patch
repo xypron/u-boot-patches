@@ -1,0 +1,43 @@
+From c77a6724d5b7f6a1a4951b172a5030872cf80bb6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 9 Jul 2020 08:09:16 +0200
+Subject: [PATCH 1/1] doc: correct description of crash dumps
+
+Correct the description of the ESR register.
+
+Fix a typo.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/develop/crash_dumps.rst | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/doc/develop/crash_dumps.rst b/doc/develop/crash_dumps.rst
+index 18696372fc..85030b4e36 100644
+--- a/doc/develop/crash_dumps.rst
++++ b/doc/develop/crash_dumps.rst
+@@ -5,7 +5,7 @@ Analyzing crash dumps
+ =====================
+ 
+ When the CPU detects an instruction that it cannot execute it raises an
+-interrupt. U-Boot than writes a crash dump. This chapter describes how such
++interrupt. U-Boot then writes a crash dump. This chapter describes how such
+ dump can be analyzed.
+ 
+ Creating a crash dump voluntarily
+@@ -46,8 +46,10 @@ QEMU::
+     resetting ...
+ 
+ The first line provides us with the type of interrupt that occurred.
+-(On ARMv8 a synchronous abort is an exception where the return address stored
+-in the ESR register indicates the instruction that caused the exception.)
++On ARMv8 a synchronous abort is an exception thrown when hitting an unallocated
++instruction. The exception syndrome register ESR register contains information
++describing the reason for the exception. Bit 25 set here indicates that a 32 bit
++instruction led to the exception.
+ 
+ The second line provides the contents of the elr and the lr register after
+ subtracting the relocation offset. - U-Boot relocates itself after being
+-- 
+2.27.0
+
