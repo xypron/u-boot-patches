@@ -26,7 +26,7 @@ git am ../patch/0001-log-use-BIT-instead-of-1.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-cmd-fdt-remove-CMD_FDT_MAX_DUMP.patch
-git am ../patch/0001-gitlab-show-skipped-Python-tests.patch
+git am ../patch/0001-CI-show-skipped-Python-tests.patch
 git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
