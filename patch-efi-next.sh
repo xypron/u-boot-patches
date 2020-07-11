@@ -72,6 +72,7 @@ git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-against-certificate-r.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-for-multiple-signatur.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-for-verifying-with-di.patch
+git am ../patch/0001-test-use-virt-make-fs-to-build-image.patch
 
 git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
 
