@@ -1,8 +1,8 @@
-From 38d5d42d64d3986b1ec21b86db28b8a50944003c Mon Sep 17 00:00:00 2001
+From 067968339e42831bf1d2e75596a11c399ac13248 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Wed, 8 Jul 2020 14:02:03 +0900
-Subject: [PATCH 1/1] test/py: efi_secboot: add a test for verifying with
- digest of signed image
+Subject: [PATCH] test/py: efi_secboot: add a test for verifying with digest of
+ signed image
 
 Signature database (db or dbx) may have not only certificates that contain
 a public key for RSA decryption, but also digests of signed images.
@@ -12,21 +12,24 @@ and if the value matches to a hash value calculated from image's binary,
 authentication should pass in case of db, and fail in case of dbx.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Use defined time stamps for sign-efi-sig-list.
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/conftest.py    | 10 ++++
  test/py/tests/test_efi_secboot/test_signed.py | 49 +++++++++++++++++++
  2 files changed, 59 insertions(+)
 
 diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
-index c7da1a6e29..553550ee02 100644
+index 7bb2e1d765..e55d8fff62 100644
 --- a/test/py/tests/test_efi_secboot/conftest.py
 +++ b/test/py/tests/test_efi_secboot/conftest.py
 @@ -120,6 +120,10 @@ def efi_boot_env(request, u_boot_config):
-         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
+         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
                     % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                     shell=True)
 +        ## dbx_db (with TEST_db certificate)
-+        check_call('cd %s; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx db.esl dbx_db.auth'
++        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx db.esl dbx_db.auth'
 +                   % (mnt_point, EFITOOLS_PATH),
 +                   shell=True)
  
@@ -36,10 +39,10 @@ index c7da1a6e29..553550ee02 100644
          check_call('cd %s; %shash-to-efi-sig-list helloworld.efi db_hello.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello.hash db_hello.auth'
                     % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
                     shell=True)
-+        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi.signed db_hello_signed.hash; %ssign-efi-sig-list -c KEK.crt -k KEK.key db db_hello_signed.hash db_hello_signed.auth'
++        check_call('cd %s; %shash-to-efi-sig-list helloworld.efi.signed db_hello_signed.hash; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key db db_hello_signed.hash db_hello_signed.auth'
 +                   % (mnt_point, EFITOOLS_PATH, EFITOOLS_PATH),
 +                   shell=True)
-+        check_call('cd %s; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx db_hello_signed.hash dbx_hello_signed.auth'
++        check_call('cd %s; %ssign-efi-sig-list -t "2020-04-07" -c KEK.crt -k KEK.key dbx db_hello_signed.hash dbx_hello_signed.auth'
 +                   % (mnt_point, EFITOOLS_PATH),
 +                   shell=True)
  

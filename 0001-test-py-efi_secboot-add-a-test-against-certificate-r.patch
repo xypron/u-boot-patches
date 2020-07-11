@@ -1,7 +1,7 @@
-From d666c9f943ed33820540a302e33f61d1a41dd621 Mon Sep 17 00:00:00 2001
+From f75a9d1ffac68ba1d9ca33b8f881c7ede8a11397 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Wed, 8 Jul 2020 14:02:01 +0900
-Subject: [PATCH] test/py: efi_secboot: add a test against certificate
+Subject: [PATCH 1/1] test/py: efi_secboot: add a test against certificate
  revocation
 
 Revocation database (dbx) may have not only certificates, but also
@@ -13,13 +13,16 @@ matches to a certificate that created a given image's signature,
 authentication should fail.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Set defined time stamp for dbx_hash.auth.
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/conftest.py    |  6 ++++-
  test/py/tests/test_efi_secboot/test_signed.py | 26 +++++++++++++++++++
  2 files changed, 31 insertions(+), 1 deletion(-)
 
 diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
-index c0ee8be9f7..e7e583bebc 100644
+index c0ee8be9f7..c3d56622a2 100644
 --- a/test/py/tests/test_efi_secboot/conftest.py
 +++ b/test/py/tests/test_efi_secboot/conftest.py
 @@ -106,12 +106,16 @@ def efi_boot_env(request, u_boot_config):
@@ -34,7 +37,7 @@ index c0ee8be9f7..e7e583bebc 100644
                     % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                     shell=True)
 +        ## dbx_hash (digest of TEST_db certificate)
-+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
++        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
 +                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
 +                   shell=True)
  

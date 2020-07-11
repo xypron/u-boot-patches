@@ -1,4 +1,4 @@
-From ab1d93fd39723d5aa2ec23140eb2aa1d15ea87c8 Mon Sep 17 00:00:00 2001
+From e65f9a566bc980c59c9d8c2f563bcef2b468e671 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Date: Wed, 8 Jul 2020 14:02:02 +0900
 Subject: [PATCH 1/1] test/py: efi_secboot: add a test for multiple signatures
@@ -8,21 +8,24 @@ keys. If any of signatures contained is not verified, the whole
 authentication check should fail.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+
+Provide a defined time stamp for dbx_hash1.auth.
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/py/tests/test_efi_secboot/conftest.py    |  9 +++-
  test/py/tests/test_efi_secboot/test_signed.py | 51 +++++++++++++++++++
  2 files changed, 59 insertions(+), 1 deletion(-)
 
 diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
-index e7e583bebc..c7da1a6e29 100644
+index c3d56622a2..7bb2e1d765 100644
 --- a/test/py/tests/test_efi_secboot/conftest.py
 +++ b/test/py/tests/test_efi_secboot/conftest.py
 @@ -116,6 +116,10 @@ def efi_boot_env(request, u_boot_config):
-         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
+         check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db.crt dbx_hash.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash.crl dbx_hash.auth'
                     % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
                     shell=True)
 +        ## dbx_hash1 (digest of TEST_db1 certificate)
-+        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
++        check_call('cd %s; %scert-to-efi-hash-list -g %s -t 0 -s 256 db1.crt dbx_hash1.crl; %ssign-efi-sig-list -t "2020-04-05" -c KEK.crt -k KEK.key dbx dbx_hash1.crl dbx_hash1.auth'
 +                   % (mnt_point, EFITOOLS_PATH, GUID, EFITOOLS_PATH),
 +                   shell=True)
  
