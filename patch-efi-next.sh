@@ -21,12 +21,8 @@ git am ../patch/0001-clk-ICS8N3QV01-remove-superfluous-code.patch
 git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
-git am ../patch/0001-log-don-t-show-function-by-default.patch
-git am ../patch/0001-log-use-BIT-instead-of-1.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
-git am ../patch/0001-cmd-fdt-remove-CMD_FDT_MAX_DUMP.patch
-git am ../patch/0001-CI-show-skipped-Python-tests.patch
 git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
@@ -48,9 +44,6 @@ git am ../patch/0001-cmd-drop-fitupd-command.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
-git am ../patch/0001-sandbox-spi-sandbox_sf_state_name-is-required.patch
-git am ../patch/0001-sandbox-handling-out-of-memory.patch
-git am ../patch/0001-sandbox-make-RAM-size-configurable.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
@@ -72,7 +65,7 @@ git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-against-certificate-r.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-for-multiple-signatur.patch
 git am ../patch/0001-test-py-efi_secboot-add-a-test-for-verifying-with-di.patch
-git am ../patch/0001-test-use-virt-make-fs-to-build-image.patch
+# git am ../patch/0001-test-use-virt-make-fs-to-build-image.patch
 
 git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
 
