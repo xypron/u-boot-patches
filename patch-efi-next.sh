@@ -28,6 +28,7 @@ git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
 git am ../patch/0001-fs-error-handling-in-do_load.patch
 git am ../patch/0001-doc-correct-description-of-crash-dumps.patch
+git am ../patch/0001-.gitlab-ci.yml-copy-GRUB-to-correct-build-path.patch
 
 git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
