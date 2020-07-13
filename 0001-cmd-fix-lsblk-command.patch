@@ -1,0 +1,42 @@
+From d45b1115b89d55630a7e1775cccf2bc275c2893f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 13 Jul 2020 22:22:31 +0200
+Subject: [PATCH 1/1] cmd: fix lsblk command
+
+Add missing includes.
+Add CMD_LSBLK to sandbox_defconfig.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/lsblk.c               | 2 ++
+ configs/sandbox_defconfig | 1 +
+ 2 files changed, 3 insertions(+)
+
+diff --git a/cmd/lsblk.c b/cmd/lsblk.c
+index ece8bbf108..653dffce04 100644
+--- a/cmd/lsblk.c
++++ b/cmd/lsblk.c
+@@ -5,6 +5,8 @@
+  */
+ 
+ #include <common.h>
++#include <blk.h>
++#include <command.h>
+ #include <dm.h>
+ 
+ static int do_lsblk(struct cmd_tbl *cmdtp, int flag, int argc, char * const argv[])
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index 9b74e404bb..d43d78df6f 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -48,6 +48,7 @@ CONFIG_CMD_GPT=y
+ CONFIG_CMD_GPT_RENAME=y
+ CONFIG_CMD_IDE=y
+ CONFIG_CMD_I2C=y
++CONFIG_CMD_LSBLK=y
+ CONFIG_CMD_OSD=y
+ CONFIG_CMD_PCI=y
+ CONFIG_CMD_READ=y
+-- 
+2.27.0
+
