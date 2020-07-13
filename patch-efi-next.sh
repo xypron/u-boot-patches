@@ -92,6 +92,10 @@ git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
 git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
 git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
 git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
+
+# efi-2020-10-rc1-4
+git am ../patch/0001-efi_selftest-enable-bootefi-hello.patch
+git am ../patch/0001-efi_loader-skip-warnings-for-network-configuration.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
