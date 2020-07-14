@@ -1,0 +1,41 @@
+From 9d5243d40458bcff95d04a84ae19dfec95aaff5b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 14 Jul 2020 08:14:08 +0200
+Subject: [PATCH 1/1] efi_loader: update secure state
+
+Update the UEFI secure state when variable 'PK' is updated in the TEE
+variables implementation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable_tee.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
+index 24e0663ebd..1046e0d470 100644
+--- a/lib/efi_loader/efi_variable_tee.c
++++ b/lib/efi_loader/efi_variable_tee.c
+@@ -557,6 +557,10 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 		var_property.maxsize = var_acc->data_size;
+ 		ret = set_property_int(variable_name, name_size, vendor, &var_property);
+ 	}
++
++	if (alt_ret == EFI_SUCCESS ret == EFI_SUCCESS &&
++	    !u16_strcmp(variable_name, L"PK"))
++		ret = efi_init_secure_state();
+ out:
+ 	free(comm_buf);
+ 	return alt_ret == EFI_SUCCESS ? ret : alt_ret;
+@@ -716,5 +720,9 @@ efi_status_t efi_init_variables(void)
+ 			  MM_VARIABLE_COMMUNICATE_SIZE +
+ 			  max_payload_size;
+ 
++	ret = efi_init_secure_state();
++	if (ret != EFI_SUCCESS)
++		return ret;
++
+ 	return EFI_SUCCESS;
+ }
+-- 
+2.27.0
+

@@ -97,6 +97,9 @@ git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
 # efi-2020-10-rc1-4
 git am ../patch/0001-efi_selftest-enable-bootefi-hello.patch
 git am ../patch/0001-efi_loader-skip-warnings-for-network-configuration.patch
+git am ../patch/0001-efi_loader-display-RO-attribute-with-TEE-backed-vari.patch
+git am ../patch/0001-efi_loader-restructure-code-for-TEE-variables.patch
+git am ../patch/0001-efi_loader-update-secure-state.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
