@@ -1,4 +1,4 @@
-From a0763600868ca937ae49b863a32df3bc9c9b96e5 Mon Sep 17 00:00:00 2001
+From 3c43a1a85662ba4da5bbf17745887d5628bba7e8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 14 Jul 2020 21:25:28 +0200
 Subject: [PATCH 1/1] efi_loader: pre-seed UEFI variables
@@ -10,10 +10,14 @@ will not be allowed.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/asm-generic/sections.h |  2 ++
+ include/efi_variable.h         |  8 ++++++++
  lib/efi_loader/Kconfig         | 21 +++++++++++++++++++++
- lib/efi_loader/Makefile        |  3 ++-
- lib/efi_loader/efi_variable.c  |  7 +++++++
- 4 files changed, 32 insertions(+), 1 deletion(-)
+ lib/efi_loader/Makefile        |  6 +++++-
+ lib/efi_loader/efi_var_file.c  |  8 +-------
+ lib/efi_loader/efi_var_seed.S  | 17 +++++++++++++++++
+ lib/efi_loader/efi_variable.c  | 18 +++++++++++++++++-
+ 7 files changed, 71 insertions(+), 9 deletions(-)
+ create mode 100644 lib/efi_loader/efi_var_seed.S
 
 diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
 index 17a31ec788..0577238d60 100644
@@ -28,6 +32,25 @@ index 17a31ec788..0577238d60 100644
  
  /* Start and end of .ctors section - used for constructor calls. */
  extern char __ctors_start[], __ctors_end[];
+diff --git a/include/efi_variable.h b/include/efi_variable.h
+index 5eec407a2b..89d9eec9c3 100644
+--- a/include/efi_variable.h
++++ b/include/efi_variable.h
+@@ -128,6 +128,14 @@ struct efi_var_file {
+  */
+ efi_status_t efi_var_to_file(void);
+ 
++/**
++ * efi_var_restore() - restore EFI variables from buffer
++ *
++ * @buf:	buffer
++ * Return:	status code
++ */
++efi_status_t efi_var_restore(struct efi_var_file *buf);
++
+ /**
+  * efi_var_from_file() - read variables from file
+  *
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index 8827c76cc9..db5e591ce2 100644
 --- a/lib/efi_loader/Kconfig
@@ -51,7 +74,7 @@ index 8827c76cc9..db5e591ce2 100644
 +	default ubootefi.var
 +	help
 +	  File with initial values of non-volatile UEFI variables. The file will
-+	  be in the format as the storage in the EFI system partition. The
++	  be in the same format as the storage in the EFI system partition. The
 +	  easiest way to create it is by setting the non-volatile variables in
 +	  U-Boot.
 +
@@ -61,7 +84,7 @@ index 8827c76cc9..db5e591ce2 100644
  	bool "GetTime() runtime service"
  	depends on DM_RTC
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index f81ec8d277..36600fdf1e 100644
+index f81ec8d277..441ac9432e 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -6,7 +6,7 @@
@@ -73,34 +96,114 @@ index f81ec8d277..36600fdf1e 100644
  ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
  
  CFLAGS_efi_boottime.o += \
-@@ -37,6 +37,7 @@ obj-y += efi_setup.o
- obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
- obj-y += efi_var_common.o
- obj-y += efi_var_mem.o
-+obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
- ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
- obj-y += efi_variable_tee.o
+@@ -42,6 +42,7 @@ obj-y += efi_variable_tee.o
  else
+ obj-y += efi_variable.o
+ obj-y += efi_var_file.o
++obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
+ endif
+ obj-y += efi_watchdog.o
+ obj-$(CONFIG_LCD) += efi_gop.o
+@@ -53,3 +54,6 @@ obj-$(CONFIG_GENERATE_SMBIOS_TABLE) += efi_smbios.o
+ obj-$(CONFIG_EFI_RNG_PROTOCOL) += efi_rng.o
+ obj-$(CONFIG_EFI_LOAD_FILE2_INITRD) += efi_load_initrd.o
+ obj-y += efi_signature.o
++
++EFI_VAR_SEED_FILE := $(subst $\",,$(CONFIG_EFI_VAR_SEED_FILE))
++$(obj)/efi_var_seed.o: $(srctree)/$(EFI_VAR_SEED_FILE)
+diff --git a/lib/efi_loader/efi_var_file.c b/lib/efi_loader/efi_var_file.c
+index 880c279aef..6f9d76f2a2 100644
+--- a/lib/efi_loader/efi_var_file.c
++++ b/lib/efi_loader/efi_var_file.c
+@@ -159,13 +159,7 @@ error:
+ #endif
+ }
+ 
+-/**
+- * efi_var_restore() - restore EFI variables from buffer
+- *
+- * @buf:	buffer
+- * Return:	status code
+- */
+-static efi_status_t __maybe_unused efi_var_restore(struct efi_var_file *buf)
++efi_status_t efi_var_restore(struct efi_var_file *buf)
+ {
+ 	struct efi_var_entry *var, *last_var;
+ 	efi_status_t ret;
+diff --git a/lib/efi_loader/efi_var_seed.S b/lib/efi_loader/efi_var_seed.S
+new file mode 100644
+index 0000000000..29742fa5e3
+--- /dev/null
++++ b/lib/efi_loader/efi_var_seed.S
+@@ -0,0 +1,17 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Predefined UEFI variables
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <config.h>
++
++.section .rodata.efi_seed.init,"a"
++.balign 16
++.global __efi_var_file_begin
++__efi_var_file_begin:
++.incbin CONFIG_EFI_VAR_SEED_FILE
++.global __efi_var_file_end
++__efi_var_file_end:
++.balign 16
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 64dc3d6df9..7d33ce36f5 100644
+index 64dc3d6df9..fb05b1668c 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
-@@ -18,6 +18,7 @@
+@@ -5,12 +5,15 @@
+  * Copyright (c) 2017 Rob Clark
+  */
+ 
++#define LOG_CATEGORY LOGC_EFI
++
+ #include <common.h>
+ #include <efi_loader.h>
+ #include <efi_variable.h>
+ #include <env.h>
+ #include <env_internal.h>
+ #include <hexdump.h>
++#include <log.h>
+ #include <malloc.h>
+ #include <rtc.h>
+ #include <search.h>
+@@ -18,7 +21,7 @@
  #include <crypto/pkcs7_parser.h>
  #include <linux/compat.h>
  #include <u-boot/crc.h>
+-
 +#include <asm/sections.h>
  
- 
  #ifdef CONFIG_EFI_SECURE_BOOT
-@@ -588,5 +589,11 @@ efi_status_t efi_init_variables(void)
+ static u8 pkcs7_hdr[] = {
+@@ -364,6 +367,12 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 		if (ro_check && (var->attr & EFI_VARIABLE_READ_ONLY))
+ 			return EFI_WRITE_PROTECTED;
+ 
++		if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
++			if (u16_strcmp(variable_name, L"PK") == 0 &&
++			    !guidcmp(vendor, &efi_global_variable_guid))
++				return EFI_WRITE_PROTECTED;
++		}
++
+ 		/* attributes won't be changed */
+ 		if (!delete &&
+ 		    ((ro_check && var->attr != attributes) ||
+@@ -588,5 +597,12 @@ efi_status_t efi_init_variables(void)
  	if (ret != EFI_SUCCESS)
  		return ret;
  
 +	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
-+		printf("efi_var_seed_file %p - %p\n",
-+		       __efi_var_file_begin,  __efi_var_file_end);
-+		printf("'%s'\n", __efi_var_file_begin);
++		ret = efi_var_restore((struct efi_var_file *)
++				      __efi_var_file_begin);
++		if (ret != EFI_SUCCESS)
++			log_err("Invalid EFI variable seed\n");
 +	}
 +
  	return efi_var_from_file();
