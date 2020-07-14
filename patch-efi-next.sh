@@ -62,6 +62,8 @@ git am ../patch/0001-doc-provide-links-to-Microsoft-UEFI-certificates.patch
 git am ../patch/0001-efi_loader-configuration-of-variables-store.patch
 exit
 
+git am ../patch/0001-efi_loader-pre-seed-UEFI-variables.patch
+
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 

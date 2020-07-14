@@ -1,0 +1,110 @@
+From a0763600868ca937ae49b863a32df3bc9c9b96e5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 14 Jul 2020 21:25:28 +0200
+Subject: [PATCH 1/1] efi_loader: pre-seed UEFI variables
+
+Include a file with the initial values for non-volatile UEFI variables
+into the U-Boot binary. If this variable is set, changes to variable PK
+will not be allowed.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/asm-generic/sections.h |  2 ++
+ lib/efi_loader/Kconfig         | 21 +++++++++++++++++++++
+ lib/efi_loader/Makefile        |  3 ++-
+ lib/efi_loader/efi_variable.c  |  7 +++++++
+ 4 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+index 17a31ec788..0577238d60 100644
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -25,6 +25,8 @@ extern char __initdata_begin[], __initdata_end[];
+ extern char __start_rodata[], __end_rodata[];
+ extern char __efi_helloworld_begin[];
+ extern char __efi_helloworld_end[];
++extern char __efi_var_file_begin[];
++extern char __efi_var_file_end[];
+ 
+ /* Start and end of .ctors section - used for constructor calls. */
+ extern char __ctors_start[], __ctors_end[];
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 8827c76cc9..db5e591ce2 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -50,6 +50,27 @@ config EFI_MM_COMM_TEE
+ 
+ endchoice
+ 
++config EFI_VARIABLES_PRESEED
++	bool "Provide initial values for variables"
++	depends on EFI_VARIABLE_FILE_STORE
++	help
++	  Include a file with the initial values for non-volatile UEFI variables
++	  into the U-Boot binary. If this variable is set, changes to variable
++	  PK will not be allowed.
++
++if EFI_VARIABLES_PRESEED
++
++config EFI_VAR_SEED_FILE
++	string "File with initial values of non-volatile UEFI variables"
++	default ubootefi.var
++	help
++	  File with initial values of non-volatile UEFI variables. The file will
++	  be in the format as the storage in the EFI system partition. The
++	  easiest way to create it is by setting the non-volatile variables in
++	  U-Boot.
++
++endif
++
+ config EFI_GET_TIME
+ 	bool "GetTime() runtime service"
+ 	depends on DM_RTC
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index f81ec8d277..36600fdf1e 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -6,7 +6,7 @@
+ # This file only gets included with CONFIG_EFI_LOADER set, so all
+ # object inclusion implicitly depends on it
+ 
+-asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
++asflags-y += -DHOST_ARCH="$(HOST_ARCH)" -I.
+ ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ 
+ CFLAGS_efi_boottime.o += \
+@@ -37,6 +37,7 @@ obj-y += efi_setup.o
+ obj-$(CONFIG_EFI_UNICODE_COLLATION_PROTOCOL2) += efi_unicode_collation.o
+ obj-y += efi_var_common.o
+ obj-y += efi_var_mem.o
++obj-$(CONFIG_EFI_VARIABLES_PRESEED) += efi_var_seed.o
+ ifeq ($(CONFIG_EFI_MM_COMM_TEE),y)
+ obj-y += efi_variable_tee.o
+ else
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 64dc3d6df9..7d33ce36f5 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -18,6 +18,7 @@
+ #include <crypto/pkcs7_parser.h>
+ #include <linux/compat.h>
+ #include <u-boot/crc.h>
++#include <asm/sections.h>
+ 
+ 
+ #ifdef CONFIG_EFI_SECURE_BOOT
+@@ -588,5 +589,11 @@ efi_status_t efi_init_variables(void)
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+ 
++	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
++		printf("efi_var_seed_file %p - %p\n",
++		       __efi_var_file_begin,  __efi_var_file_end);
++		printf("'%s'\n", __efi_var_file_begin);
++	}
++
+ 	return efi_var_from_file();
+ }
+-- 
+2.27.0
+
