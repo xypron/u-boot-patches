@@ -23,7 +23,7 @@ index 24e0663ebd..ddefa93f8f 100644
  		ret = set_property_int(variable_name, name_size, vendor, &var_property);
  	}
 +
-+	if (alt_ret != EFI_SUCCESS )
++	if (alt_ret != EFI_SUCCESS)
 +		goto out;
 +
 +	if (!u16_strcmp(variable_name, L"PK"))
