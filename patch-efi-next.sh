@@ -100,6 +100,7 @@ git am ../patch/0001-efi_loader-skip-warnings-for-network-configuration.patch
 git am ../patch/0001-efi_loader-display-RO-attribute-with-TEE-backed-vari.patch
 git am ../patch/0001-efi_loader-restructure-code-for-TEE-variables.patch
 git am ../patch/0001-efi_loader-update-secure-state.patch
+git am ../patch/0001-doc-provide-links-to-Microsoft-UEFI-certificates.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch

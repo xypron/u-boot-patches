@@ -1,4 +1,4 @@
-From 9d5243d40458bcff95d04a84ae19dfec95aaff5b Mon Sep 17 00:00:00 2001
+From 155527bedc817cfa2cfb143d2f7130e2ed84d548 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 14 Jul 2020 08:14:08 +0200
 Subject: [PATCH 1/1] efi_loader: update secure state
@@ -20,7 +20,7 @@ index 24e0663ebd..1046e0d470 100644
  		ret = set_property_int(variable_name, name_size, vendor, &var_property);
  	}
 +
-+	if (alt_ret == EFI_SUCCESS ret == EFI_SUCCESS &&
++	if (alt_ret == EFI_SUCCESS && ret == EFI_SUCCESS &&
 +	    !u16_strcmp(variable_name, L"PK"))
 +		ret = efi_init_secure_state();
  out:
