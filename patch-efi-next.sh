@@ -52,48 +52,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc1-2
-git am ../patch/0001-lib-crypto-use-qualified-path-for-x509_parser.h.patch
-
-git am ../patch/0001-efi_loader-image_loader-add-a-check-against-certific.patch
-git am ../patch/0001-efi_loader-image_loader-retrieve-authenticode-only-i.patch
-git am ../patch/0001-efi_loader-signature-fix-a-size-check-against-revoca.patch
-git am ../patch/0001-efi_loader-signature-make-efi_hash_regions-more-gene.patch
-git am ../patch/0001-efi_loader-image_loader-verification-for-all-signatu.patch
-git am ../patch/0001-efi_loader-image_loader-add-digest-based-verificatio.patch
-git am ../patch/0001-test-py-efi_secboot-apply-autopep8.patch
-git am ../patch/0001-test-py-efi_secboot-more-fixes-against-pylint.patch
-git am ../patch/0001-test-py-efi_secboot-split-signed-image-test-case-1-i.patch
-git am ../patch/0001-test-py-efi_secboot-add-a-test-against-certificate-r.patch
-git am ../patch/0001-test-py-efi_secboot-add-a-test-for-multiple-signatur.patch
-git am ../patch/0001-test-py-efi_secboot-add-a-test-for-verifying-with-di.patch
-# git am ../patch/0001-test-use-virt-make-fs-to-build-image.patch
-
-git am ../patch/0001-lib-rsa-export-rsa_verify_with_pkey.patch
-
-git am ../patch/0001-efi_loader-cleanup-for-tee-backed-variables.patch
-git am ../patch/0001-efi_loader-wrong-printf-format-in-efi_image_parse.patch
-git am ../patch/0001-efi_loader-fix-efi_get_child_controllers.patch
-git am ../patch/0001-efi_loader-avoid-NULL-deref-in-efi_convert_pointer.patch
-git am ../patch/0001-fs-fat-reduce-data-size-for-FAT_WRITE.patch
-git am ../patch/0001-efi_loader-prepare-for-read-only-OP-TEE-variables.patch
-git am ../patch/0001-efi_loader-display-RO-attribute-in-printenv-e.patch
-git am ../patch/0001-efi_loader-separate-UEFI-variable-API-from-implememe.patch
-git am ../patch/0001-efi_loader-OsIndicationsSupported-PlatformLangCodes.patch
-git am ../patch/0001-efi_loader-simplify-boot-manager.patch
-git am ../patch/0001-efi_loader-keep-attributes-in-efi_set_variable_int.patch
-git am ../patch/0001-efi_loader-value-of-VendorKeys.patch
-git am ../patch/0001-efi_loader-read-only-AuditMode-and-DeployedMode.patch
-git am ../patch/0001-efi_loader-secure-boot-flag.patch
-git am ../patch/0001-efi_loader-UEFI-variable-persistence.patch
-git am ../patch/0001-efi_loader-export-efi_convert_pointer.patch
-git am ../patch/0001-efi_loader-optional-pointer-for-ConvertPointer.patch
-git am ../patch/0001-efi_loader-new-function-efi_memcpy_runtime.patch
-git am ../patch/0001-efi_loader-memory-buffer-for-variables.patch
-git am ../patch/0001-efi_loader-use-memory-based-variable-storage.patch
-git am ../patch/0001-efi_loader-enable-UEFI-variables-at-runtime.patch
-git am ../patch/0001-efi_selftest-adjust-runtime-test-for-variables.patch
-
 # efi-2020-10-rc1-4
 git am ../patch/0001-efi_selftest-enable-bootefi-hello.patch
 git am ../patch/0001-efi_loader-skip-warnings-for-network-configuration.patch
