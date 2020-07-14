@@ -1,0 +1,66 @@
+From 91273bedced266bce8a8950b7a86cfd5d1871b22 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 14 Jul 2020 19:18:33 +0200
+Subject: [PATCH 1/1] efi_loader: configuration of variables store
+
+The file based and the OP-TEE based UEFI variable store are mutually
+exclusive. Define them as choice options in Kconfig.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 4324694d48..8827c76cc9 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -27,13 +27,28 @@ config EFI_LOADER
+ 
+ if EFI_LOADER
+ 
++choice
++	prompt "Store for non-volatile UEFI variables"
++	default EFI_VARIABLE_FILE_STORE
++	help
++	  Select where non-volatile UEFI variables shall be stored.
++
+ config EFI_VARIABLE_FILE_STORE
+ 	bool "Store non-volatile UEFI variables as file"
+ 	depends on FAT_WRITE
+-	default y
+ 	help
+-	  Select tis option if you want non-volatile UEFI variables to be stored
+-	  as file /ubootefi.var on the EFI system partition.
++	  Select this option if you want non-volatile UEFI variables to be
++	  stored as file /ubootefi.var on the EFI system partition.
++
++config EFI_MM_COMM_TEE
++	bool "UEFI variables storage service via OP-TEE"
++	depends on OPTEE
++	help
++	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI
++	  variable related operations to that. The application will verify,
++	  authenticate and store the variables on an RPMB.
++
++endchoice
+ 
+ config EFI_GET_TIME
+ 	bool "GetTime() runtime service"
+@@ -174,13 +189,4 @@ config EFI_SECURE_BOOT
+ 	  it is signed with a trusted key. To do that, you need to install,
+ 	  at least, PK, KEK and db.
+ 
+-config EFI_MM_COMM_TEE
+-	bool "UEFI variables storage service via OP-TEE"
+-	depends on OPTEE
+-	default n
+-	help
+-	  If OP-TEE is present and running StandAloneMM, dispatch all UEFI variable
+-	  related operations to that. The application will verify, authenticate and
+-	  store the variables on an RPMB.
+-
+ endif
+-- 
+2.27.0
+
