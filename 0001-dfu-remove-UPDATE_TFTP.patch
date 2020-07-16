@@ -1,0 +1,629 @@
+From 33583a8447aaf21225c1a8744616a7fa33fcb0d1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 15 Jul 2020 08:14:14 +0200
+Subject: [PATCH 1/1] dfu: remove UPDATE_TFTP
+
+Using UPDATE_TFTP the firmware can be updated from TFTP by writing to NOR
+flash. The same is possible by defining a dfu command in CONFIG_PREBOOT.
+
+The dfu command cannot only write to NOR but also to other devices. In
+README.dfutfp UPDATE_TFTP has been marked as deprecated. It is not used
+by any board.
+
+Remove TFTP update via CONFIG_UPDATE_TFTP.
+
+Adjust the documentation.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ README                          |  10 +--
+ common/Kconfig                  |  17 ----
+ common/main.c                   |   3 -
+ common/update.c                 | 147 +-------------------------------
+ doc/README.dfutftp              | 125 +++++++++++++++------------
+ doc/README.update               |  97 ---------------------
+ doc/uImage.FIT/update3.its      |   6 +-
+ doc/uImage.FIT/update_uboot.its |   3 +-
+ 8 files changed, 80 insertions(+), 328 deletions(-)
+ delete mode 100644 doc/README.update
+
+diff --git a/README b/README
+index 2384966a39..6c5378286b 100644
+--- a/README
++++ b/README
+@@ -2104,14 +2104,6 @@ The following options need to be configured:
+ 
+ 		Please see board_init_f function.
+ 
+-- Automatic software updates via TFTP server
+-		CONFIG_UPDATE_TFTP
+-		CONFIG_UPDATE_TFTP_CNT_MAX
+-		CONFIG_UPDATE_TFTP_MSEC_MAX
+-
+-		These options enable and control the auto-update feature;
+-		for a more detailed description refer to doc/README.update.
+-
+ - MTD Support (mtdparts command, UBI support)
+ 		CONFIG_MTD_UBI_WL_THRESHOLD
+ 		This parameter defines the maximum difference between the highest
+@@ -3329,7 +3321,7 @@ List of environment variables (most likely not complete):
+ 
+   updatefile	- Location of the software update file on a TFTP server, used
+ 		  by the automatic software update feature. Please refer to
+-		  documentation in doc/README.update for more details.
++		  documentation in doc/README.dfutftp for more details.
+ 
+   autoload	- if set to "no" (any string beginning with 'n'),
+ 		  "bootp" will just load perform a lookup of the
+diff --git a/common/Kconfig b/common/Kconfig
+index 67b3818fde..ca42ba37b7 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -1014,23 +1014,6 @@ endmenu
+ 
+ menu "Update support"
+ 
+-config UPDATE_TFTP
+-	bool "Auto-update using fitImage via TFTP"
+-	depends on FIT
+-	help
+-	  This option allows performing update of NOR with data in fitImage
+-	  sent via TFTP boot.
+-
+-config UPDATE_TFTP_CNT_MAX
+-	int "The number of connection retries during auto-update"
+-	default 0
+-	depends on UPDATE_TFTP
+-
+-config UPDATE_TFTP_MSEC_MAX
+-	int "Delay in mSec to wait for the TFTP server during auto-update"
+-	default 100
+-	depends on UPDATE_TFTP
+-
+ config ANDROID_AB
+ 	bool "Android A/B updates"
+ 	default n
+diff --git a/common/main.c b/common/main.c
+index 4b3cd302c3..62ab3344e5 100644
+--- a/common/main.c
++++ b/common/main.c
+@@ -50,9 +50,6 @@ void main_loop(void)
+ 	if (IS_ENABLED(CONFIG_USE_PREBOOT))
+ 		run_preboot_environment_command();
+ 
+-	if (IS_ENABLED(CONFIG_UPDATE_TFTP))
+-		update_tftp(0UL, NULL, NULL);
+-
+ 	s = bootdelay_process();
+ 	if (cli_process_fdt(&s))
+ 		cli_secure_boot_cmd(s);
+diff --git a/common/update.c b/common/update.c
+index c8dd346a09..caf74e63db 100644
+--- a/common/update.c
++++ b/common/update.c
+@@ -14,10 +14,6 @@
+ #error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
+ #endif
+ 
+-#if defined(CONFIG_UPDATE_TFTP) && !defined(CONFIG_MTD_NOR_FLASH)
+-#error "CONFIG_UPDATE_TFTP and !CONFIG_MTD_NOR_FLASH needed for legacy behaviour"
+-#endif
+-
+ #include <command.h>
+ #include <env.h>
+ #include <flash.h>
+@@ -26,7 +22,6 @@
+ #include <malloc.h>
+ #include <dfu.h>
+ #include <errno.h>
+-#include <mtd/cfi_flash.h>
+ 
+ /* env variable holding the location of the update file */
+ #define UPDATE_FILE_ENV		"updatefile"
+@@ -46,10 +41,7 @@
+ 
+ extern ulong tftp_timeout_ms;
+ extern int tftp_timeout_count_max;
+-#ifdef CONFIG_MTD_NOR_FLASH
+-extern flash_info_t flash_info[];
+-static uchar *saved_prot_info;
+-#endif
++
+ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
+ {
+ 	int size, rv;
+@@ -98,122 +90,6 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
+ 	return rv;
+ }
+ 
+-#ifdef CONFIG_MTD_NOR_FLASH
+-static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
+-{
+-	uchar *sp_info_ptr;
+-	ulong s;
+-	int i, bank, cnt;
+-	flash_info_t *info;
+-
+-	sp_info_ptr = NULL;
+-
+-	if (prot == 0) {
+-		saved_prot_info =
+-			calloc(CONFIG_SYS_MAX_FLASH_BANKS * CONFIG_SYS_MAX_FLASH_SECT, 1);
+-		if (!saved_prot_info)
+-			return 1;
+-	}
+-
+-	for (bank = 0; bank < CONFIG_SYS_MAX_FLASH_BANKS; ++bank) {
+-		cnt = 0;
+-		info = &flash_info[bank];
+-
+-		/* Nothing to do if the bank doesn't exist */
+-		if (info->sector_count == 0)
+-			return 0;
+-
+-		/* Point to current bank protection information */
+-		sp_info_ptr = saved_prot_info + (bank * CONFIG_SYS_MAX_FLASH_SECT);
+-
+-		/*
+-		 * Adjust addr_first or addr_last if we are on bank boundary.
+-		 * Address space between banks must be continuous for other
+-		 * flash functions (like flash_sect_erase or flash_write) to
+-		 * succeed. Banks must also be numbered in correct order,
+-		 * according to increasing addresses.
+-		 */
+-		if (addr_last > info->start[0] + info->size - 1)
+-			addr_last = info->start[0] + info->size - 1;
+-		if (addr_first < info->start[0])
+-			addr_first = info->start[0];
+-
+-		for (i = 0; i < info->sector_count; i++) {
+-			/* Save current information about protected sectors */
+-			if (prot == 0) {
+-				s = info->start[i];
+-				if ((s >= addr_first) && (s <= addr_last))
+-					sp_info_ptr[i] = info->protect[i];
+-
+-			}
+-
+-			/* Protect/unprotect sectors */
+-			if (sp_info_ptr[i] == 1) {
+-#if defined(CONFIG_SYS_FLASH_PROTECTION)
+-				if (flash_real_protect(info, i, prot))
+-					return 1;
+-#else
+-				info->protect[i] = prot;
+-#endif
+-				cnt++;
+-			}
+-		}
+-
+-		if (cnt) {
+-			printf("%sProtected %d sectors\n",
+-						prot ? "": "Un-", cnt);
+-		}
+-	}
+-
+-	if((prot == 1) && saved_prot_info)
+-		free(saved_prot_info);
+-
+-	return 0;
+-}
+-#endif
+-
+-static int update_flash(ulong addr_source, ulong addr_first, ulong size)
+-{
+-#ifdef CONFIG_MTD_NOR_FLASH
+-	ulong addr_last = addr_first + size - 1;
+-
+-	/* round last address to the sector boundary */
+-	if (flash_sect_roundb(&addr_last) > 0)
+-		return 1;
+-
+-	if (addr_first >= addr_last) {
+-		printf("Error: end address exceeds addressing space\n");
+-		return 1;
+-	}
+-
+-	/* remove protection on processed sectors */
+-	if (update_flash_protect(0, addr_first, addr_last) > 0) {
+-		printf("Error: could not unprotect flash sectors\n");
+-		return 1;
+-	}
+-
+-	printf("Erasing 0x%08lx - 0x%08lx", addr_first, addr_last);
+-	if (flash_sect_erase(addr_first, addr_last) > 0) {
+-		printf("Error: could not erase flash\n");
+-		return 1;
+-	}
+-
+-	printf("Copying to flash...");
+-	if (flash_write((char *)addr_source, addr_first, size) > 0) {
+-		printf("Error: could not copy to flash\n");
+-		return 1;
+-	}
+-	printf("done\n");
+-
+-	/* enable protection on processed sectors */
+-	if (update_flash_protect(1, addr_first, addr_last) > 0) {
+-		printf("Error: could not protect flash sectors\n");
+-		return 1;
+-	}
+-#endif
+-	return 0;
+-}
+-
+ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
+ 						ulong *fladdr, ulong *size)
+ {
+@@ -235,20 +111,9 @@ int update_tftp(ulong addr, char *interface, char *devstring)
+ 	char *filename, *env_addr, *fit_image_name;
+ 	ulong update_addr, update_fladdr, update_size;
+ 	int images_noffset, ndepth, noffset;
+-	bool update_tftp_dfu;
+ 	int ret = 0;
+ 	void *fit;
+ 
+-	if (interface == NULL && devstring == NULL) {
+-		update_tftp_dfu = false;
+-	} else if (interface && devstring) {
+-		update_tftp_dfu = true;
+-	} else {
+-		pr_err("Interface: %s and devstring: %s not supported!\n",
+-		      interface, devstring);
+-		return -EINVAL;
+-	}
+-
+ 	/* use already present image */
+ 	if (addr)
+ 		goto got_update_file;
+@@ -315,15 +180,7 @@ got_update_file:
+ 			goto next_node;
+ 		}
+ 
+-		if (!update_tftp_dfu) {
+-			if (update_flash(update_addr, update_fladdr,
+-					 update_size)) {
+-				printf("Error: can't flash update, aborting\n");
+-				ret = 1;
+-				goto next_node;
+-			}
+-		} else if (fit_image_check_type(fit, noffset,
+-						IH_TYPE_FIRMWARE)) {
++		if (fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE)) {
+ 			ret = dfu_tftp_write(fit_image_name, update_addr,
+ 					     update_size, interface, devstring);
+ 			if (ret)
+diff --git a/doc/README.dfutftp b/doc/README.dfutftp
+index a3341bbb61..d6286e3988 100644
+--- a/doc/README.dfutftp
++++ b/doc/README.dfutftp
+@@ -1,22 +1,8 @@
+-# SPDX-License-Identifier: GPL-2.0+
+-#
+-#  Copyright (C) 2015
+-#
+-#  Lukasz Majewski <l.majewski@majess.pl>
+-
+-Device Firmware Upgrade (DFU) - extension to use TFTP
+-=====================================================
+-
+-Why?
+-----
+-
+-* Update TFTP (CONFIG_UPDATE_TFTP) only supports writing
+-code to NAND memory via TFTP.
+-* DFU supports writing data to the variety of mediums (NAND,
+-eMMC, SD, partitions, RAM, etc) via USB.
+-
+-Combination of both solves their shortcomings!
++.. SPDX-License-Identifier: GPL-2.0+
++.. Copyright (c) 2015 Lukasz Majewski <l.majewski@majess.pl>
+ 
++Device Firmware Upgrade (DFU) from TFTP
++=======================================
+ 
+ Overview
+ --------
+@@ -32,83 +18,116 @@ This was caused by DFU standard, which imposed utilization
+ of only EP0 for transfer. By using Ethernet we can circumvent
+ this shortcoming.
+ 
++The "dfu" command has been extended to support transfer via TFTP - one
++needs to type for example "dfu tftp 0 mtd sr0". For details of the target
++device specification, please, refer to doc/README.dfu.
++
+ Beagle Bone Black rev. C (BBB) powered by TI's am335x CPU has
+ been used as a demo board.
+ 
+-To utilize this feature, one needs to first enable support
+-for USB based DFU (CONFIG_DFU_*) and DFU TFTP update
+-(CONFIG_DFU_TFTP) described in ./doc/README.update.
+-
+-The "dfu" command has been extended to support transfer via TFTP - one
+-needs to type for example "dfu tftp 0 mmc 0"
++To utilize this feature, one needs to first enable support for
+ 
+-As of this writing (SHA1:8d77576371381ade83de475bb639949b44941e8c v2015.10-rc2)
+-the update.c code is not enabled (CONFIG_UPDATE_TFTP) by any board in the
+-contemporary u-boot tree.
++* DFU - CONFIG_DFU
++* DFU TFTP - CONFIG_DFU_TFTP (which depends on CONFIG_FIT and CONFIG_LIBFDT)
++* at least one of the DFU backends - CONFIG_DFU_*
+ 
+ 
+ Environment variables
+ ---------------------
+ 
+-The "dfu tftp" command can be used in the "preboot" environment variable
+-(when it is enabled by defining CONFIG_PREBOOT).
+-This is the preferable way of using this command in the early boot stage
+-as opposed to legacy update_tftp() function invocation.
+-
++* **dfu_alt_info**: information about available DFU entities
++* **dfu_bufsiz**: variable to set buffer size [in bytes]
++* **ipaddr**: IP address of the U-Boot device
++* **loadaddr**: Normally, TFTP transfer of the update file is done to the
++  address specified in environment variable 'loadaddr'. If this variable is not
++  present, the transfer is made to the address given in CONFIG_UPDATE_LOAD_ADDR
++  (0x100000 by default).
++* **preboot**: To enable automatic updates the "dfu tftp" command can be
++  specified in the "preboot" environment variable (when it is enabled by
++  defining CONFIG_PREBOOT).
++* **serverip**: IP address of the TFTP server
++* **updatefile**: the source path of the file to be downloaded via TFTP
+ 
+ Beagle Bone Black (BBB) setup
+ -----------------------------
+ 
+ 1. Setup tftp env variables:
++
+    *  select desired eth device - 'ethact' variable ["ethact=cpsw"]
+       (use "bdinfo" to check current setting)
+    *  setup "serverip" and "ipaddr" variables
+    *  set "loadaddr" as a fixed buffer where incoming data is placed
+       ["loadaddr=0x81000000"]
+ 
+-#########
+-# BONUS #
+-#########
+-It is possible to use USB interface to emulate ETH connection by setting
+-"ethact=usb_ether". In this way one can have very fast DFU transfer via USB.
++      It is possible to use USB interface to emulate ETH connection by setting
++      "ethact=usb_ether". In this way one can have very fast DFU transfer via
++      USB.
+ 
+-For 33MiB test image the transfer rate was 1MiB/s for ETH over USB and 200KiB/s
+-for pure DFU USB transfer.
++      For 33MiB test image the transfer rate was 1MiB/s for ETH over USB and
++      200KiB/s for pure DFU USB transfer.
+ 
+ 2. Setup update_tftp variables:
++
+    *  set "updatefile" - the file name to be downloaded via TFTP (stored on
+       the HOST at e.g. /srv/tftp)
+ 
+ 3. If required, to update firmware on boot, put the "dfu tftp 0 mmc 0" in the
+-    "preboot" env variable. Otherwise use this command from u-boot prompt.
++   "preboot" env variable. Otherwise use this command from u-boot prompt.
+ 
+ 4. Inspect "dfu" specific variables:
++
+    * "dfu_alt_info" - information about available DFU entities
+    * "dfu_bufsiz"   - variable to set buffer size [in bytes] - when it is not
+-		    possible to set large enough default buffer (8 MiB @ BBB)
+-
++     possible to set large enough default buffer (8 MiB @ BBB)
+ 
+ 
+ FIT image format for download
+ -----------------------------
+ 
+-To create FIT image for download one should follow the update tftp README file
+-(./doc/README.update) with one notable difference:
++Since the update file is in FIT format, it is created from an \*.its file using
++the mkimage tool. dtc tool with support for binary includes, e.g. in version
++1.2.0 or later, must also be available on the system where the update file is
++to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
++images.
++
++
++Example .its files
++------------------
++
++* doc/uImage.FIT/update_uboot.its
++
++  A simple example that can be used to create an update file for automatically
++  replacing U-Boot image on a system.
++
++  Assuming that an U-Boot image u-boot.bin is present in the current working
++  directory, and that the address given in the 'load' property in the
++  'update_uboot.its' file is where the U-Boot is stored in Flash, the
++  following command will create the actual update file 'update_uboot.itb'::
++
++    mkimage -f update_uboot.its update_uboot.itb
+ 
+-The original snippet of ./doc/uImage.FIT/update_uboot.its
++  Place 'update_uboot.itb' on a TFTP server, for example as
++  '/tftpboot/update_uboot.itb', and set the 'updatefile' and 'preseed' variable
++  appropriately, for example in the U-Boot prompt::
+ 
+-	images {
+-		update@1 {
+-			description = "U-Boot binary";
++    setenv preseed 'dfu tftp 0 mtd sr0'
++    setenv updatefile /tftpboot/update_uboot.itb
++    saveenv
+ 
+-should look like
++  Now, when the system boots up and the update TFTP server specified in the
++  'serverip' environment variable is accessible, the new U-Boot image will be
++  automatically stored.
+ 
+-	images {
+-		u-boot.bin@1 {
+-			description = "U-Boot binary";
++  **NOTE**: do make sure that the 'u-boot.bin' image used to create the update
++  file is a good, working image. Also make sure that the target address
++  where the update will be placed is correct. Making mistake here and
++  attempting the auto-update can render the system unusable.
+ 
+-where "u-boot.bin" is the DFU entity name to be stored.
++* doc/uImage.FIT/update3.its
+ 
++  An example containing three updates. It can be used to update Linux kernel,
++  ramdisk and FDT blob stored in Flash. The procedure for preparing the update
++  file is similar to the example above.
+ 
+ 
+ To do
+diff --git a/doc/README.update b/doc/README.update
+deleted file mode 100644
+index bf4379279e..0000000000
+--- a/doc/README.update
++++ /dev/null
+@@ -1,97 +0,0 @@
+-Automatic software update from a TFTP server
+-============================================
+-
+-Overview
+---------
+-
+-This feature allows to automatically store software updates present on a TFTP
+-server in NOR Flash. In more detail: a TFTP transfer of a file given in
+-environment variable 'updatefile' from server 'serverip' is attempted during
+-boot. The update file should be a FIT file, and can contain one or more
+-updates. Each update in the update file has an address in NOR Flash where it
+-should be placed, updates are also protected with a SHA-1 checksum. If the
+-TFTP transfer is successful, the hash of each update is verified, and if the
+-verification is positive, the update is stored in Flash.
+-
+-The auto-update feature is enabled by the CONFIG_UPDATE_TFTP macro:
+-
+-#define CONFIG_UPDATE_TFTP		1
+-
+-
+-Note that when enabling auto-update, Flash support must be turned on.  Also,
+-one must enable FIT and LIBFDT support:
+-
+-#define CONFIG_FIT		1
+-#define CONFIG_OF_LIBFDT	1
+-
+-The auto-update feature uses the following configuration knobs:
+-
+-- CONFIG_UPDATE_LOAD_ADDR
+-
+-  Normally, TFTP transfer of the update file is done to the address specified
+-  in environment variable 'loadaddr'. If this variable is not present, the
+-  transfer is made to the address given in CONFIG_UPDATE_LOAD_ADDR (0x100000
+-  by default).
+-
+-- CONFIG_UPDATE_TFTP_CNT_MAX
+-  CONFIG_UPDATE_TFTP_MSEC_MAX
+-
+-  These knobs control the timeouts during initial connection to the TFTP
+-  server. Since a transfer is attempted during each boot, it is undesirable to
+-  have a long delay when a TFTP server is not present.
+-  CONFIG_UPDATE_TFTP_MSEC_MAX specifies the number of milliseconds to wait for
+-  the server to respond to initial connection, and CONFIG_UPDATE_TFTP_CNT_MAX
+-  gives the number of such connection retries. CONFIG_UPDATE_TFTP_CNT_MAX must
+-  be non-negative and is 0 by default, CONFIG_UPDATE_TFTP_MSEC_MAX must be
+-  positive and is 100 by default.
+-
+-Since the update file is in FIT format, it is created from an *.its file using
+-the mkimage tool. dtc tool with support for binary includes, e.g. in version
+-1.2.0 or later, must also be available on the system where the update file is
+-to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
+-images.
+-
+-
+-Example .its files
+-------------------
+-
+-- doc/uImage.FIT/update_uboot.its
+-
+-  A simple example that can be used to create an update file for automatically
+-  replacing U-Boot image on a system.
+-
+-  Assuming that an U-Boot image u-boot.bin is present in the current working
+-  directory, and that the address given in the 'load' property in the
+-  'update_uboot.its' file is where the U-Boot is stored in Flash, the
+-  following command will create the actual update file 'update_uboot.itb':
+-
+-  mkimage -f update_uboot.its update_uboot.itb
+-
+-  Place 'update_uboot.itb' on a TFTP server, for example as
+-  '/tftpboot/update_uboot.itb', and set the 'updatefile' variable
+-  appropriately, for example in the U-Boot prompt:
+-
+-  setenv updatefile /tftpboot/update_uboot.itb
+-  saveenv
+-
+-  Now, when the system boots up and the update TFTP server specified in the
+-  'serverip' environment variable is accessible, the new U-Boot image will be
+-  automatically stored in Flash.
+-
+-  NOTE: do make sure that the 'u-boot.bin' image used to create the update
+-  file is a good, working image. Also make sure that the address in Flash
+-  where the update will be placed is correct. Making mistake here and
+-  attempting the auto-update can render the system unusable.
+-
+-- doc/uImage.FIT/update3.its
+-
+-  An example containing three updates. It can be used to update Linux kernel,
+-  ramdisk and FDT blob stored in Flash. The procedure for preparing the update
+-  file is similar to the example above.
+-
+-TFTP update via DFU
+--------------------
+-
+-- It is now possible to update firmware (bootloader, kernel, rootfs, etc.) via
+-  TFTP by using DFU (Device Firmware Upgrade). More information can be found in
+-  ./doc/README.dfutftp documentation entry.
+diff --git a/doc/uImage.FIT/update3.its b/doc/uImage.FIT/update3.its
+index 0659f20002..16a0d62ad3 100644
+--- a/doc/uImage.FIT/update3.its
++++ b/doc/uImage.FIT/update3.its
+@@ -9,7 +9,7 @@
+ 	#address-cells = <1>;
+ 
+ 	images {
+-		update-1 {
++		u-boot.bin@1 {
+ 			description = "Linux kernel binary";
+ 			data = /incbin/("./vmlinux.bin.gz");
+ 			compression = "none";
+@@ -19,7 +19,7 @@
+ 				algo = "sha1";
+ 			};
+ 		};
+-		update-2 {
++		u-boot.bin@2 {
+ 			description = "Ramdisk image";
+ 			data = /incbin/("./ramdisk_image.gz");
+ 			compression = "none";
+@@ -30,7 +30,7 @@
+ 			};
+ 		};
+ 
+-		update-3 {
++		u-boot.bin@2 {
+ 			description = "FDT blob";
+ 			data = /incbin/("./blob.fdt");
+ 			compression = "none";
+diff --git a/doc/uImage.FIT/update_uboot.its b/doc/uImage.FIT/update_uboot.its
+index c2ac2663e6..8492c4edd6 100644
+--- a/doc/uImage.FIT/update_uboot.its
++++ b/doc/uImage.FIT/update_uboot.its
+@@ -10,7 +10,8 @@
+ 	#address-cells = <1>;
+ 
+ 	images {
+-		update-1 {
++		u-boot.bin@1 {
++			description = "U-Boot binary";
+ 			description = "U-Boot binary";
+ 			data = /incbin/("./u-boot.bin");
+ 			compression = "none";
+-- 
+2.27.0
+

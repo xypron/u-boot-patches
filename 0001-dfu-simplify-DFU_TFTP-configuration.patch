@@ -1,0 +1,110 @@
+From 0b89247235e8d946119a8afda2a1f1cee0ebffa5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 16 Jul 2020 08:06:56 +0200
+Subject: [PATCH 1/1] dfu: simplify DFU_TFTP configuration
+
+DFU_OVER_TFTP has been defined as a synonym for DFU_TFTP. Remove the
+superfluous symbol.
+
+Move build dependencies expressed in common/update.c as an error message to
+Kconfig.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/dfu.c           | 10 +++++-----
+ common/update.c     |  4 ----
+ drivers/dfu/Kconfig | 15 +++++++--------
+ 3 files changed, 12 insertions(+), 17 deletions(-)
+
+diff --git a/cmd/dfu.c b/cmd/dfu.c
+index 7310595a02..6cfec6a2ca 100644
+--- a/cmd/dfu.c
++++ b/cmd/dfu.c
+@@ -28,10 +28,10 @@ static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ #ifdef CONFIG_DFU_OVER_USB
+ 	char *usb_controller = argv[1];
+ #endif
+-#if defined(CONFIG_DFU_OVER_USB) || defined(CONFIG_DFU_OVER_TFTP)
++#if defined(CONFIG_DFU_OVER_USB) || defined(CONFIG_DFU_TFTP)
+ 	char *interface = NULL;
+ 	char *devstring = NULL;
+-#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_OVER_TFTP)
++#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_TFTP)
+ 	unsigned long value = 0;
+ #endif
+ 
+@@ -40,14 +40,14 @@ static int do_dfu(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ 		devstring = argv[3];
+ 	}
+ 
+-#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_OVER_TFTP)
++#if defined(CONFIG_DFU_TIMEOUT) || defined(CONFIG_DFU_TFTP)
+ 	if (argc == 5 || argc == 3)
+ 		value = simple_strtoul(argv[argc - 1], NULL, 0);
+ #endif
+ #endif
+ 
+ 	int ret = 0;
+-#ifdef CONFIG_DFU_OVER_TFTP
++#ifdef CONFIG_DFU_TFTP
+ 	if (!strcmp(argv[1], "tftp"))
+ 		return update_tftp(value, interface, devstring);
+ #endif
+@@ -93,7 +93,7 @@ U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
+ #endif
+ 	"    [list] - list available alt settings\n"
+ #endif
+-#ifdef CONFIG_DFU_OVER_TFTP
++#ifdef CONFIG_DFU_TFTP
+ #ifdef CONFIG_DFU_OVER_USB
+ 	"dfu "
+ #endif
+diff --git a/common/update.c b/common/update.c
+index caf74e63db..5ffac3acfe 100644
+--- a/common/update.c
++++ b/common/update.c
+@@ -10,10 +10,6 @@
+ #include <cpu_func.h>
+ #include <image.h>
+ 
+-#if !(defined(CONFIG_FIT) && defined(CONFIG_OF_LIBFDT))
+-#error "CONFIG_FIT and CONFIG_OF_LIBFDT are required for auto-update feature"
+-#endif
+-
+ #include <command.h>
+ #include <env.h>
+ #include <flash.h>
+diff --git a/drivers/dfu/Kconfig b/drivers/dfu/Kconfig
+index 5d45d7d7c2..46c915f9e5 100644
+--- a/drivers/dfu/Kconfig
++++ b/drivers/dfu/Kconfig
+@@ -9,19 +9,18 @@ config DFU_OVER_USB
+ 	select HASH
+ 	depends on USB_GADGET
+ 
+-config DFU_OVER_TFTP
+-	bool
+-	depends on NET
+-
+ if DFU
+ config DFU_TFTP
+ 	bool "DFU via TFTP"
+-	select DFU_OVER_TFTP
++	depends on NET
++	depends on FIT
++	depends on OF_LIBFDT
+ 	help
+-	  This option allows performing update of DFU-managed medium with data
+-	  sent via TFTP boot.
++	  This option allows updating DFU-managed media using a FIT image
++	  received via TFTP.
+ 
+-	  Detailed description of this feature can be found at ./doc/README.dfutftp
++	  A detailed description of this feature can be found at
++	  ./doc/README.dfutftp
+ 
+ config DFU_TIMEOUT
+ 	bool "Timeout waiting for DFU"
+-- 
+2.27.0
+

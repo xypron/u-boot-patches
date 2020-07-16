@@ -39,6 +39,9 @@ git am ../patch/0001-xtensa-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # DFU
+git am ../patch/0001-cmd-drop-fitupd-command.patch
+git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
+git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
