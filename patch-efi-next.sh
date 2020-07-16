@@ -46,6 +46,7 @@ git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
+git am ../patch/0001-test-dm-check-if-devices-exist.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch

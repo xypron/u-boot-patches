@@ -1,0 +1,160 @@
+From c563ea6080fbd4695c991def38eac4effd8bb8ca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 17 Jul 2020 00:04:12 +0200
+Subject: [PATCH 1/1] test/dm: check if devices exist
+
+Running 'ut dm' on the sandbox without -D or -d results in segmentation
+faults due to NULL pointer dereferences.
+
+Check that device pointers are non-NULL before using them.
+
+Use ut_assertnonnull() for pointers instead of ut_assert().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/dm/acpi.c     |  3 +++
+ test/dm/core.c     | 10 +++++-----
+ test/dm/devres.c   |  1 +
+ test/dm/test-fdt.c |  2 ++
+ test/dm/virtio.c   |  7 +++++++
+ 5 files changed, 18 insertions(+), 5 deletions(-)
+
+diff --git a/test/dm/acpi.c b/test/dm/acpi.c
+index 4c46dd83a6..ece7993cf3 100644
+--- a/test/dm/acpi.c
++++ b/test/dm/acpi.c
+@@ -96,7 +96,10 @@ DM_TEST(dm_test_acpi_get_table_revision,
+ static int dm_test_acpi_create_dmar(struct unit_test_state *uts)
+ {
+ 	struct acpi_dmar dmar;
++	struct udevice *cpu;
+ 
++	ut_assertok(uclass_first_device(UCLASS_CPU, &cpu));
++	ut_assertnonnull(cpu);
+ 	ut_assertok(acpi_create_dmar(&dmar, DMAR_INTR_REMAP));
+ 	ut_asserteq(DMAR_INTR_REMAP, dmar.flags);
+ 	ut_asserteq(32 - 1, dmar.host_address_width);
+diff --git a/test/dm/core.c b/test/dm/core.c
+index 6a930ae31a..d20c48443f 100644
+--- a/test/dm/core.c
++++ b/test/dm/core.c
+@@ -158,7 +158,7 @@ static int dm_test_autobind_uclass_pdata_alloc(struct unit_test_state *uts)
+ 	for (uclass_find_first_device(UCLASS_TEST, &dev);
+ 	     dev;
+ 	     uclass_find_next_device(&dev)) {
+-		ut_assert(dev);
++		ut_assertnonnull(dev);
+ 
+ 		uc_pdata = dev_get_uclass_platdata(dev);
+ 		ut_assert(uc_pdata);
+@@ -181,7 +181,7 @@ static int dm_test_autobind_uclass_pdata_valid(struct unit_test_state *uts)
+ 	for (uclass_find_first_device(UCLASS_TEST, &dev);
+ 	     dev;
+ 	     uclass_find_next_device(&dev)) {
+-		ut_assert(dev);
++		ut_assertnonnull(dev);
+ 
+ 		uc_pdata = dev_get_uclass_platdata(dev);
+ 		ut_assert(uc_pdata);
+@@ -747,11 +747,11 @@ static int dm_test_uclass_devices_find(struct unit_test_state *uts)
+ 	     dev;
+ 	     ret = uclass_find_next_device(&dev)) {
+ 		ut_assert(!ret);
+-		ut_assert(dev);
++		ut_assertnonnull(dev);
+ 	}
+ 
+ 	ut_assertok(uclass_find_first_device(UCLASS_TEST_DUMMY, &dev));
+-	ut_assert(!dev);
++	ut_assertnull(dev);
+ 
+ 	return 0;
+ }
+@@ -778,7 +778,7 @@ static int dm_test_uclass_devices_find_by_name(struct unit_test_state *uts)
+ 	     testdev;
+ 	     ret = uclass_find_next_device(&testdev)) {
+ 		ut_assertok(ret);
+-		ut_assert(testdev);
++		ut_assertnonnull(testdev);
+ 
+ 		findret = uclass_find_device_by_name(UCLASS_TEST_FDT,
+ 						     testdev->name,
+diff --git a/test/dm/devres.c b/test/dm/devres.c
+index b5de0cb191..550787495d 100644
+--- a/test/dm/devres.c
++++ b/test/dm/devres.c
+@@ -153,6 +153,7 @@ static int dm_test_devres_phase(struct unit_test_state *uts)
+ 	 * allocation created in the bind() method.
+ 	 */
+ 	ut_assertok(uclass_find_first_device(UCLASS_TEST_DEVRES, &dev));
++	ut_assertnonnull(dev);
+ 	devres_get_stats(dev, &stats);
+ 	ut_asserteq(1, stats.allocs);
+ 	ut_asserteq(TEST_DEVRES_SIZE, stats.total_size);
+diff --git a/test/dm/test-fdt.c b/test/dm/test-fdt.c
+index 51f2547409..8ef7c7a88e 100644
+--- a/test/dm/test-fdt.c
++++ b/test/dm/test-fdt.c
+@@ -832,10 +832,12 @@ static int dm_test_fdt_phandle(struct unit_test_state *uts)
+ 	struct udevice *back, *dev, *dev2;
+ 
+ 	ut_assertok(uclass_find_first_device(UCLASS_PANEL_BACKLIGHT, &back));
++	ut_assertnonnull(back);
+ 	ut_asserteq(-ENOENT, uclass_find_device_by_phandle(UCLASS_REGULATOR,
+ 							back, "missing", &dev));
+ 	ut_assertok(uclass_find_device_by_phandle(UCLASS_REGULATOR, back,
+ 						  "power-supply", &dev));
++	ut_assertnonnull(dev);
+ 	ut_asserteq(0, device_active(dev));
+ 	ut_asserteq_str("ldo1", dev->name);
+ 	ut_assertok(uclass_get_device_by_phandle(UCLASS_REGULATOR, back,
+diff --git a/test/dm/virtio.c b/test/dm/virtio.c
+index 4b317d2ec3..4a0c0b23b8 100644
+--- a/test/dm/virtio.c
++++ b/test/dm/virtio.c
+@@ -22,9 +22,11 @@ static int dm_test_virtio_base(struct unit_test_state *uts)
+ 
+ 	/* check probe success */
+ 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
++	ut_assertnonnull(bus);
+ 
+ 	/* check the child virtio-blk device is bound */
+ 	ut_assertok(device_find_first_child(bus, &dev));
++	ut_assertnonnull(dev);
+ 	ut_assertok(strcmp(dev->name, "virtio-blk#0"));
+ 
+ 	/* check driver status */
+@@ -49,15 +51,18 @@ static int dm_test_virtio_all_ops(struct unit_test_state *uts)
+ 
+ 	/* check probe success */
+ 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
++	ut_assertnonnull(bus);
+ 
+ 	/* check the child virtio-blk device is bound */
+ 	ut_assertok(device_find_first_child(bus, &dev));
++	ut_assertnonnull(dev);
+ 
+ 	/*
+ 	 * fake the virtio device probe by filling in uc_priv->vdev
+ 	 * which is used by virtio_find_vqs/virtio_del_vqs.
+ 	 */
+ 	uc_priv = dev_get_uclass_priv(bus);
++	ut_assertnonnull(uc_priv);
+ 	uc_priv->vdev = dev;
+ 
+ 	/* test virtio_xxx APIs */
+@@ -106,9 +111,11 @@ static int dm_test_virtio_remove(struct unit_test_state *uts)
+ 
+ 	/* check probe success */
+ 	ut_assertok(uclass_first_device(UCLASS_VIRTIO, &bus));
++	ut_assertnonnull(bus);
+ 
+ 	/* check the child virtio-blk device is bound */
+ 	ut_assertok(device_find_first_child(bus, &dev));
++	ut_assertnonnull(dev);
+ 
+ 	/* set driver status to VIRTIO_CONFIG_S_DRIVER_OK */
+ 	ut_assertok(virtio_set_status(dev, VIRTIO_CONFIG_S_DRIVER_OK));
+-- 
+2.27.0
+
