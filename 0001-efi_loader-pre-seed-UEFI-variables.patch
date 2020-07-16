@@ -1,4 +1,4 @@
-From 3c43a1a85662ba4da5bbf17745887d5628bba7e8 Mon Sep 17 00:00:00 2001
+From a2e21f4f40fb7b9c72883e57b766466073c48099 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 14 Jul 2020 21:25:28 +0200
 Subject: [PATCH 1/1] efi_loader: pre-seed UEFI variables
@@ -11,12 +11,12 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/asm-generic/sections.h |  2 ++
  include/efi_variable.h         |  8 ++++++++
- lib/efi_loader/Kconfig         | 21 +++++++++++++++++++++
+ lib/efi_loader/Kconfig         | 23 +++++++++++++++++++++++
  lib/efi_loader/Makefile        |  6 +++++-
  lib/efi_loader/efi_var_file.c  |  8 +-------
  lib/efi_loader/efi_var_seed.S  | 17 +++++++++++++++++
- lib/efi_loader/efi_variable.c  | 18 +++++++++++++++++-
- 7 files changed, 71 insertions(+), 9 deletions(-)
+ lib/efi_loader/efi_variable.c  | 19 +++++++++++++++++--
+ 7 files changed, 73 insertions(+), 10 deletions(-)
  create mode 100644 lib/efi_loader/efi_var_seed.S
 
 diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
@@ -33,10 +33,10 @@ index 17a31ec788..0577238d60 100644
  /* Start and end of .ctors section - used for constructor calls. */
  extern char __ctors_start[], __ctors_end[];
 diff --git a/include/efi_variable.h b/include/efi_variable.h
-index 5eec407a2b..89d9eec9c3 100644
+index 021a74f309..17f25ad7a4 100644
 --- a/include/efi_variable.h
 +++ b/include/efi_variable.h
-@@ -128,6 +128,14 @@ struct efi_var_file {
+@@ -138,6 +138,14 @@ struct efi_var_file {
   */
  efi_status_t efi_var_to_file(void);
  
@@ -52,20 +52,21 @@ index 5eec407a2b..89d9eec9c3 100644
   * efi_var_from_file() - read variables from file
   *
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 8827c76cc9..db5e591ce2 100644
+index 8827c76cc9..6017ffe9a6 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -50,6 +50,27 @@ config EFI_MM_COMM_TEE
+@@ -50,6 +50,29 @@ config EFI_MM_COMM_TEE
  
  endchoice
  
 +config EFI_VARIABLES_PRESEED
-+	bool "Provide initial values for variables"
++	bool "Initial values for UEFI variables"
 +	depends on EFI_VARIABLE_FILE_STORE
 +	help
 +	  Include a file with the initial values for non-volatile UEFI variables
-+	  into the U-Boot binary. If this variable is set, changes to variable
-+	  PK will not be allowed.
++	  into the U-Boot binary. If this configuration option is set, changes
++	  to authentication related variables (PK, KEK, db, dbx) are not
++	  allowed.
 +
 +if EFI_VARIABLES_PRESEED
 +
@@ -73,10 +74,11 @@ index 8827c76cc9..db5e591ce2 100644
 +	string "File with initial values of non-volatile UEFI variables"
 +	default ubootefi.var
 +	help
-+	  File with initial values of non-volatile UEFI variables. The file will
++	  File with initial values of non-volatile UEFI variables. The file must
 +	  be in the same format as the storage in the EFI system partition. The
 +	  easiest way to create it is by setting the non-volatile variables in
-+	  U-Boot.
++	  U-Boot. If a relative file path is used, it is relative to the source
++	  directory.
 +
 +endif
 +
@@ -132,11 +134,11 @@ index 880c279aef..6f9d76f2a2 100644
  	efi_status_t ret;
 diff --git a/lib/efi_loader/efi_var_seed.S b/lib/efi_loader/efi_var_seed.S
 new file mode 100644
-index 0000000000..29742fa5e3
+index 0000000000..e0a40cf46c
 --- /dev/null
 +++ b/lib/efi_loader/efi_var_seed.S
 @@ -0,0 +1,17 @@
-+// SPDX-License-Identifier: GPL-2.0+
++/* SPDX-License-Identifier: GPL-2.0+ */
 +/*
 + * Predefined UEFI variables
 + *
@@ -154,7 +156,7 @@ index 0000000000..29742fa5e3
 +__efi_var_file_end:
 +.balign 16
 diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
-index 64dc3d6df9..fb05b1668c 100644
+index ecbc4f7f54..39a8482903 100644
 --- a/lib/efi_loader/efi_variable.c
 +++ b/lib/efi_loader/efi_variable.c
 @@ -5,12 +5,15 @@
@@ -182,20 +184,32 @@ index 64dc3d6df9..fb05b1668c 100644
  
  #ifdef CONFIG_EFI_SECURE_BOOT
  static u8 pkcs7_hdr[] = {
-@@ -364,6 +367,12 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+@@ -365,10 +368,16 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 	delete = !append && (!data_size || !attributes);
+ 
+ 	/* check attributes */
++	var_type = efi_auth_var_get_type(variable_name, vendor);
+ 	if (var) {
  		if (ro_check && (var->attr & EFI_VARIABLE_READ_ONLY))
  			return EFI_WRITE_PROTECTED;
  
 +		if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
-+			if (u16_strcmp(variable_name, L"PK") == 0 &&
-+			    !guidcmp(vendor, &efi_global_variable_guid))
++			if (var_type != EFI_AUTH_VAR_NONE)
 +				return EFI_WRITE_PROTECTED;
 +		}
 +
  		/* attributes won't be changed */
  		if (!delete &&
  		    ((ro_check && var->attr != attributes) ||
-@@ -588,5 +597,12 @@ efi_status_t efi_init_variables(void)
+@@ -386,7 +395,6 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 			return EFI_NOT_FOUND;
+ 	}
+ 
+-	var_type = efi_auth_var_get_type(variable_name, vendor);
+ 	if (var_type != EFI_AUTH_VAR_NONE) {
+ 		/* authentication is mandatory */
+ 		if (!(attributes &
+@@ -589,5 +597,12 @@ efi_status_t efi_init_variables(void)
  	if (ret != EFI_SUCCESS)
  		return ret;
  
