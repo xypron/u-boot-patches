@@ -61,6 +61,7 @@ git am ../patch/0001-efi_loader-update-secure-state.patch
 git am ../patch/0001-doc-provide-links-to-Microsoft-UEFI-certificates.patch
 git am ../patch/0001-efi_loader-configuration-of-variables-store.patch
 git am ../patch/0001-efi_loader-pre-seed-UEFI-variables.patch
+git am ../patch/0001-efi_loader-describe-EFI_VAR_FILE_MAGIC.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
