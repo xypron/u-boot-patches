@@ -39,7 +39,6 @@ git am ../patch/0001-xtensa-define-__raw_writeq-__raw_readq.patch
 git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # DFU
-git am ../patch/0001-cmd-drop-fitupd-command.patch
 git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
 git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 
@@ -53,20 +52,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc1-4
-# git am ../patch/0001-cmd-drop-fitupd-command.patch
-git am ../patch/0001-cmd-fix-lsblk-command.patch
-git am ../patch/0001-efi_selftest-enable-bootefi-hello.patch
-git am ../patch/0001-efi_loader-skip-warnings-for-network-configuration.patch
-git am ../patch/0001-efi_loader-display-RO-attribute-with-TEE-backed-vari.patch
-git am ../patch/0001-efi_loader-restructure-code-for-TEE-variables.patch
-git am ../patch/0001-efi_loader-update-secure-state.patch
-git am ../patch/0001-doc-provide-links-to-Microsoft-UEFI-certificates.patch
-git am ../patch/0001-efi_loader-configuration-of-variables-store.patch
-git am ../patch/0001-efi_loader-identify-PK-KEK-db-dbx-correctly.patch
-git am ../patch/0001-efi_loader-pre-seed-UEFI-variables.patch
-git am ../patch/0001-efi_loader-describe-EFI_VAR_FILE_MAGIC.patch
-git am ../patch/0001-efi_loader-simplify-printenv-e.patch
+# efi-2020-10-rc1-5
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
