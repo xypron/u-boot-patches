@@ -29,14 +29,14 @@ git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
 git am ../patch/0001-fs-error-handling-in-do_load.patch
 git am ../patch/0001-doc-correct-description-of-crash-dumps.patch
 
-git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-nds32-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-nios2-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-powerpc-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-sh-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-xtensa-define-__raw_writeq-__raw_readq.patch
-git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-nds32-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-nios2-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-powerpc-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-sh-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-xtensa-define-__raw_writeq-__raw_readq.patch
+# git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # DFU
 git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
@@ -53,6 +53,12 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1-5
+git am ../0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch
+git am ../patch/0001-lib-crypto-add-public_key_verify_signature.patch
+git am ../patch/0001-lib-crypto-enable-x509_check_for_self_signed.patch
+git am ../patch/0001-lib-crypto-import-pkcs7_verify.c-from-linux.patch
+git am ../patch/0001-lib-crypto-add-pkcs7_digest.patch
+git am ../patch/0001-lib-crypto-export-and-enhance-pkcs7_verify_one.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch

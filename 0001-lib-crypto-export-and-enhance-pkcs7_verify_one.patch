@@ -1,0 +1,176 @@
+From 507737fc6205ed7a5e7f6deb71b8a0804f84d5d0 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 10 Jul 2020 09:24:47 +0900
+Subject: [PATCH 1/1] lib: crypto: export and enhance pkcs7_verify_one()
+
+The function, pkcs7_verify_one(), will be utilized to rework signature
+verification logic aiming to support intermediate certificates in
+"chain of trust."
+
+To do that, its function interface is expanded, adding an extra argument
+which is expected to return the last certificate in trusted chain.
+Then, this last one must further be verified with signature database, db
+and/or dbx.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ include/crypto/pkcs7.h    |  9 +++++-
+ lib/crypto/pkcs7_verify.c | 61 ++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 62 insertions(+), 8 deletions(-)
+
+diff --git a/include/crypto/pkcs7.h b/include/crypto/pkcs7.h
+index 8f5c8a7ee3..ca35df29f6 100644
+--- a/include/crypto/pkcs7.h
++++ b/include/crypto/pkcs7.h
+@@ -27,7 +27,14 @@ extern int pkcs7_get_content_data(const struct pkcs7_message *pkcs7,
+ 				  const void **_data, size_t *_datalen,
+ 				  size_t *_headerlen);
+ 
+-#ifndef __UBOOT__
++#ifdef __UBOOT__
++struct pkcs7_signed_info;
++struct x509_certificate;
++
++int pkcs7_verify_one(struct pkcs7_message *pkcs7,
++		     struct pkcs7_signed_info *sinfo,
++		     struct x509_certificate **signer);
++#else
+ /*
+  * pkcs7_trust.c
+  */
+diff --git a/lib/crypto/pkcs7_verify.c b/lib/crypto/pkcs7_verify.c
+index a32e841cb2..6a51243fcf 100644
+--- a/lib/crypto/pkcs7_verify.c
++++ b/lib/crypto/pkcs7_verify.c
+@@ -298,10 +298,27 @@ static int pkcs7_find_key(struct pkcs7_message *pkcs7,
+ }
+ 
+ /*
+- * Verify the internal certificate chain as best we can.
++ * pkcs7_verify_sig_chain - Verify the internal certificate chain as best
++ *                          as we can.
++ * @pkcs7:	PKCS7 Signed Data
++ * @sinfo:	PKCS7 Signed Info
++ * @signer:	Singer's certificate
++ *
++ * Build up and verify the internal certificate chain against a signature
++ * in @sinfo, using certificates contained in @pkcs7 as best as we can.
++ * If the chain reaches the end, the last certificate will be returned
++ * in @signer.
++ *
++ * Return:	0 - on success, non-zero error code - otherwise
+  */
++#ifdef __UBOOT__
++static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
++				  struct pkcs7_signed_info *sinfo,
++				  struct x509_certificate **signer)
++#else
+ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 				  struct pkcs7_signed_info *sinfo)
++#endif
+ {
+ 	struct public_key_signature *sig;
+ 	struct x509_certificate *x509 = sinfo->signer, *p;
+@@ -310,6 +327,8 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 
+ 	kenter("");
+ 
++	*signer = NULL;
++
+ 	for (p = pkcs7->certs; p; p = p->next)
+ 		p->seen = false;
+ 
+@@ -327,6 +346,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 			for (p = sinfo->signer; p != x509; p = p->signer)
+ 				p->blacklisted = true;
+ 			pr_debug("- blacklisted\n");
++#ifdef __UBOOT__
++			*signer = x509;
++#endif
+ 			return 0;
+ 		}
+ 
+@@ -352,6 +374,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 				goto unsupported_crypto_in_x509;
+ 			x509->signer = x509;
+ 			pr_debug("- self-signed\n");
++#ifdef __UBOOT__
++			*signer = x509;
++#endif
+ 			return 0;
+ 		}
+ 
+@@ -382,6 +407,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 
+ 		/* We didn't find the root of this chain */
+ 		pr_debug("- top\n");
++#ifdef __UBOOT__
++		*signer = x509;
++#endif
+ 		return 0;
+ 
+ 	found_issuer_check_skid:
+@@ -399,6 +427,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 		if (p->seen) {
+ 			pr_warn("Sig %u: X.509 chain contains loop\n",
+ 				sinfo->index);
++#ifdef __UBOOT__
++			*signer = p;
++#endif
+ 			return 0;
+ 		}
+ 		ret = public_key_verify_signature(p->pub, x509->sig);
+@@ -407,6 +438,9 @@ static int pkcs7_verify_sig_chain(struct pkcs7_message *pkcs7,
+ 		x509->signer = p;
+ 		if (x509 == p) {
+ 			pr_debug("- self-signed\n");
++#ifdef __UBOOT__
++			*signer = p;
++#endif
+ 			return 0;
+ 		}
+ 		x509 = p;
+@@ -426,13 +460,26 @@ unsupported_crypto_in_x509:
+ }
+ 
+ /*
+- * Verify one signed information block from a PKCS#7 message.
++ * pkcs7_verify_one - Verify one signed information block from a PKCS#7
++ *                    message.
++ * @pkcs7:	PKCS7 Signed Data
++ * @sinfo:	PKCS7 Signed Info
++ * @signer:	Signer's certificate
++ *
++ * Verify one signature in @sinfo and follow the certificate chain.
++ * If the chain reaches the end, the last certificate will be returned
++ * in @signer.
++ *
++ * Return:	0 - on success, non-zero error code - otherwise
+  */
+-#ifndef __UBOOT__
+-static
+-#endif
++#ifdef __UBOOT__
+ int pkcs7_verify_one(struct pkcs7_message *pkcs7,
+-		     struct pkcs7_signed_info *sinfo)
++		     struct pkcs7_signed_info *sinfo,
++		     struct x509_certificate **signer)
++#else
++static int pkcs7_verify_one(struct pkcs7_message *pkcs7,
++			    struct pkcs7_signed_info *sinfo)
++#endif
+ {
+ 	int ret;
+ 
+@@ -476,7 +523,7 @@ int pkcs7_verify_one(struct pkcs7_message *pkcs7,
+ 	pr_devel("Verified signature %u\n", sinfo->index);
+ 
+ 	/* Verify the internal certificate chain */
+-	return pkcs7_verify_sig_chain(pkcs7, sinfo);
++	return pkcs7_verify_sig_chain(pkcs7, sinfo, signer);
+ }
+ 
+ #ifndef __UBOOT__
+-- 
+2.27.0
+
