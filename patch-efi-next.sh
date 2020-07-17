@@ -26,7 +26,6 @@ git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
-git am ../patch/0001-fs-error-handling-in-do_load.patch
 git am ../patch/0001-doc-correct-description-of-crash-dumps.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
@@ -54,6 +53,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1-5
+git am ../patch/0001-fs-error-handling-in-do_load.patch
 git am ../patch/0001-efi_loader-use-logging-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-use-logging-for-block-device-messages.patch
 git am ../patch/0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch

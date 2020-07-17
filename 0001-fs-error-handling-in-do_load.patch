@@ -7,6 +7,7 @@ If a file cannot be loaded, show an error message.
 Set the EFI boot device only after successfully loading a file.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
 v2:
 	use if() instead of #ifdef
