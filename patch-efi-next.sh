@@ -54,7 +54,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1-5
-git am ../0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch
+git am ../patch/0001-efi_loader-use-logging-for-bootefi-command.patch
+git am ../patch/0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch
 git am ../patch/0001-lib-crypto-add-public_key_verify_signature.patch
 git am ../patch/0001-lib-crypto-enable-x509_check_for_self_signed.patch
 git am ../patch/0001-lib-crypto-import-pkcs7_verify.c-from-linux.patch
