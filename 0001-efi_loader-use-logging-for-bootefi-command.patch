@@ -1,4 +1,4 @@
-From 5e7e2373351ccef5c2c606d463313daec6a0bb8c Mon Sep 17 00:00:00 2001
+From 93fbba51e19612b480778902d718125d0b4ee166 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 17 Jul 2020 20:21:00 +0200
 Subject: [PATCH 1/1] efi_loader: use logging for bootefi command
@@ -9,10 +9,14 @@ console.
 Do not show "## Application terminated" message when the UEFI binary
 completed successfully.
 
+Adjust the python tests testing for '## Application terminated'.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c | 42 ++++++++++++++++++++++++------------------
- 1 file changed, 24 insertions(+), 18 deletions(-)
+ cmd/bootefi.c                    | 42 ++++++++++++++++++--------------
+ test/py/tests/test_efi_fit.py    |  9 +++----
+ test/py/tests/test_efi_loader.py |  4 +--
+ 3 files changed, 30 insertions(+), 25 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index 57552f99fc..8154efde52 100644
@@ -159,6 +163,42 @@ index 57552f99fc..8154efde52 100644
  		return CMD_RET_FAILURE;
  	}
  
+diff --git a/test/py/tests/test_efi_fit.py b/test/py/tests/test_efi_fit.py
+index 06fb151c13..068a35a559 100644
+--- a/test/py/tests/test_efi_fit.py
++++ b/test/py/tests/test_efi_fit.py
+@@ -420,12 +420,11 @@ def test_efi_fit_launch(u_boot_console):
+             fit_config = 'config-efi-fdt' if enable_fdt else 'config-efi-nofdt'
+ 
+             # Try booting.
+-            cons.run_command(
+-                'bootm %x#%s' % (addr, fit_config), wait_for_prompt=False)
++            output = cons.run_command('bootm %x#%s' % (addr, fit_config))
+             if enable_fdt:
+-                cons.wait_for('Booting using the fdt blob')
+-            cons.wait_for('Hello, world')
+-            cons.wait_for('## Application terminated, r = 0')
++                assert 'Booting using the fdt blob' in output
++            assert 'Hello, world' in output
++            assert '## Application failed' not in output
+             cons.restart_uboot()
+ 
+     cons = u_boot_console
+diff --git a/test/py/tests/test_efi_loader.py b/test/py/tests/test_efi_loader.py
+index 7aa422e764..6497da7d4b 100644
+--- a/test/py/tests/test_efi_loader.py
++++ b/test/py/tests/test_efi_loader.py
+@@ -161,8 +161,8 @@ def test_efi_helloworld_net(u_boot_console):
+     output = u_boot_console.run_command('bootefi %x' % addr)
+     expected_text = 'Hello, world'
+     assert expected_text in output
+-    expected_text = '## Application terminated, r = 0'
+-    assert expected_text in output
++    expected_text = '## Application failed'
++    assert expected_text not in output
+ 
+ @pytest.mark.buildconfigspec('cmd_bootefi_hello')
+ def test_efi_helloworld_builtin(u_boot_console):
 -- 
 2.27.0
 
