@@ -39,6 +39,7 @@ git am ../patch/0001-doc-correct-description-of-crash-dumps.patch
 # git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # DFU
+git am ../patch/0001-dfu-fix-typo-parameteres.patch
 git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
 git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 
