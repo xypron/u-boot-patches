@@ -53,6 +53,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1-5
+git am ../patch/0001-efi_loader-document-efi_save_gd-efi_restore_gd.patch
 git am ../patch/0001-fs-error-handling-in-do_load.patch
 git am ../patch/0001-efi_loader-use-logging-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-use-logging-for-block-device-messages.patch
