@@ -1,7 +1,7 @@
 From 5622b341ee98924fc44afdb5f3a3a115978e00fe Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 18 Jul 2020 10:54:26 +0200
-Subject: [PATCH 1/1] efi_loader: returning form UEFI FIT images
+Subject: [PATCH 1/1] efi_loader: returning from UEFI FIT images
 
 Do not reset the board when returning from an UEFI FIT image.
 
