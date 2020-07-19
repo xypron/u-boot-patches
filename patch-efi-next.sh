@@ -23,10 +23,8 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
-git am ../patch/0001-ARM-mx6-make-CAAM-usable-on-the-i.MX6-boards.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
-git am ../patch/0001-doc-correct-description-of-crash-dumps.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch

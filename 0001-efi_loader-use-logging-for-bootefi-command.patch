@@ -1,4 +1,4 @@
-From 0c52bfd68637dd79bcb5f7372ca9e24bec7f3602 Mon Sep 17 00:00:00 2001
+From 64f4b022aca640ac4ae482f45668dbe63d36149a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 17 Jul 2020 20:21:00 +0200
 Subject: [PATCH 1/1] efi_loader: use logging for bootefi command
@@ -185,7 +185,7 @@ index 06fb151c13..068a35a559 100644
  
      cons = u_boot_console
 diff --git a/test/py/tests/test_efi_loader.py b/test/py/tests/test_efi_loader.py
-index 7aa422e764..8f020808f4 100644
+index 7aa422e764..ca68626cec 100644
 --- a/test/py/tests/test_efi_loader.py
 +++ b/test/py/tests/test_efi_loader.py
 @@ -161,8 +161,8 @@ def test_efi_helloworld_net(u_boot_console):
@@ -206,7 +206,7 @@ index 7aa422e764..8f020808f4 100644
 -    output = u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
 -    u_boot_console.wait_for('r = 0')
 -
-+    u_boot_console.run_command('exit', wait_for_prompt=False)
++    u_boot_console.run_command('exit', wait_for_prompt=False, wait_for_echo=False)
 +    u_boot_console.wait_for('=>')
      # And give us our U-Boot prompt back
      u_boot_console.run_command('')
