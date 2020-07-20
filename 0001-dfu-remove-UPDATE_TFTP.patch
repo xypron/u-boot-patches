@@ -1,7 +1,7 @@
-From 33583a8447aaf21225c1a8744616a7fa33fcb0d1 Mon Sep 17 00:00:00 2001
+From f1fa00f4f9804dcafe37d3cb4a0ad93e472caea0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Jul 2020 08:14:14 +0200
-Subject: [PATCH 1/1] dfu: remove UPDATE_TFTP
+Subject: [PATCH 1/2] dfu: remove UPDATE_TFTP
 
 Using UPDATE_TFTP the firmware can be updated from TFTP by writing to NOR
 flash. The same is possible by defining a dfu command in CONFIG_PREBOOT.
@@ -614,13 +614,12 @@ diff --git a/doc/uImage.FIT/update_uboot.its b/doc/uImage.FIT/update_uboot.its
 index c2ac2663e6..8492c4edd6 100644
 --- a/doc/uImage.FIT/update_uboot.its
 +++ b/doc/uImage.FIT/update_uboot.its
-@@ -10,7 +10,8 @@
+@@ -10,7 +10,7 @@
  	#address-cells = <1>;
  
  	images {
 -		update-1 {
 +		u-boot.bin@1 {
-+			description = "U-Boot binary";
  			description = "U-Boot binary";
  			data = /incbin/("./u-boot.bin");
  			compression = "none";
