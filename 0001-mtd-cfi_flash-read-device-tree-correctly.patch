@@ -1,0 +1,78 @@
+From 56d752ee0a2ff11965837ae54ca026ab57386c65 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 21 Jul 2020 04:51:06 +0200
+Subject: [PATCH 1/1] mtd: cfi_flash: read device tree correctly
+
+dev_read_size_cells() and dev_read_addr_cells() do not walk up the device
+tree to find the number of cells. On error they return 1 and 2
+respectively. On qemu_arm64_defconfig this leads to the incorrect detection
+of address of the second flash bank as 0x400000000000000 instead of
+0x4000000.
+
+When running
+
+    qemu-system-aarch64 -machine virt -bios u-boot.bin \
+    -cpu cortex-a53 -nographic \
+    -drive if=pflash,format=raw,index=1,file=envstore.img
+
+the command 'saveenv' fails with
+
+    Saving Environment to Flash... Error: start and/or end address not on
+    sector boundary
+    Error: start and/or end address not on sector boundary
+    Failed (1)
+
+due to this incorrect address.
+
+Use function fdtdec_get_addr_size_auto_noparent() to read the array of
+flash banks from the device tree.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mtd/cfi_flash.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/mtd/cfi_flash.c b/drivers/mtd/cfi_flash.c
+index b7289ba539..70618b8c58 100644
+--- a/drivers/mtd/cfi_flash.c
++++ b/drivers/mtd/cfi_flash.c
+@@ -2469,28 +2469,24 @@ unsigned long flash_init(void)
+ static int cfi_flash_probe(struct udevice *dev)
+ {
+ 	const fdt32_t *cell;
+-	int addrc, sizec;
+-	int len, idx;
+-
+-	addrc = dev_read_addr_cells(dev);
+-	sizec = dev_read_size_cells(dev);
++	int len;
+ 
+ 	/* decode regs; there may be multiple reg tuples. */
+ 	cell = dev_read_prop(dev, "reg", &len);
+ 	if (!cell)
+ 		return -ENOENT;
+-	idx = 0;
+-	len /= sizeof(fdt32_t);
+-	while (idx < len) {
++
++	for (cfi_flash_num_flash_banks = 0; ; ++cfi_flash_num_flash_banks) {
+ 		phys_addr_t addr;
+ 
+-		addr = dev_translate_address(dev, cell + idx);
++		addr = fdtdec_get_addr_size_auto_noparent(
++				gd->fdt_blob, dev_of_offset(dev), "reg",
++				cfi_flash_num_flash_banks, NULL, false);
++		if (addr == FDT_ADDR_T_NONE)
++			break;
+ 
+ 		flash_info[cfi_flash_num_flash_banks].dev = dev;
+ 		flash_info[cfi_flash_num_flash_banks].base = addr;
+-		cfi_flash_num_flash_banks++;
+-
+-		idx += addrc + sizec;
+ 	}
+ 	gd->bd->bi_flashstart = flash_info[0].base;
+ 
+-- 
+2.27.0
+

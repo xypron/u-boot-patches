@@ -39,6 +39,7 @@ git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
 git am ../patch/0001-dfu-fix-typo-parameteres.patch
 git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
 git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
+git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
