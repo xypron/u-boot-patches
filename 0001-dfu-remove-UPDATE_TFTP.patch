@@ -1,7 +1,7 @@
-From f1fa00f4f9804dcafe37d3cb4a0ad93e472caea0 Mon Sep 17 00:00:00 2001
+From a5421cedbee991940948eee95f467461e05796da Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 15 Jul 2020 08:14:14 +0200
-Subject: [PATCH 1/2] dfu: remove UPDATE_TFTP
+Subject: [PATCH 1/1] dfu: remove UPDATE_TFTP
 
 Using UPDATE_TFTP the firmware can be updated from TFTP by writing to NOR
 flash. The same is possible by defining a dfu command in CONFIG_PREBOOT.
@@ -16,15 +16,15 @@ Adjust the documentation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- README                          |  10 +--
+ README                          |  10 +-
  common/Kconfig                  |  17 ----
  common/main.c                   |   3 -
- common/update.c                 | 147 +-------------------------------
- doc/README.dfutftp              | 125 +++++++++++++++------------
- doc/README.update               |  97 ---------------------
+ common/update.c                 | 147 +--------------------------
+ doc/README.dfutftp              | 171 ++++++++++++++++++--------------
+ doc/README.update               |  97 ------------------
  doc/uImage.FIT/update3.its      |   6 +-
- doc/uImage.FIT/update_uboot.its |   3 +-
- 8 files changed, 80 insertions(+), 328 deletions(-)
+ doc/uImage.FIT/update_uboot.its |   2 +-
+ 8 files changed, 101 insertions(+), 352 deletions(-)
  delete mode 100644 doc/README.update
 
 diff --git a/README b/README
@@ -98,7 +98,7 @@ index 4b3cd302c3..62ab3344e5 100644
  	if (cli_process_fdt(&s))
  		cli_secure_boot_cmd(s);
 diff --git a/common/update.c b/common/update.c
-index c8dd346a09..caf74e63db 100644
+index d8854791d2..3320ddc167 100644
 --- a/common/update.c
 +++ b/common/update.c
 @@ -14,10 +14,6 @@
@@ -276,7 +276,7 @@ index c8dd346a09..caf74e63db 100644
  	/* use already present image */
  	if (addr)
  		goto got_update_file;
-@@ -315,15 +180,7 @@ got_update_file:
+@@ -314,15 +179,7 @@ got_update_file:
  			goto next_node;
  		}
  
@@ -294,10 +294,10 @@ index c8dd346a09..caf74e63db 100644
  					     update_size, interface, devstring);
  			if (ret)
 diff --git a/doc/README.dfutftp b/doc/README.dfutftp
-index a3341bbb61..d6286e3988 100644
+index a3341bbb61..8653f4149c 100644
 --- a/doc/README.dfutftp
 +++ b/doc/README.dfutftp
-@@ -1,22 +1,8 @@
+@@ -1,114 +1,131 @@
 -# SPDX-License-Identifier: GPL-2.0+
 -#
 -#  Copyright (C) 2015
@@ -324,23 +324,36 @@ index a3341bbb61..d6286e3988 100644
  
  Overview
  --------
-@@ -32,83 +18,116 @@ This was caused by DFU standard, which imposed utilization
- of only EP0 for transfer. By using Ethernet we can circumvent
- this shortcoming.
  
-+The "dfu" command has been extended to support transfer via TFTP - one
-+needs to type for example "dfu tftp 0 mtd sr0". For details of the target
-+device specification, please, refer to doc/README.dfu.
-+
- Beagle Bone Black rev. C (BBB) powered by TI's am335x CPU has
- been used as a demo board.
+-This document briefly describes how to use DFU for
+-upgrading firmware (e.g. kernel, u-boot, rootfs, etc.)
+-via TFTP protocol.
++This document briefly describes how to use DFU for upgrading firmware (e.g.
++kernel, u-boot, rootfs, etc.) via TFTP protocol.
  
+-By using Ethernet (TFTP protocol to be precise) it is
+-possible to overcome the major problem of USB based DFU -
+-the relatively low transfer speed for large files.
+-This was caused by DFU standard, which imposed utilization
+-of only EP0 for transfer. By using Ethernet we can circumvent
+-this shortcoming.
+-
+-Beagle Bone Black rev. C (BBB) powered by TI's am335x CPU has
+-been used as a demo board.
+-
 -To utilize this feature, one needs to first enable support
 -for USB based DFU (CONFIG_DFU_*) and DFU TFTP update
 -(CONFIG_DFU_TFTP) described in ./doc/README.update.
--
--The "dfu" command has been extended to support transfer via TFTP - one
++By using Ethernet (TFTP protocol to be precise) it is possible to overcome the
++major problem of USB based DFU - the relatively low transfer speed for large
++files. This was caused by DFU standard, which imposed utilization of only EP0
++for transfer. By using Ethernet we can circumvent this shortcoming.
+ 
+ The "dfu" command has been extended to support transfer via TFTP - one
 -needs to type for example "dfu tftp 0 mmc 0"
++needs to type for example "dfu tftp mtd nor1". For details of the target
++device specification, please, refer to doc/README.dfu.
++
 +To utilize this feature, one needs to first enable support for
  
 -As of this writing (SHA1:8d77576371381ade83de475bb639949b44941e8c v2015.10-rc2)
@@ -358,7 +371,6 @@ index a3341bbb61..d6286e3988 100644
 -(when it is enabled by defining CONFIG_PREBOOT).
 -This is the preferable way of using this command in the early boot stage
 -as opposed to legacy update_tftp() function invocation.
--
 +* **dfu_alt_info**: information about available DFU entities
 +* **dfu_bufsiz**: variable to set buffer size [in bytes]
 +* **ipaddr**: IP address of the U-Boot device
@@ -372,107 +384,125 @@ index a3341bbb61..d6286e3988 100644
 +* **serverip**: IP address of the TFTP server
 +* **updatefile**: the source path of the file to be downloaded via TFTP
  
- Beagle Bone Black (BBB) setup
+ 
+-Beagle Bone Black (BBB) setup
++FIT image format for download
  -----------------------------
  
- 1. Setup tftp env variables:
-+
-    *  select desired eth device - 'ethact' variable ["ethact=cpsw"]
-       (use "bdinfo" to check current setting)
-    *  setup "serverip" and "ipaddr" variables
-    *  set "loadaddr" as a fixed buffer where incoming data is placed
-       ["loadaddr=0x81000000"]
+-1. Setup tftp env variables:
+-   *  select desired eth device - 'ethact' variable ["ethact=cpsw"]
+-      (use "bdinfo" to check current setting)
+-   *  setup "serverip" and "ipaddr" variables
+-   *  set "loadaddr" as a fixed buffer where incoming data is placed
+-      ["loadaddr=0x81000000"]
++Since the update file is in FIT format, it is created from an \*.its file using
++the mkimage tool. dtc tool with support for binary includes, e.g. in version
++1.2.0 or later, must also be available on the system where the update file is
++to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
++images.
  
 -#########
 -# BONUS #
 -#########
 -It is possible to use USB interface to emulate ETH connection by setting
 -"ethact=usb_ether". In this way one can have very fast DFU transfer via USB.
-+      It is possible to use USB interface to emulate ETH connection by setting
-+      "ethact=usb_ether". In this way one can have very fast DFU transfer via
-+      USB.
  
 -For 33MiB test image the transfer rate was 1MiB/s for ETH over USB and 200KiB/s
 -for pure DFU USB transfer.
-+      For 33MiB test image the transfer rate was 1MiB/s for ETH over USB and
-+      200KiB/s for pure DFU USB transfer.
- 
- 2. Setup update_tftp variables:
-+
-    *  set "updatefile" - the file name to be downloaded via TFTP (stored on
-       the HOST at e.g. /srv/tftp)
- 
- 3. If required, to update firmware on boot, put the "dfu tftp 0 mmc 0" in the
--    "preboot" env variable. Otherwise use this command from u-boot prompt.
-+   "preboot" env variable. Otherwise use this command from u-boot prompt.
- 
- 4. Inspect "dfu" specific variables:
-+
-    * "dfu_alt_info" - information about available DFU entities
-    * "dfu_bufsiz"   - variable to set buffer size [in bytes] - when it is not
--		    possible to set large enough default buffer (8 MiB @ BBB)
--
-+     possible to set large enough default buffer (8 MiB @ BBB)
- 
- 
- FIT image format for download
- -----------------------------
- 
--To create FIT image for download one should follow the update tftp README file
--(./doc/README.update) with one notable difference:
-+Since the update file is in FIT format, it is created from an \*.its file using
-+the mkimage tool. dtc tool with support for binary includes, e.g. in version
-+1.2.0 or later, must also be available on the system where the update file is
-+to be prepared. Refer to the doc/uImage.FIT/ directory for more details on FIT
-+images.
-+
-+
 +Example .its files
 +------------------
-+
+ 
+-2. Setup update_tftp variables:
+-   *  set "updatefile" - the file name to be downloaded via TFTP (stored on
+-      the HOST at e.g. /srv/tftp)
 +* doc/uImage.FIT/update_uboot.its
-+
+ 
+-3. If required, to update firmware on boot, put the "dfu tftp 0 mmc 0" in the
+-    "preboot" env variable. Otherwise use this command from u-boot prompt.
 +  A simple example that can be used to create an update file for automatically
-+  replacing U-Boot image on a system.
-+
++  replacing the U-Boot image on a system.
+ 
+-4. Inspect "dfu" specific variables:
+-   * "dfu_alt_info" - information about available DFU entities
+-   * "dfu_bufsiz"   - variable to set buffer size [in bytes] - when it is not
+-		    possible to set large enough default buffer (8 MiB @ BBB)
 +  Assuming that an U-Boot image u-boot.bin is present in the current working
 +  directory, and that the address given in the 'load' property in the
 +  'update_uboot.its' file is where the U-Boot is stored in Flash, the
 +  following command will create the actual update file 'update_uboot.itb'::
-+
+ 
 +    mkimage -f update_uboot.its update_uboot.itb
  
--The original snippet of ./doc/uImage.FIT/update_uboot.its
 +  Place 'update_uboot.itb' on a TFTP server, for example as
-+  '/tftpboot/update_uboot.itb', and set the 'updatefile' and 'preseed' variable
++  '/tftpboot/update_uboot.itb', and set the 'updatefile' and 'preboot' variable
 +  appropriately, for example in the U-Boot prompt::
  
--	images {
--		update@1 {
--			description = "U-Boot binary";
-+    setenv preseed 'dfu tftp 0 mtd sr0'
+-FIT image format for download
++    setenv preboot 'dfu tftp mtd nor0'
 +    setenv updatefile /tftpboot/update_uboot.itb
 +    saveenv
- 
--should look like
++
 +  Now, when the system boots up and the update TFTP server specified in the
 +  'serverip' environment variable is accessible, the new U-Boot image will be
 +  automatically stored.
- 
--	images {
--		u-boot.bin@1 {
--			description = "U-Boot binary";
++
 +  **NOTE**: do make sure that the 'u-boot.bin' image used to create the update
 +  file is a good, working image. Also make sure that the target address
 +  where the update will be placed is correct. Making mistake here and
 +  attempting the auto-update can render the system unusable.
- 
--where "u-boot.bin" is the DFU entity name to be stored.
++
 +* doc/uImage.FIT/update3.its
- 
++
 +  An example containing three updates. It can be used to update Linux kernel,
 +  ramdisk and FDT blob stored in Flash. The procedure for preparing the update
 +  file is similar to the example above.
++
++
++Beagle Bone Black (BBB) setup
+ -----------------------------
+ 
+-To create FIT image for download one should follow the update tftp README file
+-(./doc/README.update) with one notable difference:
++The Beagle Bone Black rev. C (BBB) powered by TI's am335x CPU has been used as a
++demo board.
+ 
+-The original snippet of ./doc/uImage.FIT/update_uboot.its
++1. Setup tftp env variables:
++
++   * select desired eth device - 'ethact' variable ["ethact=cpsw"]
++     (use "bdinfo" to check current setting)
++   * setup "serverip" and "ipaddr" variables
++   * set "loadaddr" as a fixed buffer where incoming data is placed
++     ["loadaddr=0x81000000"]
+ 
+-	images {
+-		update@1 {
+-			description = "U-Boot binary";
++     It is possible to use an USB interface to emulate ETH connection by setting
++     "ethact=usb_ether". In this way one can have very fast DFU transfer via
++     USB.
+ 
+-should look like
++     For 33MiB test image the transfer rate was 1MiB/s for ETH over USB and
++     200KiB/s for pure DFU USB transfer.
++
++2. Setup update_tftp variables:
+ 
+-	images {
+-		u-boot.bin@1 {
+-			description = "U-Boot binary";
++   * set "updatefile" - the file name to be downloaded via TFTP (stored on
++     the HOST at e.g. /srv/tftp)
+ 
+-where "u-boot.bin" is the DFU entity name to be stored.
++3. Inspect "dfu" specific variables:
++
++   * "dfu_alt_info" - information about available DFU entities
++   * "dfu_bufsiz"   - variable to set buffer size [in bytes] - when it is not
++     possible to set large enough default buffer (8 MiB @ BBB)
+ 
++4. If required, to update firmware on boot, put the "dfu tftp mmc 0" in the
++   "preboot" env variable. Otherwise use this command from u-boot prompt.
  
  
  To do
@@ -611,7 +641,7 @@ index 0659f20002..16a0d62ad3 100644
  			data = /incbin/("./blob.fdt");
  			compression = "none";
 diff --git a/doc/uImage.FIT/update_uboot.its b/doc/uImage.FIT/update_uboot.its
-index c2ac2663e6..8492c4edd6 100644
+index aec4826008..0c371bc54f 100644
 --- a/doc/uImage.FIT/update_uboot.its
 +++ b/doc/uImage.FIT/update_uboot.its
 @@ -10,7 +10,7 @@

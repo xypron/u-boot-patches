@@ -40,6 +40,8 @@ git am ../patch/0001-dfu-fix-typo-parameteres.patch
 git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
 git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
+git am ../patch/0001-dfu-DFU_MTD-depends-on-CMD_MTDPARTS.patch
+git am ../patch/0001-configs-qemu-enable-dfu-testing.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch

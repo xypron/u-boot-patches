@@ -1,0 +1,30 @@
+From 48374104dde9140501bfb0c1bda713e550ee3fc4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 21 Jul 2020 08:17:35 +0200
+Subject: [PATCH 1/1] dfu: newline after updating
+
+Currently output of dfu commands ends on a line with leading hash signs
+('#'). The succeeding output should be placed on a new line.
+
+After writing updates via dfu print a new line.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/dfu/dfu.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/dfu/dfu.c b/drivers/dfu/dfu.c
+index a298c2c439..2a0813fde8 100644
+--- a/drivers/dfu/dfu.c
++++ b/drivers/dfu/dfu.c
+@@ -718,6 +718,7 @@ int dfu_write_from_mem_addr(struct dfu_entity *dfu, void *buf, int size)
+ 	ret = dfu_flush(dfu, NULL, 0, i);
+ 	if (ret)
+ 		pr_err("DFU flush failed!");
++	puts("\n");
+ 
+ 	return ret;
+ }
+-- 
+2.27.0
+
