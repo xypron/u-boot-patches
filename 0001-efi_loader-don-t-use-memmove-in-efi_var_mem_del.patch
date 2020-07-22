@@ -1,0 +1,45 @@
+From 6c441f2558b9d8dbfc8472603b48ccc2a6ebdc44 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 22 Jul 2020 07:56:14 +0200
+Subject: [PATCH 1/1] efi_loader: don't use memmove() in efi_var_mem_del()
+
+efi_var_mem_del() is in __efi_runtime because it would be needed for a
+runtime implementation of SetVariable(). memmove() is not in __efi_runtime.
+So we should not use it in efi_var_mem_del().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 2 ++
+ lib/efi_loader/efi_var_mem.c | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index 91a4551448..78fd8014d9 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -144,6 +144,8 @@ efi_status_t efi_init_runtime_supported(void)
+  *
+  * At runtime memcpy() is not available.
+  *
++ * Overlapping memory areas can be copied safely if src >= dest.
++ *
+  * @dest:	destination buffer
+  * @src:	source buffer
+  * @n:		number of bytes to copy
+diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
+index 7a2dba7dc2..1f13f18c2f 100644
+--- a/lib/efi_loader/efi_var_mem.c
++++ b/lib/efi_loader/efi_var_mem.c
+@@ -120,7 +120,8 @@ void __efi_runtime efi_var_mem_del(struct efi_var_entry *var)
+ 	       ALIGN((uintptr_t)data + var->length, 8);
+ 	efi_var_buf->length -= (uintptr_t)next - (uintptr_t)var;
+ 
+-	memmove(var, next, (uintptr_t)last - (uintptr_t)next);
++	/* efi_memcpy_runtime() can be used because next >= var. */
++	efi_memcpy_runtime(var, next, (uintptr_t)last - (uintptr_t)next);
+ 	efi_var_buf->crc32 = crc32(0, (u8 *)efi_var_buf->var,
+ 				   efi_var_buf->length -
+ 				   sizeof(struct efi_var_file));
+-- 
+2.27.0
+
