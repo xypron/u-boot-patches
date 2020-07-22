@@ -1,0 +1,62 @@
+From 796255314be63a11ead158f308b54ce73f7c56f6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Stefan=20S=C3=B8rensen?= <stefan@astylos.dk>
+Date: Wed, 22 Jul 2020 09:43:31 +0200
+Subject: [PATCH 1/1] efi_loader: loosen buffer parameter check in
+ efi_file_read
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When reading a directory, EFI_BUFFER_TOO_SMALL should be returned when
+the supplied buffer is too small, so a use-case is to call
+efi_file_read with *buffer_size=0 and buffer=NULL to obtain the needed
+size before doing the actual read.
+
+So move the buffer!=NULL check to after the buffer size has been checked.
+
+This fix allows the Redhat shim fallback to run and e.g. Fedora 32 now
+boots out of the box.
+
+Signed-off-by: Stefan Sørensen <stefan.sorensen@spectralink.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 19afa69f53..44fafae058 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -349,6 +349,11 @@ static efi_status_t file_read(struct file_handle *fh, u64 *buffer_size,
+ 	efi_status_t ret;
+ 	loff_t file_size;
+ 
++	if (!buffer) {
++		ret = EFI_INVALID_PARAMETER;
++		return ret;
++	}
++
+ 	ret = efi_get_file_size(fh, &file_size);
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+@@ -414,6 +419,8 @@ static efi_status_t dir_read(struct file_handle *fh, u64 *buffer_size,
+ 		fh->dent = dent;
+ 		return EFI_BUFFER_TOO_SMALL;
+ 	}
++	if (!buffer)
++		return EFI_INVALID_PARAMETER;
+ 	fh->dent = NULL;
+ 
+ 	*buffer_size = required_size;
+@@ -443,7 +450,7 @@ static efi_status_t EFIAPI efi_file_read(struct efi_file_handle *file,
+ 
+ 	EFI_ENTRY("%p, %p, %p", file, buffer_size, buffer);
+ 
+-	if (!buffer_size || !buffer) {
++	if (!buffer_size) {
+ 		ret = EFI_INVALID_PARAMETER;
+ 		goto error;
+ 	}
+-- 
+2.27.0
+

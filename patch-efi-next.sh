@@ -56,6 +56,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2020-10-rc1-5
 git am ../patch/0001-efi_loader-efi_current_var-after-SetVirtualAddressMa.patch
 git am ../patch/0001-efi_loader-don-t-use-memmove-in-efi_var_mem_del.patch
+git am ../patch/0001-efi_loader-Check-for-the-native-OP-TEE-result-on-mm_.patch
+git am ../patch/0001-efi_loader-loosen-buffer-parameter-check-in-efi_file.patch
 git am ../patch/0001-efi_loader-document-efi_save_gd-efi_restore_gd.patch
 git am ../patch/0001-efi_loader-returning-from-UEFI-FIT-images.patch
 git am ../patch/0001-efi_loader-use-logging-for-bootefi-command.patch

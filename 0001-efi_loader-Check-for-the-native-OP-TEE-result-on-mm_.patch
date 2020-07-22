@@ -1,0 +1,42 @@
+From 816a1fe27199e13ea7cf8785410e9b9e77f77dc8 Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Wed, 22 Jul 2020 10:32:22 +0300
+Subject: [PATCH 1/1] efi_loader: Check for the native OP-TEE result on
+ mm_communicate calls
+
+Currently we only check for the return value of tee_invoke_func().
+Although OP-TEE and StMM will correctly set param[1].u.value.a and we'll
+eventually return an error, the correct thing to do is check for the
+OP_TEE return code as well.
+So let's check for that and move tee_shm_free() and tee_close_session()
+before exiting with an error to make sure we always clear the registered
+memory.
+
+Fixes: f042e47e8fb43 ("efi_loader: Implement EFI variable handling via OP-TEE")
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Use EFI_DEVICE_ERROR for TEE communication problems.
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable_tee.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable_tee.c b/lib/efi_loader/efi_variable_tee.c
+index c042348938..346f4c786f 100644
+--- a/lib/efi_loader/efi_variable_tee.c
++++ b/lib/efi_loader/efi_variable_tee.c
+@@ -100,10 +100,10 @@ static efi_status_t optee_mm_communicate(void *comm_buf, ulong dsize)
+ 	param[1].attr = TEE_PARAM_ATTR_TYPE_VALUE_OUTPUT;
+ 
+ 	rc = tee_invoke_func(conn.tee, &arg, 2, param);
+-	if (rc)
+-		return EFI_INVALID_PARAMETER;
+ 	tee_shm_free(shm);
+ 	tee_close_session(conn.tee, conn.session);
++	if (rc || arg.ret != TEE_SUCCESS)
++		return EFI_DEVICE_ERROR;
+ 
+ 	switch (param[1].u.value.a) {
+ 	case ARM_SMC_MM_RET_SUCCESS:
+-- 
+2.27.0
+
