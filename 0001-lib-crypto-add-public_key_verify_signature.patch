@@ -1,6 +1,6 @@
-From 7cbc913bf6b9edae0a222e41844c1df94a7df682 Mon Sep 17 00:00:00 2001
+From b2a1049b5c364961726add2796b6028b27008ca4 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Fri, 10 Jul 2020 09:24:43 +0900
+Date: Tue, 21 Jul 2020 19:35:17 +0900
 Subject: [PATCH 1/1] lib: crypto: add public_key_verify_signature()
 
 This function will be called from x509_check_for_self_signed() and
@@ -34,7 +34,7 @@ index 436a1ee1ee..3ba90fcc34 100644
  
  #endif /* _LINUX_PUBLIC_KEY_H */
 diff --git a/lib/crypto/public_key.c b/lib/crypto/public_key.c
-index e12ebbb3d0..71a0e0356b 100644
+index e12ebbb3d0..a8f7fbed45 100644
 --- a/lib/crypto/public_key.c
 +++ b/lib/crypto/public_key.c
 @@ -25,7 +25,10 @@
@@ -101,7 +101,7 @@ index e12ebbb3d0..71a0e0356b 100644
 +		return -ENOPKG;
 +	}
 +	info.crypto = image_get_crypto_algo(info.name);
-+	if (unlikely(IS_ERR(info.checksum) || IS_ERR(info.crypto)))
++	if (IS_ERR(info.checksum) || IS_ERR(info.crypto))
 +		return -ENOPKG;
 +
 +	info.key = pkey->key;

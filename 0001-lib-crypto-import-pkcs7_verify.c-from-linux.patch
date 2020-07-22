@@ -1,11 +1,11 @@
-From 58f17724c577d5d89e09f9c8c7d2d3b2e5935041 Mon Sep 17 00:00:00 2001
+From 063499e38e41bd23563fb6f98438ddd1ce0f7e6a Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Fri, 10 Jul 2020 09:24:45 +0900
+Date: Tue, 21 Jul 2020 19:35:19 +0900
 Subject: [PATCH 1/1] lib: crypto: import pkcs7_verify.c from linux
 
 The file, pkcs7_verify.c, will now be imported from linux code
-(crypto/asymmetric_keys/pkcs7_verify.c)
-and modified to fit into U-Boot environment.
+(crypto/asymmetric_keys/pkcs7_verify.c in 5.7) and modified to fit
+into U-Boot environment.
 
 In particular, pkcs7_verify_one() function will be used in a later patch
 to rework signature verification logic aiming to support intermediate
@@ -15,8 +15,8 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
  lib/crypto/Kconfig        |   3 +
  lib/crypto/Makefile       |   1 +
- lib/crypto/pkcs7_verify.c | 521 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 525 insertions(+)
+ lib/crypto/pkcs7_verify.c | 524 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 528 insertions(+)
  create mode 100644 lib/crypto/pkcs7_verify.c
 
 diff --git a/lib/crypto/Kconfig b/lib/crypto/Kconfig
@@ -45,12 +45,15 @@ index 8267fee0a7..f3a414525d 100644
  $(obj)/pkcs7.asn1.o: $(obj)/pkcs7.asn1.c $(obj)/pkcs7.asn1.h
 diff --git a/lib/crypto/pkcs7_verify.c b/lib/crypto/pkcs7_verify.c
 new file mode 100644
-index 0000000000..a893fa3b58
+index 0000000000..192e39bae9
 --- /dev/null
 +++ b/lib/crypto/pkcs7_verify.c
-@@ -0,0 +1,521 @@
+@@ -0,0 +1,524 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/* Verify the signature on a PKCS#7 message.
++ *
++ * Imported from crypto/asymmetric_keys/pkcs7_verify.c of linux 5.7
++ * with modification marked as __UBOOT__.
 + *
 + * Copyright (C) 2012 Red Hat, Inc. All Rights Reserved.
 + * Written by David Howells (dhowells@redhat.com)

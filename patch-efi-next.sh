@@ -56,13 +56,13 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2020-10-rc1-5
 git am ../patch/0001-efi_loader-efi_current_var-after-SetVirtualAddressMa.patch
 git am ../patch/0001-efi_loader-don-t-use-memmove-in-efi_var_mem_del.patch
+git am ../patch/0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch
 git am ../patch/0001-efi_loader-Check-for-the-native-OP-TEE-result-on-mm_.patch
 git am ../patch/0001-efi_loader-loosen-buffer-parameter-check-in-efi_file.patch
 git am ../patch/0001-efi_loader-document-efi_save_gd-efi_restore_gd.patch
 git am ../patch/0001-efi_loader-returning-from-UEFI-FIT-images.patch
 git am ../patch/0001-efi_loader-use-logging-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-use-logging-for-block-device-messages.patch
-git am ../patch/0001-efi_loader-Rename-and-correct-values-for-ARM_SMC_MM_.patch
 git am ../patch/0001-test-py-efi_secboot-remove-unused-function.patch
 git am ../patch/0001-test-py-efi_secboot-fix-additional-pylint-errors.patch
 git am ../patch/0001-lib-crypto-add-public_key_verify_signature.patch
@@ -70,6 +70,10 @@ git am ../patch/0001-lib-crypto-enable-x509_check_for_self_signed.patch
 git am ../patch/0001-lib-crypto-import-pkcs7_verify.c-from-linux.patch
 git am ../patch/0001-lib-crypto-add-pkcs7_digest.patch
 git am ../patch/0001-lib-crypto-export-and-enhance-pkcs7_verify_one.patch
+
+
+# efi-2020-10-rc1
+git am ../patch/0001-efi_loader-Trim-output-buffer-size-correctly-for-tee.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
