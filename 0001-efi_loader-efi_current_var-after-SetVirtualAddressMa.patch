@@ -1,0 +1,30 @@
+From 2f8f5c5ecd2df0cb487ffd6ba623257d9420f490 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 22 Jul 2020 06:29:38 +0200
+Subject: [PATCH 1/1] efi_loader: efi_current_var after SetVirtualAddressMap
+
+Variable efi_current_var is a pointer to a physical memory address that
+becomes invalid after SetVirtualAddressMap(). Instead of converting it via
+ConvertPointer() simply set it to NULL.
+
+Fixes: b02a707152dc ("efi_loader: enable UEFI variables at runtime")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_var_mem.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
+index 1f13f18c2f..bfa8a56a8f 100644
+--- a/lib/efi_loader/efi_var_mem.c
++++ b/lib/efi_loader/efi_var_mem.c
+@@ -232,6 +232,7 @@ static void EFIAPI __efi_runtime
+ efi_var_mem_notify_virtual_address_map(struct efi_event *event, void *context)
+ {
+ 	efi_convert_pointer(0, (void **)&efi_var_buf);
++	efi_current_var = NULL;
+ }
+ 
+ efi_status_t efi_var_mem_init(void)
+-- 
+2.20.1
+
