@@ -74,6 +74,9 @@ git am ../patch/0001-lib-crypto-export-and-enhance-pkcs7_verify_one.patch
 
 # efi-2020-10-rc1
 git am ../patch/0001-efi_loader-Trim-output-buffer-size-correctly-for-tee.patch
+
+# WIP
+git am ../patch/0001-efi_loader-support-load-options-in-boot-manager.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
