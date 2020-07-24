@@ -1,0 +1,57 @@
+From d1835ad8a36a7f75cf16ac824189aa858d7141cb Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 24 Jul 2020 12:27:38 +0200
+Subject: [PATCH] sandbox: add missing definitions for flash drivers
+
+Add some missing definitions needed to debug drivers like
+drivers/mtd/cfi_mtd.c on the sandbox.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/include/asm/io.h | 18 ++++++++++++++++++
+ include/configs/sandbox.h     |  2 ++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/arch/sandbox/include/asm/io.h b/arch/sandbox/include/asm/io.h
+index ad6c29a4e2..04005614e8 100644
+--- a/arch/sandbox/include/asm/io.h
++++ b/arch/sandbox/include/asm/io.h
+@@ -230,4 +230,22 @@ static inline void memcpy_toio(volatile void *dst, const void *src, int count)
+ #include <iotrace.h>
+ #include <asm/types.h>
+ 
++#ifdef __KERNEL__
++
++#define __raw_readb readb
++#define __raw_readw readw
++#define __raw_readl readl
++#define __raw_readq readq
++
++#define __raw_writeb writeb
++#define __raw_writew writew
++#define __raw_writel writel
++#define __raw_writeq writeq
++
++static inline void sync(void)
++{
++}
++
++#endif
++
+ #endif
+diff --git a/include/configs/sandbox.h b/include/configs/sandbox.h
+index 0353a19c97..de27d47d1e 100644
+--- a/include/configs/sandbox.h
++++ b/include/configs/sandbox.h
+@@ -133,6 +133,8 @@
+ 
+ #define CONFIG_SYS_SATA_MAX_DEVICE	2
+ 
++#define CONFIG_SYS_MAX_FLASH_BANKS	2
++
+ #define CONFIG_MISC_INIT_F
+ 
+ #endif
+-- 
+2.27.0
+
