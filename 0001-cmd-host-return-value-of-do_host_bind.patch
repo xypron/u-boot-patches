@@ -28,7 +28,7 @@ index cd9c9677f0..780a087654 100644
  		return CMD_RET_USAGE;
  	}
 -	return host_dev_bind(dev, file);
-+	return host_dev_bind(dev, file) != 0;
++	return !!host_dev_bind(dev, file);
  }
  
  static int do_host_info(struct cmd_tbl *cmdtp, int flag, int argc,
