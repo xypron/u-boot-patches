@@ -26,6 +26,7 @@ git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
 git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
 git am ../patch/0001-dm-remove-superfluous-comment-for-union-ofnode_union.patch
+git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
@@ -56,6 +57,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc1
+git am ../patch/0001-test-do-not-rely-on-being-the-prompt.patch
 git am ../patch/0001-efi_loader-Trim-output-buffer-size-correctly-for-tee.patch
 git am ../patch/0001-efi_loader-Enable-run-time-variable-support-for-tee-.patch
 

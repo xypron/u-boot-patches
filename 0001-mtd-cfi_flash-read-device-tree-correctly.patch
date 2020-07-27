@@ -1,7 +1,7 @@
-From f6bc20bf0114e9f21167eff0f47fe50ff4472678 Mon Sep 17 00:00:00 2001
+From f098a478a245ac4d19c38eb3ab1f6d5cb92100a6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 24 Jul 2020 18:18:33 +0200
-Subject: [PATCH v2 1/1] mtd: cfi_flash: read device tree correctly
+Subject: [PATCH 1/1] mtd: cfi_flash: read device tree correctly
 
 The size of #address-cells and #size-cells is not correctly determined if
 CONFIG_OF_LIVE=n.
@@ -34,14 +34,11 @@ Add debug statements for testing.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2:
-	Do not change the existing logic for CONFIG_OF_LIVE=y.
----
  drivers/mtd/cfi_flash.c | 36 ++++++++++++++++++++++++++++++++++++
  1 file changed, 36 insertions(+)
 
 diff --git a/drivers/mtd/cfi_flash.c b/drivers/mtd/cfi_flash.c
-index b7289ba539..0030949779 100644
+index b7289ba539..c7efbd25d8 100644
 --- a/drivers/mtd/cfi_flash.c
 +++ b/drivers/mtd/cfi_flash.c
 @@ -2466,6 +2466,9 @@ unsigned long flash_init(void)
@@ -58,7 +55,7 @@ index b7289ba539..0030949779 100644
  
  		flash_info[cfi_flash_num_flash_banks].dev = dev;
  		flash_info[cfi_flash_num_flash_banks].base = addr;
-+		debug("CFI flash at 0x%llx\n", addr);
++		debug("CFI flash at 0x%llx\n", (u64)addr);
  		cfi_flash_num_flash_banks++;
  
  		idx += addrc + sizec;
@@ -89,7 +86,7 @@ index b7289ba539..0030949779 100644
 +
 +		flash_info[cfi_flash_num_flash_banks].dev = dev;
 +		flash_info[cfi_flash_num_flash_banks].base = addr;
-+		debug("CFI flash at 0x%llx\n", addr);
++		debug("CFI flash at 0x%llx\n", (u64)addr);
 +	}
 +	gd->bd->bi_flashstart = flash_info[0].base;
 +

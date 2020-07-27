@@ -1,0 +1,32 @@
+From 20c39e65d690699e3924bfa040e5b4a707a33a64 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 27 Jul 2020 17:43:18 +0200
+Subject: [PATCH] configs: meson: enlarge SYS_MALLOC_F_LEN
+
+When using UEFI secure boot we need to enable RSA. Due to a driver marked
+as DM_FLAG_PRE_RELOC the available memory before relocation becomes too
+small.
+
+Enlarge SYS_MALLOC_F_LEN as has been done for other architectures.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Kconfig b/Kconfig
+index 566ca72c92..aa120fae17 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -182,7 +182,7 @@ config SYS_MALLOC_F_LEN
+ 	default 0x2000 if (ARCH_IMX8 || ARCH_IMX8M || ARCH_MX7 || \
+ 			   ARCH_MX7ULP || ARCH_MX6 || ARCH_MX5 || \
+ 			   ARCH_LS1012A || ARCH_LS1021A || ARCH_LS1043A || \
+-			   ARCH_LS1046A || ARCH_QEMU)
++			   ARCH_LS1046A || ARCH_MESON || ARCH_QEMU)
+ 	default 0x400
+ 	help
+ 	  Before relocation, memory is very limited on many platforms. Still,
+-- 
+2.27.0
+
