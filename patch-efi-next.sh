@@ -30,6 +30,7 @@ git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
+git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
