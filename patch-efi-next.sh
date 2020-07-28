@@ -23,8 +23,6 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
-git am ../patch/0001-crypto-fsl-correct-printf-statement.patch
-git am ../patch/0001-crypto-fsl-unused-value-in-caam_hash_update.patch
 git am ../patch/0001-dm-remove-superfluous-comment-for-union-ofnode_union.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 
