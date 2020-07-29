@@ -28,6 +28,7 @@ git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 
 # Kendryte
 git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch
+git am ../patch/0001-riscv-additional-crash-information.patch
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
 git am ../patch/0001-doc-riscv-debug-UART-for-MAIX.patch

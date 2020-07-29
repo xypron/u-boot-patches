@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: riscv: debug UART for MAIX
 Provide the required settings for the debug UART.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sean Anderson <seanga2@gmail.com>
 ---
  doc/board/sipeed/maix.rst | 10 ++++++++++
  1 file changed, 10 insertions(+)
