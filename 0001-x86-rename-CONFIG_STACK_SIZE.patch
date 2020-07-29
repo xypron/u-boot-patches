@@ -1,0 +1,48 @@
+From 310248e77e8f8c0cc8cd1bdaca769d9a2f1be3c3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 29 Jul 2020 12:31:17 +0200
+Subject: [PATCH 1/1] x86: rename CONFIG_STACK_SIZE
+
+Configuration variables should have the same meaning independent of the
+architecture. x86 and ARM both use CONFIG_STACK_SIZE:
+
+* x86: U-Boot's runtime stack size during reboot
+* ARM: max stack size that can be used by U-Boot
+
+Rename the x86 configuration variable to CONFIG_STACK_SIZE_REBOOT
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/x86/Kconfig            | 2 +-
+ arch/x86/lib/fsp/fsp_dram.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index ff4f06ed79..f677472501 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -802,7 +802,7 @@ config S3_VGA_ROM_RUN
+ 	  graphics console won't work without VGA options ROMs. Set it to N
+ 	  if your kernel is only on a serial console.
+ 
+-config STACK_SIZE
++config STACK_SIZE_RESUME
+ 	hex
+ 	depends on HAVE_ACPI_RESUME
+ 	default 0x1000
+diff --git a/arch/x86/lib/fsp/fsp_dram.c b/arch/x86/lib/fsp/fsp_dram.c
+index 01d498c21e..faa819fab4 100644
+--- a/arch/x86/lib/fsp/fsp_dram.c
++++ b/arch/x86/lib/fsp/fsp_dram.c
+@@ -121,7 +121,7 @@ unsigned int install_e820_map(unsigned int max_entries,
+ 		ulong stack_size;
+ 
+ 		stack_size = CONFIG_IS_ENABLED(HAVE_ACPI_RESUME,
+-					       (CONFIG_STACK_SIZE), (0));
++					       (CONFIG_STACK_SIZE_RESUME), (0));
+ 		/*
+ 		 * Everything between U-Boot's stack and ram top needs to be
+ 		 * reserved in order for ACPI S3 resume to work.
+-- 
+2.27.0
+
