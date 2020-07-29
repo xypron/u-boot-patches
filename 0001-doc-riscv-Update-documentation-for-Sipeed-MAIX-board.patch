@@ -7,6 +7,7 @@ The MAIXDUINO runs fine with the sipeed_maix_bitm_defconfig but a different
 board id parameter should be passed to kflash.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sean Anderson <seanga2@gmail.com>
 ---
 v2:
 	describe why we use the same defconfig for multiple boards

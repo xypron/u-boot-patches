@@ -7,6 +7,7 @@ The kendryte PLL code uses nop as barrier. The macro is not defined for
 the sandbox on x86 but is defined on RISC-V.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sean Anderson <seanga2@gmail.com>
 ---
  include/kendryte/pll.h | 5 +++++
  1 file changed, 5 insertions(+)
