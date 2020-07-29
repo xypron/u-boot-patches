@@ -1,0 +1,31 @@
+From 20c86233da0cd49d5cf558a711e7a4ce517836c3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 29 Jul 2020 12:13:41 +0200
+Subject: [PATCH 1/1] dm: sysreset: wait after reset message
+
+In our Python tests we expect to see the word "resetting". It may be
+truncated if we reset before the serial console buffer is transferred.
+
+Wait for 100 ms between the "resetting ..." message and the actual reset
+like we do when powering off.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/sysreset/sysreset-uclass.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/sysreset/sysreset-uclass.c b/drivers/sysreset/sysreset-uclass.c
+index 995240f0cb..3f5414ed1f 100644
+--- a/drivers/sysreset/sysreset-uclass.c
++++ b/drivers/sysreset/sysreset-uclass.c
+@@ -117,6 +117,7 @@ void reset_cpu(ulong addr)
+ int do_reset(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	printf("resetting ...\n");
++	mdelay(100);
+ 
+ 	sysreset_walk_halt(SYSRESET_COLD);
+ 
+-- 
+2.27.0
+

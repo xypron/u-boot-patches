@@ -30,10 +30,13 @@ git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
+git am ../patch/0001-doc-riscv-debug-UART-for-MAIX.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-x86-rename-CONFIG_STACK_SIZE.patch
 git am ../patch/0001-efi_loader-use-CONFIG_STACK_SIZE-in-the-UEFI-sub-sys.patch
 git am ../patch/0001-configs-reduce-stack-size-of-Sipeed-MAIX.patch
+git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
+git am ../patch/0001-dm-sysreset-wait-after-reset-message.patch
 git am ../patch/0001-efi_selftest-SNP-test-depends-on-network.patch
 git am ../patch/0001-efi_selftest-block-device-test-requires-CONFIG_DOS_P.patch
 
