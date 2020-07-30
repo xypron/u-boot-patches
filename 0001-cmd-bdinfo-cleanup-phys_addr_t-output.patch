@@ -20,6 +20,8 @@ ulong. So use this value as minimum number of digits (precision) for
 printing physical addresses.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heiko Schocher <hs@denx.de>
+Reviewed-by: Stefan Roese <sr@denx.de>
 ---
  cmd/bdinfo.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
