@@ -23,7 +23,6 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
-git am ../patch/0001-dm-remove-superfluous-comment-for-union-ofnode_union.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 
 # Kendryte
@@ -33,14 +32,7 @@ git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
 git am ../patch/0001-doc-riscv-debug-UART-for-MAIX.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
-git am ../patch/0001-x86-rename-CONFIG_STACK_SIZE.patch
-git am ../patch/0001-efi_loader-use-CONFIG_STACK_SIZE-in-the-UEFI-sub-sys.patch
-git am ../patch/0001-configs-reduce-stack-size-of-Sipeed-MAIX.patch
 git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
-git am ../patch/0001-dm-sysreset-wait-after-reset-message.patch
-git am ../patch/0001-efi_selftest-SNP-test-depends-on-network.patch
-git am ../patch/0001-efi_selftest-block-device-test-requires-CONFIG_DOS_P.patch
-gti am ../patch/0001-cmd-exception-unaligned-data-access-on-RISC-V.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
@@ -61,7 +53,6 @@ git am ../patch/0001-configs-qemu-enable-dfu-testing.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
-git am ../patch/0001-cmd-host-return-value-of-do_host_bind.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-sandbox-support-CTRL-C-processing-in-U-Boot.patch
 
@@ -70,10 +61,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc1
-git am ../patch/0001-test-do-not-rely-on-being-the-prompt.patch
-git am ../patch/0001-efi_loader-Trim-output-buffer-size-correctly-for-tee.patch
-git am ../patch/0001-efi_loader-Enable-run-time-variable-support-for-tee-.patch
+# efi-2020-10-rc2-2
+git am ../patch/0001-efi_loader-add-copyright-notice.patch
 
 # WIP
 git am ../patch/0001-efi_loader-support-load-options-in-boot-manager.patch
