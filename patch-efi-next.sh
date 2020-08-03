@@ -24,6 +24,8 @@ git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
+git am ../patch/0001-post-remove-redundant-condition.patch
+git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
 
 # Kendryte
 git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch

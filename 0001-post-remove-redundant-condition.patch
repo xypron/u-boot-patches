@@ -1,0 +1,28 @@
+From 71239a4721fa4080c6481de98ac42495a6f1b37b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 3 Aug 2020 22:08:29 +0200
+Subject: [PATCH 1/1] post: remove redundant condition
+
+(A && A == 0x20) is only true for (A == 0x20).
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ post/post.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/post/post.c b/post/post.c
+index 6687e0b75c..0f1fe8d905 100644
+--- a/post/post.c
++++ b/post/post.c
+@@ -189,7 +189,7 @@ static void post_get_env_flags(int *test_flags)
+ 		last = 0;
+ 		name = list;
+ 		while (!last) {
+-			while (*name && *name == ' ')
++			while (*name == ' ')
+ 				name++;
+ 			if (*name == 0)
+ 				break;
+-- 
+2.27.0
+

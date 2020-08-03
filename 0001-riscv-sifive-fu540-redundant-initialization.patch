@@ -1,0 +1,29 @@
+From dfeafb17aef9206f4d18e76693fada75f3797cef Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 3 Aug 2020 23:02:33 +0200
+Subject: [PATCH 1/1] riscv: sifive: fu540: redundant initialization
+
+We should not initialize a variable if the value is overwritten before
+being read.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/cpu/fu540/cache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/cpu/fu540/cache.c b/arch/riscv/cpu/fu540/cache.c
+index 9ee364b509..54de14238c 100644
+--- a/arch/riscv/cpu/fu540/cache.c
++++ b/arch/riscv/cpu/fu540/cache.c
+@@ -22,7 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
+ int cache_enable_ways(void)
+ {
+ 	const void *blob = gd->fdt_blob;
+-	int node = (-FDT_ERR_NOTFOUND);
++	int node;
+ 	fdt_addr_t base;
+ 	u32 config;
+ 	u32 ways;
+-- 
+2.27.0
+
