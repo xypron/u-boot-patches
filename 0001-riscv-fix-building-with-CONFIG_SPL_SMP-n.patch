@@ -1,0 +1,42 @@
+From 31da1b10013f6f61aa85cbbdb34eebf7820c3982 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 3 Aug 2020 23:19:23 +0200
+Subject: [PATCH 1/1] riscv: fix building with CONFIG_SPL_SMP=n
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Building with CONFIG_SPL_SMP=n results in:
+
+arch/riscv/lib/spl.c: In function ‘jump_to_image_no_args’:
+arch/riscv/lib/spl.c:33:6:
+error: unused variable ‘ret’ [-Werror=unused-variable]
+   33 |  int ret;
+      |      ^~~
+
+Define the variable ret as __maybe_unused.
+
+Fixes: 191636e44898 ("riscv: Introduce SPL_SMP Kconfig option for U-Boot
+SPL")
+Fixes: 8c59f2023cc8 ("riscv: add SPL support")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/lib/spl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/lib/spl.c b/arch/riscv/lib/spl.c
+index c47dcd46ce..ef00ec2bcc 100644
+--- a/arch/riscv/lib/spl.c
++++ b/arch/riscv/lib/spl.c
+@@ -30,7 +30,7 @@ void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+ {
+ 	typedef void __noreturn (*image_entry_riscv_t)(ulong hart, void *dtb);
+ 	void *fdt_blob;
+-	int ret;
++	__maybe_unused int ret;
+ 
+ #if CONFIG_IS_ENABLED(LOAD_FIT) || CONFIG_IS_ENABLED(LOAD_FIT_FULL)
+ 	fdt_blob = spl_image->fdt_addr;
+-- 
+2.27.0
+
