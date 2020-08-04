@@ -1,7 +1,7 @@
-From 945fa17a333adf946255f8ad04b737ed588d276b Mon Sep 17 00:00:00 2001
+From 4233b45b3c15eefbd0d6fd4a51dda57df19fa32e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 29 Jul 2020 21:22:49 +0200
-Subject: [PATCH] riscv: additional crash information
+Subject: [PATCH v2 1/1] riscv: additional crash information
 
 If an exception occurs, the relocated program counter and return address
 are required for an analysis.
@@ -12,7 +12,7 @@ With this patch you get:
 
     Unhandled exception: Illegal instruction
     EPC: 0000000080595908 RA: 000000008059c0c6 TVAL: 000000008030c01e
-    EPC: 0000000080007908 RA: 000000008000e0c6 reloc
+    EPC: 0000000080007908 RA: 000000008000e0c6 reloc adjusted
 
 We can use the relocated addresses to find the involved functions in
 u.boot.map:
@@ -31,7 +31,7 @@ the UEFI binaries are needed. With this patch:
 
     Unhandled exception: Illegal instruction
     EPC: 000000008042e18a RA: 000000008042e18a TVAL: 000000008030c01e
-    EPC: 000000007fea018a RA: 000000007fea018a reloc
+    EPC: 000000007fea018a RA: 000000007fea018a reloc adjusted
 
     UEFI image [0x0000000000000000:0xffffffffffffffff] '/\selftest'
     UEFI image [0x000000008042e000:0x000000008042e43f] pc=0x18a '/bug.efi'
@@ -44,12 +44,17 @@ efi_selftest_miniapp_exception.efi (loaded as /bug.efi);
     00000180   93 85 C5 11  1C 64 22 85  82 97 FF FF  FF FF 1C 64
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sean Anderson <seanga2@gmail.com>
+Tested-by: Sean Anderson <seanga2@gmail.com>
+---
+v2:
+	description of relocated addresses: %s/reloc/reloc adjusted/
 ---
  arch/riscv/lib/interrupts.c | 57 +++++++++++++++++++++++--------------
  1 file changed, 35 insertions(+), 22 deletions(-)
 
 diff --git a/arch/riscv/lib/interrupts.c b/arch/riscv/lib/interrupts.c
-index 074c70ee77..bcdfc5ea3a 100644
+index 074c70ee77..cd47e64487 100644
 --- a/arch/riscv/lib/interrupts.c
 +++ b/arch/riscv/lib/interrupts.c
 @@ -10,36 +10,43 @@
@@ -125,7 +130,7 @@ index 074c70ee77..bcdfc5ea3a 100644
 +	printf("EPC: " REG_FMT " RA: " REG_FMT " TVAL: " REG_FMT "\n",
 +	       epc, regs->ra, tval);
 +	if (gd->flags & GD_FLG_RELOC)
-+		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc\n\n",
++		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n\n",
 +		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
 +
  	show_regs(regs);
