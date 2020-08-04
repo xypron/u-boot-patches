@@ -1,7 +1,7 @@
 From 4d0cd1c4cdfad7a166b2192ac6e05c5958c13000 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 3 Aug 2020 23:29:46 +0200
-Subject: [PATCH 1/1] riscv: remove redundant logical constraint.
+Subject: [PATCH v2 1/1] riscv: remove redundant logical constraint
 
 After
 
@@ -10,6 +10,11 @@ After
 we know that ret is zero. Don't check it again.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bin.meng@windriver.com>
+Reviewed-by: Rick Chen <rick@andestech.com>
+---
+v2:
+	remove full stop at end of subject line
 ---
  arch/riscv/lib/andes_plic.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

@@ -7,6 +7,10 @@ We should not initialize a variable if the value is overwritten before
 being read.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bin.meng@windriver.com>
+Reviewed-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+Tested-by: Pragnesh Patel <pragnesh.patel@sifive.com>
+Reviewed-by: Rick Chen <rick@andestech.com>
 ---
  arch/riscv/cpu/fu540/cache.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
