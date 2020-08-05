@@ -22,7 +22,6 @@ git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
-git am ../patch/0001-doc-move-Clang-documentation-to-HTML.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
@@ -31,7 +30,6 @@ git am ../patch/0001-riscv-remove-redundant-logical-constraint.patch
 git am ../patch/0001-test-py-test_shell_run-with-CONFIG_HUSH_PARSER-n.patch
 
 # Kendryte
-git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch
 git am ../patch/0001-riscv-additional-crash-information.patch
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
@@ -68,7 +66,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc2-2
 git am ../patch/0001-efi_loader-add-copyright-notice.patch
-git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 # Takahiro: intermediate certificates
@@ -87,6 +84,7 @@ git am ../patch/0001-test-efi-UEFI-unit-tests.patch
 exit
 
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
+git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
