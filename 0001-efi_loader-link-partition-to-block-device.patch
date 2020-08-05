@@ -1,4 +1,4 @@
-From cb2c9bf0b4018a7ae2eebbb9a14f262053f090a7 Mon Sep 17 00:00:00 2001
+From b8199270356a7c07d7821065f88cb6075dc480f7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 10 Jan 2020 12:36:01 +0100
 Subject: [PATCH 1/1] efi_loader: link partition to block device
@@ -16,22 +16,16 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 20 insertions(+)
 
 diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
-index ed7fb3f7d3..6bef63db30 100644
+index 7bd1ccec45..496ef29dd8 100644
 --- a/lib/efi_loader/efi_disk.c
 +++ b/lib/efi_loader/efi_disk.c
-@@ -307,6 +307,8 @@ static efi_status_t efi_disk_add_dev(
- {
- 	struct efi_disk_obj *diskobj;
- 	efi_status_t ret;
-+	struct efi_handler *handler;
-+	void *protocol_interface;
- 
- 	/* Don't add empty devices */
- 	if (!desc->lba)
-@@ -323,6 +325,21 @@ static efi_status_t efi_disk_add_dev(
+@@ -376,6 +376,23 @@ static efi_status_t efi_disk_add_dev(
+ 	/* Fill in object data */
  	if (part) {
  		struct efi_device_path *node = efi_dp_part_node(desc, part);
- 
++		struct efi_handler *handler;
++		void *protocol_interface;
++
 +		/* Parent must expose EFI_BLOCK_IO_PROTOCOL */
 +		ret = efi_search_protocol(parent, &efi_block_io_guid, &handler);
 +		if (ret != EFI_SUCCESS)
@@ -46,20 +40,19 @@ index ed7fb3f7d3..6bef63db30 100644
 +					EFI_OPEN_PROTOCOL_BY_CHILD_CONTROLLER);
 +		if (ret != EFI_SUCCESS)
 +				goto error;
-+
+ 
  		diskobj->dp = efi_dp_append_node(dp_parent, node);
  		efi_free_pool(node);
- 	} else {
-@@ -371,6 +388,9 @@ static efi_status_t efi_disk_add_dev(
- 	if (disk)
- 		*disk = diskobj;
+@@ -453,6 +470,9 @@ static efi_status_t efi_disk_add_dev(
+ 		}
+ 	}
  	return EFI_SUCCESS;
 +error:
-+	efi_delete_handle(&diskobj->header);	
++	efi_delete_handle(&diskobj->header);
 +	return ret;
  }
  
- /*
+ /**
 -- 
-2.24.1
+2.20.1
 
