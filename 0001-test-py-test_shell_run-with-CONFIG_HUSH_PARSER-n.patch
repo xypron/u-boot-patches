@@ -1,0 +1,43 @@
+From 7087588ddb34e4eecb3d5c0d319453652267b6ce Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 5 Aug 2020 17:40:15 +0200
+Subject: [PATCH 1/1] test: py: test_shell_run() with CONFIG_HUSH_PARSER=n
+
+The hush parser is disabled for some boards, e.g.
+sipeed_maix_bitm_defconfig.
+
+With CONFIG_HUSH_PARSER=n a double quotation mark is not interpreted as the
+beginning of a string. Use a single quotation mark instead.
+
+Furthermore without the hush parser variables have to be referenced as
+${varname}. Add the missing braces.
+
+Reported-by: Sean Anderson <seanga2@gmail.com>
+Fixes: 8b86c609b860 ("test/py: add test of basic shell functionality")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/py/tests/test_shell_basics.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/test/py/tests/test_shell_basics.py b/test/py/tests/test_shell_basics.py
+index f54f7b7425..68a3f892f6 100644
+--- a/test/py/tests/test_shell_basics.py
++++ b/test/py/tests/test_shell_basics.py
+@@ -34,11 +34,11 @@ def test_shell_semicolon_three(u_boot_console):
+ def test_shell_run(u_boot_console):
+     """Test the "run" shell command."""
+ 
+-    u_boot_console.run_command('setenv foo "setenv monty 1; setenv python 2"')
++    u_boot_console.run_command('setenv foo \'setenv monty 1; setenv python 2\'')
+     u_boot_console.run_command('run foo')
+-    response = u_boot_console.run_command('echo $monty')
++    response = u_boot_console.run_command('echo ${monty}')
+     assert response.strip() == '1'
+-    response = u_boot_console.run_command('echo $python')
++    response = u_boot_console.run_command('echo ${python}')
+     assert response.strip() == '2'
+     u_boot_console.run_command('setenv foo')
+     u_boot_console.run_command('setenv monty')
+-- 
+2.27.0
+

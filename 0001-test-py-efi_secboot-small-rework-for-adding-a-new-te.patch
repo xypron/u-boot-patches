@@ -1,0 +1,65 @@
+From a2d6823667de39433ee5f6e581f80d3afbb8e1d1 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Tue, 21 Jul 2020 19:35:23 +0900
+Subject: [PATCH 1/1] test/py: efi_secboot: small rework for adding a new test
+
+It won't be very useful to customize HELLO_PATH and EFI_SECBOOT_IMAGE_NAME
+under the current code base. So just remove them.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ test/py/tests/test_efi_secboot/conftest.py | 10 +++-------
+ test/py/tests/test_efi_secboot/defs.py     |  6 ------
+ 2 files changed, 3 insertions(+), 13 deletions(-)
+
+diff --git a/test/py/tests/test_efi_secboot/conftest.py b/test/py/tests/test_efi_secboot/conftest.py
+index c0943b6250..70a0b91836 100644
+--- a/test/py/tests/test_efi_secboot/conftest.py
++++ b/test/py/tests/test_efi_secboot/conftest.py
+@@ -25,13 +25,8 @@ def efi_boot_env(request, u_boot_config):
+     Return:
+         A path to disk image to be used for testing
+     """
+-    global HELLO_PATH
+-
+     image_path = u_boot_config.persistent_data_dir
+-    image_path = image_path + '/' + EFI_SECBOOT_IMAGE_NAME
+-
+-    if HELLO_PATH == '':
+-        HELLO_PATH = u_boot_config.build_dir + '/lib/efi_loader/helloworld.efi'
++    image_path = image_path + '/test_efi_secboot.img'
+ 
+     try:
+         mnt_point = u_boot_config.build_dir + '/mnt_efisecure'
+@@ -98,7 +93,8 @@ def efi_boot_env(request, u_boot_config):
+                    shell=True)
+ 
+         # Copy image
+-        check_call('cp %s %s' % (HELLO_PATH, mnt_point), shell=True)
++        check_call('cp %s/lib/efi_loader/helloworld.efi %s' %
++                   (u_boot_config.build_dir, mnt_point), shell=True)
+ 
+         # Sign image
+         check_call('cd %s; sbsign --key db.key --cert db.crt helloworld.efi'
+diff --git a/test/py/tests/test_efi_secboot/defs.py b/test/py/tests/test_efi_secboot/defs.py
+index ba6b9f391e..14891fcd3a 100644
+--- a/test/py/tests/test_efi_secboot/defs.py
++++ b/test/py/tests/test_efi_secboot/defs.py
+@@ -1,14 +1,8 @@
+ # SPDX-License-Identifier:      GPL-2.0+
+ 
+-# Disk image name
+-EFI_SECBOOT_IMAGE_NAME = 'test_efi_secboot.img'
+-
+ # Owner guid
+ GUID = '11111111-2222-3333-4444-123456789abc'
+ 
+ # v1.5.1 or earlier of efitools has a bug in sha256 calculation, and
+ # you need build a newer version on your own.
+ EFITOOLS_PATH = ''
+-
+-# Hello World application for sandbox
+-HELLO_PATH = ''
+-- 
+2.27.0
+

@@ -28,6 +28,7 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
 git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-riscv-remove-redundant-logical-constraint.patch
+git am ../patch/0001-test-py-test_shell_run-with-CONFIG_HUSH_PARSER-n.patch
 
 # Kendryte
 git am ../patch/0001-cmd-bdinfo-cleanup-phys_addr_t-output.patch
@@ -67,6 +68,13 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc2-2
 git am ../patch/0001-efi_loader-add-copyright-notice.patch
+git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
+exit
+
+# Takahiro: intermediate certificates
+git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
+git am ../patch/0001-test-py-efi_secboot-small-rework-for-adding-a-new-te.patch
+git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
 
 # WIP
 git am ../patch/0001-efi_loader-support-load-options-in-boot-manager.patch
@@ -75,14 +83,10 @@ exit
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
 exit
 
-# UEFI secure boot
-exit
-
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
 exit
 
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
-git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
@@ -93,12 +97,7 @@ git am ../patch/0001-efi_loader-variable-cache.patch
 git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
-git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.SetKeyboardLayo.patch
-
 # Patches needing rework
-# git am ../patch/0001-efi_debug-make-variable-support-customizable.patch
-# git am ../patch/0001-efi_loader-avoid-lost-network-packages.patch
-# git am ../patch/0001-rockchip-sysreset-enable-UEFI-reboot.patch
 # git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
 # Fix simple network protocol
