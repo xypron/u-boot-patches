@@ -27,7 +27,6 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
 git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-riscv-remove-redundant-logical-constraint.patch
-git am ../patch/0001-test-py-test_shell_run-with-CONFIG_HUSH_PARSER-n.patch
 
 # Kendryte
 git am ../patch/0001-riscv-additional-crash-information.patch
@@ -36,6 +35,7 @@ git am ../patch/0001-doc-riscv-Update-documentation-for-Sipeed-MAIX-board.patch
 git am ../patch/0001-doc-riscv-debug-UART-for-MAIX.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
+git am ../patch/0001-test-py-test_shell_run-with-CONFIG_HUSH_PARSER-n.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
