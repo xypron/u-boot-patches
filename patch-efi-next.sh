@@ -66,6 +66,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc2-2
 git am ../patch/0001-efi_loader-add-copyright-notice.patch
+git am ../patch/0001-efi_loader-factor-out-efi_set_load_options.patch
+git am ../patch/0001-efi_loader-set-load-options-in-boot-manager.patch
 exit
 
 # Takahiro: intermediate certificates

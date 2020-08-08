@@ -1,0 +1,204 @@
+From e50d3db18278d6aa671958f0a0051071e7372b68 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 7 Aug 2020 17:49:39 +0200
+Subject: [PATCH 1/1] efi_loader: set load options in boot manager
+
+Up to now we used the value of the bootargs environment variable as load
+options in the boot manager. This is not correct. The data has to be taken
+from the Boot#### variable.
+
+Let the boot manager copy the optional data of the EFI_LOAD_OPTION as load
+options to the loaded image protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c                | 22 +++++++++++----------
+ cmd/efidebug.c               |  4 +++-
+ include/efi_loader.h         |  2 +-
+ lib/efi_loader/efi_bootmgr.c | 38 +++++++++++++++++++++++++-----------
+ 4 files changed, 43 insertions(+), 23 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index 5523405e13..fbfed54e85 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -310,17 +310,11 @@ efi_status_t efi_install_fdt(void *fdt)
+  * Load the EFI binary into a newly assigned memory unwinding the relocation
+  * information, install the loaded image protocol, and call the binary.
+  */
+-static efi_status_t do_bootefi_exec(efi_handle_t handle)
++static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
+ {
+ 	efi_status_t ret;
+ 	efi_uintn_t exit_data_size = 0;
+ 	u16 *exit_data = NULL;
+-	u16 *load_options;
+-
+-	/* Transfer environment variable as load options */
+-	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
+-	if (ret != EFI_SUCCESS)
+-		return ret;
+ 
+ 	/* Call our payload! */
+ 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
+@@ -349,14 +343,15 @@ static int do_efibootmgr(void)
+ {
+ 	efi_handle_t handle;
+ 	efi_status_t ret;
++	void *load_options;
+ 
+-	ret = efi_bootmgr_load(&handle);
++	ret = efi_bootmgr_load(&handle, &load_options);
+ 	if (ret != EFI_SUCCESS) {
+ 		log_notice("EFI boot manager: Cannot load any image\n");
+ 		return CMD_RET_FAILURE;
+ 	}
+ 
+-	ret = do_bootefi_exec(handle);
++	ret = do_bootefi_exec(handle, load_options);
+ 
+ 	if (ret != EFI_SUCCESS)
+ 		return CMD_RET_FAILURE;
+@@ -467,7 +462,14 @@ efi_status_t efi_run_image(void *source_buffer, efi_uintn_t source_size)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+-	ret = do_bootefi_exec(handle);
++	u16 *load_options;
++
++	/* Transfer environment variable as load options */
++	ret = efi_env_set_load_options(handle, "bootargs", &load_options);
++	if (ret != EFI_SUCCESS)
++		goto out;
++
++	ret = do_bootefi_exec(handle, load_options);
+ 
+ out:
+ 	efi_delete_handle(mem_handle);
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 58018f700c..d00d4247dc 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -1126,8 +1126,9 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
+ 	efi_uintn_t exit_data_size = 0;
+ 	u16 *exit_data = NULL;
+ 	efi_status_t ret;
++	void *load_options;
+ 
+-	ret = efi_bootmgr_load(&image);
++	ret = efi_bootmgr_load(&image, &load_options);
+ 	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);
+ 
+ 	/* We call efi_start_image() even if error for test purpose. */
+@@ -1138,6 +1139,7 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
+ 
+ 	efi_restore_gd();
+ 
++	free(load_options);
+ 	return CMD_RET_SUCCESS;
+ }
+ 
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index ad580bd226..7f0ab1be56 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -720,7 +720,7 @@ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
+ efi_status_t efi_set_load_options(efi_handle_t handle,
+ 				  efi_uintn_t load_options_size,
+ 				  void *load_options);
+-efi_status_t efi_bootmgr_load(efi_handle_t *handle);
++efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options);
+ 
+ /**
+  * efi_image_regions - A list of memory regions
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index a4bc272c34..1e06e60963 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -206,11 +206,13 @@ static void *get_var(u16 *name, const efi_guid_t *vendor,
+  * if successful. This checks that the EFI_LOAD_OPTION is active (enabled)
+  * and that the specified file to boot exists.
+  *
+- * @n:		number of the boot option, e.g. 0x0a13 for Boot0A13
+- * @handle:	on return handle for the newly installed image
+- * Return:	status code
++ * @n:			number of the boot option, e.g. 0x0a13 for Boot0A13
++ * @handle:		on return handle for the newly installed image
++ * @load_options:	load options set on the loaded image protocol
++ * Return:		status code
+  */
+-static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
++static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
++				   void **load_options)
+ {
+ 	struct efi_load_option lo;
+ 	u16 varname[] = L"Boot0000";
+@@ -250,10 +252,9 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
+ 
+ 		attributes = EFI_VARIABLE_BOOTSERVICE_ACCESS |
+ 			     EFI_VARIABLE_RUNTIME_ACCESS;
+-		size = sizeof(n);
+ 		ret = efi_set_variable_int(L"BootCurrent",
+ 					   &efi_global_variable_guid,
+-					   attributes, size, &n, false);
++					   attributes, sizeof(n), &n, false);
+ 		if (ret != EFI_SUCCESS) {
+ 			if (EFI_CALL(efi_unload_image(*handle))
+ 			    != EFI_SUCCESS)
+@@ -266,6 +267,19 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle)
+ 		ret = EFI_LOAD_ERROR;
+ 	}
+ 
++	/* Set load options */
++	if (size) {
++		*load_options = malloc(size);
++		if (!*load_options) {
++			ret = EFI_OUT_OF_RESOURCES;
++			goto error;
++		}
++		memcpy(*load_options, lo.optional_data, size);
++		ret = efi_set_load_options(*handle, size, *load_options);
++	} else {
++		load_options = NULL;
++	}
++
+ error:
+ 	free(load_option);
+ 
+@@ -279,10 +293,11 @@ error:
+  * EFI variable, the available load-options, finding and returning
+  * the first one that can be loaded successfully.
+  *
+- * @handle:	on return handle for the newly installed image
+- * Return:	status code
++ * @handle:		on return handle for the newly installed image
++ * @load_options:	load options set on the loaded image protocol
++ * Return:		status code
+  */
+-efi_status_t efi_bootmgr_load(efi_handle_t *handle)
++efi_status_t efi_bootmgr_load(efi_handle_t *handle, void **load_options)
+ {
+ 	u16 bootnext, *bootorder;
+ 	efi_uintn_t size;
+@@ -310,7 +325,8 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
+ 		/* load BootNext */
+ 		if (ret == EFI_SUCCESS) {
+ 			if (size == sizeof(u16)) {
+-				ret = try_load_entry(bootnext, handle);
++				ret = try_load_entry(bootnext, handle,
++						     load_options);
+ 				if (ret == EFI_SUCCESS)
+ 					return ret;
+ 				log_warning(
+@@ -333,7 +349,7 @@ efi_status_t efi_bootmgr_load(efi_handle_t *handle)
+ 	for (i = 0; i < num; i++) {
+ 		log_debug("%s trying to load Boot%04X\n", __func__,
+ 			  bootorder[i]);
+-		ret = try_load_entry(bootorder[i], handle);
++		ret = try_load_entry(bootorder[i], handle, load_options);
+ 		if (ret == EFI_SUCCESS)
+ 			break;
+ 	}
+-- 
+2.28.0
+
