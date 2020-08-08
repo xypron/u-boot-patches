@@ -27,6 +27,7 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
 git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-riscv-remove-redundant-logical-constraint.patch
+git am ../patch/0001-lib-crypto-simplify-public_key_verify_signature.patch
 
 # Kendryte
 git am ../patch/0001-riscv-additional-crash-information.patch
