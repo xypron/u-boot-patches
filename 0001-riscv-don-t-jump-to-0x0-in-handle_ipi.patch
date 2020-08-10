@@ -1,0 +1,38 @@
+From 06444fb2483156cbec7f504de71750dd83596c01 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 10 Aug 2020 10:43:43 +0000
+Subject: [PATCH 1/1] riscv: don't jump to 0x0 in handle_ipi()
+
+At least on the Kendryte K210:
+
+gd->arch.available_harts= 0x0000000000000003
+gd->arch.ipi[0].addr= 0x0000000000000000
+gd->arch.ipi[0].arg0= 0x0000000000000000
+gd->arch.ipi[0].arg1= 0x0000000000000000
+gd->arch.ipi[1].addr= 0x0000000000000000
+gd->arch.ipi[1].arg0= 0x0000000000000000
+gd->arch.ipi[1].arg1= 0x0000000000000000
+
+We should not jump to 0x0 to handle an interrupt.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/lib/smp.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/lib/smp.c b/arch/riscv/lib/smp.c
+index ac22136314..d725fa32e8 100644
+--- a/arch/riscv/lib/smp.c
++++ b/arch/riscv/lib/smp.c
+@@ -96,6 +96,8 @@ void handle_ipi(ulong hart)
+ 		return;
+ 	}
+ 
++	if (!smp_function)
++		return;
+ 	smp_function(hart, gd->arch.ipi[hart].arg0, gd->arch.ipi[hart].arg1);
+ }
+ 
+-- 
+2.28.0
+

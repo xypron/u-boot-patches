@@ -38,6 +38,7 @@ git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 git am ../patch/0001-lib-hang-must-be-__efi_runtime.patch
 git am ../patch/0001-cmd-exception-unaligned-data-access-on-RISC-V.patch
+git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
