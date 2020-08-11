@@ -1,6 +1,6 @@
 From 06444fb2483156cbec7f504de71750dd83596c01 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Mon, 10 Aug 2020 10:43:43 +0000
+Date: Mon, 10 Aug 2020 06:43:43 +0200
 Subject: [PATCH 1/1] riscv: don't jump to 0x0 in handle_ipi()
 
 At least on the Kendryte K210:
