@@ -67,6 +67,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc3-2
+git am ../patch/0001-cmd-efidebug-missing-initialization-of-load_options.patch
 
 # Takahiro: intermediate certificates
 git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
