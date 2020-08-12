@@ -27,7 +27,6 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-sifive-fu540-redundant-initialization.patch
 git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-riscv-remove-redundant-logical-constraint.patch
-git am ../patch/0001-lib-crypto-simplify-public_key_verify_signature.patch
 
 # Kendryte
 git am ../patch/0001-riscv-additional-crash-information.patch
@@ -67,11 +66,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc2-2
-git am ../patch/0001-efi_loader-add-copyright-notice.patch
-git am ../patch/0001-efi_loader-factor-out-efi_set_load_options.patch
-git am ../patch/0001-efi_loader-set-load-options-in-boot-manager.patch
-exit
+# efi-2020-10-rc3-2
 
 # Takahiro: intermediate certificates
 git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
