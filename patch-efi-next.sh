@@ -68,14 +68,10 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc3-2
 git am ../patch/0001-cmd-efidebug-missing-initialization-of-load_options.patch
-
-# Takahiro: intermediate certificates
+git am ../patch/0001-efi_loader-variable-keep-temporary-buffer-during-the.patch
 git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
 git am ../patch/0001-test-py-efi_secboot-small-rework-for-adding-a-new-te.patch
 git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
-
-# WIP
-git am ../patch/0001-efi_loader-support-load-options-in-boot-manager.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
