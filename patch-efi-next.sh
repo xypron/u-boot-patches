@@ -72,6 +72,7 @@ git am ../patch/0001-efi_loader-variable-keep-temporary-buffer-during-the.patch
 git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
 git am ../patch/0001-test-py-efi_secboot-small-rework-for-adding-a-new-te.patch
 git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
+git am ../patch/0001-efi_loader-variable-fix-secure-state-initialization.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch

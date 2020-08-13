@@ -1,0 +1,52 @@
+From f68a6d583578799ec2011476ebd1e10590c6eb3c Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Thu, 13 Aug 2020 17:05:29 +0900
+Subject: [PATCH 1/1] efi_loader: variable: fix secure state initialization
+
+Under the new file-based variable implementation, the secure state
+is always and falsely set to 0 (hence, the secure boot gets disabled)
+after the reboot even if PK (and other signature database) has already
+been enrolled in the previous boot.
+
+This is because the secure state is set up *before* loading non-volatile
+variables' values from saved data.
+
+This patch fixes the order of variable initialization and secure state
+initialization.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Fixes: 5f7dcf079de8 ("efi_loader: UEFI variable persistence")
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index 282d542a09..a10b9caa8b 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -508,10 +508,6 @@ efi_status_t efi_init_variables(void)
+ 	if (ret != EFI_SUCCESS)
+ 		return ret;
+ 
+-	ret = efi_init_secure_state();
+-	if (ret != EFI_SUCCESS)
+-		return ret;
+-
+ 	if (IS_ENABLED(CONFIG_EFI_VARIABLES_PRESEED)) {
+ 		ret = efi_var_restore((struct efi_var_file *)
+ 				      __efi_var_file_begin);
+@@ -519,5 +515,9 @@ efi_status_t efi_init_variables(void)
+ 			log_err("Invalid EFI variable seed\n");
+ 	}
+ 
+-	return efi_var_from_file();
++	ret = efi_var_from_file();
++	if (ret != EFI_SUCCESS)
++		return ret;
++
++	return efi_init_secure_state();
+ }
+-- 
+2.28.0
+
