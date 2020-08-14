@@ -1,0 +1,114 @@
+From 4190cbc4cf711c4fb4b6bdd8aec3a83d8c60be80 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 Aug 2020 17:52:57 +0200
+Subject: [PATCH 1/1] riscv: riscv_get_time() implementation for SMODE
+
+On the Kendryte K210 OpenBSI cannot emulate the rdtime instruction. So we
+have to use the Sifive CLINT driver to provide riscv_get_time() in SMODE.
+
+Adjust Kconfig and Makefile to allow compiling the Sifive CLINT driver in
+SMODE.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/Kconfig                   | 16 +++++++++++-----
+ arch/riscv/cpu/fu540/Kconfig         |  3 ++-
+ arch/riscv/cpu/generic/Kconfig       |  3 ++-
+ arch/riscv/include/asm/global_data.h |  2 +-
+ arch/riscv/lib/Makefile              |  2 +-
+ 5 files changed, 17 insertions(+), 9 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 009a545fcf..96c386225b 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -153,12 +153,18 @@ config 64BIT
+ 	bool
+ 
+ config SIFIVE_CLINT
+-	bool
+-	depends on RISCV_MMODE || SPL_RISCV_MMODE
++	bool "SiFive's Core Local Interruptor (CLINT) driver"
+ 	select REGMAP
+ 	select SYSCON
+-	select SPL_REGMAP if SPL
+-	select SPL_SYSCON if SPL
++	help
++	  The SiFive CLINT block holds memory-mapped control and status registers
++	  associated with software and timer interrupts.
++
++config SPL_SIFIVE_CLINT
++	bool "SiFive's Core Local Interruptor (CLINT) driver in SPL"
++	depends on SPL
++	select SPL_REGMAP
++	select SPL_SYSCON
+ 	help
+ 	  The SiFive CLINT block holds memory-mapped control and status registers
+ 	  associated with software and timer interrupts.
+@@ -186,7 +192,7 @@ config ANDES_PLMT
+ 	  associated with timer tick.
+ 
+ config RISCV_RDTIME
+-	bool
++	bool "Timer API via rdtime instruction"
+ 	default y if RISCV_SMODE || SPL_RISCV_SMODE
+ 	help
+ 	  The provides the riscv_get_time() API that is implemented using the
+diff --git a/arch/riscv/cpu/fu540/Kconfig b/arch/riscv/cpu/fu540/Kconfig
+index 2dcad8e27f..8b2c83039f 100644
+--- a/arch/riscv/cpu/fu540/Kconfig
++++ b/arch/riscv/cpu/fu540/Kconfig
+@@ -8,7 +8,8 @@ config SIFIVE_FU540
+ 	imply CPU
+ 	imply CPU_RISCV
+ 	imply RISCV_TIMER
+-	imply SIFIVE_CLINT if (RISCV_MMODE || SPL_RISCV_MMODE)
++	imply SIFIVE_CLINT if RISCV_MMODE
++	imply SPL_SIFIVE_CLINT if SPL_RISCV_MMODE
+ 	imply CMD_CPU
+ 	imply SPL_CPU_SUPPORT
+ 	imply SPL_OPENSBI
+diff --git a/arch/riscv/cpu/generic/Kconfig b/arch/riscv/cpu/generic/Kconfig
+index b2cb155d6d..62fcadd710 100644
+--- a/arch/riscv/cpu/generic/Kconfig
++++ b/arch/riscv/cpu/generic/Kconfig
+@@ -8,7 +8,8 @@ config GENERIC_RISCV
+ 	imply CPU
+ 	imply CPU_RISCV
+ 	imply RISCV_TIMER
+-	imply SIFIVE_CLINT if (RISCV_MMODE || SPL_RISCV_MMODE)
++	imply SIFIVE_CLINT if RISCV_MMODE
++	imply SPL_SIFIVE_CLINT if SPL_RISCV_MMODE
+ 	imply CMD_CPU
+ 	imply SPL_CPU_SUPPORT
+ 	imply SPL_OPENSBI
+diff --git a/arch/riscv/include/asm/global_data.h b/arch/riscv/include/asm/global_data.h
+index 2eb14815bc..b89b469d41 100644
+--- a/arch/riscv/include/asm/global_data.h
++++ b/arch/riscv/include/asm/global_data.h
+@@ -18,7 +18,7 @@
+ struct arch_global_data {
+ 	long boot_hart;		/* boot hart id */
+ 	phys_addr_t firmware_fdt_addr;
+-#ifdef CONFIG_SIFIVE_CLINT
++#if CONFIG_IS_ENABLED(SIFIVE_CLINT)
+ 	void __iomem *clint;	/* clint base address */
+ #endif
+ #ifdef CONFIG_ANDES_PLIC
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index 6c503ff2b2..861d7b489f 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -10,8 +10,8 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
+ obj-$(CONFIG_CMD_BOOTI) += bootm.o image.o
+ obj-$(CONFIG_CMD_GO) += boot.o
+ obj-y	+= cache.o
++obj-$(CONFIG_$(SPL_)SIFIVE_CLINT) += sifive_clint.o
+ ifeq ($(CONFIG_$(SPL_)RISCV_MMODE),y)
+-obj-$(CONFIG_SIFIVE_CLINT) += sifive_clint.o
+ obj-$(CONFIG_ANDES_PLIC) += andes_plic.o
+ obj-$(CONFIG_ANDES_PLMT) += andes_plmt.o
+ else
+-- 
+2.28.0
+

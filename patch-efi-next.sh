@@ -38,6 +38,7 @@ git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 git am ../patch/0001-lib-hang-must-be-__efi_runtime.patch
 git am ../patch/0001-cmd-exception-unaligned-data-access-on-RISC-V.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
+git am ../patch/0001-riscv-riscv_get_time-implementation-for-SMODE.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
@@ -75,6 +76,7 @@ git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
 git am ../patch/0001-efi_loader-variable-fix-secure-state-initialization.patch
 git am ../patch/0001-efi_loader-signature-correct-a-behavior-against-mult.patch
 git am ../patch/0001-test-py-efi_secboot-modify-multiple-signatures-test-.patch
+git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch

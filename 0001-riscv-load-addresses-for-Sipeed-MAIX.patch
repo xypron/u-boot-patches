@@ -7,6 +7,9 @@ Define default load addresses and the device tree name for the Sipeed MAIX.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2:
+	leave 128 KiB for OpenSBI at 0x80000000
+---
  include/configs/sipeed-maix.h | 9 +++++++++
  1 file changed, 9 insertions(+)
 
@@ -20,10 +23,10 @@ index a46473fc78..978db6fb00 100644
  
 +#ifndef CONFIG_EXTRA_ENV_SETTINGS
 +#define CONFIG_EXTRA_ENV_SETTINGS \
-+	"loadaddr=0x80040000\0" \
-+	"fdt_addr_r=0x80010000\0" \
-+	"scriptaddr=0x80008000\0" \
-+	"kernel_addr_r=0x80040000\0" \
++	"loadaddr=0x80060000\0" \
++	"fdt_addr_r=0x80028000\0" \
++	"scriptaddr=0x80020000\0" \
++	"kernel_addr_r=0x80060000\0" \
 +	"fdtfile=kendryte/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0"
 +#endif
 +
