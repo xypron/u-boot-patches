@@ -1,0 +1,27 @@
+From 81022d9bc06c8ccb415a0964074b6ee9296a5bca Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 Aug 2020 23:09:35 +0200
+Subject: [PATCH 1/1] efi_loader: remove empty comment line
+
+Remove a line leading to a warning in make htmldocs.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_variable.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/efi_variable.h b/include/efi_variable.h
+index 60491cb640..4704a3c16e 100644
+--- a/include/efi_variable.h
++++ b/include/efi_variable.h
+@@ -274,7 +274,6 @@ efi_get_next_variable_name_mem(efi_uintn_t *variable_name_size, u16 *variable_na
+  * @data:		buffer to which the variable value is copied
+  * @timep:		authentication time (seconds since start of epoch)
+  * Return:		status code
+-
+  */
+ efi_status_t __efi_runtime
+ efi_get_variable_mem(u16 *variable_name, const efi_guid_t *vendor, u32 *attributes,
+-- 
+2.28.0
+

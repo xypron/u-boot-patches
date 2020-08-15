@@ -70,6 +70,10 @@ git am ../patch/0001-efi_loader-variable-fix-secure-state-initialization.patch
 git am ../patch/0001-efi_loader-signature-correct-a-behavior-against-mult.patch
 git am ../patch/0001-test-py-efi_secboot-modify-multiple-signatures-test-.patch
 git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
+
+# efi-2020-10-rc3-3
+git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patc
+git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
