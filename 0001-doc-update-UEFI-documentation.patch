@@ -1,0 +1,49 @@
+From 478d11370d6a4acca7bf9d4c0f4928dc25cf6b15 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 16 Aug 2020 12:27:19 +0200
+Subject: [PATCH 1/1] doc: update UEFI documentation
+
+* UEFI variables can be persisted
+* describe that the sequence of files loaded before bootefi matters
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/uefi/uefi.rst | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/doc/uefi/uefi.rst b/doc/uefi/uefi.rst
+index a72e729cc8..728f7bf4e0 100644
+--- a/doc/uefi/uefi.rst
++++ b/doc/uefi/uefi.rst
+@@ -59,6 +59,10 @@ Below you find the output of an example session starting GRUB::
+     120832 bytes read in 7 ms (16.5 MiB/s)
+     => bootefi ${kernel_addr_r} ${fdt_addr_r}
+ 
++The bootefi command uses the device, the file name, and the file size
++(environment variable 'filesize') of the most recently loaded file when setting
++up the binary for execution. So the UEFI binary should be loaded last.
++
+ The environment variable 'bootargs' is passed as load options in the UEFI system
+ table. The Linux kernel EFI stub uses the load options as command line
+ arguments.
+@@ -217,13 +221,13 @@ which has to be enabled via CONFIG_SUPPORT_EMMC_RPMB=y.
+ Executing the boot manager
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-The UEFI specification foresees to define boot entries and boot sequence via UEFI
+-variables. Booting according to these variables is possible via::
++The UEFI specification foresees to define boot entries and boot sequence via
++UEFI variables. Booting according to these variables is possible via::
+ 
+     bootefi bootmgr [fdt address]
+ 
+-As of U-Boot v2018.03 UEFI variables are not persisted and cannot be set at
+-runtime.
++As of U-Boot v2020.10 UEFI variables cannot be set at runtime. The U-Boot
++command 'efidebug' can be used to set the variables.
+ 
+ Executing the built in hello world application
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-- 
+2.28.0
+

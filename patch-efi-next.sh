@@ -74,6 +74,7 @@ git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 # efi-2020-10-rc3-3
 git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patc
 git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
+git am ../patch/0001-doc-update-UEFI-documentation.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
