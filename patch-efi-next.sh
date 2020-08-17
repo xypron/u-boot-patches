@@ -60,18 +60,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc3-2
-git am ../patch/0001-cmd-efidebug-missing-initialization-of-load_options.patch
-git am ../patch/0001-efi_loader-variable-keep-temporary-buffer-during-the.patch
-git am ../patch/0001-efi_loader-signature-rework-for-intermediate-certifi.patch
-git am ../patch/0001-test-py-efi_secboot-small-rework-for-adding-a-new-te.patch
-git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
-git am ../patch/0001-efi_loader-variable-fix-secure-state-initialization.patch
-git am ../patch/0001-efi_loader-signature-correct-a-behavior-against-mult.patch
-git am ../patch/0001-test-py-efi_secboot-modify-multiple-signatures-test-.patch
-
 # efi-2020-10-rc3-3
-git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patc
+git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patch
 git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
 git am ../patch/0001-doc-update-UEFI-documentation.patch
 git am ../patch/0001-efi_selftest-add-a-test-for-ResetSystem.patch
