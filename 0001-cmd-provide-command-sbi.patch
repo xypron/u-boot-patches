@@ -1,0 +1,221 @@
+From fdec26f2728461234ed487090dfcfad63226739d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 16 Aug 2020 15:05:09 +0200
+Subject: [PATCH v2 1/1] cmd: provide command sbi
+
+Provide a command to display information about the SBI implementation.
+
+The output might look like:
+
+=> sbi
+SBI 0.2
+OpenSBI
+Extensions:
+  sbi_set_timer
+  sbi_console_putchar
+  sbi_console_getchar
+  sbi_clear_ipi
+  sbi_send_ipi
+  sbi_remote_fence_i
+  sbi_remote_sfence_vma
+  sbi_remote_sfence_vma_asid
+  sbi_shutdown
+  SBI Base Functionality
+  Timer Extension
+  IPI Extension
+  RFENCE Extension
+  Hart State Management Extension
+
+The command can be used to construct a unit test checking that the
+communication with the SEE is working.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	provide a non-blank long help text
+---
+ arch/riscv/include/asm/sbi.h |  2 +
+ arch/riscv/lib/sbi.c         | 36 ++++++++++++++++
+ cmd/Kconfig                  |  6 +++
+ cmd/riscv/Makefile           |  1 +
+ cmd/riscv/sbi.c              | 82 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 127 insertions(+)
+ create mode 100644 cmd/riscv/sbi.c
+
+diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
+index 08e1ac0c0e..53ca316180 100644
+--- a/arch/riscv/include/asm/sbi.h
++++ b/arch/riscv/include/asm/sbi.h
+@@ -115,6 +115,8 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
+ 				unsigned long asid);
+ #endif
+ void sbi_set_timer(uint64_t stime_value);
++long sbi_get_spec_version(void);
++int sbi_get_impl_id(void);
+ int sbi_probe_extension(int ext);
+ 
+ #endif
+diff --git a/arch/riscv/lib/sbi.c b/arch/riscv/lib/sbi.c
+index 8fbc23839d..920889ed13 100644
+--- a/arch/riscv/lib/sbi.c
++++ b/arch/riscv/lib/sbi.c
+@@ -53,6 +53,42 @@ void sbi_set_timer(uint64_t stime_value)
+ #endif
+ }
+ 
++/**
++ * sbi_get_spec_version() - get current SBI specification version
++ *
++ * Return: version id
++ */
++long sbi_get_spec_version(void)
++{
++	struct sbiret ret;
++
++	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_SPEC_VERSION,
++			0, 0, 0, 0, 0, 0);
++	if (!ret.error)
++		if (ret.value)
++			return ret.value;
++
++	return -ENOTSUPP;
++}
++
++/**
++ * sbi_get_impl_id() - get SBI implemenation ID
++ *
++ * Return: implementation ID
++ */
++int sbi_get_impl_id(void)
++{
++	struct sbiret ret;
++
++	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_GET_IMP_ID,
++			0, 0, 0, 0, 0, 0);
++	if (!ret.error)
++		if (ret.value)
++			return ret.value;
++
++	return -ENOTSUPP;
++}
++
+ /**
+  * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
+  * @extid: The extension ID to be probed.
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 9ad511aa17..48c08cbc0b 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -270,6 +270,12 @@ config SPL_CMD_TLV_EEPROM
+ 	help
+ 	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
+ 
++config CMD_SBI
++	bool "SBI information"
++	depends on RISCV_SMODE
++	help
++	  Display information about the SBI implementation.
++
+ endmenu
+ 
+ menu "Boot commands"
+diff --git a/cmd/riscv/Makefile b/cmd/riscv/Makefile
+index 24df023ece..1e6ac364e3 100644
+--- a/cmd/riscv/Makefile
++++ b/cmd/riscv/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0+
+ 
+ obj-$(CONFIG_CMD_EXCEPTION) += exception.o
++obj-$(CONFIG_CMD_SBI) += sbi.o
+diff --git a/cmd/riscv/sbi.c b/cmd/riscv/sbi.c
+new file mode 100644
+index 0000000000..7c9151f436
+--- /dev/null
++++ b/cmd/riscv/sbi.c
+@@ -0,0 +1,82 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * The 'sbi' command displays information about the SBI implementation.
++ *
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++#include <asm/sbi.h>
++
++struct sbi_ext {
++	const u32 id;
++	const char *name;
++};
++
++static struct sbi_ext extensions[] = {
++	{ 0x00000000, "sbi_set_timer" },
++	{ 0x00000001, "sbi_console_putchar" },
++	{ 0x00000002, "sbi_console_getchar" },
++	{ 0x00000003, "sbi_clear_ipi" },
++	{ 0x00000004, "sbi_send_ipi" },
++	{ 0x00000005, "sbi_remote_fence_i" },
++	{ 0x00000006, "sbi_remote_sfence_vma" },
++	{ 0x00000007, "sbi_remote_sfence_vma_asid" },
++	{ 0x00000008, "sbi_shutdown" },
++	{ 0x00000010, "SBI Base Functionality" },
++	{ 0x54494D45, "Timer Extension" },
++	{ 0x00735049, "IPI Extension" },
++	{ 0x52464E43, "RFENCE Extension" },
++	{ 0x0048534D, "Hart State Management Extension" },
++};
++
++static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
++		  char *const argv[])
++{
++	int i;
++	long ret;
++
++	ret = sbi_get_spec_version();
++	if (ret >= 0)
++		printf("SBI %ld.%ld\n", ret >> 24, ret &0xffffff);
++	ret = sbi_get_impl_id();
++	if (ret >= 0) {
++		switch (ret) {
++		case 0:
++			printf("Berkeley Boot Loader (BBL)\n");
++			break;
++		case 1:
++			printf("OpenSBI\n");
++			break;
++		case 2:
++			printf("Xvisor\n");
++			break;
++		case 3:
++			printf("KVM\n");
++			break;
++		default:
++			printf("Unknown implementation\n");
++			break;
++		}
++	}
++	printf("Extensions:\n");
++	for (i = 0; i < ARRAY_SIZE(extensions); ++i) {
++		ret = sbi_probe_extension(extensions[i].id);
++		if (ret > 0)
++			printf("  %s\n", extensions[i].name);
++	}
++	return 0;
++}
++
++#ifdef CONFIG_SYS_LONGHELP
++static char sbi_help_text[] =
++	"- display SBI spec version, implementation, and available extensions";
++
++#endif
++
++U_BOOT_CMD_COMPLETE(
++	sbi, 2, 0, do_sbi,
++	"display SBI information",
++	sbi_help_text, NULL
++);
+-- 
+2.28.0
+
