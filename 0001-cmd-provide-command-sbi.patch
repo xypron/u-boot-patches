@@ -1,7 +1,7 @@
 From 07421725f2c20a4425b2d44d4238e064fca5d535 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Aug 2020 15:05:09 +0200
-Subject: [PATCH v4 1/1] cmd: provide command sbi
+Subject: [PATCH v5 1/1] cmd: provide command sbi
 
 Provide a command to display information about the SBI implementation.
 
@@ -34,6 +34,8 @@ Reviewed-by: Atish Patra <atish.patra@wdc.com>
 Reviewed-by: Bin Meng <bin.meng@windriver.com>
 Tested-by: Bin Meng <bin.meng@windriver.com>
 ---
+v5:
+	The sbi command takes no arguments. Set maxargs=1.
 v4:
 	only show command name 'sbi' as short description in Kconfig menu
 	as suggested by Bin
@@ -221,7 +223,7 @@ index 0000000000..7c9151f436
 +#endif
 +
 +U_BOOT_CMD_COMPLETE(
-+	sbi, 2, 0, do_sbi,
++	sbi, 1, 0, do_sbi,
 +	"display SBI information",
 +	sbi_help_text, NULL
 +);
