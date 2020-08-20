@@ -70,7 +70,7 @@ index 0000000000..a4b985d21b
 +
 +	runtime->reset_system(EFI_RESET_COLD, EFI_SUCCESS,
 +			      sizeof(reset_data), reset_data);
-+	efi_st_error ("Reset failed.\n");
++	efi_st_error("Reset failed.\n");
 +	return EFI_ST_FAILURE;
 +}
 +
