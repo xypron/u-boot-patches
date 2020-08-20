@@ -29,7 +29,6 @@ git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 # Kendryte
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
-git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
 git am ../patch/0001-configs-defconfig-for-Sipeed-Maix-in-S-mode.patch
 git am ../patch/0001-cmd-provide-command-sbi.patch
@@ -70,7 +69,6 @@ git am ../patch/0001-test-py-efi_secboot-add-test-for-intermediate-certif.patch
 git am ../patch/0001-efi_loader-variable-fix-secure-state-initialization.patch
 git am ../patch/0001-efi_loader-signature-correct-a-behavior-against-mult.patch
 git am ../patch/0001-test-py-efi_secboot-modify-multiple-signatures-test-.patch
-git am ../patch/0001-riscv-load-addresses-for-Sipeed-MAIX.patch
 
 # efi-2020-10-rc3-3
 git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patc
