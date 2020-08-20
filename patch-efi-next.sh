@@ -27,6 +27,7 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-remove-redundant-check.patch
+git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 
 # Kendryte
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
