@@ -91,7 +91,7 @@ index 8fbc23839d..920889ed13 100644
 +}
 +
 +/**
-+ * sbi_get_impl_id() - get SBI implemenation ID
++ * sbi_get_impl_id() - get SBI implementation ID
 + *
 + * Return: implementation ID
 + */
@@ -184,7 +184,7 @@ index 0000000000..7c9151f436
 +
 +	ret = sbi_get_spec_version();
 +	if (ret >= 0)
-+		printf("SBI %ld.%ld\n", ret >> 24, ret &0xffffff);
++		printf("SBI %ld.%ld\n", ret >> 24, ret & 0xffffff);
 +	ret = sbi_get_impl_id();
 +	if (ret >= 0) {
 +		switch (ret) {
