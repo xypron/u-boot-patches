@@ -1,0 +1,30 @@
+From a6fa35fd16ad38d6bd129a00fbd046a22ec08d0c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 20 Aug 2020 20:19:43 +0200
+Subject: [PATCH 1/1] lib: rsa: remove redundant check
+
+No need to check tmp is non-zero twice.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/rsa/rsa-sign.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/lib/rsa/rsa-sign.c b/lib/rsa/rsa-sign.c
+index 40ca1e1f57..18b68e1976 100644
+--- a/lib/rsa/rsa-sign.c
++++ b/lib/rsa/rsa-sign.c
+@@ -708,10 +708,6 @@ static int fdt_add_bignum(void *blob, int noffset, const char *prop_name,
+ 		return -ENOMEM;
+ 	}
+ 	ctx = BN_CTX_new();
+-	if (!tmp) {
+-		fprintf(stderr, "Out of memory (bignum context)\n");
+-		return -ENOMEM;
+-	}
+ 	BN_set_word(big2, 2L);
+ 	BN_set_word(big32, 32L);
+ 	BN_exp(big2_32, big2, big32, ctx); /* B = 2^32 */
+-- 
+2.28.0
+
