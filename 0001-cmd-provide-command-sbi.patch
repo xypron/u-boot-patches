@@ -1,7 +1,7 @@
-From fdec26f2728461234ed487090dfcfad63226739d Mon Sep 17 00:00:00 2001
+From 07421725f2c20a4425b2d44d4238e064fca5d535 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 Aug 2020 15:05:09 +0200
-Subject: [PATCH v2 1/1] cmd: provide command sbi
+Subject: [PATCH v4 1/1] cmd: provide command sbi
 
 Provide a command to display information about the SBI implementation.
 
@@ -30,7 +30,16 @@ The command can be used to construct a unit test checking that the
 communication with the SEE is working.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+Reviewed-by: Bin Meng <bin.meng@windriver.com>
+Tested-by: Bin Meng <bin.meng@windriver.com>
 ---
+v4:
+	only show command name 'sbi' as short description in Kconfig menu
+	as suggested by Bin
+v3:
+	add dependency on CONFIG_SBI_V02
+	use lower case for sbi in Kconfig
 v2:
 	provide a non-blank long help text
 ---
@@ -103,7 +112,7 @@ index 8fbc23839d..920889ed13 100644
   * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
   * @extid: The extension ID to be probed.
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index 9ad511aa17..48c08cbc0b 100644
+index 9ad511aa17..8feeb0ddb0 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
 @@ -270,6 +270,12 @@ config SPL_CMD_TLV_EEPROM
@@ -111,8 +120,8 @@ index 9ad511aa17..48c08cbc0b 100644
  	  Read system EEPROM data block in ONIE Tlvinfo format from SPL.
  
 +config CMD_SBI
-+	bool "SBI information"
-+	depends on RISCV_SMODE
++	bool "sbi"
++	depends on RISCV_SMODE && SBI_V02
 +	help
 +	  Display information about the SBI implementation.
 +
