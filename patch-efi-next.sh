@@ -69,6 +69,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patch
 git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
 git am ../patch/0001-doc-update-UEFI-documentation.patch
+git am ../patch/0001-efi_loader-ResetSystem-should-not-hang.patch
 git am ../patch/0001-efi_selftest-add-a-test-for-ResetSystem.patch
 exit
 
