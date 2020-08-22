@@ -29,6 +29,7 @@ git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-correct-check-after-allocation-in-fdt_add_bi.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-test-undefined-reference-to-sscanf.patch
+git am ../patch/0001-dm-syscon-typo-alerady.patch
 
 # Kendryte
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch

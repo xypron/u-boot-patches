@@ -1,0 +1,41 @@
+From 70c49f3fddfa9574839f8416ddf3751a019d237d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 22 Aug 2020 07:11:50 +0200
+Subject: [PATCH 1/1] dm: syscon: typo alerady
+
+* Fix typo: %s/alerady/already/.
+* Add missing 'the'.
+* Reformat a comment.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/core/syscon-uclass.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/core/syscon-uclass.c b/drivers/core/syscon-uclass.c
+index b5cd763b6b..9cbda4ebda 100644
+--- a/drivers/core/syscon-uclass.c
++++ b/drivers/core/syscon-uclass.c
+@@ -18,12 +18,16 @@
+ 
+ /*
+  * Caution:
+- * This API requires the given device has alerady been bound to syscon driver.
+- * For example,
++ * This API requires the given device has already been bound to the syscon
++ * driver. For example,
++ *
+  *    compatible = "syscon", "simple-mfd";
++ *
+  * works, but
++ *
+  *    compatible = "simple-mfd", "syscon";
+- * does not.  The behavior is different from Linux.
++ *
++ * does not. The behavior is different from Linux.
+  */
+ struct regmap *syscon_get_regmap(struct udevice *dev)
+ {
+-- 
+2.28.0
+
