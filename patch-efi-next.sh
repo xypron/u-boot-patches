@@ -71,6 +71,7 @@ git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
 git am ../patch/0001-doc-update-UEFI-documentation.patch
 git am ../patch/0001-efi_loader-ResetSystem-should-not-hang.patch
 git am ../patch/0001-efi_selftest-add-a-test-for-ResetSystem.patch
+git am ../patch/0001-efi_selftest-substitute-ResetSystem-by-do_reset.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
