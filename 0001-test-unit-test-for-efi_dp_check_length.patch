@@ -1,0 +1,85 @@
+From 1f62a50c850b3fd3b846efe700a4e2d344cd74ee Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 23 Aug 2020 10:53:50 +0200
+Subject: [PATCH 1/1] test: unit test for efi_dp_check_length()
+
+Provide a unit test for function efi_dp_check_length().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/lib/Makefile          |  1 +
+ test/lib/efi_device_path.c | 50 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 test/lib/efi_device_path.c
+
+diff --git a/test/lib/Makefile b/test/lib/Makefile
+index f81741f2a4..22236f8587 100644
+--- a/test/lib/Makefile
++++ b/test/lib/Makefile
+@@ -3,6 +3,7 @@
+ # (C) Copyright 2018
+ # Mario Six, Guntermann & Drunck GmbH, mario.six@gdsys.cc
+ obj-y += cmd_ut_lib.o
++obj-$(CONFIG_EFI_LOADER) += efi_device_path.o
+ obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
+ obj-y += hexdump.o
+ obj-y += lmb.o
+diff --git a/test/lib/efi_device_path.c b/test/lib/efi_device_path.c
+new file mode 100644
+index 0000000000..9cbc1843ba
+--- /dev/null
++++ b/test/lib/efi_device_path.c
+@@ -0,0 +1,50 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Test device path functions
++ *
++ * Copyright (c) 2020 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <efi_loader.h>
++#include <test/lib.h>
++#include <test/test.h>
++#include <test/ut.h>
++
++static int lib_test_efi_dp_check_length(struct unit_test_state *uts)
++{
++	/* end of device path */
++	u8 d1[] __attribute__((aligned(2))) =
++		{ 0x7f, 0xff, 0x04, 0x00 };
++	/* device path node with length less then 4 */
++	u8 d2[] __attribute__((aligned(2))) =
++		{ 0x01, 0x02, 0x02, 0x00, 0x04, 0x00, 0x7f, 0xff, 0x04, 0x00 };
++	/* well formed device path */
++	u8 d3[] __attribute__((aligned(2))) =
++		{ 0x03, 0x02, 0x08, 0x00, 0x01, 0x00, 0x01, 0x00,
++		  0x7f, 0xff, 0x04, 0x00 };
++
++	struct efi_device_path *p1 = (struct efi_device_path *)d1;
++	struct efi_device_path *p2 = (struct efi_device_path *)d2;
++	struct efi_device_path *p3 = (struct efi_device_path *)d3;
++
++	ut_asserteq((ssize_t) -EINVAL, efi_dp_check_length(p1, SIZE_MAX));
++	ut_asserteq((ssize_t) sizeof(d1), efi_dp_check_length(p1, sizeof(d1)));
++	ut_asserteq((ssize_t) sizeof(d1),
++		    efi_dp_check_length(p1, sizeof(d1) + 4));
++	ut_asserteq((ssize_t) -1, efi_dp_check_length(p1, sizeof(d1) - 1));
++
++	ut_asserteq((ssize_t) -1, efi_dp_check_length(p2, sizeof(d2)));
++
++	ut_asserteq((ssize_t) -1, efi_dp_check_length(p3, sizeof(d3) - 1));
++	ut_asserteq((ssize_t) sizeof(d3), efi_dp_check_length(p3, sizeof(d3)));
++	ut_asserteq((ssize_t) sizeof(d3), efi_dp_check_length(p3, SSIZE_MAX));
++	ut_asserteq((ssize_t) -EINVAL,
++		    efi_dp_check_length(p3, (size_t)SSIZE_MAX + 1));
++	ut_asserteq((ssize_t) sizeof(d3),
++		    efi_dp_check_length(p3, sizeof(d3) + 4));
++
++	return 0;
++}
++
++LIB_TEST(lib_test_efi_dp_check_length, 0);
+-- 
+2.28.0
+

@@ -1,0 +1,74 @@
+From 4a6536a634f095440e411540575ba01bf98b8f01 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 23 Aug 2020 10:49:46 +0200
+Subject: [PATCH 1/1] efi_loader: efi_dp_check_length()
+
+We need to check that device paths provided via UEFI variables are not
+malformed.
+
+Provide function efi_dp_check_length() to check if a device path has an
+end node within a given number of bytes.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h             |  2 ++
+ lib/efi_loader/efi_device_path.c | 33 ++++++++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 50a17a33ca..0baa1d2324 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -631,6 +631,8 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+ 			      const char *path,
+ 			      struct efi_device_path **device,
+ 			      struct efi_device_path **file);
++ssize_t efi_dp_check_length(const struct efi_device_path *dp,
++			    const size_t maxlen);
+ 
+ #define EFI_DP_TYPE(_dp, _type, _subtype) \
+ 	(((_dp)->type == DEVICE_PATH_TYPE_##_type) && \
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index 7ae14f3423..8a5c13c424 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -1127,3 +1127,36 @@ efi_status_t efi_dp_from_name(const char *dev, const char *devnr,
+ 
+ 	return EFI_SUCCESS;
+ }
++
++/**
++ * efi_dp_check_length() - check length of a device path
++ *
++ * @dp:		pointer to device path
++ * @maxlen:	maximum length of the device path
++ * Return:
++ * * length of the device path if it is less or equal @maxlen
++ * * -1 if the device path is longer then @maxlen
++ * * -1 if a device path node has a length of less than 4
++ * * -EINVAL if maxlen exceeds SSIZE_MAX
++ */
++ssize_t efi_dp_check_length(const struct efi_device_path *dp,
++			    const size_t maxlen)
++{
++	ssize_t ret = 0;
++	u16 len;
++
++	if (maxlen > SSIZE_MAX)
++		return -EINVAL;
++	for (;;) {
++		len = dp->length;
++		if (len < 4)
++			return -1;
++		ret += len;
++		if (ret > maxlen)
++			return -1;
++		if (dp->type == DEVICE_PATH_TYPE_END &&
++		    dp->sub_type == DEVICE_PATH_SUB_TYPE_END)
++			return ret;
++		dp = (const struct efi_device_path *)((const u8 *)dp + len);
++	}
++}
+-- 
+2.28.0
+

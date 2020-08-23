@@ -72,6 +72,9 @@ git am ../patch/0001-doc-update-UEFI-documentation.patch
 git am ../patch/0001-efi_loader-ResetSystem-should-not-hang.patch
 git am ../patch/0001-efi_selftest-add-a-test-for-ResetSystem.patch
 git am ../patch/0001-efi_selftest-substitute-ResetSystem-by-do_reset.patch
+git am ../patch/0001-include-kernel.h-define-SSIZE_MAX.patch
+git am ../patch/0001-efi_loader-efi_dp_check_length.patch
+gti am ../patch/0001-test-unit-test-for-efi_dp_check_length.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
