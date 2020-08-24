@@ -76,6 +76,7 @@ git am ../patch/0001-include-kernel.h-define-SSIZE_MAX.patch
 git am ../patch/0001-efi_loader-efi_dp_check_length.patch
 git am ../patch/0001-test-unit-test-for-efi_dp_check_length.patch
 git am ../patch/0001-efi_loader-validate-device-path-length-in-boot-manag.patch
+git am ../patch/0001-efi_loader-use-as-separator-for-setenv-i.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
