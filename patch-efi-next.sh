@@ -29,6 +29,7 @@ git am ../patch/0001-lib-rsa-correct-check-after-allocation-in-fdt_add_bi.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-test-undefined-reference-to-sscanf.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
+git am ../patch/0001-fs-convert-error-and-debug-messages-to-log.patch
 
 # Kendryte
 git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
@@ -64,18 +65,9 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc3-3
-git am ../patch/0001-efi_loader-document-parameters-of-do_bootefi_exec.patch
-git am ../patch/0001-efi_loader-remove-empty-comment-line.patch
-git am ../patch/0001-doc-update-UEFI-documentation.patch
-git am ../patch/0001-efi_loader-ResetSystem-should-not-hang.patch
-git am ../patch/0001-efi_selftest-add-a-test-for-ResetSystem.patch
-git am ../patch/0001-efi_selftest-substitute-ResetSystem-by-do_reset.patch
-git am ../patch/0001-include-kernel.h-define-SSIZE_MAX.patch
-git am ../patch/0001-efi_loader-efi_dp_check_length.patch
-git am ../patch/0001-test-unit-test-for-efi_dp_check_length.patch
-git am ../patch/0001-efi_loader-validate-device-path-length-in-boot-manag.patch
-git am ../patch/0001-efi_loader-use-as-separator-for-setenv-i.patch
+# efi-2020-10-rc4
+git am ../patch/0001-efi_loader-log-messages-for-bootefi-command.patch
+git am ../patch/0001-efi_loader-log-function-in-image-loader.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch

@@ -1,0 +1,158 @@
+From ec28d712c690811d7bd50fb30cb422c012f34c37 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 25 Aug 2020 17:49:16 +0000
+Subject: [PATCH 1/1] fs: convert error and debug messages to log
+
+Use log functions for error and debug messages of the file-system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fs.c          | 16 +++++++++-------
+ fs/fs_internal.c | 14 ++++++++------
+ 2 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/fs/fs.c b/fs/fs.c
+index 17e4bc33f7..29ad4d1a69 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -3,6 +3,8 @@
+  * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+  */
+ 
++#define LOG_CATEGORY LOGC_CORE
++
+ #include <command.h>
+ #include <config.h>
+ #include <errno.h>
+@@ -34,7 +36,7 @@ static int fs_type = FS_TYPE_ANY;
+ static inline int fs_probe_unsupported(struct blk_desc *fs_dev_desc,
+ 				      struct disk_partition *fs_partition)
+ {
+-	printf("** Unrecognized filesystem type **\n");
++	log_err("** Unrecognized filesystem type **\n");
+ 	return -1;
+ }
+ 
+@@ -508,7 +510,7 @@ static int fs_read_lmb_check(const char *filename, ulong addr, loff_t offset,
+ 	if (lmb_alloc_addr(&lmb, addr, read_len) == addr)
+ 		return 0;
+ 
+-	printf("** Reading file would overwrite reserved memory **\n");
++	log_err("** Reading file would overwrite reserved memory **\n");
+ 	return -ENOSPC;
+ }
+ #endif
+@@ -538,7 +540,7 @@ static int _fs_read(const char *filename, ulong addr, loff_t offset, loff_t len,
+ 
+ 	/* If we requested a specific number of bytes, check we got it */
+ 	if (ret == 0 && len && *actread != len)
+-		debug("** %s shorter than offset + len **\n", filename);
++		log_debug("** %s shorter than offset + len **\n", filename);
+ 	fs_close();
+ 
+ 	return ret;
+@@ -562,7 +564,7 @@ int fs_write(const char *filename, ulong addr, loff_t offset, loff_t len,
+ 	unmap_sysmem(buf);
+ 
+ 	if (ret < 0 && len != *actwrite) {
+-		printf("** Unable to write file %s **\n", filename);
++		log_err("** Unable to write file %s **\n", filename);
+ 		ret = -1;
+ 	}
+ 	fs_close();
+@@ -656,7 +658,7 @@ int fs_ln(const char *fname, const char *target)
+ 	ret = info->ln(fname, target);
+ 
+ 	if (ret < 0) {
+-		printf("** Unable to create link %s -> %s **\n", fname, target);
++		log_err("** Unable to create link %s -> %s **\n", fname, target);
+ 		ret = -1;
+ 	}
+ 	fs_close();
+@@ -737,7 +739,7 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+ 	ret = _fs_read(filename, addr, pos, bytes, 1, &len_read);
+ 	time = get_timer(time);
+ 	if (ret < 0) {
+-		printf("Failed to load '%s'\n", filename);
++		log_err("Failed to load '%s'\n", filename);
+ 		return 1;
+ 	}
+ 
+@@ -902,7 +904,7 @@ int do_mkdir(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+ 
+ 	ret = fs_mkdir(argv[3]);
+ 	if (ret) {
+-		printf("** Unable to create a directory \"%s\" **\n", argv[3]);
++		log_err("** Unable to create a directory \"%s\" **\n", argv[3]);
+ 		return 1;
+ 	}
+ 
+diff --git a/fs/fs_internal.c b/fs/fs_internal.c
+index 8b19811a63..43f5b3d5ef 100644
+--- a/fs/fs_internal.c
++++ b/fs/fs_internal.c
+@@ -5,6 +5,8 @@
+  * Derived from code in ext4/dev.c, which was based on reiserfs/dev.c
+  */
+ 
++#define LOG_CATEGORY LOGC_CORE
++
+ #include <common.h>
+ #include <blk.h>
+ #include <compiler.h>
+@@ -19,7 +21,7 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+ 	int log2blksz;
+ 	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, (blk ? blk->blksz : 0));
+ 	if (blk == NULL) {
+-		printf("** Invalid Block Device Descriptor (NULL)\n");
++		log_err("** Invalid Block Device Descriptor (NULL)\n");
+ 		return 0;
+ 	}
+ 	log2blksz = blk->log2blksz;
+@@ -27,7 +29,7 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+ 	/* Check partition boundaries */
+ 	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
+ 	    >= partition->size) {
+-		printf("%s read outside partition " LBAFU "\n", __func__,
++		log_err("%s read outside partition " LBAFU "\n", __func__,
+ 		       sector);
+ 		return 0;
+ 	}
+@@ -36,14 +38,14 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+ 	sector += byte_offset >> log2blksz;
+ 	byte_offset &= blk->blksz - 1;
+ 
+-	debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
++	log_debug(" <" LBAFU ", %d, %d>\n", sector, byte_offset, byte_len);
+ 
+ 	if (byte_offset != 0) {
+ 		int readlen;
+ 		/* read first part which isn't aligned with start of sector */
+ 		if (blk_dread(blk, partition->start + sector, 1,
+ 			      (void *)sec_buf) != 1) {
+-			printf(" ** %s read error **\n", __func__);
++			log_err(" ** %s read error **\n", __func__);
+ 			return 0;
+ 		}
+ 		readlen = min((int)blk->blksz - byte_offset,
+@@ -73,7 +75,7 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+ 	if (blk_dread(blk, partition->start + sector,
+ 		      block_len >> log2blksz, (void *)buf) !=
+ 			block_len >> log2blksz) {
+-		printf(" ** %s read error - block\n", __func__);
++		log_err(" ** %s read error - block\n", __func__);
+ 		return 0;
+ 	}
+ 	block_len = byte_len & ~(blk->blksz - 1);
+@@ -85,7 +87,7 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+ 		/* read rest of data which are not in whole sector */
+ 		if (blk_dread(blk, partition->start + sector, 1,
+ 			      (void *)sec_buf) != 1) {
+-			printf("* %s read error - last part\n", __func__);
++			log_err("* %s read error - last part\n", __func__);
+ 			return 0;
+ 		}
+ 		memcpy(buf, sec_buf, byte_len);
+-- 
+2.20.1
+
