@@ -23,7 +23,6 @@ git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
-git am ../patch/0001-riscv-fix-building-with-CONFIG_SPL_SMP-n.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-correct-check-after-allocation-in-fdt_add_bi.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
@@ -32,11 +31,8 @@ git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-fs-convert-error-and-debug-messages-to-log.patch
 
 # Kendryte
-git am ../patch/0001-clk-kendryte-pll.h-do-not-redefine-nop.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
-git am ../patch/0001-configs-defconfig-for-Sipeed-Maix-in-S-mode.patch
-git am ../patch/0001-cmd-provide-command-sbi.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
