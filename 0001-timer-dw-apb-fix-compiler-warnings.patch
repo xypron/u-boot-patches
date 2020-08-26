@@ -1,16 +1,17 @@
 From e8e61c18e1d7153d2e1b126f24bd1480b3418a7f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 28 Jul 2020 18:55:21 +0200
-Subject: [PATCH 1/1] timer: dw-apb: fix compiler warnings
+Subject: [PATCH v2 1/1] timer: dw-apb: fix compiler warnings
 
 readl() and writel() expect void *. Do not pass an integer value.
 
-Remove unused include include asm/arch/timer.h.
+Remove unused include asm/arch/timer.h.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bin.meng@windriver.com>
 ---
-The driver is needed for the timers of the Kendryte K210 (compatible
-"snps,dw-apb-timer").
+v2:
+	correct typo in commit message
 ---
  drivers/timer/dw-apb-timer.c | 7 +++----
  1 file changed, 3 insertions(+), 4 deletions(-)

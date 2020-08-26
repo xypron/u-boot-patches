@@ -28,7 +28,6 @@ git am ../patch/0001-lib-rsa-correct-check-after-allocation-in-fdt_add_bi.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-test-undefined-reference-to-sscanf.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
-git am ../patch/0001-fs-convert-error-and-debug-messages-to-log.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
@@ -62,6 +61,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc4
+git am ../patch/0001-fs-convert-error-and-debug-messages-to-log.patch
 git am ../patch/0001-efi_loader-log-messages-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-log-function-in-image-loader.patch
 exit
