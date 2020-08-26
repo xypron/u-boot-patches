@@ -1,4 +1,4 @@
-From ec28d712c690811d7bd50fb30cb422c012f34c37 Mon Sep 17 00:00:00 2001
+From 7127ce51c1453f301ffe5bc95c392461f6470a12 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 25 Aug 2020 17:49:16 +0000
 Subject: [PATCH 1/1] fs: convert error and debug messages to log
@@ -8,8 +8,8 @@ Use log functions for error and debug messages of the file-system.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  fs/fs.c          | 16 +++++++++-------
- fs/fs_internal.c | 14 ++++++++------
- 2 files changed, 17 insertions(+), 13 deletions(-)
+ fs/fs_internal.c | 16 +++++++++-------
+ 2 files changed, 18 insertions(+), 14 deletions(-)
 
 diff --git a/fs/fs.c b/fs/fs.c
 index 17e4bc33f7..29ad4d1a69 100644
@@ -88,7 +88,7 @@ index 17e4bc33f7..29ad4d1a69 100644
  	}
  
 diff --git a/fs/fs_internal.c b/fs/fs_internal.c
-index 8b19811a63..43f5b3d5ef 100644
+index 8b19811a63..bfc35c996c 100644
 --- a/fs/fs_internal.c
 +++ b/fs/fs_internal.c
 @@ -5,6 +5,8 @@
@@ -109,15 +109,17 @@ index 8b19811a63..43f5b3d5ef 100644
  		return 0;
  	}
  	log2blksz = blk->log2blksz;
-@@ -27,7 +29,7 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
+@@ -27,8 +29,8 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
  	/* Check partition boundaries */
  	if ((sector + ((byte_offset + byte_len - 1) >> log2blksz))
  	    >= partition->size) {
 -		printf("%s read outside partition " LBAFU "\n", __func__,
+-		       sector);
 +		log_err("%s read outside partition " LBAFU "\n", __func__,
- 		       sector);
++			sector);
  		return 0;
  	}
+ 
 @@ -36,14 +38,14 @@ int fs_devread(struct blk_desc *blk, struct disk_partition *partition,
  	sector += byte_offset >> log2blksz;
  	byte_offset &= blk->blksz - 1;
@@ -154,5 +156,5 @@ index 8b19811a63..43f5b3d5ef 100644
  		}
  		memcpy(buf, sec_buf, byte_len);
 -- 
-2.20.1
+2.28.0
 
