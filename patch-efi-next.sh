@@ -64,6 +64,12 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-fs-convert-error-and-debug-messages-to-log.patch
 git am ../patch/0001-efi_loader-log-messages-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-log-function-in-image-loader.patch
+git am ../patch/0001-efi_loader-error-message-if-image-not-authenticated.patch
+git am ../patch/0001-efi-clean-up-efi-command.patch
+git am ../patch/0001-efi_loader-consider-no-map-property-of-reserved-memo.patch
+git am ../patch/0001-efi_loader-remove-duplicate-image-size-check.patch
+git am ../patch/0001-efi_loader-error-message-if-image-not-authenticated.patch
+git am ../patch/0001-efi_loader-check-for-image-truncation.patch
 exit
 
 git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
