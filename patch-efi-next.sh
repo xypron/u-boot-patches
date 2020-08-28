@@ -70,6 +70,7 @@ git am ../patch/0001-efi-clean-up-efi-command.patch
 git am ../patch/0001-efi_loader-remove-duplicate-image-size-check.patch
 git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 git am ../patch/0001-efi_loader-correct-SizeOfImage-for-UEFI-binaries.patch
+git am ../patch/0001-bootm-update-image-OS-image-size-when-decompressing.patch
 git am ../patch/0001-efi_loader-check-for-image-truncation.patch
 git am ../patch/0001-efi_selftest-simplify-Makefile.patch
 exit
