@@ -84,6 +84,10 @@ git am ../patch/0001-efi_loader-capsule-add-memory-range-capsule-definiti.patch
 git am ../patch/0001-efi_loader-capsule-support-firmware-update.patch
 git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-FIT-.patch
 git am ../patch/0001-dfu-add-dfu_write_by_alt.patch
+git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-raw-.patch
+git am ../patch/0001-cmd-add-efidebug-capsule-command.patch
+git am ../patch/0001-tools-add-mkeficapsule-command-for-UEFI-capsule-upda.patch
+git am ../patch/0001-test-py-add-a-test-for-uefi-firmware-update-capsule-.patch
 
 exit
 
