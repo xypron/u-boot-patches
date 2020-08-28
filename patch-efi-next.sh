@@ -79,6 +79,7 @@ git am ../patch/0001-dfu-export-dfu_list.patch
 git am ../patch/0001-efi_loader-add-option-to-initialise-EFI-subsystem-ea.patch
 git am ../patch/0001-efi_loader-add-efi_create_indexed_name.patch
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
+git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
 
 exit
 
