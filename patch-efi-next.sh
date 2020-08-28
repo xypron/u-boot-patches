@@ -68,7 +68,6 @@ git am ../patch/0001-efi_loader-error-message-if-image-not-authenticated.patch
 git am ../patch/0001-efi-clean-up-efi-command.patch
 git am ../patch/0001-efi_loader-consider-no-map-property-of-reserved-memo.patch
 git am ../patch/0001-efi_loader-remove-duplicate-image-size-check.patch
-git am ../patch/0001-efi_loader-error-message-if-image-not-authenticated.patch
 git am ../patch/0001-efi_loader-check-for-image-truncation.patch
 exit
 
