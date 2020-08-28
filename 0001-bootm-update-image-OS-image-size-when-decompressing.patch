@@ -1,4 +1,4 @@
-From 897542a9f6b786dce575706f88ece966af5fae1d Mon Sep 17 00:00:00 2001
+From 26ea03c3f06fcfb293d25f245baea6bffd838ac7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Aug 2020 22:10:37 +0200
 Subject: [PATCH 1/1] bootm: update image OS image size when decompressing
@@ -8,20 +8,22 @@ boot process we need the decompressed size of the image.
 
 Update images->os.image_len after decompression.
 
+This avoids an error when running FIT images with UEFI binaries.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  common/bootm.c | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/common/bootm.c b/common/bootm.c
-index 247b600d9c..228f240741 100644
+index 247b600d9c..b3377490b3 100644
 --- a/common/bootm.c
 +++ b/common/bootm.c
 @@ -390,6 +390,8 @@ static int bootm_load_os(bootm_headers_t *images, int boot_progress)
  		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
  		return err;
  	}
-+	/* We need the decompressed length when calling do_bootm_efi() */
++	/* We need the decompressed image size in the next steps */
 +	images->os.image_len = load_end - load;
  
  	flush_cache(flush_start, ALIGN(load_end, ARCH_DMA_MINALIGN) - flush_start);
