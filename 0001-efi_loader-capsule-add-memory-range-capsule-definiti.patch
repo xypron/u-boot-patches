@@ -1,0 +1,55 @@
+From 0c60462b5469db38c4a88df8caffe92f6e1a35bc Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 3 Aug 2020 14:43:47 +0900
+Subject: [PATCH] efi_loader: capsule: add memory range capsule definitions
+
+Memory range capsule gives us a way to notify that some memory regions
+should be left untouched across the next reset.
+See UEFI specification, section 8.5.3.
+
+Since how we should handle this kind of capsule is totally up to
+the system, no implementation will be added in this commit.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ include/efi_api.h | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index c128a0a66c..7a2a087c60 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -221,6 +221,10 @@ enum efi_reset_type {
+ 	EFI_GUID(0x39b68c46, 0xf7fb, 0x441b, 0xb6, 0xec, \
+ 		 0x16, 0xb0, 0xf6, 0x98, 0x21, 0xf3)
+ 
++#define EFI_MEMORY_RANGE_CAPSULE_GUID \
++	EFI_GUID(0xde9f0ec, 0x88b6, 0x428f, 0x97, 0x7a, \
++		 0x25, 0x8f, 0x1d, 0xe, 0x5e, 0x72)
++
+ struct efi_capsule_header {
+ 	efi_guid_t capsule_guid;
+ 	u32 header_size;
+@@ -236,6 +240,19 @@ struct efi_capsule_result_variable_header {
+ 	efi_status_t capsule_status;
+ } __packed;
+ 
++struct efi_memory_range {
++	efi_physical_addr_t	address;
++	u64			length;
++};
++
++struct efi_memory_range_capsule {
++	struct efi_capsule_header *header;
++	/* EFI_MEMORY_TYPE: 0x80000000-0xFFFFFFFF */
++	enum efi_mem_type os_requested_memory_type;
++	u64 number_of_memory_ranges;
++	struct efi_memory_range memory_ranges[];
++} __packed;
++
+ #define EFI_RT_SUPPORTED_GET_TIME			0x0001
+ #define EFI_RT_SUPPORTED_SET_TIME			0x0002
+ #define EFI_RT_SUPPORTED_GET_WAKEUP_TIME		0x0004
+-- 
+2.28.0
+
