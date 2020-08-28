@@ -1,0 +1,248 @@
+From 23a00227c51189c7c08147988046ba2512cb57b2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 28 Aug 2020 12:30:14 +0200
+Subject: [PATCH 1/1] cmd: add tool to correct UEFI binaries
+
+The efifixup tool updates the SizeOfImage and the Subsytem fields of the PE
+header of UEFI images.
+
+Linking with objcopy does not set SizeOfImage and we do not know the file
+size at compile time.
+
+The Subsystem field indicates if an UEFI binary is an application, a boot
+service driver, or a runtime driver.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS      |   1 +
+ tools/Makefile   |   1 +
+ tools/efifixup.c | 193 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 195 insertions(+)
+ create mode 100644 tools/efifixup.c
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bebe87b4d1..d49d949ba0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -679,6 +679,7 @@ F:	test/unicode_ut.c
+ F:	cmd/bootefi.c
+ F:	cmd/efidebug.c
+ F:	cmd/nvedit_efi.c
++F:	tools/efifixup.c
+ F:	tools/file2include.c
+ 
+ EFI VARIABLES VIA OP-TEE
+diff --git a/tools/Makefile b/tools/Makefile
+index 51123fd929..7e24485eff 100644
+--- a/tools/Makefile
++++ b/tools/Makefile
+@@ -55,6 +55,7 @@ mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
+ hostprogs-y += dumpimage mkimage
+ hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
+ 
++hostprogs-$(CONFIG_EFI_LOADER) += efifixup
+ hostprogs-$(CONFIG_CMD_BOOTEFI_SELFTEST) += file2include
+ 
+ FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
+diff --git a/tools/efifixup.c b/tools/efifixup.c
+new file mode 100644
+index 0000000000..a14f6ab1ba
+--- /dev/null
++++ b/tools/efifixup.c
+@@ -0,0 +1,193 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Adjust PE header of UEFI binaries.
++ *
++ * Copyright (c) 2020 Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * This tool updates the SizeOfImage and the Subsytem fields of the PE header
++ * of UEFI images.
++ *
++ * Linking with objcopy does not set SizeOfImage and we do not know the file
++ * size at compile time.
++ *
++ * The Subsystem field indicates if a UEFI binary is an application, a driver,
++ * or a ROM image.
++ */
++
++#include <limits.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdint.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <pe.h>
++
++/**
++ * rds - read data structure from file
++ *
++ * @fd:		file descriptor
++ * @pos:	position
++ * @len:	length of the buffer
++ * @buffer:	target buffer
++ * Return:	0 for success
++ */
++static int rds(int fd, off_t pos, size_t len, void *buffer)
++{
++	off_t offset;
++	ssize_t count;
++
++	offset = lseek(fd, pos, SEEK_SET);
++	if (offset == -1) {
++		fprintf(stderr, "Failed to lseek 0x%zx\n", pos);
++		return EXIT_FAILURE;
++	}
++
++	count = read(fd, buffer, len);
++	if (count != len) {
++		fprintf(stderr,
++			"Failed to read 0x%zx bytes at offset 0x%zx\n",
++			len, pos);
++		return EXIT_FAILURE;
++	}
++	return 0;
++}
++
++/**
++ * wds - write data structure to file
++ *
++ * The program is aborted if an error occurs.
++ *
++ * @fd:		file descriptor
++ * @pos:	position
++ * @len:	length of the buffer
++ * @buffer:	input buffer
++ * Return:	0 for success
++ */
++static int wds(int fd, off_t pos, size_t len, void *buffer)
++{
++	off_t offset;
++	ssize_t count;
++
++	offset = lseek(fd, pos, SEEK_SET);
++	if (offset == -1) {
++		fprintf(stderr, "Failed to lseek 0x%zx\n", pos);
++		return EXIT_FAILURE;
++	}
++
++	count = write(fd, buffer, len);
++	if (count != len) {
++		fprintf(stderr,
++			"Failed to read 0x%zx bytes at offset 0x%zx\n",
++			len, pos);
++		return EXIT_FAILURE;
++	}
++	return 0;
++}
++
++static int fixup(int fd, uint16_t subsystem)
++{
++	off_t pos, pos_size, pos_subsystem;
++	IMAGE_DOS_HEADER dos;
++	IMAGE_NT_HEADERS32 nt;
++	uint32_t fsize;
++	struct stat stat;
++	int ret;
++
++	ret = fstat(fd, &stat);
++	if (ret == -1) {
++		perror("fstat failed");
++		return EXIT_FAILURE;
++	}
++	if (stat.st_size > UINT_MAX) {
++		fprintf(stderr, "File to large\n");
++		return EXIT_FAILURE;
++	}
++	fsize = stat.st_size;
++
++	pos = 0;
++	ret = rds(fd, pos, sizeof(dos), &dos);
++	if (ret)
++		return ret;
++	if (dos.e_magic != IMAGE_DOS_SIGNATURE) {
++		fprintf(stderr, "Invalid DOS Signature\n");
++		return EXIT_FAILURE;
++	}
++	pos = dos.e_lfanew;
++	ret = rds(fd, pos, sizeof(nt), &nt);
++	if (ret)
++		return ret;
++	if (nt.Signature != IMAGE_NT_SIGNATURE) {
++		fprintf(stderr, "Invalid NT Signature\n");
++		return EXIT_FAILURE;
++	}
++	if (nt.OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
++		pos_size = pos + __builtin_offsetof(IMAGE_NT_HEADERS64,
++						    OptionalHeader.SizeOfImage);
++		pos_subsystem = pos +
++				__builtin_offsetof(IMAGE_NT_HEADERS64,
++						   OptionalHeader.Subsystem);
++	} else if (nt.OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
++		pos_size = pos + __builtin_offsetof(IMAGE_NT_HEADERS32,
++						    OptionalHeader.SizeOfImage);
++		pos_subsystem = pos +
++				__builtin_offsetof(IMAGE_NT_HEADERS32,
++						   OptionalHeader.Subsystem);
++	} else {
++		fprintf(stderr, "Invalid optional header magic\n");
++		return EXIT_FAILURE;
++	}
++	ret = wds(fd, pos_size, sizeof(fsize), &fsize);
++	if (ret)
++		return ret;
++	ret = wds(fd, pos_subsystem, sizeof(subsystem), &subsystem);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static void usage(void)
++{
++	printf("Usage: efifixup [-i type] filename\n\n"
++	       "Set file size and image type\n"
++	       "  -i type - image type\n"
++	       "  10 application (default)\n"
++	       "  11 boot service\n"
++	       "  12 runtime service\n");
++	exit(EXIT_FAILURE);
++}
++
++int main(int argc, char *const argv[])
++{
++	int fd;
++	int opt;
++	int ret;
++	int subsystem = IMAGE_SUBSYSTEM_EFI_APPLICATION;
++
++	while ((opt = getopt(argc, argv, "s:")) != -1) {
++		switch (opt) {
++		case 's':
++			subsystem = atoi(optarg);
++			if (subsystem < IMAGE_SUBSYSTEM_EFI_APPLICATION ||
++			    subsystem > IMAGE_SUBSYSTEM_EFI_ROM)
++				usage();
++			break;
++		default:
++			usage();
++		}
++	}
++
++	if (optind != argc - 1)
++		usage();
++	fd = open(argv[optind], O_RDWR);
++	if (fd == -1) {
++		perror("Cannot open file");
++		exit(EXIT_FAILURE);
++	}
++
++	ret = fixup(fd, subsystem);
++	close(fd);
++
++	return ret;
++}
+-- 
+2.28.0
+

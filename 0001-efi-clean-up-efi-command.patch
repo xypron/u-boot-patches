@@ -1,4 +1,4 @@
-From 981ce6f52883375b73fef4d38bb73daeb95cd62a Mon Sep 17 00:00:00 2001
+From 4ad6b459c5edda56863a304499a6f64865f07153 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 27 Aug 2020 12:39:03 +0200
 Subject: [PATCH 1/1] efi: clean up efi command
@@ -9,6 +9,11 @@ Subject: [PATCH 1/1] efi: clean up efi command
 * Make efi_build_mem_table static.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+to be merged after
+
+efi_loader: consider no-map property of reserved memory
+https://lists.denx.de/pipermail/u-boot/2020-August/424672.html
 ---
  cmd/efi.c     | 26 ++++++++++++++++++++++----
  include/efi.h | 14 --------------
@@ -73,7 +78,7 @@ index b3a3bf8282..1558cb17eb 100644
  		const char *name;
  		u64 size;
 diff --git a/include/efi.h b/include/efi.h
-index f986aad877..5695273ce9 100644
+index 50190021ef..e0026a9505 100644
 --- a/include/efi.h
 +++ b/include/efi.h
 @@ -180,7 +180,6 @@ enum efi_mem_type {
@@ -81,10 +86,10 @@ index f986aad877..5695273ce9 100644
  
  	EFI_MAX_MEMORY_TYPE,
 -	EFI_TABLE_END,	/* For efi_build_mem_table() */
- };
  
- /* Attribute values */
-@@ -481,17 +480,4 @@ void efi_putc(struct efi_priv *priv, const char ch);
+ 	/* Memory that shall not be mapped */
+ 	EFI_NO_MAP_MEMORY,
+@@ -484,17 +483,4 @@ void efi_putc(struct efi_priv *priv, const char ch);
   */
  int efi_info_get(enum efi_entry_t type, void **datap, int *sizep);
  

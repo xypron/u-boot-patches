@@ -1,7 +1,7 @@
-From ea01e4b0a2301184ae8dc0a2cb2025f34f8a8530 Mon Sep 17 00:00:00 2001
+From ca0fed78cb4e643fbd676c8faf41992bab5ef645 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 27 Aug 2020 17:50:54 +0200
-Subject: [PATCH 1/1] efi_loader: check for image truncation
+Subject: [PATCH] efi_loader: check for image truncation
 
 Check in efi_load_pe() that the image size parameter is at least as large
 as the image size indicated in the optional PE header.

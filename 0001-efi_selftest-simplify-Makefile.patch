@@ -1,4 +1,4 @@
-From 484808b812d54ace2275fec5987b776cd94e7bcd Mon Sep 17 00:00:00 2001
+From 62dc5e6ef77fef9119b3603c73893e7fb7879a73 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Aug 2020 08:15:37 +0200
 Subject: [PATCH 1/1] efi_selftest: simplify Makefile
