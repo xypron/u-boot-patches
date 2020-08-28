@@ -83,6 +83,7 @@ git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
 git am ../patch/0001-efi_loader-capsule-add-memory-range-capsule-definiti.patch
 git am ../patch/0001-efi_loader-capsule-support-firmware-update.patch
 git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-FIT-.patch
+git am ../patch/0001-dfu-add-dfu_write_by_alt.patch
 
 exit
 
