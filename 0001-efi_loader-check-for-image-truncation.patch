@@ -1,18 +1,18 @@
-From b5bab77e40c9f587b4a4b835f3b77a924900573e Mon Sep 17 00:00:00 2001
+From ea01e4b0a2301184ae8dc0a2cb2025f34f8a8530 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 27 Aug 2020 17:50:54 +0200
-Subject: [PATCH] efi_loader: check for image truncation
+Subject: [PATCH 1/1] efi_loader: check for image truncation
 
 Check in efi_load_pe() that the image size parameter is at least as large
 as the image size indicated in the optional PE header.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_image_loader.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+ lib/efi_loader/efi_image_loader.c | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
 diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
-index 94f76ef6b8..8240c2bb6b 100644
+index 94f76ef6b8..ee9f958462 100644
 --- a/lib/efi_loader/efi_image_loader.c
 +++ b/lib/efi_loader/efi_image_loader.c
 @@ -761,6 +761,30 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
@@ -46,6 +46,15 @@ index 94f76ef6b8..8240c2bb6b 100644
  	/* Authenticate an image */
  	if (efi_image_authenticate(efi, efi_size)) {
  		handle->auth_status = EFI_IMAGE_AUTH_PASSED;
+@@ -794,7 +818,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 		rel_size = opt->DataDirectory[rel_idx].Size;
+ 		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
+ 		virt_size = ALIGN(virt_size, opt->SectionAlignment);
+-	} else if (nt->OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
++	} else { /* IMAGE_NT_OPTIONAL_HDR32_MAGIC */
+ 		IMAGE_OPTIONAL_HEADER32 *opt = &nt->OptionalHeader;
+ 		image_base = opt->ImageBase;
+ 		efi_set_code_and_data_type(loaded_image_info, opt->Subsystem);
 @@ -810,11 +834,6 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
  		rel_size = opt->DataDirectory[rel_idx].Size;
  		rel = efi_reloc + opt->DataDirectory[rel_idx].VirtualAddress;
