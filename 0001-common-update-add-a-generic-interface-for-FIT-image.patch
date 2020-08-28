@@ -1,0 +1,196 @@
+From 7b3153d26c921dc9ceaeeb8fb8c46853da9cd673 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 3 Aug 2020 14:43:41 +0900
+Subject: [PATCH 1/1] common: update: add a generic interface for FIT image
+
+The main purpose of this patch is to separate a generic interface for
+updating firmware using DFU drivers from "auto-update" via tftp.
+
+This function will also be used in implementing UEFI capsule update
+in a later commit.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/Kconfig      | 14 +++++++++
+ common/Makefile     |  3 +-
+ common/update.c     | 71 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/dfu/Kconfig |  1 +
+ include/image.h     | 12 ++++++++
+ 5 files changed, 99 insertions(+), 2 deletions(-)
+
+diff --git a/common/Kconfig b/common/Kconfig
+index 431dd3473a..07b33cd332 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -1050,6 +1050,20 @@ endmenu
+ 
+ menu "Update support"
+ 
++config UPDATE_COMMON
++	bool
++	default n
++	select DFU_ALT
++
++config UPDATE_FIT
++	bool "Firmware update using fitImage"
++	depends on FIT
++	depends on DFU
++	select UPDATE_COMMON
++	help
++	  This option allows performing update of DFU-capable storage with
++	  data in fitImage.
++
+ config ANDROID_AB
+ 	bool "Android A/B updates"
+ 	default n
+diff --git a/common/Makefile b/common/Makefile
+index 2e7a090588..bcf352d016 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -53,8 +53,7 @@ obj-$(CONFIG_LCD_ROTATION) += lcd_console_rotation.o
+ obj-$(CONFIG_LCD_DT_SIMPLEFB) += lcd_simplefb.o
+ obj-$(CONFIG_LYNXKDI) += lynxkdi.o
+ obj-$(CONFIG_MENU) += menu.o
+-obj-$(CONFIG_UPDATE_TFTP) += update.o
+-obj-$(CONFIG_DFU_TFTP) += update.o
++obj-$(CONFIG_UPDATE_COMMON) += update.o
+ obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+ obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
+ 
+diff --git a/common/update.c b/common/update.c
+index 756e6365db..c1ed563fb7 100644
+--- a/common/update.c
++++ b/common/update.c
+@@ -20,6 +20,7 @@
+ #include <dfu.h>
+ #include <errno.h>
+ 
++#ifdef CONFIG_DFU_TFTP
+ /* env variable holding the location of the update file */
+ #define UPDATE_FILE_ENV		"updatefile"
+ 
+@@ -86,6 +87,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
+ 
+ 	return rv;
+ }
++#endif /* CONFIG_DFU_TFTP */
+ 
+ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
+ 						ulong *fladdr, ulong *size)
+@@ -103,6 +105,7 @@ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_DFU_TFTP
+ int update_tftp(ulong addr, char *interface, char *devstring)
+ {
+ 	char *filename, *env_addr, *fit_image_name;
+@@ -189,3 +192,71 @@ next_node:
+ 
+ 	return ret;
+ }
++#endif /* CONFIG_DFU_UPDATE */
++
++#ifdef CONFIG_UPDATE_FIT
++/**
++ * fit_update - update storage with FIT image
++ * @fit:	Pointer to FIT image
++ *
++ * Update firmware on storage using FIT image as input.
++ * The storage area to be update will be identified by the name
++ * in FIT and matching it to "dfu_alt_info" variable.
++ *
++ * Return:      0 - on success, non-zero - otherwise
++ */
++int fit_update(const void *fit)
++{
++	char *fit_image_name;
++	ulong update_addr, update_fladdr, update_size;
++	int images_noffset, ndepth, noffset;
++	int ret = 0;
++
++	if (!fit)
++		return -EINVAL;
++
++	if (!fit_check_format((void *)fit)) {
++		printf("Bad FIT format of the update file, aborting auto-update\n");
++		return -EINVAL;
++	}
++
++	/* process updates */
++	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
++
++	ndepth = 0;
++	noffset = fdt_next_node(fit, images_noffset, &ndepth);
++	while (noffset >= 0 && ndepth > 0) {
++		if (ndepth != 1)
++			goto next_node;
++
++		fit_image_name = (char *)fit_get_name(fit, noffset, NULL);
++		printf("Processing update '%s' :", fit_image_name);
++
++		if (!fit_image_verify(fit, noffset)) {
++			printf("Error: invalid update hash, aborting\n");
++			ret = 1;
++			goto next_node;
++		}
++
++		printf("\n");
++		if (update_fit_getparams(fit, noffset, &update_addr,
++					 &update_fladdr, &update_size)) {
++			printf("Error: can't get update parameters, aborting\n");
++			ret = 1;
++			goto next_node;
++		}
++
++		if (fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE)) {
++			ret = dfu_write_by_name(fit_image_name,
++						(void *)update_addr,
++						update_size, NULL, NULL);
++			if (ret)
++				return ret;
++		}
++next_node:
++		noffset = fdt_next_node(fit, noffset, &ndepth);
++	}
++
++	return ret;
++}
++#endif /* CONFIG_UPDATE_FIT */
+diff --git a/drivers/dfu/Kconfig b/drivers/dfu/Kconfig
+index 7d0abe736c..e5c9c021b8 100644
+--- a/drivers/dfu/Kconfig
++++ b/drivers/dfu/Kconfig
+@@ -20,6 +20,7 @@ config DFU_TFTP
+ 	depends on FIT
+ 	depends on OF_LIBFDT
+ 	select DFU_ALT
++	select UPDATE_COMMON
+ 	help
+ 	  This option allows updating DFU-managed media using a FIT image
+ 	  received via TFTP.
+diff --git a/include/image.h b/include/image.h
+index 9a5a87dbf8..35b8b7c3d8 100644
+--- a/include/image.h
++++ b/include/image.h
+@@ -1592,4 +1592,16 @@ struct fit_loadable_tbl {
+ 		.handler = _handler, \
+ 	}
+ 
++/**
++ * fit_update - update storage with FIT image
++ * @fit:        Pointer to FIT image
++ *
++ * Update firmware on storage using FIT image as input.
++ * The storage area to be update will be identified by the name
++ * in FIT and matching it to "dfu_alt_info" variable.
++ *
++ * Return:      0 on success, non-zero otherwise
++ */
++int fit_update(const void *fit);
++
+ #endif	/* __IMAGE_H__ */
+-- 
+2.28.0
+
