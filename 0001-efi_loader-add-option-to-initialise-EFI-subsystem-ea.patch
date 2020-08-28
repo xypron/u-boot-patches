@@ -1,0 +1,62 @@
+From ef09a2be9a411efba4656788915c0ea48ce36647 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 3 Aug 2020 14:43:43 +0900
+Subject: [PATCH 1/1] efi_loader: add option to initialise EFI subsystem early
+
+If this option, CONFIG_EFI_SETUP_EARLY, is enabled, the initialisation
+of UEFI subsystem will be done as part of U-Boot initialisation.
+
+Please note that this option won't be enabled explicitly by users,
+instead, should be enabled implicitly by other configuration options.
+
+Specifically, this feature will be utilised in implementing capsule-on-disk
+feature.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ common/board_r.c       | 6 ++++++
+ lib/efi_loader/Kconfig | 4 ++++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/common/board_r.c b/common/board_r.c
+index 9b2fec701a..0391a1b6ac 100644
+--- a/common/board_r.c
++++ b/common/board_r.c
+@@ -72,6 +72,9 @@
+ #if defined(CONFIG_GPIO_HOG)
+ #include <asm/gpio.h>
+ #endif
++#ifdef CONFIG_EFI_SETUP_EARLY
++#include <efi_loader.h>
++#endif
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -877,6 +880,9 @@ static init_fnc_t init_sequence_r[] = {
+ #endif
+ #if defined(CONFIG_PRAM)
+ 	initr_mem,
++#endif
++#ifdef CONFIG_EFI_SETUP_EARLY
++	(init_fnc_t)efi_init_obj_list,
+ #endif
+ 	run_main_loop,
+ };
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index bad1a29ba8..cbd8fe8c0a 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -27,6 +27,10 @@ config EFI_LOADER
+ 
+ if EFI_LOADER
+ 
++config EFI_SETUP_EARLY
++	bool
++	default n
++
+ choice
+ 	prompt "Store for non-volatile UEFI variables"
+ 	default EFI_VARIABLE_FILE_STORE
+-- 
+2.28.0
+

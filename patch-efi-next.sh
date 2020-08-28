@@ -75,6 +75,8 @@ exit
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
 git am ../patch/0001-dfu-modify-an-argument-type-for-an-address.patch
 git am ../patch/0001-common-update-add-a-generic-interface-for-FIT-image.patch
+git am ../patch/0001-dfu-export-dfu_list.patch
+git am ../patch/0001-efi_loader-add-option-to-initialise-EFI-subsystem-ea.patch
 
 exit
 

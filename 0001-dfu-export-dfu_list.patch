@@ -1,0 +1,44 @@
+From 7055ac3a519af0afa30264b3c62131e6512894a1 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 3 Aug 2020 14:43:42 +0900
+Subject: [PATCH 1/1] dfu: export dfu_list
+
+This variable will be utilized to enumerate all dfu entities
+for UEFI capsule firmware update in a later commit.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ drivers/dfu/dfu.c | 2 +-
+ include/dfu.h     | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/dfu/dfu.c b/drivers/dfu/dfu.c
+index a298c2c439..501a60b344 100644
+--- a/drivers/dfu/dfu.c
++++ b/drivers/dfu/dfu.c
+@@ -18,7 +18,7 @@
+ #include <linux/list.h>
+ #include <linux/compiler.h>
+ 
+-static LIST_HEAD(dfu_list);
++LIST_HEAD(dfu_list);
+ static int dfu_alt_num;
+ static int alt_num_cnt;
+ static struct hash_algo *dfu_hash_algo;
+diff --git a/include/dfu.h b/include/dfu.h
+index cecfbd7659..76d846ee9d 100644
+--- a/include/dfu.h
++++ b/include/dfu.h
+@@ -158,6 +158,9 @@ struct dfu_entity {
+ 	unsigned int inited:1;
+ };
+ 
++struct list_head;
++extern struct list_head dfu_list;
++
+ #ifdef CONFIG_SET_DFU_ALT_INFO
+ /**
+  * set_dfu_alt_info() - set dfu_alt_info environment variable
+-- 
+2.28.0
+
