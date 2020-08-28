@@ -71,7 +71,9 @@ git am ../patch/0001-efi_loader-remove-duplicate-image-size-check.patch
 git am ../patch/0001-efi_loader-check-for-image-truncation.patch
 exit
 
-git am ../patch/0001-efi_loader-transfer-UEFI-variables-via-memory.patch
+# efi-2021-01
+git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
+
 exit
 
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
