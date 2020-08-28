@@ -88,6 +88,7 @@ git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-raw-.patch
 git am ../patch/0001-cmd-add-efidebug-capsule-command.patch
 git am ../patch/0001-tools-add-mkeficapsule-command-for-UEFI-capsule-upda.patch
 git am ../patch/0001-test-py-add-a-test-for-uefi-firmware-update-capsule-.patch
+git am ../patch/0001-test-py-test-for-uefi-firmware-update-capsule-of-raw.patch
 
 exit
 
