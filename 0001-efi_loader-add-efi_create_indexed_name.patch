@@ -1,0 +1,77 @@
+From ae554eb79467f4cb8f8b224c6e0ebde7e96eeaf8 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Mon, 3 Aug 2020 14:43:44 +0900
+Subject: [PATCH 1/1] efi_loader: add efi_create_indexed_name()
+
+This function will be used from several places in UEFI subsystem
+to generate some specific form of utf-16 variable name.
+For example, L"Capsule0001"
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+---
+ include/efi_loader.h       |  3 +++
+ lib/efi_loader/efi_setup.c | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 0baa1d2324..a4a123c149 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -803,6 +803,9 @@ bool efi_image_parse(void *efi, size_t len, struct efi_image_regions **regp,
+ /* runtime implementation of memcpy() */
+ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+ 
++/* commonly used helper function */
++u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
++
+ #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
+ 
+ /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index 6196c0a06c..a09a7b607e 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <common.h>
++#include <charset.h>
+ #include <bootm.h>
+ #include <efi_loader.h>
+ #include <efi_variable.h>
+@@ -230,3 +231,32 @@ out:
+ 	efi_obj_list_initialized = ret;
+ 	return ret;
+ }
++
++/**
++ * efi_create_indexed_name - create a string name with an index
++ * @buffer:	Buffer
++ * @name:	Name string
++ * @index:	Index
++ *
++ * Create a utf-16 string with @name, appending @index.
++ * For example, L"Capsule0001"
++ * This function is expected to be called only from several places
++ * in EFI subsystem. A caller should ensure that the buffer have
++ * enough space for a resulting string, including L"\0".
++ * No strict check against the length will be done here.
++ *
++ * Return: A pointer to the next position after the created string
++ *		in @buffer, or NULL otherwise
++ */
++u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index)
++{
++	u16 *p;
++	char index_buf[5];
++
++	u16_strcpy(buffer, name);
++	p = buffer + utf16_strnlen(name, SIZE_MAX);
++	sprintf(index_buf, "%04X", index);
++	utf8_utf16_strcpy(&p, index_buf);
++
++	return p;
++}
+-- 
+2.28.0
+
