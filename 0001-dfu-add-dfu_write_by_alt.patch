@@ -88,7 +88,7 @@ index 76d846ee9d..dc85f78d6b 100644
   * Return:		0 - on success, error code - otherwise
   */
 -#if CONFIG_IS_ENABLED(DFU_ALT)
- int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+ int dfu_write_by_name(char *dfu_entity_name, void *addr,
  		      unsigned int len, char *interface, char *devstring);
 +
 +/**
@@ -107,7 +107,7 @@ index 76d846ee9d..dc85f78d6b 100644
 +int dfu_write_by_alt(int dfu_alt_num, void *addr, unsigned int len,
 +		     char *interface, char *devstring);
  #else
- static inline int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+ static inline int dfu_write_by_name(char *dfu_entity_name, void *addr,
  				    unsigned int len, char *interface,
 @@ -520,6 +536,14 @@ static inline int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
  	puts("write support for DFU not available!\n");
