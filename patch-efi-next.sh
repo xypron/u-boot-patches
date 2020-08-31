@@ -24,9 +24,7 @@ git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
-git am ../patch/0001-lib-rsa-correct-check-after-allocation-in-fdt_add_bi.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
-git am ../patch/0001-test-undefined-reference-to-sscanf.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
 
 # Kendryte
