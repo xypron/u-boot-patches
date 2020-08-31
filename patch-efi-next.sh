@@ -72,10 +72,8 @@ git am ../patch/0001-efi_selftest-simplify-Makefile.patch
 exit
 
 # efi-2021-01
-git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-git am ../patch/0001-efi_loader-correct-SizeOfImage-for-UEFI-binaries.patch
+# git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 git am ../patch/0001-bootm-update-image-OS-image-size-when-decompressing.patch
-git am ../patch/0001-efi_loader-check-for-image-truncation.patch
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
 git am ../patch/0001-dfu-modify-an-argument-type-for-an-address.patch
 git am ../patch/0001-common-update-add-a-generic-interface-for-FIT-image.patch
