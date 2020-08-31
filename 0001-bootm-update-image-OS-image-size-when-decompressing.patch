@@ -13,6 +13,7 @@ binararies for file truncation by comparing the loaded size to the header
 field SizeOfImage.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/bootm.c | 2 ++
  1 file changed, 2 insertions(+)
