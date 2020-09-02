@@ -1,23 +1,18 @@
-From 23a00227c51189c7c08147988046ba2512cb57b2 Mon Sep 17 00:00:00 2001
+From cd9c681c7c249efcc30e1b9c16e0b821befe95d0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 28 Aug 2020 12:30:14 +0200
 Subject: [PATCH 1/1] cmd: add tool to correct UEFI binaries
 
-The efifixup tool updates the SizeOfImage and the Subsytem fields of the PE
-header of UEFI images.
-
-Linking with objcopy does not set SizeOfImage and we do not know the file
-size at compile time.
-
-The Subsystem field indicates if an UEFI binary is an application, a boot
-service driver, or a runtime driver.
+The efifixup tool updates the Subsytem fields of the PE header of and UEFI
+image. The Subsystem field indicates if an UEFI binary is an application, a
+boot service driver, or a runtime driver.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS      |   1 +
  tools/Makefile   |   1 +
- tools/efifixup.c | 193 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 195 insertions(+)
+ tools/efifixup.c | 172 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 174 insertions(+)
  create mode 100644 tools/efifixup.c
 
 diff --git a/MAINTAINERS b/MAINTAINERS
@@ -33,7 +28,7 @@ index bebe87b4d1..d49d949ba0 100644
  
  EFI VARIABLES VIA OP-TEE
 diff --git a/tools/Makefile b/tools/Makefile
-index 51123fd929..7e24485eff 100644
+index 1532356129..9f8c775aa7 100644
 --- a/tools/Makefile
 +++ b/tools/Makefile
 @@ -55,6 +55,7 @@ mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
@@ -46,21 +41,17 @@ index 51123fd929..7e24485eff 100644
  FIT_OBJS-$(CONFIG_FIT) := fit_common.o fit_image.o image-host.o common/image-fit.o
 diff --git a/tools/efifixup.c b/tools/efifixup.c
 new file mode 100644
-index 0000000000..a14f6ab1ba
+index 0000000000..5f096095bf
 --- /dev/null
 +++ b/tools/efifixup.c
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,172 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Adjust PE header of UEFI binaries.
 + *
 + * Copyright (c) 2020 Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
-+ * This tool updates the SizeOfImage and the Subsytem fields of the PE header
-+ * of UEFI images.
-+ *
-+ * Linking with objcopy does not set SizeOfImage and we do not know the file
-+ * size at compile time.
++ * This tool updates the Subsytem field of the PE header of UEFI images.
 + *
 + * The Subsystem field indicates if a UEFI binary is an application, a driver,
 + * or a ROM image.
@@ -139,23 +130,10 @@ index 0000000000..a14f6ab1ba
 +
 +static int fixup(int fd, uint16_t subsystem)
 +{
-+	off_t pos, pos_size, pos_subsystem;
++	off_t pos, pos_subsystem;
 +	IMAGE_DOS_HEADER dos;
 +	IMAGE_NT_HEADERS32 nt;
-+	uint32_t fsize;
-+	struct stat stat;
 +	int ret;
-+
-+	ret = fstat(fd, &stat);
-+	if (ret == -1) {
-+		perror("fstat failed");
-+		return EXIT_FAILURE;
-+	}
-+	if (stat.st_size > UINT_MAX) {
-+		fprintf(stderr, "File to large\n");
-+		return EXIT_FAILURE;
-+	}
-+	fsize = stat.st_size;
 +
 +	pos = 0;
 +	ret = rds(fd, pos, sizeof(dos), &dos);
@@ -174,14 +152,10 @@ index 0000000000..a14f6ab1ba
 +		return EXIT_FAILURE;
 +	}
 +	if (nt.OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC) {
-+		pos_size = pos + __builtin_offsetof(IMAGE_NT_HEADERS64,
-+						    OptionalHeader.SizeOfImage);
 +		pos_subsystem = pos +
 +				__builtin_offsetof(IMAGE_NT_HEADERS64,
 +						   OptionalHeader.Subsystem);
 +	} else if (nt.OptionalHeader.Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC) {
-+		pos_size = pos + __builtin_offsetof(IMAGE_NT_HEADERS32,
-+						    OptionalHeader.SizeOfImage);
 +		pos_subsystem = pos +
 +				__builtin_offsetof(IMAGE_NT_HEADERS32,
 +						   OptionalHeader.Subsystem);
@@ -189,9 +163,6 @@ index 0000000000..a14f6ab1ba
 +		fprintf(stderr, "Invalid optional header magic\n");
 +		return EXIT_FAILURE;
 +	}
-+	ret = wds(fd, pos_size, sizeof(fsize), &fsize);
-+	if (ret)
-+		return ret;
 +	ret = wds(fd, pos_subsystem, sizeof(subsystem), &subsystem);
 +	if (ret)
 +		return ret;
@@ -201,7 +172,7 @@ index 0000000000..a14f6ab1ba
 +
 +static void usage(void)
 +{
-+	printf("Usage: efifixup [-i type] filename\n\n"
++	printf("Usage: efifixup -s type filename\n\n"
 +	       "Set file size and image type\n"
 +	       "  -i type - image type\n"
 +	       "  10 application (default)\n"
@@ -215,7 +186,7 @@ index 0000000000..a14f6ab1ba
 +	int fd;
 +	int opt;
 +	int ret;
-+	int subsystem = IMAGE_SUBSYSTEM_EFI_APPLICATION;
++	int subsystem = 0;
 +
 +	while ((opt = getopt(argc, argv, "s:")) != -1) {
 +		switch (opt) {
@@ -229,6 +200,9 @@ index 0000000000..a14f6ab1ba
 +			usage();
 +		}
 +	}
++
++	if (!subsystem)
++		usage();
 +
 +	if (optind != argc - 1)
 +		usage();
