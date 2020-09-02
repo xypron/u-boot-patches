@@ -26,10 +26,12 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
+git am ../patch/0001-cmd-button-return-button-status.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
+git am ../patch/0001-riscv-add-DT-binding-for-BOOT-button-on-Maix-board.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch

@@ -1,0 +1,49 @@
+From 1c046666aab2dd0c4ba6fe276852c7823232b59e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 2 Sep 2020 21:07:24 +0200
+Subject: [PATCH 1/1] riscv: add DT binding for BOOT button on Maix board
+
+Add a device tree binding for the BOOT button on the Maix board.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Together with 
+[PATCH 1/1] cmd/button: return button status
+https://lists.denx.de/pipermail/u-boot/2020-September/425221.html
+we can use the button status to decide which program to boot.
+---
+ arch/riscv/dts/k210-maix-bit.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/arch/riscv/dts/k210-maix-bit.dts b/arch/riscv/dts/k210-maix-bit.dts
+index e840e04ada..c2beec602c 100644
+--- a/arch/riscv/dts/k210-maix-bit.dts
++++ b/arch/riscv/dts/k210-maix-bit.dts
+@@ -8,6 +8,7 @@
+ #include "k210.dtsi"
+ 
+ #include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/input.h>
+ 
+ / {
+ 	model = "Sipeed Maix Bit 2.0";
+@@ -33,6 +34,16 @@
+ 		};
+ 	};
+ 
++	gpio-keys {
++		compatible = "gpio-keys";
++
++		boot {
++			label = "BOOT";
++			linux,code = <BTN_0>;
++			gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
++		};
++	};
++
+ 	sound {
+ 		compatible = "simple-audio-card";
+ 		simple-audio-card,format = "i2s";
+-- 
+2.28.0
+

@@ -1,0 +1,39 @@
+From 13020b71431f4130668cb790d93fd3767091e5fe Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 2 Sep 2020 21:50:21 +0200
+Subject: [PATCH 1/1] cmd/button: return button status
+
+To make the button command useful in a shell script it should return the
+status of the button:
+
+* 0 (true) - pressed, on
+* 1 (false) - not pressed, off
+
+The button command takes only one argument. Correct maxargs.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/button.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/button.c b/cmd/button.c
+index 84ad1653c7..64c5a8fa04 100644
+--- a/cmd/button.c
++++ b/cmd/button.c
+@@ -75,11 +75,11 @@ int do_button(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ 
+ 	ret = show_button_state(dev);
+ 
+-	return 0;
++	return !ret;
+ }
+ 
+ U_BOOT_CMD(
+-	button, 4, 1, do_button,
++	button, 2, 1, do_button,
+ 	"manage buttons",
+ 	"<button_label> \tGet button state\n"
+ 	"button list\t\tShow a list of buttons"
+-- 
+2.28.0
+
