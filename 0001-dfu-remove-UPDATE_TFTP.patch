@@ -113,7 +113,7 @@ index d8854791d2..3320ddc167 100644
  #include <env.h>
  #include <flash.h>
 @@ -26,7 +22,6 @@
- #include <malloc.h>
+ #include <mapmem.h>
  #include <dfu.h>
  #include <errno.h>
 -#include <mtd/cfi_flash.h>
