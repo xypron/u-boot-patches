@@ -33,6 +33,8 @@ git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
 # git am ../patch/0001-riscv-add-DT-binding-for-BOOT-button-on-Maix-board.patch
+git am ../patch/0001-doc-correct-kflash-settings-for-Maix-One-Dock.patch
+git am ../patch/0001-doc-sipeed-maix-describe-RESET-and-BOOT-button.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch

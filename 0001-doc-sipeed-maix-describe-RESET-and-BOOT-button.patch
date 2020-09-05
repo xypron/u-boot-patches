@@ -1,0 +1,38 @@
+From 81e57f172b44650ca639834a4332471df6aa576b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 5 Sep 2020 12:42:44 +0200
+Subject: [PATCH] doc/sipeed/maix: describe RESET and BOOT button
+
+In the boot flow description add the RESET and BOOT button as well as the
+function of the DTR and RTS lines of the serial interface.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/board/sipeed/maix.rst | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/doc/board/sipeed/maix.rst b/doc/board/sipeed/maix.rst
+index 90ef70b7cf..a8efc90440 100644
+--- a/doc/board/sipeed/maix.rst
++++ b/doc/board/sipeed/maix.rst
+@@ -345,11 +345,15 @@ Technical Details
+ Boot Sequence
+ ^^^^^^^^^^^^^
+ 
+-1. ``RESET`` pin is deasserted.
++1. ``RESET`` pin is deasserted. The pin is connected to the ``RESET`` button. It
++   can also be set to low via either the ``DTR`` or the ``RTS`` line of the
++   serial interface (depending on the board).
+ 2. Both harts begin executing at ``0x00001000``.
+ 3. Both harts jump to firmware at ``0x88000000``.
+ 4. One hart is chosen as a boot hart.
+-5. Firmware reads value of pin ``IO_16`` (ISP).
++5. Firmware reads the value of pin ``IO_16`` (ISP). This pin is connected to the
++   ``BOOT`` button. The pin can equally be set to low via either the ``DTR`` or
++   ``RTS`` line of the serial interface (depending on the board).
+ 
+    * If the pin is low, enter ISP mode. This mode allows loading data to ram,
+      writing it to flash, and booting from specific addresses.
+-- 
+2.28.0
+

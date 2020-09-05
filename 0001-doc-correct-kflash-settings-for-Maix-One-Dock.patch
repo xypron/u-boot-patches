@@ -1,0 +1,32 @@
+From 154f45e75477bc637ae57ba37d741bf0b16276ef Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 5 Sep 2020 12:13:02 +0200
+Subject: [PATCH 1/1] doc: correct kflash settings for Maix One Dock
+
+The correct kflash parameter value for the Maix One Dock is "dan".
+
+See:
+https://github.com/sipeed/platform-kendryte210/blob/master/boards/sipeed-maix-one-dock.json#L22
+
+Fixes: 137dc153fda9 ("doc: riscv: Update documentation for Sipeed MAIX boards")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/board/sipeed/maix.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/board/sipeed/maix.rst b/doc/board/sipeed/maix.rst
+index efcde9aebf..0b3a58070c 100644
+--- a/doc/board/sipeed/maix.rst
++++ b/doc/board/sipeed/maix.rst
+@@ -59,7 +59,7 @@ Sipeed MAIX BiT          sipeed_maix_bitm_defconfig bit        first
+ Sipeed MAIX BiT with Mic sipeed_maix_bitm_defconfig bit_mic    first
+ Sipeed MAIXDUINO         sipeed_maix_bitm_defconfig maixduino  first
+ Sipeed MAIX GO                                      goE        second
+-Sipeed MAIX ONE DOCK                                goD        first
++Sipeed MAIX ONE DOCK                                dan        first
+ ======================== ========================== ========== ==========
+ 
+ Flashing causes a reboot of the device. Parameter -t specifies that the serial
+-- 
+2.28.0
+
