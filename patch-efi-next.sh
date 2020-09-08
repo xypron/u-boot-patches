@@ -64,6 +64,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc5
+git am ../patch/0001-efi_loader-efi_var_mem_notify_exit_boot_services.patch
 exit
 
 # efi-2021-01

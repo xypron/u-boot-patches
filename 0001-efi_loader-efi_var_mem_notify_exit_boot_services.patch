@@ -1,0 +1,36 @@
+From 803af08504d1f441dc29889f81f5584d2609b47e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 8 Sep 2020 10:51:27 +0000
+Subject: [PATCH 1/1] efi_loader: efi_var_mem_notify_exit_boot_services
+
+efi_var_mem_notify_exit_boot_services() is invoked when ExitBootServices()
+is called by the UEFI payload.
+
+efi_var_mem_notify_exit_boot_services() should not be defined as
+__efi_runtime as it is invoking EFI_ENTRY() and EFI_EXIT() which themselves
+are not __efi_runtime.
+
+Fixes: f1f990a8c958 ("efi_loader: memory buffer for variables")
+Fixes: e01aed47d6a0 ("efi_loader: Enable run-time variable support for tee based variables")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ lib/efi_loader/efi_var_mem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_var_mem.c b/lib/efi_loader/efi_var_mem.c
+index 8f4a5a5e47..1d2b44580f 100644
+--- a/lib/efi_loader/efi_var_mem.c
++++ b/lib/efi_loader/efi_var_mem.c
+@@ -211,7 +211,7 @@ static void efi_var_mem_bs_del(void)
+  * @event:	callback event
+  * @context:	callback context
+  */
+-static void EFIAPI __efi_runtime
++static void EFIAPI
+ efi_var_mem_notify_exit_boot_services(struct efi_event *event, void *context)
+ {
+ 	EFI_ENTRY("%p, %p", event, context);
+-- 
+2.20.1
+
