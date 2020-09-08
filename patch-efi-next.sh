@@ -30,6 +30,7 @@ git am ../patch/0001-cmd-button-return-button-status.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-describe-source-repository.patch
 git am ../patch/0001-doc-describe-building-with-GCC.patch
+git am ../patch/0001-lib-rsa-fix-data-abort-in-br_i32_decode.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch

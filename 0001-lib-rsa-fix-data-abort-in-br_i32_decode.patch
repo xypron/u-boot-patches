@@ -1,0 +1,61 @@
+From 326ca31b26aa6c4f2272e31c9bc935ff0364e22d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 8 Sep 2020 07:41:08 +0200
+Subject: [PATCH 1/1] lib: rsa: fix data abort in br_i32_decode()
+
+After removing leading zeros the RSA modulus may be unaligned. On
+architectures like ARM 32bit unaligned access may lead to a data abort,
+e.g. when executing 'ut lib lib_asn1_pkcs7'.
+
+Use memcpy() to transfer from unaligned to aligned memory.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/rsa/rsa-keyprop.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/lib/rsa/rsa-keyprop.c b/lib/rsa/rsa-keyprop.c
+index 1e83eedc82..6153cb00b3 100644
+--- a/lib/rsa/rsa-keyprop.c
++++ b/lib/rsa/rsa-keyprop.c
+@@ -17,23 +17,29 @@
+ #include <u-boot/rsa-mod-exp.h>
+ 
+ /**
+- * br_dec16be() - Convert 16-bit big-endian integer to native
+- * @src:	Pointer to data
+- * Return:	Native-endian integer
++ * br_dec16be() - convert unaligned 16-bit big-endian integer to native
++ * @src:	unaligned pointer to data
++ * Return:	native-endian 16-bit integer
+  */
+ static unsigned br_dec16be(const void *src)
+ {
+-	return be16_to_cpup(src);
++	u16 buf;
++
++	memcpy(&buf, src, sizeof(buf));
++	return be16_to_cpu(buf);
+ }
+ 
+ /**
+- * br_dec32be() - Convert 32-bit big-endian integer to native
+- * @src:	Pointer to data
+- * Return:	Native-endian integer
++ * br_dec32be() - convert unaligned 32-bit big-endian integer to native
++ * @src:	unaligned pointer to data
++ * Return:	native-endian 32-bit integer
+  */
+ static uint32_t br_dec32be(const void *src)
+ {
+-	return be32_to_cpup(src);
++	u32 buf;
++
++	memcpy(&buf, src, sizeof(buf));
++	return be32_to_cpu(buf);
+ }
+ 
+ /**
+-- 
+2.20.1
+
