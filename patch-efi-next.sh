@@ -31,6 +31,7 @@ git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-describe-source-repository.patch
 git am ../patch/0001-doc-describe-building-with-GCC.patch
 git am ../patch/0001-lib-rsa-fix-data-abort-in-br_i32_decode.patch
+git am ../patch/0001-test-do-no-assume-hush-parser-in-validate_empty.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
@@ -65,6 +66,9 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # efi-2020-10-rc5
 git am ../patch/0001-efi_loader-efi_var_mem_notify_exit_boot_services.patch
+git am ../patch/0001-riscv-define-function-set_gd.patch
+git am ../patch/0001-efi_loader-save-global-data-pointer-on-RISC-V.patch
+git am ../patch/0001-efi_selftest-restore-gd-before-do_reset.patch
 exit
 
 # efi-2021-01
