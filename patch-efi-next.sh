@@ -32,6 +32,7 @@ git am ../patch/0001-doc-describe-building-with-GCC.patch
 git am ../patch/0001-lib-rsa-fix-data-abort-in-br_i32_decode.patch
 git am ../patch/0001-test-do-no-assume-hush-parser-in-validate_empty.patch
 git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
+git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 
 # button command
 git am ../patch/0001-test-sharpen-button-label-unit-test.patch
