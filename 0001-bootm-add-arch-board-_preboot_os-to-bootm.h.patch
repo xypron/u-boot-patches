@@ -1,0 +1,35 @@
+From d0b309d8b30a513d187784c581f5a07123e9f358 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 15 Sep 2020 01:52:40 +0200
+Subject: [PATCH 1/1] bootm: add {arch,board}_preboot_os() to bootm.h
+
+Functions that are used in multiple C modules should be defined in an
+include.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/bootm.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/include/bootm.h b/include/bootm.h
+index 0350c349f3..a812a6bf24 100644
+--- a/include/bootm.h
++++ b/include/bootm.h
+@@ -75,4 +75,14 @@ void board_quiesce_devices(void);
+  */
+ void switch_to_non_secure_mode(void);
+ 
++/**
++ * arch_preboot_os() - arch specific configuration before booting
++ */
++void arch_preboot_os(void);
++
++/**
++ * board_preboot_os() - board specific configuration before booting
++ */
++void board_preboot_os(void);
++
+ #endif
+-- 
+2.28.0
+
