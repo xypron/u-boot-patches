@@ -26,12 +26,16 @@ git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
-git am ../patch/0001-cmd-button-return-button-status.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-describe-source-repository.patch
 git am ../patch/0001-doc-describe-building-with-GCC.patch
 git am ../patch/0001-lib-rsa-fix-data-abort-in-br_i32_decode.patch
 git am ../patch/0001-test-do-no-assume-hush-parser-in-validate_empty.patch
+
+# button command
+git am ../patch/0001-test-sharpen-button-label-unit-test.patch
+git am ../patch/0001-drivers-gpio-keep-output-value-for-input-on-sandbox.patch
+git am ../patch/0001-cmd-button-return-button-status.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
