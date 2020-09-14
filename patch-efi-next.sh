@@ -27,9 +27,6 @@ git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
-git am ../patch/0001-doc-describe-source-repository.patch
-git am ../patch/0001-doc-describe-building-with-GCC.patch
-git am ../patch/0001-test-do-no-assume-hush-parser-in-validate_empty.patch
 git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 
