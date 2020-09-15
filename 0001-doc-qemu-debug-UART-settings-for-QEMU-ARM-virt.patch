@@ -1,0 +1,33 @@
+From b0e9dc7ade202214894f77f2669597b13c3d3290 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 16 Sep 2020 00:15:50 +0200
+Subject: [PATCH 1/1] doc: qemu: debug UART settings for QEMU ARM virt
+
+Provide the settings for the debug UART on the QEMU ARM virt board.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/board/emulation/qemu-arm.rst | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/doc/board/emulation/qemu-arm.rst b/doc/board/emulation/qemu-arm.rst
+index ca751d4af4..8d7fda10f1 100644
+--- a/doc/board/emulation/qemu-arm.rst
++++ b/doc/board/emulation/qemu-arm.rst
+@@ -80,3 +80,13 @@ can be enabled with the following command line parameters:
+     -drive if=none,file=disk.img,id=mydisk -device nvme,drive=mydisk,serial=foo
+ 
+ These have been tested in QEMU 2.9.0 but should work in at least 2.5.0 as well.
++
++Debug UART
++----------
++
++The debug UART on the ARM virt board uses these settings::
++
++    CONFIG_DEBUG_UART=y
++    CONFIG_DEBUG_UART_PL010=y
++    CONFIG_DEBUG_UART_BASE=0x9000000
++    CONFIG_DEBUG_UART_CLOCK=0
+-- 
+2.28.0
+

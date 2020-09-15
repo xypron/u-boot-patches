@@ -31,6 +31,7 @@ git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-rockchip-make_fit_atf-ignore-empty-PT_LOAD-segment.patch
+git am ../patch/0001-doc-qemu-debug-UART-settings-for-QEMU-ARM-virt.patch
 
 # button command
 git am ../patch/0001-test-sharpen-button-label-unit-test.patch
