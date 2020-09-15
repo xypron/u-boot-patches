@@ -1,0 +1,33 @@
+From 43c7dc30ac5786baf25c4052bc683244b89ff27a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 15 Sep 2020 03:30:17 +0200
+Subject: [PATCH 1/1] rockchip: make_fit_atf: ignore empty PT_LOAD segment
+
+The linker sometimes creates PT_LOAD segments with length (p_filesz) zero
+as described in https://man7.org/linux/man-pages/man5/elf.5.html. This
+leads to build failures. We should ignore empty segments.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/mach-rockchip/make_fit_atf.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-rockchip/make_fit_atf.py b/arch/arm/mach-rockchip/make_fit_atf.py
+index d15c32b303..f3224d2555 100755
+--- a/arch/arm/mach-rockchip/make_fit_atf.py
++++ b/arch/arm/mach-rockchip/make_fit_atf.py
+@@ -189,8 +189,9 @@ def unpack_elf(filename):
+         p_type, p_flags, p_offset = struct.unpack_from('<LLQ', elf, offset)
+         if p_type == 1: # PT_LOAD
+             p_paddr, p_filesz = struct.unpack_from('<2Q', elf, offset + 0x18)
+-            p_data = elf[p_offset:p_offset + p_filesz]
+-            segments.append((index, e_entry, p_paddr, p_data))
++            if p_filesz > 0:
++                p_data = elf[p_offset:p_offset + p_filesz]
++                segments.append((index, e_entry, p_paddr, p_data))
+     return segments
+ 
+ def main():
+-- 
+2.28.0
+
