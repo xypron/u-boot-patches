@@ -30,7 +30,6 @@ git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
-git am ../patch/0001-rockchip-make_fit_atf-ignore-empty-PT_LOAD-segment.patch
 git am ../patch/0001-doc-qemu-debug-UART-settings-for-QEMU-ARM-virt.patch
 
 # button command
@@ -70,12 +69,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc5
-# git am ../patch/0001-lib-rsa-fix-data-abort-in-br_i32_decode.patch
-git am ../patch/0001-rsa-crash-in-br_i32_decode-called-from-rsa_gen_key_p.patch
-git am ../patch/0001-efi_loader-efi_var_mem_notify_exit_boot_services.patch
-git am ../patch/0001-riscv-define-function-set_gd.patch
-git am ../patch/0001-efi_loader-save-global-data-pointer-on-RISC-V.patch
-git am ../patch/0001-efi_selftest-restore-gd-before-do_reset.patch
 exit
 
 # efi-2021-01
