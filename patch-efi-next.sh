@@ -69,6 +69,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc5
+git am ../patch/0001-efi_selftest-rework-device-tree-test.patch
+git am ../patch/0001-efi_selftest-check-for-RISC-V-boot-hartid-in-FDT.patch
 exit
 
 # efi-2021-01
