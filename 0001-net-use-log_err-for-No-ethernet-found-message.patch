@@ -1,0 +1,77 @@
+From b8560119d54acb2284b5391886cf7d1eef3da838 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 14 Sep 2020 11:00:18 +0200
+Subject: [PATCH] net: use log_err() for 'No ethernet found' message
+
+Write the 'No ethernet found' message via the log drivers. This allows
+suppressing it during output via the syslog driver.
+
+This fixes the problem reported in:
+
+[PATCH 0/4] log: Fix the syslog spam when running tests
+https://lists.denx.de/pipermail/u-boot/2020-September/426343.html
+
+Reported-by: Simon Glass <sjg@chromium.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ net/eth-uclass.c | 6 +++---
+ net/eth_legacy.c | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/net/eth-uclass.c b/net/eth-uclass.c
+index 0d9b75a9a2..396418eb39 100644
+--- a/net/eth-uclass.c
++++ b/net/eth-uclass.c
+@@ -273,7 +273,7 @@ int eth_init(void)
+ 	if (!current) {
+ 		current = eth_get_dev();
+ 		if (!current) {
+-			printf("No ethernet found.\n");
++			log_err("No ethernet found.\n");
+ 			return -ENODEV;
+ 		}
+ 	}
+@@ -414,7 +414,7 @@ int eth_initialize(void)
+ 	 */
+ 	uclass_first_device_check(UCLASS_ETH, &dev);
+ 	if (!dev) {
+-		printf("No ethernet found.\n");
++		log_err("No ethernet found.\n");
+ 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
+ 	} else {
+ 		char *ethprime = env_get("ethprime");
+@@ -449,7 +449,7 @@ int eth_initialize(void)
+ 		} while (dev);
+ 
+ 		if (!num_devices)
+-			printf("No ethernet found.\n");
++			log_err("No ethernet found.\n");
+ 		putc('\n');
+ 	}
+ 
+diff --git a/net/eth_legacy.c b/net/eth_legacy.c
+index 992d1880bf..6e0c058761 100644
+--- a/net/eth_legacy.c
++++ b/net/eth_legacy.c
+@@ -261,7 +261,7 @@ int eth_initialize(void)
+ 	}
+ 
+ 	if (!eth_devices) {
+-		puts("No ethernet found.\n");
++		log_err("No ethernet found.\n");
+ 		bootstage_error(BOOTSTAGE_ID_NET_ETH_START);
+ 	} else {
+ 		struct eth_device *dev = eth_devices;
+@@ -319,7 +319,7 @@ int eth_init(void)
+ 	struct eth_device *old_current;
+ 
+ 	if (!eth_current) {
+-		puts("No ethernet found.\n");
++		log_err("No ethernet found.\n");
+ 		return -ENODEV;
+ 	}
+ 
+-- 
+2.28.0
+

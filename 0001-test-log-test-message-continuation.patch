@@ -1,0 +1,91 @@
+From 05b2b0003c64554c2a8e264b372f7bafcc3c3608 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 17 Sep 2020 13:47:34 +0200
+Subject: [PATCH 1/1] test: log: test message continuation
+
+Provide a unit test checking that a continuation message will use the same
+log level and log category as the previous message.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/log/Makefile    |  4 +++-
+ test/log/cont_test.c | 52 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+), 1 deletion(-)
+ create mode 100644 test/log/cont_test.c
+
+diff --git a/test/log/Makefile b/test/log/Makefile
+index 4c92550f6e..1f91c90422 100644
+--- a/test/log/Makefile
++++ b/test/log/Makefile
+@@ -12,7 +12,9 @@ ifdef CONFIG_SANDBOX
+ obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
+ endif
+ 
+-ifndef CONFIG_LOG
++ifdef CONFIG_LOG
++obj-$(CONFIG_CONSOLE_RECORD) += cont_test.o
++else
+ obj-$(CONFIG_CONSOLE_RECORD) += nolog_test.o
+ endif
+ 
+diff --git a/test/log/cont_test.c b/test/log/cont_test.c
+new file mode 100644
+index 0000000000..68ca1d262c
+--- /dev/null
++++ b/test/log/cont_test.c
+@@ -0,0 +1,52 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright (c) 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * Test continuation of log messages.
++ */
++
++#include <common.h>
++#include <console.h>
++#include <test/log.h>
++#include <test/test.h>
++#include <test/suites.h>
++#include <test/ut.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define BUFFSIZE 64
++
++static int log_test_cont(struct unit_test_state *uts)
++{
++	int log_fmt;
++	int log_level;
++
++	log_fmt = gd->log_fmt;
++	log_level = gd->default_log_level;
++
++	/* Write two messages, the second continuing the first */
++	gd->log_fmt = (1 << LOGF_CAT) | (1 << LOGF_LEVEL) | (1 << LOGF_MSG);
++	gd->default_log_level = LOGL_INFO;
++	console_record_reset_enable();
++	log(LOGC_ARCH, LOGL_ERR, "ea%d ", 1);
++	log(LOGC_CONT, LOGL_CONT, "cc%d\n", 2);
++	gd->default_log_level = log_level;
++	gd->log_fmt = log_fmt;
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assertok(ut_check_console_line(uts, "ERR.arch, ea1 ERR.arch, cc2"));
++	ut_assertok(ut_check_console_end(uts));
++
++	/* Write a third message which is not a continuation */
++	gd->log_fmt = (1 << LOGF_CAT) | (1 << LOGF_LEVEL) | (1 << LOGF_MSG);
++	gd->default_log_level = LOGL_INFO;
++	console_record_reset_enable();
++	log(LOGC_EFI, LOGL_INFO, "ie%d\n", 3);
++	gd->default_log_level = log_level;
++	gd->log_fmt = log_fmt;
++	gd->flags &= ~GD_FLG_RECORD;
++	ut_assertok(ut_check_console_line(uts, "INFO.efi, ie3"));
++	ut_assertok(ut_check_console_end(uts));
++
++	return 0;
++}
++LOG_TEST(log_test_cont);
+-- 
+2.28.0
+

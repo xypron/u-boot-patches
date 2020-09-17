@@ -27,10 +27,15 @@ git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
-git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-doc-qemu-debug-UART-settings-for-QEMU-ARM-virt.patch
+
+# log
+git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
+git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
+git am ../patch/0001-log-allow-for-message-continuation.patch
+git am ../patch/0001-test-log-test-message-continuation.patch
 
 # button command
 git am ../patch/0001-test-sharpen-button-label-unit-test.patch

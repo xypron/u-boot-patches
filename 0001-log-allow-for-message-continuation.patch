@@ -1,0 +1,130 @@
+From f7c97e4140fc21b541ea16ad43c5ef4f4c742006 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 17 Sep 2020 12:44:04 +0200
+Subject: [PATCH] log: allow for message continuation
+
+Some drivers use macro pr_cont() for continuing a message sent via printk.
+Hence if we want to convert printk messaging to using the logging system,
+we must support continuation of log messages too.
+
+As pr_cont() does not provide a message level we need a means of
+remembering the last log level.
+
+With the patch a pseudo log level LOGL_CONT as well as a pseudo log
+category LOGC_CONT are introduced. Using these results in the application
+of the same log level and category as in the previous log message.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/log.c            | 23 ++++++++++++++++++-----
+ doc/develop/logging.rst |  6 ++++++
+ include/log.h           |  2 ++
+ 3 files changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/common/log.c b/common/log.c
+index 9a5f100da3..bafc09f263 100644
+--- a/common/log.c
++++ b/common/log.c
+@@ -183,10 +183,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
+  * log_dispatch() - Send a log record to all log devices for processing
+  *
+  * The log record is sent to each log device in turn, skipping those which have
+- * filters which block the record
++ * filters which block the record.
+  *
+- * @rec: Log record to dispatch
+- * @return 0 (meaning success)
++ * All log messages created while processing log record @rec are ignored.
++ *
++ * @rec:	log record to dispatch
++ * Return:	0 msg sent, 1 msg not sent while already dispatching another msg
+  */
+ static int log_dispatch(struct log_rec *rec)
+ {
+@@ -199,7 +201,7 @@ static int log_dispatch(struct log_rec *rec)
+ 	 * as this might result in infinite recursion.
+ 	 */
+ 	if (processing_msg)
+-		return 0;
++		return 1;
+ 
+ 	/* Emit message */
+ 	processing_msg = 1;
+@@ -214,10 +216,18 @@ static int log_dispatch(struct log_rec *rec)
+ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
+ 	 int line, const char *func, const char *fmt, ...)
+ {
++	static enum log_category_t logc_prev = LOGC_NONE;
++	static enum log_level_t logl_prev = LOGL_INFO;
+ 	char buf[CONFIG_SYS_CBSIZE];
+ 	struct log_rec rec;
+ 	va_list args;
+ 
++	/* Check for message continuation */
++	if (cat == LOGC_CONT)
++		cat = logc_prev;
++	if (level == LOGL_CONT)
++		level = logl_prev;
++
+ 	rec.cat = cat;
+ 	rec.level = level;
+ 	rec.file = file;
+@@ -232,7 +242,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
+ 			gd->log_drop_count++;
+ 		return -ENOSYS;
+ 	}
+-	log_dispatch(&rec);
++	if (!log_dispatch(&rec)) {
++		logc_prev = cat;
++		logl_prev = level;
++	}
+ 
+ 	return 0;
+ }
+diff --git a/doc/develop/logging.rst b/doc/develop/logging.rst
+index 7ce8482ab6..c36f6bbbe4 100644
+--- a/doc/develop/logging.rst
++++ b/doc/develop/logging.rst
+@@ -38,6 +38,9 @@ There are a number logging levels available, in increasing order of verbosity:
+ * LOGL_DEBUG_CONTENT - Debug message showing full message content
+ * LOGL_DEBUG_IO - Debug message showing hardware I/O access
+ 
++To continue a log message in a separate call of function log() use
++
++* LOGL_CONT - Use same log level as in previous call
+ 
+ Logging category
+ ----------------
+@@ -56,6 +59,9 @@ The following main categories are defined:
+ * LOGC_DT - Related to device tree control
+ * LOGC_EFI - Related to EFI implementation
+ 
++To continue a log message in a separate call of function log() use
++
++* LOGC_CONT - Use same category as in previous call
+ 
+ Enabling logging
+ ----------------
+diff --git a/include/log.h b/include/log.h
+index 2859ce1f2e..567cd32d34 100644
+--- a/include/log.h
++++ b/include/log.h
+@@ -35,6 +35,7 @@ enum log_level_t {
+ 
+ 	LOGL_FIRST = LOGL_EMERG,
+ 	LOGL_MAX = LOGL_DEBUG_IO,
++	LOGL_CONT = -1,		/* Use same log level as in previous call */
+ };
+ 
+ /**
+@@ -60,6 +61,7 @@ enum log_category_t {
+ 
+ 	LOGC_COUNT,	/* Number of log categories */
+ 	LOGC_END,	/* Sentinel value for a list of log categories */
++	LOGC_CONT = -1,	/* Use same category as in previous call */
+ };
+ 
+ /* Helper to cast a uclass ID to a log category */
+-- 
+2.28.0
+
