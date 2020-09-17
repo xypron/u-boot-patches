@@ -29,6 +29,7 @@ git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
+git am ../patch/0001-disk-typo-Terra-Bytes.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
