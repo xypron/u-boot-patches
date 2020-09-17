@@ -11,7 +11,7 @@ To run the test configure with CONFIG_CMD_BOOTEFI_SELFTEST=y and issue
     setenv serial# myserial
     bootefi selftest
 
-If the test succeeds it reports the boot-hartid, e.g.
+If the test succeeds, it reports the boot-hartid, e.g.
 
     boot-hartid: 1
 
