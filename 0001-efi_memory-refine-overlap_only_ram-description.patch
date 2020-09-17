@@ -1,0 +1,31 @@
+From 675868b1702666fd4a67a3e475b1d4f541937a1a Mon Sep 17 00:00:00 2001
+From: Maxim Uvarov <maxim.uvarov@linaro.org>
+Date: Fri, 28 Aug 2020 22:47:41 +0300
+Subject: [PATCH] efi_memory: refine overlap_only_ram description
+
+Refine text for overlap_only_ram description to
+match to what exactly flag does and aling description
+with other functions.
+
+Signed-off-by: Maxim Uvarov <maxim.uvarov@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 7be756e370..11e755363e 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -235,7 +235,7 @@ static s64 efi_mem_carve_out(struct efi_mem_list *map,
+  * @start:		start address, must be a multiple of EFI_PAGE_SIZE
+  * @pages:		number of pages to add
+  * @memory_type:	type of memory added
+- * @overlap_only_ram:	the memory area must overlap existing
++ * @overlap_only_ram:	region may only overlap RAM
+  * Return:		status code
+  */
+ static efi_status_t efi_add_memory_map_pg(u64 start, u64 pages,
+-- 
+2.28.0
+
