@@ -30,6 +30,7 @@ git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-disk-typo-Terra-Bytes.patch
+git am ../patch/0001-mtd-fix-typos-in-drivers-mtd-Kconfig.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -79,6 +80,7 @@ git am ../patch/0001-efi_memory-refine-overlap_only_ram-description.patch
 git am ../patch/0001-efi_selftest-rework-device-tree-test.patch
 git am ../patch/0001-efi_selftest-check-for-RISC-V-boot-hartid-in-FDT.patch
 git am ../patch/0001-efi-change-env-e-i-usage-syntax.patch
+git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
 exit
 
 # efi-2021-01
