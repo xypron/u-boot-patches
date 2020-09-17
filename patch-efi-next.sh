@@ -73,6 +73,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc5
+git am ../patch/0001-rng-stm32mp1-use-log-instead-of-printf.patch
 git am ../patch/0001-efi_memory-refine-overlap_only_ram-description.patch
 git am ../patch/0001-efi_selftest-rework-device-tree-test.patch
 git am ../patch/0001-efi_selftest-check-for-RISC-V-boot-hartid-in-FDT.patch
