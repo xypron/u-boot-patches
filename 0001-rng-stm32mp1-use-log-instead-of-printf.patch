@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] rng: stm32mp1: use log() instead of printf()
 The logging system provides flexible filtering and enhanced output.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sughosh Ganu <sughosh.ganu@linaro.org>
 ---
  drivers/rng/stm32mp1_rng.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
