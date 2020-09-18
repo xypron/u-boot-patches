@@ -31,6 +31,7 @@ git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-disk-typo-Terra-Bytes.patch
 git am ../patch/0001-mtd-fix-typos-in-drivers-mtd-Kconfig.patch
+git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
