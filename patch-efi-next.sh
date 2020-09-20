@@ -72,7 +72,6 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
-git am ../patch/0001-sandbox-support-CTRL-C-processing-in-U-Boot.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
@@ -80,11 +79,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc5
-git am ../patch/0001-rng-stm32mp1-use-log-instead-of-printf.patch
-git am ../patch/0001-efi_memory-refine-overlap_only_ram-description.patch
-git am ../patch/0001-efi_selftest-rework-device-tree-test.patch
-git am ../patch/0001-efi_selftest-check-for-RISC-V-boot-hartid-in-FDT.patch
-git am ../patch/0001-efi-change-env-e-i-usage-syntax.patch
 git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
 exit
 
