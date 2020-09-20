@@ -1,0 +1,28 @@
+From 810007eb1d6cefb6f9e006803d3b5334c6ff5e2b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 20 Sep 2020 12:29:44 +0200
+Subject: [PATCH 1/1] doc/build/gcc.rst: add missing apt-get *install*
+
+The install command is missing for an apt-get command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/build/gcc.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/build/gcc.rst b/doc/build/gcc.rst
+index fcb0b1ffb3..1ceba0b699 100644
+--- a/doc/build/gcc.rst
++++ b/doc/build/gcc.rst
+@@ -17,7 +17,7 @@ You could install GCC and the GCC cross compiler for the ARMv8 architecture with
+ 
+ .. code-block:: bash
+ 
+-    sudo apt-get gcc gcc-aarch64-linux-gnu
++    sudo apt-get install gcc gcc-aarch64-linux-gnu
+ 
+ Depending on the build targets further packages maybe needed
+ 
+-- 
+2.28.0
+
