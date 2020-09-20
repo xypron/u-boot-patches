@@ -32,6 +32,8 @@ git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-disk-typo-Terra-Bytes.patch
 git am ../patch/0001-mtd-fix-typos-in-drivers-mtd-Kconfig.patch
 git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
+git am ../patch/0001-MAINTAINERS-assign-doc-arch-sandbox.rst.patch
+git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
