@@ -35,6 +35,7 @@ git am ../patch/0001-MAINTAINERS-assign-doc-arch-sandbox.rst.patch
 git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
+git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
