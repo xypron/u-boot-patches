@@ -1,20 +1,21 @@
 From f650f921891c65d276c9e7ac962ab6ca26dbd1e7 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 22 Sep 2020 19:49:40 +0200
-Subject: [PATCH 1/1] examples: make examples customizable
+Subject: [PATCH v2 1/1] examples: make examples/ optional
 
-Most users don't need the standalone API examples. Distributions like Suse
+Most users don't need the standalone API examples. Distributions like SUSE
 do not supply libgcc for cross-compiling and we cannot do without on ARMv8
 for building examples/.
 
-Make examples customizable via symbol CONFIG_EXAMPLES. It only defaults to
-yes to ensure that we compile it on Gitlab CI.
+Make examples selectable via symbol CONFIG_EXAMPLES. It only defaults to
+yes on ARCH_QEMU to ensure that we compile the API as part of our
+continuous integration.
 
 Cc: Matthias Brugger <mbrugger@suse.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-I wonder if we should not completely drop the standalone API. The UEFI API
-has enough to run a standalone application.
+v2:
+	default=y on ARCH_QEMU only
 ---
  Kconfig           | 8 ++++++++
  examples/Makefile | 2 +-
@@ -31,7 +32,7 @@ index 883e3f71d0..d0eae2ceba 100644
 +config EXAMPLES
 +	bool "Compile API examples"
 +	depends on !SANDBOX
-+	default y
++	default y if QEMU_ARCH
 +	help
 +	  U-Boot provides an API for standalone applications. Examples are
 +	  provided in directory examples/.
