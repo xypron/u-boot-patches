@@ -7,7 +7,7 @@ Most users don't need the standalone API examples. Distributions like SUSE
 do not supply libgcc for cross-compiling and we cannot do without on ARMv8
 for building examples/.
 
-Make examples selectable via symbol CONFIG_EXAMPLES. It only defaults to
+Make examples selectable via symbol CONFIG_EXAMPLES. It defaults to
 yes on ARCH_QEMU to ensure that we compile the API as part of our
 continuous integration.
 
@@ -32,7 +32,7 @@ index 883e3f71d0..d0eae2ceba 100644
 +config EXAMPLES
 +	bool "Compile API examples"
 +	depends on !SANDBOX
-+	default y if QEMU_ARCH
++	default y if ARCH_QEMU
 +	help
 +	  U-Boot provides an API for standalone applications. Examples are
 +	  provided in directory examples/.
