@@ -1,7 +1,7 @@
-From 7b02994d181a9fa897928e398faa0ecfcac10191 Mon Sep 17 00:00:00 2001
+From 2e9c012bd093998179f10e5641c2ee375ce3b0c3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 25 Sep 2020 12:50:19 +0200
-Subject: [PATCH 1/1] efi_loader: installation of EFI_RNG_PROTOCOL
+Subject: [PATCH v2 1/1] efi_loader: installation of EFI_RNG_PROTOCOL
 
 Having an EFI_RNG_PROTOCOL without a backing RNG device leads to failure
 to boot Linux 5.8.
@@ -13,11 +13,14 @@ Cc: Neil Armstrong <narmstrong@baylibre.com>
 Cc: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+v2:
+	add missing braces
+---
  include/efi_loader.h           |  3 ++-
- lib/efi_loader/efi_rng.c       | 28 +++++++++++++++++++++++++++-
+ lib/efi_loader/efi_rng.c       | 30 +++++++++++++++++++++++++++++-
  lib/efi_loader/efi_root_node.c |  4 ----
  lib/efi_loader/efi_setup.c     |  5 +++++
- 4 files changed, 34 insertions(+), 6 deletions(-)
+ 4 files changed, 36 insertions(+), 6 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
 index 0baa1d2324..7eea5566fd 100644
@@ -41,7 +44,7 @@ index 0baa1d2324..7eea5566fd 100644
  int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
  			       const char *if_typename, int diskid,
 diff --git a/lib/efi_loader/efi_rng.c b/lib/efi_loader/efi_rng.c
-index caef4085b0..a5405114ed 100644
+index caef4085b0..a8a87007b6 100644
 --- a/lib/efi_loader/efi_rng.c
 +++ b/lib/efi_loader/efi_rng.c
 @@ -3,6 +3,8 @@
@@ -53,7 +56,7 @@ index caef4085b0..a5405114ed 100644
  #include <common.h>
  #include <dm.h>
  #include <efi_loader.h>
-@@ -144,7 +146,31 @@ back:
+@@ -144,7 +146,33 @@ back:
  	return EFI_EXIT(status);
  }
  
@@ -77,8 +80,10 @@ index caef4085b0..a5405114ed 100644
 +	struct udevice *dev;
 +
 +	ret = platform_get_rng_device(&dev);
-+	if (ret != EFI_SUCCESS)
++	if (ret != EFI_SUCCESS) {
++		log_warning("Missing RNG device for EFI_RNG_PROTOCOL");
 +		return EFI_SUCCESS;
++	}
 +	ret = efi_add_protocol(efi_root, &efi_guid_rng_protocol,
 +			       (void *)&efi_rng_protocol);
 +	if (ret != EFI_SUCCESS)
@@ -102,21 +107,21 @@ index 76d18fb1a4..f68b0fdc61 100644
  			 NULL));
  	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 6196c0a06c..00f7d2dba3 100644
+index 6196c0a06c..45226c5c1a 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -150,6 +150,11 @@ efi_status_t efi_init_obj_list(void)
- 	ret = efi_disk_register();
+@@ -151,6 +151,11 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
-+#endif
-+#if CONFIG_IS_ENABLED(EFI_RNG_PROTOCOL)
-+	ret = efi_rng_register();
-+	if (ret != EFI_SUCCESS)
-+		goto out;
  #endif
++	if (IS_ENABLED(CONFIG_EFI_RNG_PROTOCOL)) {
++		ret = efi_rng_register();
++		if (ret != EFI_SUCCESS)
++			goto out;
++	}
  	/* Initialize variable services */
  	ret = efi_init_variables();
+ 	if (ret != EFI_SUCCESS)
 -- 
 2.28.0
 
