@@ -1,26 +1,65 @@
-From 91561b269db5531882ad8054b6b1ad58afb7f72d Mon Sep 17 00:00:00 2001
+From e74945ecc70affbe0d4c3f85f6e6c4e01dcee75e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 26 Sep 2020 10:17:41 +0200
-Subject: [PATCH 1/1] riscv: reset after crash
+Subject: [PATCH v2 1/1] riscv: reset after crash
 
 If an exception occurs on ARM or x86, we call panic() which will try to
 reset the board. Do the same on RISC-V.
 
+To avoid -Werror=format-zero-length move a '\n' to the string passed to
+panic. We don't need a message here as depending on CONFIG_PANIC_HANG we
+will either see
+
+    ### ERROR ### Please RESET the board ###
+
+or
+
+    resetting ...
+
+as next message.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/riscv/lib/interrupts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v2:
+	Remove a superfluous message passed to panic().
+---
+ arch/riscv/lib/interrupts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/arch/riscv/lib/interrupts.c b/arch/riscv/lib/interrupts.c
-index 8ff40f0f36..f95cb97f92 100644
+index 8ff40f0f36..43b10a2b9b 100644
 --- a/arch/riscv/lib/interrupts.c
 +++ b/arch/riscv/lib/interrupts.c
-@@ -84,7 +84,7 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
+@@ -27,7 +27,7 @@ static void show_efi_loaded_images(uintptr_t epc)
+ static void show_regs(struct pt_regs *regs)
+ {
+ #ifdef CONFIG_SHOW_REGS
+-	printf("SP:  " REG_FMT " GP:  " REG_FMT " TP:  " REG_FMT "\n",
++	printf("\nSP:  " REG_FMT " GP:  " REG_FMT " TP:  " REG_FMT "\n",
+ 	       regs->sp, regs->gp, regs->tp);
+ 	printf("T0:  " REG_FMT " T1:  " REG_FMT " T2:  " REG_FMT "\n",
+ 	       regs->t0, regs->t1, regs->t2);
+@@ -45,7 +45,7 @@ static void show_regs(struct pt_regs *regs)
+ 	       regs->s7, regs->s8, regs->s9);
+ 	printf("S10: " REG_FMT " S11: " REG_FMT " T3:  " REG_FMT "\n",
+ 	       regs->s10, regs->s11, regs->t3);
+-	printf("T4:  " REG_FMT " T5:  " REG_FMT " T6:  " REG_FMT "\n\n",
++	printf("T4:  " REG_FMT " T5:  " REG_FMT " T6:  " REG_FMT "\n",
+ 	       regs->t4, regs->t5, regs->t6);
+ #endif
+ }
+@@ -79,12 +79,12 @@ static void _exit_trap(ulong code, ulong epc, ulong tval, struct pt_regs *regs)
+ 	printf("EPC: " REG_FMT " RA: " REG_FMT " TVAL: " REG_FMT "\n",
+ 	       epc, regs->ra, tval);
+ 	if (gd->flags & GD_FLG_RELOC)
+-		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n\n",
++		printf("EPC: " REG_FMT " RA: " REG_FMT " reloc adjusted\n",
+ 		       epc - gd->reloc_off, regs->ra - gd->reloc_off);
  
  	show_regs(regs);
  	show_efi_loaded_images(epc);
 -	hang();
-+	panic("Resetting CPU ...\n");
++	panic("\n");
  }
  
  int interrupt_init(void)
