@@ -1,0 +1,40 @@
+From 3f5cc49d2cd93c465960b21f349c5b188483c5e1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 26 Sep 2020 07:50:36 +0200
+Subject: [PATCH 1/1] riscv: restore global data pointer in trap handler
+
+The gp register is used to store U-Boot's global data pointer. We should
+not assume that an UEFI application leaves the gp register unchanged as
+the UEFI specifications does not define who is the owner of the gp and tp
+registers.
+
+So the following sequence should be followed in the trap handler:
+
+* save the caller's gp register
+* restore the global data pointer
+* serve interrupts or print crash dump and reset
+* restore the caller's gp register
+
+Cc: Abner Chang <abner.chang@hpe.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/lib/interrupts.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/riscv/lib/interrupts.c b/arch/riscv/lib/interrupts.c
+index cd47e64487..8ff40f0f36 100644
+--- a/arch/riscv/lib/interrupts.c
++++ b/arch/riscv/lib/interrupts.c
+@@ -111,6 +111,9 @@ ulong handle_trap(ulong cause, ulong epc, ulong tval, struct pt_regs *regs)
+ {
+ 	ulong is_irq, irq;
+ 
++	/* An UEFI application may have changed gd. Restore U-Boot's gd. */
++	efi_restore_gd();
++
+ 	is_irq = (cause & MCAUSE_INT);
+ 	irq = (cause & ~MCAUSE_INT);
+ 
+-- 
+2.28.0
+
