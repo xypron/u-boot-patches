@@ -36,7 +36,6 @@ git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
-git am ../patch/0001-efi_loader-installation-of-EFI_RNG_PROTOCOL.patch
 
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -55,7 +54,7 @@ git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
 # git am ../patch/0001-riscv-add-DT-binding-for-BOOT-button-on-Maix-board.patch
 git am ../patch/0001-doc-correct-kflash-settings-for-Maix-One-Dock.patch
 git am ../patch/0001-doc-sipeed-maix-describe-RESET-and-BOOT-button.patch
-git am ../patch/0001-riscv-restore-global-data-pointer-in-trap-handler.patch
+git am ../patch/0001-riscv-reset-after-crash.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
@@ -80,12 +79,14 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc5
-git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
+# efi-2020-10-rc6
+git am ../patch/0001-efi_loader-installation-of-EFI_RNG_PROTOCOL.patch
+git am ../patch/0001-riscv-restore-global-data-pointer-in-trap-handler.patch
 exit
 
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
+git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
 git am ../patch/0001-efi_loader-consider-no-map-property-of-reserved-memo.patch
 
 exit
