@@ -17,6 +17,7 @@ So the following sequence should be followed in the trap handler:
 
 Cc: Abner Chang <abner.chang@hpe.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bin.meng@windriver.com>
 ---
 v2:
 	Saving and restoring the caller's x3 is already handled in mtrap.S.
