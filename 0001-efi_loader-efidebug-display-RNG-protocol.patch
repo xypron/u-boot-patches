@@ -1,0 +1,39 @@
+From fefee42d8bd876f9b18e61aa2c2762fd361b26f8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 27 Sep 2020 14:50:25 +0200
+Subject: [PATCH 1/1] efi_loader: efidebug display RNG protocol
+
+Add the Random Number Generator (RNG) protocol to the GUIDs that the
+'efidebug dh' protocol can replace by a text.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 9874838b00..5288b9920b 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -9,6 +9,7 @@
+ #include <common.h>
+ #include <command.h>
+ #include <efi_loader.h>
++#include <efi_rng.h>
+ #include <exports.h>
+ #include <hexdump.h>
+ #include <log.h>
+@@ -248,6 +249,10 @@ static const struct {
+ 		"Load File2",
+ 		EFI_LOAD_FILE2_PROTOCOL_GUID,
+ 	},
++	{
++		"Random Number Generator",
++		EFI_RNG_PROTOCOL_GUID,
++	},
+ 	{
+ 		"Simple Network",
+ 		EFI_SIMPLE_NETWORK_PROTOCOL_GUID,
+-- 
+2.28.0
+

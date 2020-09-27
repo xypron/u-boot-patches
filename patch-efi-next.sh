@@ -37,6 +37,11 @@ git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
 
+# doc
+git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
+git am ../patch/0001-global_data.h-add-Sphinx-documentation.patch
+git am ../patch/0001-doc-global-data-pointer.patch
+
 # log
 git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
@@ -80,6 +85,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc6
+git am ../patch/0001-efi_loader-efidebug-display-RNG-protocol.patch
 git am ../patch/0001-efi_loader-installation-of-EFI_RNG_PROTOCOL.patch
 git am ../patch/0001-riscv-restore-global-data-pointer-in-trap-handler.patch
 exit
