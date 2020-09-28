@@ -1,0 +1,29 @@
+From 908a047975366ac8e686ebc9af980134d7c6c35a Mon Sep 17 00:00:00 2001
+From: Sean Anderson <seanga2@gmail.com>
+Date: Mon, 28 Sep 2020 12:08:37 -0400
+Subject: [PATCH 1/1] efi: Fix typo in documentation
+
+There is an extra space.
+
+Signed-off-by: Sean Anderson <seanga2@gmail.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/efi_selftest_set_virtual_address_map.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_set_virtual_address_map.c b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
+index a4e5a50f63..b097a81136 100644
+--- a/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
++++ b/lib/efi_selftest/efi_selftest_set_virtual_address_map.c
+@@ -23,7 +23,7 @@ static u32 notify_call_count;
+ static bool convert_pointer_failed;
+ 
+ /**
+- * notify () - notification function
++ * notify() - notification function
+  *
+  * This function is called when the EVT_SIGNAL_VIRTUAL_ADDRESS_CHANGE event
+  * occurs. The correct output of ConvertPointer() is checked.
+-- 
+2.28.0
+
