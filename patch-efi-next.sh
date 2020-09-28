@@ -85,9 +85,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # UEFI
 
 # efi-2020-10-rc6
-git am ../patch/0001-efi_loader-efidebug-display-RNG-protocol.patch
-git am ../patch/0001-efi_loader-installation-of-EFI_RNG_PROTOCOL.patch
-git am ../patch/0001-riscv-restore-global-data-pointer-in-trap-handler.patch
 exit
 
 # efi-2021-01
