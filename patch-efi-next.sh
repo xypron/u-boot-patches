@@ -37,6 +37,7 @@ git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
 git am ../patch/0001-video-typo-Normlly.patch
+git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
 
 # doc
 git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
