@@ -36,6 +36,7 @@ git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
+git am ../patch/0001-video-typo-Normlly.patch
 
 # doc
 git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
