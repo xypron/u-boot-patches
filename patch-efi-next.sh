@@ -38,6 +38,8 @@ git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
 git am ../patch/0001-video-typo-Normlly.patch
 git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
+git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
+git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch
 
 # doc
 git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
