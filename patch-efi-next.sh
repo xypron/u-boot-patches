@@ -94,6 +94,10 @@ exit
 
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
+
+# Review needed
+0001-distro_bootcmd-call-EFI-bootmgr-even-without-having-.patch
+
 git am ../patch/0001-efi-Fix-typo-in-documentation.patch
 git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
 git am ../patch/0001-efi_loader-consider-no-map-property-of-reserved-memo.patch
