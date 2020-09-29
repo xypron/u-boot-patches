@@ -1,0 +1,90 @@
+From be30c897b8034d66d22bafedd5cc6cbfa6dff585 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 29 Sep 2020 03:46:17 +0200
+Subject: [PATCH 1/1] sandbox: avoid duplicate backslash input
+
+When using SDL for input the SDL key codes are first converted to Linux key
+codes and then to matrix entries of the cross wired keyboard.
+
+We must not map any key code to two different places on the keyboard. So
+comment out one backslash position.
+
+Update the rest of the file from Linux 5.7.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/dts/cros-ec-keyboard.dtsi | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/arch/sandbox/dts/cros-ec-keyboard.dtsi b/arch/sandbox/dts/cros-ec-keyboard.dtsi
+index 9c7fb0acae..d885a5ecd2 100644
+--- a/arch/sandbox/dts/cros-ec-keyboard.dtsi
++++ b/arch/sandbox/dts/cros-ec-keyboard.dtsi
+@@ -1,12 +1,14 @@
++// SPDX-License-Identifier: GPL-2.0-only
+ /*
+  * Keyboard dts fragment for devices that use cros-ec-keyboard
+  *
+  * Copyright (c) 2014 Google, Inc
+  *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+-*/
++ * This file is taken from Linux
++ * arch/arm/boot/dts/cros-ec-keyboard.dtsi.
++ *
++ * A duplicate KEY_BACKSLASH key had to be removed.
++ */
+ 
+ #include <dt-bindings/input/input.h>
+ 
+@@ -22,6 +24,7 @@
+ 			MATRIX_KEY(0x00, 0x02, KEY_F1)
+ 			MATRIX_KEY(0x00, 0x03, KEY_B)
+ 			MATRIX_KEY(0x00, 0x04, KEY_F10)
++			MATRIX_KEY(0x00, 0x05, KEY_RO)
+ 			MATRIX_KEY(0x00, 0x06, KEY_N)
+ 			MATRIX_KEY(0x00, 0x08, KEY_EQUAL)
+ 			MATRIX_KEY(0x00, 0x0a, KEY_RIGHTALT)
+@@ -34,6 +37,7 @@
+ 			MATRIX_KEY(0x01, 0x08, KEY_APOSTROPHE)
+ 			MATRIX_KEY(0x01, 0x09, KEY_F9)
+ 			MATRIX_KEY(0x01, 0x0b, KEY_BACKSPACE)
++			MATRIX_KEY(0x01, 0x0c, KEY_HENKAN)
+ 
+ 			MATRIX_KEY(0x02, 0x00, KEY_LEFTCTRL)
+ 			MATRIX_KEY(0x02, 0x01, KEY_TAB)
+@@ -45,6 +49,7 @@
+ 			MATRIX_KEY(0x02, 0x07, KEY_102ND)
+ 			MATRIX_KEY(0x02, 0x08, KEY_LEFTBRACE)
+ 			MATRIX_KEY(0x02, 0x09, KEY_F8)
++			MATRIX_KEY(0x02, 0x0a, KEY_YEN)
+ 
+ 			MATRIX_KEY(0x03, 0x01, KEY_GRAVE)
+ 			MATRIX_KEY(0x03, 0x02, KEY_F2)
+@@ -52,7 +57,9 @@
+ 			MATRIX_KEY(0x03, 0x04, KEY_F5)
+ 			MATRIX_KEY(0x03, 0x06, KEY_6)
+ 			MATRIX_KEY(0x03, 0x08, KEY_MINUS)
++			MATRIX_KEY(0x03, 0x09, KEY_F13)
+ 			MATRIX_KEY(0x03, 0x0b, KEY_BACKSLASH)
++			MATRIX_KEY(0x03, 0x0c, KEY_MUHENKAN)
+ 
+ 			MATRIX_KEY(0x04, 0x00, KEY_RIGHTCTRL)
+ 			MATRIX_KEY(0x04, 0x01, KEY_A)
+@@ -63,7 +70,10 @@
+ 			MATRIX_KEY(0x04, 0x06, KEY_J)
+ 			MATRIX_KEY(0x04, 0x08, KEY_SEMICOLON)
+ 			MATRIX_KEY(0x04, 0x09, KEY_L)
+-			MATRIX_KEY(0x04, 0x0a, KEY_BACKSLASH)
++			/*
++			 * Do not map any key twice
++			 * MATRIX_KEY(0x04, 0x0a, KEY_BACKSLASH)
++			 */
+ 			MATRIX_KEY(0x04, 0x0b, KEY_ENTER)
+ 
+ 			MATRIX_KEY(0x05, 0x01, KEY_Z)
+-- 
+2.28.0
+

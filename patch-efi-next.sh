@@ -82,6 +82,7 @@ git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-common-redefine-getc.patch
 git am ../patch/0001-sandbox-add-missing-SDL-key-scan-codes.patch
 git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
+git am ../patch/0001-sandbox-avoid-duplicate-backslash-input.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
