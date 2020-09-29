@@ -81,6 +81,7 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-common-redefine-getc.patch
 git am ../patch/0001-sandbox-add-missing-SDL-key-scan-codes.patch
+git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
