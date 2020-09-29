@@ -1,0 +1,46 @@
+From 7d9096c06fee4f70052f17c04a336a44f8547c3b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 29 Sep 2020 19:17:40 +0200
+Subject: [PATCH v2 1/1] sandbox: redefine getc()
+
+The sandbox is built with the SDL2 library with invokes the X11 library
+which in turn calls getc(). But getc() in glibc is defined as
+
+    int getc(FILE *)
+
+This does not match our definition.
+
+    int getc(void)
+
+The sandbox crashes when called with parameter -l.
+
+Rename our library symbol to be called _u_boot_getc(). To keep the coding
+changes minimal use a define on the sandbox only.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	apply changes only to the sandbox
+---
+ include/stdio.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/stdio.h b/include/stdio.h
+index aedf374452..43cba1dde5 100644
+--- a/include/stdio.h
++++ b/include/stdio.h
+@@ -4,6 +4,11 @@
+ #include <stdarg.h>
+ #include <linux/compiler.h>
+ 
++/* The SDL library invokes getc() but this should not be our getc(). */
++#ifdef CONFIG_SANDBOX
++#define getc _u_boot_getc
++#endif
++
+ /* stdin */
+ int getc(void);
+ int tstc(void);
+-- 
+2.28.0
+
