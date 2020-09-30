@@ -29,14 +29,11 @@ git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
-git am ../patch/0001-mtd-fix-typos-in-drivers-mtd-Kconfig.patch
 git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
 git am ../patch/0001-MAINTAINERS-assign-doc-arch-sandbox.rst.patch
 git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
-git am ../patch/0001-fs-squashfs-parameter-check-sqfs_read_metablock.patch
-git am ../patch/0001-video-typo-Normlly.patch
 git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
 git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch
