@@ -98,6 +98,8 @@ exit
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-efi_selftest-avoid-unnecessary-reset.patch
+
 # Review needed
 0001-distro_bootcmd-call-EFI-bootmgr-even-without-having-.patch
 
