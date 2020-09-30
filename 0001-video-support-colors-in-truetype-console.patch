@@ -1,0 +1,273 @@
+From 501e3cad0edc0506e8727627b8433376dc317b71 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 30 Sep 2020 22:29:09 +0200
+Subject: [PATCH 1/1] video: support colors in truetype console
+
+In the UEFI context we use colored output. When printing truetype letters
+we have to interpolate the pixel color between the foreground and
+background color according to the gray value of the font pixel.
+
+We could speed up the output a by writing a lookup table in the uclass
+whenever a color changes but this would impose a burden on all console
+drivers. So this is not implemented.
+
+For testing the sandbox can be used when enabling CONFIG_EFI_SELFTEST.
+
+    $ ./u-boot -D -l
+    => setenv efi_selftest text output
+    => bootefi selftest
+
+This test writes text in all combinations of foreground and background
+colors to the console.
+
+To test 16bit mode modify arch/sandbox/dts/sandbox.dtsi. Set
+
+    /lcd/log2-depth = <4>;
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+For testing the following patches for the sandbox are needed:
+
+[PATCH v2 1/1] sandbox: redefine getc()
+https://lists.denx.de/pipermail/u-boot/2020-September/428082.html
+
+[PATCH 1/1] sandbox: add missing SDL key scan codes
+https://lists.denx.de/pipermail/u-boot/2020-September/428007.html
+---
+ drivers/video/console_truetype.c | 158 ++++++++++++++++++++-----------
+ test/dm/video.c                  |   6 +-
+ 2 files changed, 106 insertions(+), 58 deletions(-)
+
+diff --git a/drivers/video/console_truetype.c b/drivers/video/console_truetype.c
+index 22b2ea7191..ba6d9cc070 100644
+--- a/drivers/video/console_truetype.c
++++ b/drivers/video/console_truetype.c
+@@ -212,8 +212,10 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+ 	struct pos_info *pos;
+ 	u8 *bits, *data;
+ 	int advance;
+-	void *start, *end, *line;
++	void *start, *line, *sync_start, *sync_end;
+ 	int row, ret;
++	int bg_r, bg_g, bg_b;
++	int fg_r, fg_g, fg_b;
+ 
+ 	/* First get some basic metrics about this character */
+ 	stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
+@@ -257,82 +259,128 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+ 	data = stbtt_GetCodepointBitmapSubpixel(font, priv->scale, priv->scale,
+ 						x_shift, 0, ch, &width, &height,
+ 						&xoff, &yoff);
+-	if (!data)
+-		return width_frac;
++	bits = data;
+ 
+ 	/* Figure out where to write the character in the frame buffer */
+-	bits = data;
+-	start = vid_priv->fb + y * vid_priv->line_length +
+-		VID_TO_PIXEL(x) * VNBYTES(vid_priv->bpix);
++	sync_start = vid_priv->fb + y * vid_priv->line_length;
++	sync_end = sync_start + vc_priv->y_charsize * vid_priv->line_length;
++	start = sync_start + VID_TO_PIXEL(x) * VNBYTES(vid_priv->bpix);
+ 	linenum = priv->baseline + yoff;
+-	if (linenum > 0)
+-		start += linenum * vid_priv->line_length;
+-	line = start;
++	line = start + linenum * vid_priv->line_length;
++
++	/* Decompose foreground and background color */
++	switch (vid_priv->bpix) {
++#ifdef CONFIG_VIDEO_BPP16
++	case VIDEO_BPP16:
++		bg_r = (vid_priv->colour_bg >> 11) & 0x1f;
++		bg_g = (vid_priv->colour_bg >> 5) & 0x3f;
++		bg_b = (vid_priv->colour_bg >> 0) & 0x1f;
++
++		fg_r = (vid_priv->colour_fg >> 11) & 0x1f;
++		fg_g = (vid_priv->colour_fg >> 5) & 0x3f;
++		fg_b = (vid_priv->colour_fg >> 0) & 0x1f;
++		break;
++#endif
++#ifdef CONFIG_VIDEO_BPP32
++	case VIDEO_BPP32:
++		bg_r = (vid_priv->colour_bg >> 16) & 0xff;
++		bg_g = (vid_priv->colour_bg >> 8) & 0xff;
++		bg_b = (vid_priv->colour_bg >> 0) & 0xff;
++
++		fg_r = (vid_priv->colour_fg >> 16) & 0xff;
++		fg_g = (vid_priv->colour_fg >> 8) & 0xff;
++		fg_b = (vid_priv->colour_fg >> 0) & 0xff;
++		break;
++#endif
++	default:
++		free(data);
++		return -ENOSYS;
++	}
+ 
+ 	/*
+ 	 * Write a row at a time, converting the 8bpp image into the colour
+-	 * depth of the display. We only expect white-on-black or the reverse
+-	 * so the code only handles this simple case.
++	 * depth of the display.
+ 	 */
+-	for (row = 0; row < height; row++) {
+-		switch (vid_priv->bpix) {
++	switch (vid_priv->bpix) {
+ #ifdef CONFIG_VIDEO_BPP16
+-		case VIDEO_BPP16: {
+-			uint16_t *dst = (uint16_t *)line + xoff;
++	case VIDEO_BPP16:
++		for (row = 0; row < vc_priv->y_charsize; row++) {
++			u16 *dst = (u16 *)start;
+ 			int i;
+ 
+-			for (i = 0; i < width; i++) {
+-				int val = *bits;
+-				int out;
+-
+-				if (vid_priv->colour_bg)
+-					val = 255 - val;
+-				out = val >> 3 |
+-					(val >> 2) << 5 |
+-					(val >> 3) << 11;
+-				if (vid_priv->colour_fg)
+-					*dst++ |= out;
+-				else
+-					*dst++ &= out;
+-				bits++;
++			for (i = 0; i < xpos; ++i) {
++				*dst++ = vid_priv->colour_bg;
+ 			}
+-			end = dst;
+-			break;
++			start += vid_priv->line_length;
+ 		}
++		if (data) {
++			for (row = 0; row < height; row++) {
++				u16 *dst = (u16 *)line + xoff;
++				int i;
++
++				for (i = 0; i < width; i++) {
++					int fg, bg, r, g, b, out;
++
++					/*
++					 * Interpolate between foreground and
++					 * background color.
++					 */
++					fg = 1 + *bits++;
++					bg = 0x101 - fg;
++					r = (fg_r * fg + bg_r * bg) >> 8;
++					g = (fg_g * fg + bg_g * bg) >> 8;
++					b = (fg_b * fg + bg_b * bg) >> 8;
++					out = b | g << 5 | r << 11;
++					*dst++ = out;
++				}
++				line += vid_priv->line_length;
++			}
++		}
++		break;
+ #endif
+ #ifdef CONFIG_VIDEO_BPP32
+-		case VIDEO_BPP32: {
+-			u32 *dst = (u32 *)line + xoff;
++	case VIDEO_BPP32:
++		for (row = 0; row < vc_priv->y_charsize; row++) {
++			u32 *dst = (u32 *)start;
+ 			int i;
+ 
+-			for (i = 0; i < width; i++) {
+-				int val = *bits;
+-				int out;
+-
+-				if (vid_priv->colour_bg)
+-					val = 255 - val;
+-				out = val | val << 8 | val << 16;
+-				if (vid_priv->colour_fg)
+-					*dst++ |= out;
+-				else
+-					*dst++ &= out;
+-				bits++;
++			for (i = 0; i < xpos; ++i) {
++				*dst++ = vid_priv->colour_bg;
+ 			}
+-			end = dst;
+-			break;
++			start += vid_priv->line_length;
+ 		}
+-#endif
+-		default:
+-			free(data);
+-			return -ENOSYS;
++		if (data) {
++			for (row = 0; row < height; row++) {
++				u32 *dst = (u32 *)line + xoff;
++				int i;
++
++				for (i = 0; i < width; i++) {
++					int fg, bg, r, g, b, out;
++
++					/*
++					 * Interpolate between foreground and
++					 * background color.
++					 */
++					fg = 1 + *bits++;
++					bg = 0x101 - fg;
++					r = (fg_r * fg + bg_r * bg) >> 8;
++					g = (fg_g * fg + bg_g * bg) >> 8;
++					b = (fg_b * fg + bg_b * bg) >> 8;
++					out = b | g << 8 | r << 16;
++					*dst++ = out;
++				}
++				line += vid_priv->line_length;
++			}
+ 		}
+-
+-		line += vid_priv->line_length;
++		break;
++#endif
++	default:
++		break;
+ 	}
+-	ret = vidconsole_sync_copy(dev, start, line);
++	ret = vidconsole_sync_copy(dev, sync_start, sync_end);
++	free(data);
+ 	if (ret)
+ 		return ret;
+-	free(data);
+ 
+ 	return width_frac;
+ }
+diff --git a/test/dm/video.c b/test/dm/video.c
+index 1af948dca3..dd9da3213e 100644
+--- a/test/dm/video.c
++++ b/test/dm/video.c
+@@ -344,7 +344,7 @@ static int dm_test_video_truetype(struct unit_test_state *uts)
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+ 	vidconsole_put_string(con, test_string);
+-	ut_asserteq(12237, compress_frame_buffer(uts, dev));
++	ut_asserteq(13001, compress_frame_buffer(uts, dev));
+ 
+ 	return 0;
+ }
+@@ -365,7 +365,7 @@ static int dm_test_video_truetype_scroll(struct unit_test_state *uts)
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+ 	vidconsole_put_string(con, test_string);
+-	ut_asserteq(35030, compress_frame_buffer(uts, dev));
++	ut_asserteq(36952, compress_frame_buffer(uts, dev));
+ 
+ 	return 0;
+ }
+@@ -386,7 +386,7 @@ static int dm_test_video_truetype_bs(struct unit_test_state *uts)
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO, 0, &dev));
+ 	ut_assertok(uclass_get_device(UCLASS_VIDEO_CONSOLE, 0, &con));
+ 	vidconsole_put_string(con, test_string);
+-	ut_asserteq(29018, compress_frame_buffer(uts, dev));
++	ut_asserteq(30747, compress_frame_buffer(uts, dev));
+ 
+ 	return 0;
+ }
+-- 
+2.28.0
+
