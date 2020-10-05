@@ -44,8 +44,9 @@ git am ../patch/0001-global_data.h-add-Sphinx-documentation.patch
 git am ../patch/0001-doc-global-data-pointer.patch
 
 # log
-git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
-git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
+# git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
+# git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
+git am ../patch/0001-log-move-processing_msg-to-global-data.patch
 git am ../patch/0001-log-allow-for-message-continuation.patch
 git am ../patch/0001-test-log-test-message-continuation.patch
 

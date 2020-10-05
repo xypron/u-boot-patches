@@ -1,4 +1,4 @@
-From c1612d66524bc22a7caa2292c15c122acc31c7c2 Mon Sep 17 00:00:00 2001
+From 1349f3035ffc4453da53b65e152657a6ad89638e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 17 Sep 2020 12:44:04 +0200
 Subject: [PATCH v2 1/1] log: allow for message continuation
@@ -26,7 +26,7 @@ v2:
  4 files changed, 43 insertions(+), 5 deletions(-)
 
 diff --git a/common/log.c b/common/log.c
-index 54f2fdeb36..d9f3285ca0 100644
+index 54f2fdeb36..1c40c414b6 100644
 --- a/common/log.c
 +++ b/common/log.c
 @@ -183,10 +183,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
@@ -60,9 +60,9 @@ index 54f2fdeb36..d9f3285ca0 100644
  
 +	/* Check for message continuation */
 +	if (cat == LOGC_CONT)
-+		cat = logc_prev;
++		cat = gd->logc_prev;
 +	if (level == LOGL_CONT)
-+		level = logl_prev;
++		level = gd->logl_prev;
 +
  	rec.cat = cat;
  	rec.level = level;
@@ -73,8 +73,8 @@ index 54f2fdeb36..d9f3285ca0 100644
  	}
 -	log_dispatch(&rec);
 +	if (!log_dispatch(&rec)) {
-+		logc_prev = cat;
-+		logl_prev = level;
++		gd->logc_prev = cat;
++		gd->logl_prev = level;
 +	}
  
  	return 0;
@@ -123,7 +123,7 @@ index 6bb7f93678..455dcfd59d 100644
 @@ -371,6 +371,19 @@ struct global_data {
  	 * while another message is being processed.
  	 */
- 	int processing_msg;
+ 	bool processing_msg;
 +	/**
 +	 * @logc_prev: previous logging category
 +	 *
