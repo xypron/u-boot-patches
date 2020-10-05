@@ -1,19 +1,18 @@
-From a735ed52dfe708434a1cd2a0b9dee5aaee79b5a7 Mon Sep 17 00:00:00 2001
+From 8be1256d5b8f535bef0923847876517fd4710804 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sun, 20 Sep 2020 10:04:29 +0200
+Date: Sat, 19 Sep 2020 17:29:20 +0200
 Subject: [PATCH 1/1] global_data.h: add Sphinx documentation
 
 Add the missing Sphinx documentation for struct global_data and
 gd_board_type().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- include/asm-generic/global_data.h | 354 ++++++++++++++++++++++++++----
- 1 file changed, 308 insertions(+), 46 deletions(-)
+ include/asm-generic/global_data.h | 372 +++++++++++++++++++++++++-----
+ 1 file changed, 317 insertions(+), 55 deletions(-)
 
 diff --git a/include/asm-generic/global_data.h b/include/asm-generic/global_data.h
-index e4a68e0d91..7222fa1241 100644
+index e4a68e0d91..ebb740d34f 100644
 --- a/include/asm-generic/global_data.h
 +++ b/include/asm-generic/global_data.h
 @@ -24,121 +24,383 @@
@@ -67,15 +66,16 @@ index e4a68e0d91..7222fa1241 100644
 +	unsigned long fb_base;
  #endif
  #if defined(CONFIG_POST)
+-	unsigned long post_log_word;	/* Record POST activities */
+-	unsigned long post_log_res;	/* success of POST test */
+-	unsigned long post_init_f_time;	/* When post_init_f started */
 +	/**
 +	 * @post_log_word: active POST tests
 +	 *
 +	 * @post_log_word is a bit mask defining which POST tests are recorded
 +	 * (see constants POST_*).
 +	 */
- 	unsigned long post_log_word;	/* Record POST activities */
--	unsigned long post_log_res;	/* success of POST test */
--	unsigned long post_init_f_time;	/* When post_init_f started */
++	unsigned long post_log_word;
 +	/**
 +	 * @post_log_res: POST results
 +	 *
@@ -97,6 +97,7 @@ index e4a68e0d91..7222fa1241 100644
 +	 */
  	unsigned long board_type;
  #endif
+-	unsigned long have_console;	/* serial_init() was called */
 +	/**
 +	 * @have_console: console is available
 +	 *
@@ -105,15 +106,16 @@ index e4a68e0d91..7222fa1241 100644
 +	 * A value of 0 indicates that console input and output drivers shall
 +	 * not be called.
 +	 */
- 	unsigned long have_console;	/* serial_init() was called */
++	unsigned long have_console;
  #if CONFIG_IS_ENABLED(PRE_CONSOLE_BUFFER)
+-	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
 +	/**
 +	 * @precon_buf_idx: pre-console buffer index
 +	 *
 +	 * @precon_buf_idx indicates the current position of the buffer used to
 +	 * collect output before the console becomes available
 +	 */
- 	unsigned long precon_buf_idx;	/* Pre-Console buffer index */
++	unsigned long precon_buf_idx;
  #endif
 -	unsigned long env_addr;		/* Address  of Environment struct */
 -	unsigned long env_valid;	/* Environment valid? enum env_valid */
@@ -121,6 +123,12 @@ index e4a68e0d91..7222fa1241 100644
 -	int env_load_prio;		/* Priority of the loaded environment */
 -
 -	unsigned long ram_base;		/* Base address of RAM used by U-Boot */
+-	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
+-	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
+-	phys_size_t ram_size;		/* RAM size */
+-	unsigned long mon_len;		/* monitor len */
+-	unsigned long irq_sp;		/* irq stack pointer */
+-	unsigned long start_addr_sp;	/* start_addr_stackpointer */
 +	/**
 +	 * @env_addr: address of environment structure
 +	 *
@@ -151,7 +159,7 @@ index e4a68e0d91..7222fa1241 100644
 +	/**
 +	 * @ram_top: top address of RAM used by U-Boot
 +	 */
- 	unsigned long ram_top;		/* Top address of RAM used by U-Boot */
++	unsigned long ram_top;
 +	/**
 +	 * @relocaddr: start address of U-Boot in RAM
 +	 *
@@ -160,9 +168,7 @@ index e4a68e0d91..7222fa1241 100644
 +	 * Its value is needed to display the source code when debugging with
 +	 * GDB using the 'add-symbol-file u-boot <relocaddr>' command.
 +	 */
- 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */
--	phys_size_t ram_size;		/* RAM size */
--	unsigned long mon_len;		/* monitor len */
++	unsigned long relocaddr;
 +	/**
 +	 * @ram_size: RAM size in bytes
 +	 */
@@ -174,8 +180,7 @@ index e4a68e0d91..7222fa1241 100644
 +	/**
 +	 * @irq_sp: IRQ stack pointer
 +	 */
- 	unsigned long irq_sp;		/* irq stack pointer */
--	unsigned long start_addr_sp;	/* start_addr_stackpointer */
++	unsigned long irq_sp;
 +	/**
 +	 * @start_addr_sp: initial stack pointer address
 +	 */
@@ -184,10 +189,11 @@ index e4a68e0d91..7222fa1241 100644
 +	 * @reloc_off: relocation offset
 +	 */
  	unsigned long reloc_off;
+-	struct global_data *new_gd;	/* relocated global data */
 +	/**
 +	 * @new_gd: pointer to relocated global data
 +	 */
- 	struct global_data *new_gd;	/* relocated global data */
++	struct global_data *new_gd;
  
  #ifdef CONFIG_DM
 -	struct udevice	*dm_root;	/* Root instance for Driver Model */
@@ -376,6 +382,7 @@ index e4a68e0d91..7222fa1241 100644
 -	int log_drop_count;		/* Number of dropped log messages */
 -	int default_log_level;		/* For devices with no filters */
 -	struct list_head log_head;	/* List of struct log_device */
+-	int log_fmt;			/* Mask containing log format info */
 +	/**
 +	 * @log_drop_count: number of dropped log messages
 +	 *
@@ -401,7 +408,7 @@ index e4a68e0d91..7222fa1241 100644
 +	 * The @log_fmt bit mask selects the fields to be shown in log messages.
 +	 * &enum log_fmt defines the bits of the bit mask.
 +	 */
- 	int log_fmt;			/* Mask containing log format info */
++	int log_fmt;
  #endif
  #if CONFIG_IS_ENABLED(BLOBLIST)
 -	struct bloblist_hdr *bloblist;	/* Bloblist information */
@@ -422,12 +429,13 @@ index e4a68e0d91..7222fa1241 100644
  # endif
  #endif
  #if defined(CONFIG_TRANSLATION_OFFSET)
+-	fdt_addr_t translation_offset;	/* optional translation offset */
 +	/**
 +	 * @translation_offset: optional translation offset
 +	 *
 +	 * See CONFIG_TRANSLATION_OFFSET.
 +	 */
- 	fdt_addr_t translation_offset;	/* optional translation offset */
++	fdt_addr_t translation_offset;
  #endif
  #if CONFIG_IS_ENABLED(WDT)
 +	/**
