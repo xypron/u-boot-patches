@@ -1,6 +1,6 @@
-From 501e3cad0edc0506e8727627b8433376dc317b71 Mon Sep 17 00:00:00 2001
+From 477ebaa22247a53f1850d76fba27ad7ab0558a6c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Wed, 30 Sep 2020 22:29:09 +0200
+Date: Thu, 1 Oct 2020 00:59:35 +0200
 Subject: [PATCH 1/1] video: support colors in truetype console
 
 In the UEFI context we use colored output. When printing truetype letters
@@ -26,20 +26,12 @@ To test 16bit mode modify arch/sandbox/dts/sandbox.dtsi. Set
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-For testing the following patches for the sandbox are needed:
-
-[PATCH v2 1/1] sandbox: redefine getc()
-https://lists.denx.de/pipermail/u-boot/2020-September/428082.html
-
-[PATCH 1/1] sandbox: add missing SDL key scan codes
-https://lists.denx.de/pipermail/u-boot/2020-September/428007.html
----
- drivers/video/console_truetype.c | 158 ++++++++++++++++++++-----------
+ drivers/video/console_truetype.c | 156 ++++++++++++++++++++-----------
  test/dm/video.c                  |   6 +-
- 2 files changed, 106 insertions(+), 58 deletions(-)
+ 2 files changed, 104 insertions(+), 58 deletions(-)
 
 diff --git a/drivers/video/console_truetype.c b/drivers/video/console_truetype.c
-index 22b2ea7191..ba6d9cc070 100644
+index 8205413d2a..7e4df804b3 100644
 --- a/drivers/video/console_truetype.c
 +++ b/drivers/video/console_truetype.c
 @@ -212,8 +212,10 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
@@ -54,7 +46,7 @@ index 22b2ea7191..ba6d9cc070 100644
  
  	/* First get some basic metrics about this character */
  	stbtt_GetCodepointHMetrics(font, ch, &advance, &lsb);
-@@ -257,82 +259,128 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+@@ -257,82 +259,126 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
  	data = stbtt_GetCodepointBitmapSubpixel(font, priv->scale, priv->scale,
  						x_shift, 0, ch, &width, &height,
  						&xoff, &yoff);
@@ -135,13 +127,10 @@ index 22b2ea7191..ba6d9cc070 100644
 -				else
 -					*dst++ &= out;
 -				bits++;
-+			for (i = 0; i < xpos; ++i) {
++			for (i = 0; i < xpos; ++i)
 +				*dst++ = vid_priv->colour_bg;
- 			}
--			end = dst;
--			break;
 +			start += vid_priv->line_length;
- 		}
++		}
 +		if (data) {
 +			for (row = 0; row < height; row++) {
 +				u16 *dst = (u16 *)line + xoff;
@@ -163,8 +152,10 @@ index 22b2ea7191..ba6d9cc070 100644
 +					*dst++ = out;
 +				}
 +				line += vid_priv->line_length;
-+			}
-+		}
+ 			}
+-			end = dst;
+-			break;
+ 		}
 +		break;
  #endif
  #ifdef CONFIG_VIDEO_BPP32
@@ -187,17 +178,10 @@ index 22b2ea7191..ba6d9cc070 100644
 -				else
 -					*dst++ &= out;
 -				bits++;
-+			for (i = 0; i < xpos; ++i) {
++			for (i = 0; i < xpos; ++i)
 +				*dst++ = vid_priv->colour_bg;
- 			}
--			end = dst;
--			break;
 +			start += vid_priv->line_length;
- 		}
--#endif
--		default:
--			free(data);
--			return -ENOSYS;
++		}
 +		if (data) {
 +			for (row = 0; row < height; row++) {
 +				u32 *dst = (u32 *)line + xoff;
@@ -219,12 +203,18 @@ index 22b2ea7191..ba6d9cc070 100644
 +					*dst++ = out;
 +				}
 +				line += vid_priv->line_length;
-+			}
+ 			}
+-			end = dst;
+-			break;
  		}
++		break;
+ #endif
+-		default:
+-			free(data);
+-			return -ENOSYS;
+-		}
 -
 -		line += vid_priv->line_length;
-+		break;
-+#endif
 +	default:
 +		break;
  	}
