@@ -1,7 +1,7 @@
-From f7c97e4140fc21b541ea16ad43c5ef4f4c742006 Mon Sep 17 00:00:00 2001
+From c1612d66524bc22a7caa2292c15c122acc31c7c2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 17 Sep 2020 12:44:04 +0200
-Subject: [PATCH] log: allow for message continuation
+Subject: [PATCH v2 1/1] log: allow for message continuation
 
 Some drivers use macro pr_cont() for continuing a message sent via printk.
 Hence if we want to convert printk messaging to using the logging system,
@@ -16,13 +16,17 @@ of the same log level and category as in the previous log message.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- common/log.c            | 23 ++++++++++++++++++-----
- doc/develop/logging.rst |  6 ++++++
- include/log.h           |  2 ++
- 3 files changed, 26 insertions(+), 5 deletions(-)
+v2:
+	move static fields to global data
+---
+ common/log.c                      | 27 ++++++++++++++++++++++-----
+ doc/develop/logging.rst           |  6 ++++++
+ include/asm-generic/global_data.h | 13 +++++++++++++
+ include/log.h                     |  2 ++
+ 4 files changed, 43 insertions(+), 5 deletions(-)
 
 diff --git a/common/log.c b/common/log.c
-index 9a5f100da3..bafc09f263 100644
+index 54f2fdeb36..d9f3285ca0 100644
 --- a/common/log.c
 +++ b/common/log.c
 @@ -183,10 +183,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
@@ -41,22 +45,16 @@ index 9a5f100da3..bafc09f263 100644
   */
  static int log_dispatch(struct log_rec *rec)
  {
-@@ -199,7 +201,7 @@ static int log_dispatch(struct log_rec *rec)
+@@ -198,7 +200,7 @@ static int log_dispatch(struct log_rec *rec)
  	 * as this might result in infinite recursion.
  	 */
- 	if (processing_msg)
+ 	if (gd->processing_msg)
 -		return 0;
 +		return 1;
  
  	/* Emit message */
- 	processing_msg = 1;
-@@ -214,10 +216,18 @@ static int log_dispatch(struct log_rec *rec)
- int _log(enum log_category_t cat, enum log_level_t level, const char *file,
- 	 int line, const char *func, const char *fmt, ...)
- {
-+	static enum log_category_t logc_prev = LOGC_NONE;
-+	static enum log_level_t logl_prev = LOGL_INFO;
- 	char buf[CONFIG_SYS_CBSIZE];
+ 	gd->processing_msg = 1;
+@@ -217,6 +219,12 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  	struct log_rec rec;
  	va_list args;
  
@@ -69,7 +67,7 @@ index 9a5f100da3..bafc09f263 100644
  	rec.cat = cat;
  	rec.level = level;
  	rec.file = file;
-@@ -232,7 +242,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
+@@ -231,7 +239,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  			gd->log_drop_count++;
  		return -ENOSYS;
  	}
@@ -78,6 +76,19 @@ index 9a5f100da3..bafc09f263 100644
 +		logc_prev = cat;
 +		logl_prev = level;
 +	}
+ 
+ 	return 0;
+ }
+@@ -332,6 +343,12 @@ int log_init(void)
+ 	if (!gd->default_log_level)
+ 		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
+ 	gd->log_fmt = log_get_default_format();
++	/*
++	 * If by mistake the first message is a continuation message, provide
++	 * reasonable values for the logging category and level.
++	 */
++	gd->logc_prev = LOGC_NONE;
++	gd->logl_prev = LOGL_INFO;
  
  	return 0;
  }
@@ -105,6 +116,30 @@ index 7ce8482ab6..c36f6bbbe4 100644
  
  Enabling logging
  ----------------
+diff --git a/include/asm-generic/global_data.h b/include/asm-generic/global_data.h
+index 6bb7f93678..455dcfd59d 100644
+--- a/include/asm-generic/global_data.h
++++ b/include/asm-generic/global_data.h
+@@ -371,6 +371,19 @@ struct global_data {
+ 	 * while another message is being processed.
+ 	 */
+ 	int processing_msg;
++	/**
++	 * @logc_prev: previous logging category
++	 *
++	 * When a log message is continued this field provides the logging
++	 * category.
++	 */
++	int logc_prev;
++	/**
++	 * @logl_pref: previous logging level
++	 *
++	 * Whe a log message is continued this field provides the logging level.
++	 */
++	int logl_prev;
+ #endif
+ #if CONFIG_IS_ENABLED(BLOBLIST)
+ 	/**
 diff --git a/include/log.h b/include/log.h
 index 2859ce1f2e..567cd32d34 100644
 --- a/include/log.h
