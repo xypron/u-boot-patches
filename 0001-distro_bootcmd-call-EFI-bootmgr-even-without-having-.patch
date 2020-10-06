@@ -18,7 +18,7 @@ handled in cmd/bootefi.c and that already takes care of correct settings
 if the board has ACPI and thus no device tree at all.
 
 Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/config_distro_bootcmd.h | 9 ++++++---
  1 file changed, 6 insertions(+), 3 deletions(-)
