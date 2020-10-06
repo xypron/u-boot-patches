@@ -47,7 +47,7 @@ index 165fa265f2..72a6aac1b0 100644
  	efi_st_do_tests(testname, EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
  			EFI_ST_SETUP | EFI_ST_EXECUTE | EFI_ST_TEARDOWN,
  			&failures);
-+	
++
 +	if (!need_reset(testname)) {
 +		if (failures)
 +			ret = EFI_PROTOCOL_ERROR;
