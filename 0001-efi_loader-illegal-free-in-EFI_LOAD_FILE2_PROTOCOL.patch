@@ -1,0 +1,72 @@
+From 454854f95f4c806873f05aaa6146641ce62c71b6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 3 Oct 2020 12:50:52 +0200
+Subject: [PATCH 1/1] efi_loader: illegal free in EFI_LOAD_FILE2_PROTOCOL
+
+strsep() changes the address that its first argument points to.
+We cannot use the changed address as argument of free().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ lib/efi_loader/efi_load_initrd.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/lib/efi_loader/efi_load_initrd.c b/lib/efi_loader/efi_load_initrd.c
+index ff69e6eb79..d517d686c3 100644
+--- a/lib/efi_loader/efi_load_initrd.c
++++ b/lib/efi_loader/efi_load_initrd.c
+@@ -98,19 +98,20 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
+ 		      struct efi_device_path *file_path, bool boot_policy,
+ 		      efi_uintn_t *buffer_size, void *buffer)
+ {
+-	const char *filespec = CONFIG_EFI_INITRD_FILESPEC;
++	char *filespec;
+ 	efi_status_t status = EFI_NOT_FOUND;
+ 	loff_t file_sz = 0, read_sz = 0;
+ 	char *dev, *part, *file;
+-	char *s;
++	char *pos;
+ 	int ret;
+ 
+ 	EFI_ENTRY("%p, %p, %d, %p, %p", this, file_path, boot_policy,
+ 		  buffer_size, buffer);
+ 
+-	s = strdup(filespec);
+-	if (!s)
++	filespec = strdup(CONFIG_EFI_INITRD_FILESPEC);
++	if (!filespec)
+ 		goto out;
++	pos = filespec;
+ 
+ 	if (!this || this != &efi_lf2_protocol ||
+ 	    !buffer_size) {
+@@ -136,13 +137,13 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
+ 	 * * a device and partition identifier, e.g. "0:1"
+ 	 * * a file path on the block device, e.g. "/boot/initrd.cpio.gz"
+ 	 */
+-	dev = strsep(&s, " ");
++	dev = strsep(&pos, " ");
+ 	if (!dev)
+ 		goto out;
+-	part = strsep(&s, " ");
++	part = strsep(&pos, " ");
+ 	if (!part)
+ 		goto out;
+-	file = strsep(&s, " ");
++	file = strsep(&pos, " ");
+ 	if (!file)
+ 		goto out;
+ 
+@@ -170,7 +171,7 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
+ 	}
+ 
+ out:
+-	free(s);
++	free(filespec);
+ 	return EFI_EXIT(status);
+ }
+ 
+-- 
+2.28.0
+

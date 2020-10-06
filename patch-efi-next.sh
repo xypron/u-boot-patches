@@ -97,10 +97,14 @@ exit
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-efi_loader-description-EFI_LOAD_FILE2_PROTOCOL.patch
+git am ../patch/0001-efi_loader-illegal-free-in-EFI_LOAD_FILE2_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-enable-printing-hexadecimal-numbers.patch
+git am ../patch/0001-efi_selftest-print-CRC32-of-initrd-as-hexadecimal.patch
 git am ../patch/0001-efi_selftest-avoid-unnecessary-reset.patch
 
 # Review needed
-0001-distro_bootcmd-call-EFI-bootmgr-even-without-having-.patch
+git am ../patch/0001-distro_bootcmd-call-EFI-bootmgr-even-without-having-.patch
 
 git am ../patch/0001-efi-Fix-typo-in-documentation.patch
 git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch

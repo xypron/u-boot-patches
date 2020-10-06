@@ -1,0 +1,30 @@
+From c13babac577825f590270240d98547600e473998 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 3 Oct 2020 13:43:45 +0200
+Subject: [PATCH 1/1] efi_selftest: print CRC32 of initrd as hexadecimal
+
+Print the CRC32 loaded via the EFI_LOAD_FILE2_PROTOCOL as a hexadecimal
+number.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ lib/efi_selftest/efi_selftest_load_initrd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_selftest/efi_selftest_load_initrd.c b/lib/efi_selftest/efi_selftest_load_initrd.c
+index e16163caca..fe060a6644 100644
+--- a/lib/efi_selftest/efi_selftest_load_initrd.c
++++ b/lib/efi_selftest/efi_selftest_load_initrd.c
+@@ -200,7 +200,7 @@ static int execute(void)
+ 		efi_st_error("Could not determine CRC32\n");
+ 		return EFI_ST_FAILURE;
+ 	}
+-	efi_st_printf("CRC32 %u\n", (unsigned int)crc32);
++	efi_st_printf("CRC32 %.8x\n", (unsigned int)crc32);
+ 
+ 	status = boottime->free_pool(buf);
+ 	if (status != EFI_SUCCESS) {
+-- 
+2.28.0
+
