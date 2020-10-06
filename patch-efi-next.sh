@@ -25,7 +25,6 @@ git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
 git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
-git am ../patch/0001-dm-syscon-typo-alerady.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
@@ -47,8 +46,8 @@ git am ../patch/0001-doc-global-data-pointer.patch
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 git am ../patch/0001-log-move-processing_msg-to-global-data.patch
-git am ../patch/0001-log-allow-for-message-continuation.patch
-git am ../patch/0001-test-log-test-message-continuation.patch
+# git am ../patch/0001-log-allow-for-message-continuation.patch
+# git am ../patch/0001-test-log-test-message-continuation.patch
 
 # button command
 git am ../patch/0001-test-sharpen-button-label-unit-test.patch
@@ -59,8 +58,6 @@ git am ../patch/0001-cmd-button-return-button-status.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
 # git am ../patch/0001-riscv-add-DT-binding-for-BOOT-button-on-Maix-board.patch
-git am ../patch/0001-doc-correct-kflash-settings-for-Maix-One-Dock.patch
-git am ../patch/0001-doc-sipeed-maix-describe-RESET-and-BOOT-button.patch
 git am ../patch/0001-riscv-reset-after-crash.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
@@ -91,24 +88,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2020-10-rc6
-exit
-
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
-git am ../patch/0001-efi_loader-description-EFI_LOAD_FILE2_PROTOCOL.patch
-git am ../patch/0001-efi_loader-illegal-free-in-EFI_LOAD_FILE2_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-enable-printing-hexadecimal-numbers.patch
-git am ../patch/0001-efi_selftest-print-CRC32-of-initrd-as-hexadecimal.patch
-git am ../patch/0001-efi_selftest-avoid-unnecessary-reset.patch
-
-# Review needed
-git am ../patch/0001-distro_bootcmd-call-EFI-bootmgr-even-without-having-.patch
-
-git am ../patch/0001-efi-Fix-typo-in-documentation.patch
-git am ../patch/0001-efi_loader-QEMU-CONFIG_EFI_GRUB_ARM32_WORKAROUND-n.patch
-git am ../patch/0001-efi_loader-consider-no-map-property-of-reserved-memo.patch
 
 exit
 
