@@ -1,0 +1,31 @@
+From 32b0c29d3390c8977d69b1f4b3363388e0d51ca0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 6 Oct 2020 17:35:01 +0200
+Subject: [PATCH] doc: Sphinx.override_domain() deprecated
+
+Sphinx.override_domain() is deprecated since Sphinx 1.8 and removed in
+Sphinx 3.
+
+Use Sphinx.add_domain(, override=True) instead.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/sphinx/cdomain.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/sphinx/cdomain.py b/doc/sphinx/cdomain.py
+index cf13ff3a65..e0c762caa6 100644
+--- a/doc/sphinx/cdomain.py
++++ b/doc/sphinx/cdomain.py
+@@ -48,7 +48,7 @@ major, minor, patch = sphinx.version_info[:3]
+ 
+ def setup(app):
+ 
+-    app.override_domain(CDomain)
++    app.add_domain(CDomain, override=True)
+ 
+     return dict(
+         version = __version__,
+-- 
+2.28.0
+
