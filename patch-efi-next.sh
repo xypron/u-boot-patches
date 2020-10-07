@@ -78,7 +78,8 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
-git am ../patch/0001-sandbox-redefine-getc.patch
+# git am ../patch/0001-sandbox-redefine-getc.patch
+git am ../patch/0001-common-rename-getc-to-getchar.patch
 git am ../patch/0001-sandbox-add-missing-SDL-key-scan-codes.patch
 git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
 git am ../patch/0001-sandbox-avoid-duplicate-backslash-input.patch
@@ -93,7 +94,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
-
+git am ../patch/0001-net-add-a-define-for-the-number-of-packets-received-.patch
+git am ../patch/0001-efi_loader-fix-use-after-free-in-receive-path.patch
 exit
 
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
