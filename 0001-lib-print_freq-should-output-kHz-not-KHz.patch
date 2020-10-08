@@ -1,0 +1,43 @@
+From b09da002233125a5b0cf1364b527d27767975493 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 8 Oct 2020 21:02:30 +0200
+Subject: [PATCH] lib: print_freq() should output kHz not KHz
+
+In the International System of Units (SI) the prefix kilo is abbreviated as
+'k' not 'K'. 'K' is the symbol for Kelvin.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/display_options.h | 2 +-
+ lib/display_options.c     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/display_options.h b/include/display_options.h
+index a0dabca2b8..049688e39e 100644
+--- a/include/display_options.h
++++ b/include/display_options.h
+@@ -24,7 +24,7 @@ void print_size(uint64_t size, const char *suffix);
+ /**
+  * print_freq() - Print a frequency with a suffix
+  *
+- * Print frequencies as "x.xx GHz", "xxx KHz", etc as needed; allow for
++ * Print frequencies as "x.xx GHz", "xxx kHz", etc as needed; allow for
+  * optional trailing string (like "\n")
+  *
+  * @freq:	Frequency to print in Hz
+diff --git a/lib/display_options.c b/lib/display_options.c
+index ea9977cc18..b2025eeb5c 100644
+--- a/lib/display_options.c
++++ b/lib/display_options.c
+@@ -54,7 +54,7 @@ void print_freq(uint64_t freq, const char *s)
+ {
+ 	unsigned long m = 0;
+ 	uint32_t f;
+-	static const char names[] = {'G', 'M', 'K'};
++	static const char names[] = {'G', 'M', 'k'};
+ 	unsigned long d = 1e9;
+ 	char c = 0;
+ 	unsigned int i;
+-- 
+2.28.0
+

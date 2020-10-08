@@ -35,6 +35,8 @@ git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
 git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch
 git am ../patch/0001-doc-Sphinx.override_domain-deprecated.patch
+git am ../patch/0001-lib-print_freq-should-output-kHz-not-KHz.patch
+git am ../patch/0001-test-unit-tests-for-print_freq-print_size.patch
 
 # doc
 git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
