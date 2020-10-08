@@ -29,8 +29,6 @@ git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
-git am ../patch/0001-MAINTAINERS-assign-doc-arch-sandbox.rst.patch
-git am ../patch/0001-doc-arch-sandbox.rst-reformat-command-line-options.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
@@ -80,9 +78,7 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 # git am ../patch/0001-sandbox-redefine-getc.patch
 git am ../patch/0001-common-rename-getc-to-getchar.patch
-git am ../patch/0001-sandbox-add-missing-SDL-key-scan-codes.patch
 git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
-git am ../patch/0001-sandbox-avoid-duplicate-backslash-input.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 # FTRACE: is the patch needed?
