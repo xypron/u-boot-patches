@@ -30,7 +30,6 @@ git am ../patch/0001-doc-remove-redundant-doc-README.log.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
-git am ../patch/0001-examples-make-examples-optional.patch
 git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
 git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch

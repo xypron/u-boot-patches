@@ -50,15 +50,15 @@ index b7289ba539..c7efbd25d8 100644
 +
  static int cfi_flash_probe(struct udevice *dev)
  {
- 	const fdt32_t *cell;
+ 	fdt_addr_t addr;
 @@ -2488,6 +2491,7 @@ static int cfi_flash_probe(struct udevice *dev)
  
  		flash_info[cfi_flash_num_flash_banks].dev = dev;
  		flash_info[cfi_flash_num_flash_banks].base = addr;
 +		debug("CFI flash at 0x%llx\n", (u64)addr);
  		cfi_flash_num_flash_banks++;
- 
- 		idx += addrc + sizec;
+ 	}
+ 	gd->bd->bi_flashstart = flash_info[0].base;
 @@ -2497,6 +2501,38 @@ static int cfi_flash_probe(struct udevice *dev)
  	return 0;
  }
