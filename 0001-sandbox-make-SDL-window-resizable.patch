@@ -1,7 +1,7 @@
 From c2f5da033f9fe6d6e94c9d359e3b36127732f366 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 29 Sep 2020 03:04:34 +0200
-Subject: [PATCH 1/1] sandbox: make SDL window resizable
+Subject: [PATCH v2 1/1] sandbox: make SDL window resizable
 
 Without resizing the SDL window showed by
 
@@ -9,24 +9,26 @@ Without resizing the SDL window showed by
 
 is not legible on a high resolution screen.
 
-Start with a maximized window and allow resizing.
+Allow resizing the window
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/sandbox/cpu/sdl.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+v2:
+	Do not maximize the window.
+---
+ arch/sandbox/cpu/sdl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/arch/sandbox/cpu/sdl.c b/arch/sandbox/cpu/sdl.c
 index 7dc3dab32e..911247123f 100644
 --- a/arch/sandbox/cpu/sdl.c
 +++ b/arch/sandbox/cpu/sdl.c
-@@ -127,7 +127,9 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
+@@ -127,7 +127,8 @@ int sandbox_sdl_init_display(int width, int height, int log2_bpp,
  	sdl.pitch = sdl.width * sdl.depth / 8;
  	SDL_Window *screen = SDL_CreateWindow("U-Boot", SDL_WINDOWPOS_UNDEFINED,
  					      SDL_WINDOWPOS_UNDEFINED,
 -					      sdl.vis_width, sdl.vis_height, 0);
 +					      sdl.vis_width, sdl.vis_height,
-+					      SDL_WINDOW_MAXIMIZED |
 +					      SDL_WINDOW_RESIZABLE);
  	if (!screen) {
  		printf("Unable to initialise SDL screen: %s\n",

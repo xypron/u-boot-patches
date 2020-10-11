@@ -1,3 +1,0 @@
-#!/bin/sh
-
-git am ../patch/0001-mv_ddr-mv_ddr4_training_leveling.c-uninitialized-var.patch
