@@ -1,14 +1,16 @@
-From b9b138125491c903e9a8998cb37fe3f300a1cc5a Mon Sep 17 00:00:00 2001
+From 1629d254778d9d34f1a9ab087a3e96ba56e34efb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 8 Oct 2020 22:17:59 +0200
-Subject: [PATCH 1/1] test: unit tests for print_freq(), print_size()
+Subject: [PATCH] test: unit tests for print_freq(), print_size()
 
 Provide unit tests for functions print_freq() and print_size().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/lib/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ test/lib/Makefile     |  1 +
+ test/lib/test_print.c | 71 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 72 insertions(+)
+ create mode 100644 test/lib/test_print.c
 
 diff --git a/test/lib/Makefile b/test/lib/Makefile
 index 22236f8587..15cd512506 100644
@@ -22,6 +24,83 @@ index 22236f8587..15cd512506 100644
  obj-$(CONFIG_SSCANF) += sscanf.o
  obj-y += string.o
  obj-$(CONFIG_ERRNO_STR) += test_errno_str.o
+diff --git a/test/lib/test_print.c b/test/lib/test_print.c
+new file mode 100644
+index 0000000000..1d497d0041
+--- /dev/null
++++ b/test/lib/test_print.c
+@@ -0,0 +1,71 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Tests for print functions
++ *
++ * Copyright 2020, Heinrich Schuchadt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++#include <display_options.h>
++#include <test/lib.h>
++#include <test/test.h>
++#include <test/ut.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++static int test_print_freq(struct unit_test_state *uts,
++			   uint64_t freq, char *expected)
++{
++	console_record_reset_enable();
++	print_freq(freq, ";\n");
++	gd->flags &= ~GD_FLG_RECORD;
++	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
++	ut_asserteq_str(expected, uts->actual_str);
++	ut_assertok(ut_check_console_end(uts));
++	return 0;
++}
++
++static int lib_test_print_freq(struct unit_test_state *uts)
++{
++	ut_assertok(test_print_freq(uts, 321, "321 Hz;"));
++	ut_assertok(test_print_freq(uts, 4321, "4.32 kHz;"));
++	ut_assertok(test_print_freq(uts, 54321, "54.32 kHz;"));
++	ut_assertok(test_print_freq(uts, 654321, "654.32 kHz;"));
++	ut_assertok(test_print_freq(uts, 7654321, "7.66 MHz;"));
++	ut_assertok(test_print_freq(uts, 87654321, "87.66 MHz;"));
++	ut_assertok(test_print_freq(uts, 987654321, "987.66 MHz;"));
++	ut_assertok(test_print_freq(uts, 1987654321, "1.99 GHz;"));
++	ut_assertok(test_print_freq(uts, 54321987654321, "54321.99 GHz;"));
++	return 0;
++}
++
++LIB_TEST(lib_test_print_freq, 0);
++
++static int test_print_size(struct unit_test_state *uts,
++			   uint64_t freq, char *expected)
++{
++	console_record_reset_enable();
++	print_size(freq, ";\n");
++	gd->flags &= ~GD_FLG_RECORD;
++	console_record_readline(uts->actual_str, sizeof(uts->actual_str));
++	ut_asserteq_str(expected, uts->actual_str);
++	ut_assertok(ut_check_console_end(uts));
++	return 0;
++}
++
++static int lib_test_print_size(struct unit_test_state *uts)
++{
++	ut_assertok(test_print_size(uts, 321, "321 Bytes;"));
++	ut_assertok(test_print_size(uts, 4321, "4.2 KiB;"));
++	ut_assertok(test_print_size(uts, 54321, "53 KiB;"));
++	ut_assertok(test_print_size(uts, 654321, "639 KiB;"));
++	ut_assertok(test_print_size(uts, 7654321, "7.3 MiB;"));
++	ut_assertok(test_print_size(uts, 87654321, "83.6 MiB;"));
++	ut_assertok(test_print_size(uts, 987654321, "941.9 MiB;"));
++	ut_assertok(test_print_size(uts, 1987654321, "1.9 GiB;"));
++	ut_assertok(test_print_size(uts, 54321987654321, "49.4 TiB;"));
++	return 0;
++}
++
++LIB_TEST(lib_test_print_size, 0);
 -- 
 2.28.0
 
