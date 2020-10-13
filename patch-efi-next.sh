@@ -23,8 +23,6 @@ git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
-git am ../patch/0001-lib-hashtable-remove-superfluous-check.patch
-git am ../patch/0001-lib-rsa-superfluous-initialization-in-rsa_verify.patch
 git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
 git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
 git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
