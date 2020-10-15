@@ -54,7 +54,6 @@ git am ../patch/0001-riscv-reset-after-crash.patch
 # git am ../patch/0001-mtd-cfi_flash-use-__raw_writeq-__raw_readq.patch
 
 # DFU
-git am ../patch/0001-dfu-remove-UPDATE_TFTP.patch
 git am ../patch/0001-dfu-simplify-DFU_TFTP-configuration.patch
 git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 
