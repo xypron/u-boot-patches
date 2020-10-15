@@ -23,21 +23,12 @@ git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
-git am ../patch/0001-espresso7420-remove-unused-symbol-CONFIG_DEFAULT_CON.patch
-git am ../patch/0001-bootm-add-arch-board-_preboot_os-to-bootm.h.patch
-git am ../patch/0001-arm-enable-DM_RNG-on-QEMU-by-default.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-mmc-do-not-check-argument-of-free-beforehand.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
 git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch
-git am ../patch/0001-doc-Sphinx.override_domain-deprecated.patch
 git am ../patch/0001-lib-print_freq-should-output-kHz-not-KHz.patch
 git am ../patch/0001-test-unit-tests-for-print_freq-print_size.patch
-
-# doc
-git am ../patch/0001-global_data.h-convert-GD_FLG_-to-enum.patch
-git am ../patch/0001-global_data.h-add-Sphinx-documentation.patch
-git am ../patch/0001-doc-global-data-pointer.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -45,11 +36,6 @@ git am ../patch/0001-doc-global-data-pointer.patch
 git am ../patch/0001-log-move-processing_msg-to-global-data.patch
 # git am ../patch/0001-log-allow-for-message-continuation.patch
 # git am ../patch/0001-test-log-test-message-continuation.patch
-
-# button command
-git am ../patch/0001-test-sharpen-button-label-unit-test.patch
-git am ../patch/0001-drivers-gpio-keep-output-value-for-input-on-sandbox.patch
-git am ../patch/0001-cmd-button-return-button-status.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
