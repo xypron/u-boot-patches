@@ -1,0 +1,32 @@
+From 1f8b78b117001fa77c8b31d7e7efe973f61bdf1b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 15 Oct 2020 07:40:57 +0200
+Subject: [PATCH 1/1] doc: global data pointer on x86, x86_64
+
+On x86 the global data pointer is stored in register fs.
+On x86_64 no register is used for the global data pointer.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/develop/global_data.rst | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/doc/develop/global_data.rst b/doc/develop/global_data.rst
+index 9e7c8a24da..230ebcd860 100644
+--- a/doc/develop/global_data.rst
++++ b/doc/develop/global_data.rst
+@@ -33,8 +33,10 @@ On most architectures the global data pointer is stored in a register.
+ +------------+----------+
+ | SuperH     | r13      |
+ +------------+----------+
++| x86 32bit  | fs       |
+++------------+----------+
+ 
+-The sandbox, x86, and Xtensa are notable exceptions.
++The sandbox, x86_64, and Xtensa are notable exceptions.
+ 
+ Clang for ARM does not support assigning a global register. When using Clang
+ gd is defined as an inline function using assembly code. This adds a few bytes
+-- 
+2.28.0
+
