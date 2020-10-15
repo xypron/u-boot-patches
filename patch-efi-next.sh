@@ -74,10 +74,12 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2021-01
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 git am ../patch/0001-net-add-a-define-for-the-number-of-packets-received-.patch
 git am ../patch/0001-efi_loader-fix-use-after-free-in-receive-path.patch
+git am ../patch/0001-trace-conserve-gd-register-on-RISC-V.patch
 exit
+
+git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
 git am ../patch/0001-dfu-modify-an-argument-type-for-an-address.patch
