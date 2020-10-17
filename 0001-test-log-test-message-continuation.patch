@@ -19,7 +19,7 @@ index 4c92550f6e..1f91c90422 100644
 --- a/test/log/Makefile
 +++ b/test/log/Makefile
 @@ -12,7 +12,9 @@ ifdef CONFIG_SANDBOX
- obj-$(CONFIG_LOG_SYSLOG) += syslog_test.o
+ obj-$(CONFIG_LOG_SYSLOG) += syslog_test_ndebug.o
  endif
  
 -ifndef CONFIG_LOG
