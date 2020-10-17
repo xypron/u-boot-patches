@@ -1,0 +1,49 @@
+From 580d7ca2c736ddba80b565c9dfe930f58848e09b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 17 Oct 2020 13:41:42 +0200
+Subject: [PATCH 1/1] test: fix build failure for syslog_test
+
+Avoid failures like:
+
+test/log/syslog_test_ndebug.c:18:10:
+fatal error: syslog_test.h: No such file or directory
+   18 | #include <syslog_test.h>
+      |          ^~~~~~~~~~~~~~~
+
+syslog_test.h is a local include. Use "" and not <>.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/log/syslog_test.c        | 2 +-
+ test/log/syslog_test_ndebug.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/test/log/syslog_test.c b/test/log/syslog_test.c
+index febaca68e8..a058d8f569 100644
+--- a/test/log/syslog_test.c
++++ b/test/log/syslog_test.c
+@@ -18,7 +18,7 @@
+ #include <test/suites.h>
+ #include <test/ut.h>
+ #include <asm/eth.h>
+-#include <syslog_test.h>
++#include "syslog_test.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+diff --git a/test/log/syslog_test_ndebug.c b/test/log/syslog_test_ndebug.c
+index c7f5a60861..84844a3944 100644
+--- a/test/log/syslog_test_ndebug.c
++++ b/test/log/syslog_test_ndebug.c
+@@ -15,7 +15,7 @@
+ #include <test/suites.h>
+ #include <test/ut.h>
+ #include <asm/eth.h>
+-#include <syslog_test.h>
++#include "syslog_test.h"
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+-- 
+2.28.0
+

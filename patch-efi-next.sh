@@ -33,6 +33,7 @@ git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
+git am ../patch/0001-test-fix-build-failure-for-syslog_test.patch
 git am ../patch/0001-log-move-processing_msg-to-global-data.patch
 # git am ../patch/0001-log-allow-for-message-continuation.patch
 # git am ../patch/0001-test-log-test-message-continuation.patch
