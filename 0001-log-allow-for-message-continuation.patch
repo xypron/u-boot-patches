@@ -1,7 +1,7 @@
-From 1349f3035ffc4453da53b65e152657a6ad89638e Mon Sep 17 00:00:00 2001
+From b3bc782f3035f1ccf36705bee57f5e1cb7099b96 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Thu, 17 Sep 2020 12:44:04 +0200
-Subject: [PATCH v2 1/1] log: allow for message continuation
+Date: Thu, 17 Sep 2020 14:19:01 +0200
+Subject: [PATCH 1/1] log: allow for message continuation
 
 Some drivers use macro pr_cont() for continuing a message sent via printk.
 Hence if we want to convert printk messaging to using the logging system,
@@ -16,20 +16,17 @@ of the same log level and category as in the previous log message.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
-v2:
-	move static fields to global data
----
- common/log.c                      | 27 ++++++++++++++++++++++-----
+ common/log.c                      | 23 ++++++++++++++++++-----
  doc/develop/logging.rst           |  6 ++++++
- include/asm-generic/global_data.h | 13 +++++++++++++
+ include/asm-generic/global_data.h | 12 ++++++++++++
  include/log.h                     |  2 ++
- 4 files changed, 43 insertions(+), 5 deletions(-)
+ 4 files changed, 38 insertions(+), 5 deletions(-)
 
 diff --git a/common/log.c b/common/log.c
-index 54f2fdeb36..1c40c414b6 100644
+index f95f09c1b6..58be9f7440 100644
 --- a/common/log.c
 +++ b/common/log.c
-@@ -183,10 +183,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
+@@ -186,10 +186,12 @@ static bool log_passes_filters(struct log_device *ldev, struct log_rec *rec)
   * log_dispatch() - Send a log record to all log devices for processing
   *
   * The log record is sent to each log device in turn, skipping those which have
@@ -45,7 +42,7 @@ index 54f2fdeb36..1c40c414b6 100644
   */
  static int log_dispatch(struct log_rec *rec)
  {
-@@ -198,7 +200,7 @@ static int log_dispatch(struct log_rec *rec)
+@@ -201,7 +203,7 @@ static int log_dispatch(struct log_rec *rec)
  	 * as this might result in infinite recursion.
  	 */
  	if (gd->processing_msg)
@@ -54,7 +51,7 @@ index 54f2fdeb36..1c40c414b6 100644
  
  	/* Emit message */
  	gd->processing_msg = true;
-@@ -217,6 +219,12 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
+@@ -221,6 +223,12 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  	struct log_rec rec;
  	va_list args;
  
@@ -65,9 +62,9 @@ index 54f2fdeb36..1c40c414b6 100644
 +		level = gd->logl_prev;
 +
  	rec.cat = cat;
- 	rec.level = level;
- 	rec.file = file;
-@@ -231,7 +239,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
+ 	rec.level = level & LOGL_LEVEL_MASK;
+ 	rec.force_debug = level & LOGL_FORCE_DEBUG;
+@@ -236,7 +244,10 @@ int _log(enum log_category_t cat, enum log_level_t level, const char *file,
  			gd->log_drop_count++;
  		return -ENOSYS;
  	}
@@ -79,14 +76,10 @@ index 54f2fdeb36..1c40c414b6 100644
  
  	return 0;
  }
-@@ -332,6 +343,12 @@ int log_init(void)
+@@ -376,6 +387,8 @@ int log_init(void)
  	if (!gd->default_log_level)
  		gd->default_log_level = CONFIG_LOG_DEFAULT_LEVEL;
  	gd->log_fmt = log_get_default_format();
-+	/*
-+	 * If by mistake the first message is a continuation message, provide
-+	 * reasonable values for the logging category and level.
-+	 */
 +	gd->logc_prev = LOGC_NONE;
 +	gd->logl_prev = LOGL_INFO;
  
@@ -117,34 +110,33 @@ index 7ce8482ab6..c36f6bbbe4 100644
  Enabling logging
  ----------------
 diff --git a/include/asm-generic/global_data.h b/include/asm-generic/global_data.h
-index 6bb7f93678..455dcfd59d 100644
+index db83f59ceb..0157af1aa4 100644
 --- a/include/asm-generic/global_data.h
 +++ b/include/asm-generic/global_data.h
-@@ -371,6 +371,19 @@ struct global_data {
+@@ -371,6 +371,18 @@ struct global_data {
  	 * while another message is being processed.
  	 */
  	bool processing_msg;
 +	/**
-+	 * @logc_prev: previous logging category
++	 * @logc_prev: logging category of previous message
 +	 *
-+	 * When a log message is continued this field provides the logging
-+	 * category.
++	 * This value is used as logging category for continuation messages.
 +	 */
 +	int logc_prev;
 +	/**
-+	 * @logl_pref: previous logging level
++	 * @logl_pref: logging level of the previous message
 +	 *
-+	 * Whe a log message is continued this field provides the logging level.
++	 * This value is used as logging level for continuation messages.
 +	 */
 +	int logl_prev;
  #endif
  #if CONFIG_IS_ENABLED(BLOBLIST)
  	/**
 diff --git a/include/log.h b/include/log.h
-index 2859ce1f2e..567cd32d34 100644
+index 4acc087b2e..73cfb6153c 100644
 --- a/include/log.h
 +++ b/include/log.h
-@@ -35,6 +35,7 @@ enum log_level_t {
+@@ -38,6 +38,7 @@ enum log_level_t {
  
  	LOGL_FIRST = LOGL_EMERG,
  	LOGL_MAX = LOGL_DEBUG_IO,
@@ -152,7 +144,7 @@ index 2859ce1f2e..567cd32d34 100644
  };
  
  /**
-@@ -60,6 +61,7 @@ enum log_category_t {
+@@ -63,6 +64,7 @@ enum log_category_t {
  
  	LOGC_COUNT,	/* Number of log categories */
  	LOGC_END,	/* Sentinel value for a list of log categories */

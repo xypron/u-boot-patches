@@ -7,6 +7,7 @@ Provide a unit test checking that a continuation message will use the same
 log level and log category as the previous message.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/log/Makefile    |  4 +++-
  test/log/cont_test.c | 52 ++++++++++++++++++++++++++++++++++++++++++++
