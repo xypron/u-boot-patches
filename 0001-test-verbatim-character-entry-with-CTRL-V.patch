@@ -1,4 +1,4 @@
-From 30466c5d403e284fd093dabc0f5ca4d9cb7127eb Mon Sep 17 00:00:00 2001
+From 7bb5383feb1384cbf7df4a5f53d2eac80bb6c822 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 12 Jan 2020 16:26:30 +0100
 Subject: [PATCH 1/1] test: verbatim character entry with CTRL-V
@@ -9,8 +9,8 @@ characters to the line buffer.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/dm/Makefile      |   2 +-
- test/dm/usb_console.c | 150 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 151 insertions(+), 1 deletion(-)
+ test/dm/usb_console.c | 151 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 152 insertions(+), 1 deletion(-)
  create mode 100644 test/dm/usb_console.c
 
 diff --git a/test/dm/Makefile b/test/dm/Makefile
@@ -28,10 +28,10 @@ index e2b0798388..2c65566a4d 100644
  obj-$(CONFIG_TIMER) += timer.o
 diff --git a/test/dm/usb_console.c b/test/dm/usb_console.c
 new file mode 100644
-index 0000000000..51f857f52e
+index 0000000000..fd60f69be3
 --- /dev/null
 +++ b/test/dm/usb_console.c
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,151 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright (C) 2019 Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -44,6 +44,7 @@ index 0000000000..51f857f52e
 +#include <asm/state.h>
 +#include <asm/test.h>
 +#include <dm/test.h>
++#include <dm/uclass.h>
 +#include <test/ut.h>
 +#include <usb.h>
 +
