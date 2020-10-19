@@ -1,4 +1,4 @@
-From e93650488528d1b4dc5ca044308067325615d347 Mon Sep 17 00:00:00 2001
+From 30466c5d403e284fd093dabc0f5ca4d9cb7127eb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 12 Jan 2020 16:26:30 +0100
 Subject: [PATCH 1/1] test: verbatim character entry with CTRL-V
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 test/dm/usb_console.c
 
 diff --git a/test/dm/Makefile b/test/dm/Makefile
-index dd1ceff86c..0261424168 100644
+index e2b0798388..2c65566a4d 100644
 --- a/test/dm/Makefile
 +++ b/test/dm/Makefile
-@@ -51,7 +51,7 @@ obj-$(CONFIG_DM_SPI_FLASH) += sf.o
+@@ -57,7 +57,7 @@ obj-$(CONFIG_DM_SPI_FLASH) += sf.o
  obj-$(CONFIG_SMEM) += smem.o
  obj-$(CONFIG_DM_SPI) += spi.o
  obj-y += syscon.o
@@ -28,7 +28,7 @@ index dd1ceff86c..0261424168 100644
  obj-$(CONFIG_TIMER) += timer.o
 diff --git a/test/dm/usb_console.c b/test/dm/usb_console.c
 new file mode 100644
-index 0000000000..c62a05291d
+index 0000000000..51f857f52e
 --- /dev/null
 +++ b/test/dm/usb_console.c
 @@ -0,0 +1,150 @@
@@ -181,7 +181,7 @@ index 0000000000..c62a05291d
 +
 +	return 0;
 +}
-+DM_TEST(dm_test_usb_console_verbatim, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
++DM_TEST(dm_test_usb_console_verbatim, UT_TESTF_SCAN_PDATA | UT_TESTF_SCAN_FDT);
 -- 
-2.24.1
+2.28.0
 

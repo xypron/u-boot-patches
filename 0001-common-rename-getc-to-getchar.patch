@@ -1,4 +1,4 @@
-From 05a9cab8b254dc799c6e72616a67129a503bdcec Mon Sep 17 00:00:00 2001
+From 194644497f281f2d84b8b702c98afa777444d14c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 7 Oct 2020 07:44:55 +0200
 Subject: [PATCH 1/1] common: rename getc() to getchar()
@@ -20,6 +20,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  api/api.c                                   |  2 +-
  cmd/bootmenu.c                              |  4 +-
+ cmd/conitrace.c                             |  4 +-
  cmd/load.c                                  | 44 ++++++++++-----------
  common/autoboot.c                           | 10 ++---
  common/cli_readline.c                       |  4 +-
@@ -35,7 +36,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  lib/charset.c                               |  2 +-
  lib/efi_loader/efi_console.c                | 20 +++++-----
  test/dm/usb.c                               |  2 +-
- 17 files changed, 58 insertions(+), 58 deletions(-)
+ 18 files changed, 60 insertions(+), 60 deletions(-)
 
 diff --git a/api/api.c b/api/api.c
 index c7f5db776a..493b77f809 100644
@@ -72,6 +73,23 @@ index 18efe25751..1ba7b622e5 100644
  
  	switch (*esc) {
  	case 0:
+diff --git a/cmd/conitrace.c b/cmd/conitrace.c
+index 88850db541..811f5c68a9 100644
+--- a/cmd/conitrace.c
++++ b/cmd/conitrace.c
+@@ -19,10 +19,10 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
+ 
+ 	/* Empty input buffer */
+ 	while (tstc())
+-		getc();
++		getchar();
+ 
+ 	for (;;) {
+-		int c = getc();
++		int c = getchar();
+ 
+ 		if (first && (c == 'x' || c == 'X'))
+ 			break;
 diff --git a/cmd/load.c b/cmd/load.c
 index 63a9414543..9a3a16979c 100644
 --- a/cmd/load.c
@@ -313,10 +331,10 @@ index 6d78716a26..28a398a08a 100644
  					menukey = key;
  				break;
 diff --git a/common/cli_readline.c b/common/cli_readline.c
-index 1f1e28c6d8..47b876285c 100644
+index 81c459f35c..cf4e705b54 100644
 --- a/common/cli_readline.c
 +++ b/common/cli_readline.c
-@@ -68,7 +68,7 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
+@@ -66,7 +66,7 @@ static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
  #define CREAD_HIST_CHAR		('!')
  
  #define getcmd_putch(ch)	putc(ch)
@@ -325,7 +343,7 @@ index 1f1e28c6d8..47b876285c 100644
  #define getcmd_cbeep()		getcmd_putch('\a')
  
  #define HIST_MAX		20
-@@ -571,7 +571,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
+@@ -603,7 +603,7 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
  			return -2;	/* timed out */
  		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
  
