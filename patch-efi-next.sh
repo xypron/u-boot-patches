@@ -69,12 +69,14 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2021-01
-# git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
+# efi-2021-01-rc1-2
 git am ../patch/0001-net-add-a-define-for-the-number-of-packets-received-.patch
 git am ../patch/0001-efi_loader-fix-use-after-free-in-receive-path.patch
+
+# efi-2021-01-rc1-3
+# git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 git am ../patch/0001-trace-conserve-gd-register-on-RISC-V.patch
+git am ../patch/0001-efi_loader-Disable-devices-before-handing-over-contr.patch
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
