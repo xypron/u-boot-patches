@@ -71,6 +71,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2021-01-rc1-3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 git am ../patch/0001-trace-conserve-gd-register-on-RISC-V.patch
+git am ../patch/0001-efi_loader-Sort-header-file-ordering.patch
 git am ../patch/0001-efi_loader-Disable-devices-before-handing-over-contr.patch
 exit
 
