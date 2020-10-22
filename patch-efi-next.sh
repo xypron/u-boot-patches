@@ -25,7 +25,6 @@ git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
-git am ../patch/0001-usb-xhci-avoid-type-conversion-of-void.patch
 git am ../patch/0001-lib-print_freq-should-output-kHz-not-KHz.patch
 git am ../patch/0001-test-unit-tests-for-print_freq-print_size.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
@@ -68,10 +67,6 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
-
-# efi-2021-01-rc1-2
-git am ../patch/0001-net-add-a-define-for-the-number-of-packets-received-.patch
-git am ../patch/0001-efi_loader-fix-use-after-free-in-receive-path.patch
 
 # efi-2021-01-rc1-3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
