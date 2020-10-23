@@ -17,19 +17,17 @@ git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-tools-image-host.c-use-correct-output-format.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-git am ../patch/0001-arm-sunxi-increase-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-post-remove-redundant-condition.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
-git am ../patch/0001-lib-print_freq-should-output-kHz-not-KHz.patch
 git am ../patch/0001-test-unit-tests-for-print_freq-print_size.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
+git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -61,7 +59,6 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 # git am ../patch/0001-sandbox-redefine-getc.patch
-git am ../patch/0001-common-rename-getc-to-getchar.patch
 git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 

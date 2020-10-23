@@ -1,0 +1,33 @@
+From dbc4f2f325ac3f30a2e46ab6d8296af8016ac462 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 23 Oct 2020 12:46:04 +0200
+Subject: [PATCH 1/1] cmd: conitrace: replace getc() by getchar()
+
+This command was missed when renaming getc() to getchar().
+
+Fixes: c670aeee3df9 ("common: rename getc() to getchar()")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/conitrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/conitrace.c b/cmd/conitrace.c
+index 88850db541..811f5c68a9 100644
+--- a/cmd/conitrace.c
++++ b/cmd/conitrace.c
+@@ -19,10 +19,10 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
+ 
+ 	/* Empty input buffer */
+ 	while (tstc())
+-		getc();
++		getchar();
+ 
+ 	for (;;) {
+-		int c = getc();
++		int c = getchar();
+ 
+ 		if (first && (c == 'x' || c == 'X'))
+ 			break;
+-- 
+2.28.0
+
