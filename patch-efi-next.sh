@@ -73,6 +73,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-conserve-gd-register-on-RISC-V.patch
 git am ../patch/0001-efi_loader-Sort-header-file-ordering.patch
 git am ../patch/0001-efi_loader-Disable-devices-before-handing-over-contr.patch
+git am ../patch/0001-rtc-provide-an-emulated-RTC.patch
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
