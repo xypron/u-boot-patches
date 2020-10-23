@@ -1,0 +1,55 @@
+From c0ff88d83c14130b415110d97704ec470e72e6ea Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 23 Oct 2020 05:30:29 +0200
+Subject: [PATCH 1/1] efi_loader: daylight saving time
+
+Adjust the SetTime() and GetTime() runtime services to correctly convert
+the daylight saving time information when communicating with the RTC.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_runtime.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
+index dea2b4e5ee..1fa1595e40 100644
+--- a/lib/efi_loader/efi_runtime.c
++++ b/lib/efi_loader/efi_runtime.c
+@@ -266,9 +266,13 @@ static efi_status_t EFIAPI efi_get_time_boottime(
+ 	time->hour = tm.tm_hour;
+ 	time->minute = tm.tm_min;
+ 	time->second = tm.tm_sec;
+-	if (tm.tm_isdst)
++	if (tm.tm_isdst > 0)
+ 		time->daylight =
+ 			EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT;
++	else if (!tm.tm_isdst)
++		time->daylight = EFI_TIME_ADJUST_DAYLIGHT;
++	else
++		time->daylight = 0;
+ 	time->timezone = EFI_UNSPECIFIED_TIMEZONE;
+ 
+ 	if (capabilities) {
+@@ -347,8 +351,17 @@ static efi_status_t EFIAPI efi_set_time_boottime(struct efi_time *time)
+ 	tm.tm_hour = time->hour;
+ 	tm.tm_min = time->minute;
+ 	tm.tm_sec = time->second;
+-	tm.tm_isdst = time->daylight ==
+-		      (EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT);
++	switch (time->daylight) {
++	case EFI_TIME_ADJUST_DAYLIGHT:
++		tm.tm_isdst = 0;
++		break;
++	case EFI_TIME_ADJUST_DAYLIGHT | EFI_TIME_IN_DAYLIGHT:
++		tm.tm_isdst = 1;
++		break;
++	default:
++		tm.tm_isdst = -1;
++		break;
++	}
+ 	/* Calculate day of week */
+ 	rtc_calc_weekday(&tm);
+ 
+-- 
+2.28.0
+
