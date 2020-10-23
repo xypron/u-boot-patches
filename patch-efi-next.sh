@@ -29,6 +29,7 @@ git am ../patch/0001-lib-print_freq-should-output-kHz-not-KHz.patch
 git am ../patch/0001-test-unit-tests-for-print_freq-print_size.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
+git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch

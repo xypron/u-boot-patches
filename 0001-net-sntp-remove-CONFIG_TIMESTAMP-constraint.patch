@@ -1,0 +1,73 @@
+From ae91a9875954c25935e1130c91716c41fe132411 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 23 Oct 2020 04:34:47 +0200
+Subject: [PATCH 1/1] net: sntp: remove CONFIG_TIMESTAMP constraint
+
+CONFIG_TIMESTAMP is not related to the RTC drivers. It does not make any
+sense to let the updating of the RTC by the sntp command depend on it.
+
+Drop the CONFIG_TIMESTAMP checks.
+
+Furthermore function dm_rtc_set() is enabled by CONFIG_DM_RTC. There is no
+reason to require CONFIG_CMD_DATE when using a driver model RTC. The UEFI
+sub-system can consume the RTC functions even if there is not date command.
+
+Only check CONFIG_CMD_DATE when using a non-driver model RTC.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ net/sntp.c | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/net/sntp.c b/net/sntp.c
+index d5d5671933..dac0f8ceea 100644
+--- a/net/sntp.c
++++ b/net/sntp.c
+@@ -57,18 +57,15 @@ static void sntp_timeout_handler(void)
+ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+ 			 unsigned src, unsigned len)
+ {
+-#ifdef CONFIG_TIMESTAMP
+ 	struct sntp_pkt_t *rpktp = (struct sntp_pkt_t *)pkt;
+ 	struct rtc_time tm;
+ 	ulong seconds;
+-#endif
+ 
+ 	debug("%s\n", __func__);
+ 
+ 	if (dest != sntp_our_port)
+ 		return;
+ 
+-#ifdef CONFIG_TIMESTAMP
+ 	/*
+ 	 * As the RTC's used in U-Boot support second resolution only
+ 	 * we simply ignore the sub-second field.
+@@ -76,8 +73,7 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+ 	memcpy(&seconds, &rpktp->transmit_timestamp, sizeof(ulong));
+ 
+ 	rtc_to_tm(ntohl(seconds) - 2208988800UL + net_ntp_time_offset, &tm);
+-#if defined(CONFIG_CMD_DATE)
+-#  ifdef CONFIG_DM_RTC
++#ifdef CONFIG_DM_RTC
+ 	struct udevice *dev;
+ 	int ret;
+ 
+@@ -86,14 +82,12 @@ static void sntp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
+ 		printf("SNTP: cannot find RTC: err=%d\n", ret);
+ 	else
+ 		dm_rtc_set(dev, &tm);
+-#  else
++#elif defined(CONFIG_CMD_DATE)
+ 	rtc_set(&tm);
+-#  endif
+ #endif
+ 	printf("Date: %4d-%02d-%02d Time: %2d:%02d:%02d\n",
+ 	       tm.tm_year, tm.tm_mon, tm.tm_mday,
+ 	       tm.tm_hour, tm.tm_min, tm.tm_sec);
+-#endif
+ 
+ 	net_set_state(NETLOOP_SUCCESS);
+ }
+-- 
+2.28.0
+
