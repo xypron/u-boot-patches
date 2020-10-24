@@ -1,0 +1,37 @@
+From c32015fad5f21e8e68c59b43f28cf61a71a2bfc7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 25 Oct 2020 00:50:05 +0200
+Subject: [PATCH 1/1] sandbox: enable poweroff command
+
+Once the sandbox supports reset we need the poweroff command to leave the
+sandbox.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 683e384319..63e9d725b7 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -87,6 +87,7 @@ config SANDBOX
+ 	bool "Sandbox"
+ 	select BOARD_LATE_INIT
+ 	select BZIP2
++	select CMD_POWEROFF
+ 	select DM
+ 	select DM_GPIO
+ 	select DM_I2C
+@@ -102,7 +103,7 @@ config SANDBOX
+ 	select PCI_ENDPOINT
+ 	select SPI
+ 	select SUPPORT_OF_CONTROL
+-	select SYSRESET_CMD_POWEROFF if CMD_POWEROFF
++	select SYSRESET_CMD_POWEROFF
+ 	imply BITREVERSE
+ 	select BLOBLIST
+ 	imply CMD_DM
+-- 
+2.28.0
+

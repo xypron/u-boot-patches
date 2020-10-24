@@ -1,0 +1,138 @@
+From f3df78bd7a44dc586d6b73151eae9523463c18a7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 24 Oct 2020 21:59:06 +0200
+Subject: [PATCH 1/1] sandbox: implement reset
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/os.c                     | 14 ++++++++++++++
+ arch/sandbox/cpu/start.c                  | 22 ++++++++++++++++++++++
+ arch/sandbox/include/asm/u-boot-sandbox.h |  3 +++
+ drivers/sysreset/sysreset_sandbox.c       |  2 +-
+ include/os.h                              |  5 +++++
+ 5 files changed, 45 insertions(+), 1 deletion(-)
+
+diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
+index c461fb0db0..cc40266546 100644
+--- a/arch/sandbox/cpu/os.c
++++ b/arch/sandbox/cpu/os.c
+@@ -817,3 +817,17 @@ void *os_find_text_base(void)
+ 
+ 	return base;
+ }
++
++void os_relaunch(int argc, char *argv[]) {
++
++	char **args;
++
++	args = calloc(argc + 1, sizeof(char *));
++	if (!args)
++		goto out;
++	memcpy(args, argv, sizeof(char *) * argc);
++	args[argc] = NULL;
++	execv(args[0], args);
++out:
++	os_exit(1);
++}
+diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
+index c6a2bbe468..ee1d4b9581 100644
+--- a/arch/sandbox/cpu/start.c
++++ b/arch/sandbox/cpu/start.c
+@@ -5,6 +5,7 @@
+ 
+ #include <common.h>
+ #include <command.h>
++#include <dm/root.h>
+ #include <errno.h>
+ #include <init.h>
+ #include <os.h>
+@@ -14,11 +15,15 @@
+ #include <asm/io.h>
+ #include <asm/malloc.h>
+ #include <asm/sections.h>
++#include <asm/setjmp.h>
+ #include <asm/state.h>
+ #include <linux/ctype.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
++/* longjmp buffer for reset */
++static struct jmp_buf_data reset_jmp;
++
+ /* Compare two options so that they can be sorted into alphabetical order */
+ static int h_compare_opt(const void *p1, const void *p2)
+ {
+@@ -394,12 +399,29 @@ void state_show(struct sandbox_state *state)
+ 	printf("\n");
+ }
+ 
++void sandbox_reset(void)
++{
++	/* Do this here while it still has an effect */
++	os_fd_restore();
++	if (state_uninit())
++		os_exit(2);
++
++	if (dm_uninit())
++		os_exit(2);
++
++	/* This is considered normal termination for now */
++	longjmp(&reset_jmp, 1);
++}
++
+ int main(int argc, char *argv[])
+ {
+ 	struct sandbox_state *state;
+ 	gd_t data;
+ 	int ret;
+ 
++	if (setjmp(&reset_jmp))
++		os_relaunch(argc, argv);
++
+ 	memset(&data, '\0', sizeof(data));
+ 	gd = &data;
+ 	gd->arch.text_base = os_find_text_base();
+diff --git a/arch/sandbox/include/asm/u-boot-sandbox.h b/arch/sandbox/include/asm/u-boot-sandbox.h
+index 798d003077..b1bdcbcde5 100644
+--- a/arch/sandbox/include/asm/u-boot-sandbox.h
++++ b/arch/sandbox/include/asm/u-boot-sandbox.h
+@@ -84,6 +84,9 @@ void sandbox_set_enable_pci_map(int enable);
+  */
+ int sandbox_read_fdt_from_file(void);
+ 
++/* Reset sandbox */
++void sandbox_reset(void);
++
+ /* Exit sandbox (quit U-Boot) */
+ void sandbox_exit(void);
+ 
+diff --git a/drivers/sysreset/sysreset_sandbox.c b/drivers/sysreset/sysreset_sandbox.c
+index 69c22a7000..5de43dac1e 100644
+--- a/drivers/sysreset/sysreset_sandbox.c
++++ b/drivers/sysreset/sysreset_sandbox.c
+@@ -55,7 +55,7 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
+ 
+ 	switch (type) {
+ 	case SYSRESET_COLD:
+-		state->last_sysreset = type;
++		sandbox_reset();
+ 		break;
+ 	case SYSRESET_POWER_OFF:
+ 		state->last_sysreset = type;
+diff --git a/include/os.h b/include/os.h
+index 1874ae674f..187dbf06f2 100644
+--- a/include/os.h
++++ b/include/os.h
+@@ -355,4 +355,9 @@ int os_read_file(const char *name, void **bufp, int *sizep);
+  */
+ void *os_find_text_base(void);
+ 
++/**
++ * os_relaunch() - restart the sandbox
++ */
++void os_relaunch(int argc, char *argv[]);
++
+ #endif
+-- 
+2.28.0
+
