@@ -64,7 +64,9 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-eth-raw-do-not-close-the-console-input.patch
 git am ../patch/0001-sandbox-enable-poweroff-command.patch
+git am ../patch/0001-test-py-test-poweroff.patch
 git am ../patch/0001-sandbox-implement-reset.patch
+git am ../patch/0001-test-adjust-sysreset-tests.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
