@@ -1,4 +1,4 @@
-From 4c0b60de8c7e9a90b7216588e12d8b70f1313085 Mon Sep 17 00:00:00 2001
+From 204232f1750a667ab3fe56cc77d93fc0d7d762ab Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 25 Oct 2020 02:25:14 +0200
 Subject: [PATCH 1/1] test: adjust sysreset tests
@@ -8,11 +8,11 @@ adjusted.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- test/dm/sysreset.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ test/dm/sysreset.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/test/dm/sysreset.c b/test/dm/sysreset.c
-index aec97b1cbb..6694674304 100644
+index aec97b1cbb..691683c567 100644
 --- a/test/dm/sysreset.c
 +++ b/test/dm/sysreset.c
 @@ -37,7 +37,9 @@ static int dm_test_sysreset_base(struct unit_test_state *uts)
@@ -25,15 +25,21 @@ index aec97b1cbb..6694674304 100644
  	state->sysreset_allowed[SYSRESET_POWER] = false;
  	ut_asserteq(-EACCES, sysreset_request(dev, SYSRESET_POWER));
  	state->sysreset_allowed[SYSRESET_POWER] = true;
-@@ -71,6 +73,7 @@ static int dm_test_sysreset_walk(struct unit_test_state *uts)
+@@ -71,22 +73,25 @@ static int dm_test_sysreset_walk(struct unit_test_state *uts)
  	struct sandbox_state *state = state_get_current();
  
  	/* If we generate a power sysreset, we will exit sandbox! */
++	state->sysreset_allowed[SYSRESET_WARM] = false;
 +	state->sysreset_allowed[SYSRESET_COLD] = false;
  	state->sysreset_allowed[SYSRESET_POWER] = false;
  	state->sysreset_allowed[SYSRESET_POWER_OFF] = false;
  	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_WARM));
-@@ -82,11 +85,11 @@ static int dm_test_sysreset_walk(struct unit_test_state *uts)
+ 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_COLD));
+ 	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_POWER));
++	ut_asserteq(-EACCES, sysreset_walk(SYSRESET_POWER_OFF));
+ 
+ 	/*
+ 	 * Enable cold system reset - this should make cold system reset work,
  	 * plus a warm system reset should be promoted to cold, since this is
  	 * the next step along.
  	 */
