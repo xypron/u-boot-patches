@@ -1,7 +1,16 @@
-From b5dd06b3968fd7109512d224ab96a4f2a1facf09 Mon Sep 17 00:00:00 2001
+From b74676d86b74a4085a60f75cb42d8b5a3fe15e89 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 24 Oct 2020 21:59:06 +0200
 Subject: [PATCH 1/1] sandbox: implement reset
+
+Up to now the sandbox would shutdown upon a cold reset request. Instead it
+should be reset.
+
+In our coding we use static variables. The only safe way to return to an
+initial state is to relaunch the U-Boot binary.
+
+The reset implementation uses a longjmp() to return to the main() function
+and then relaunches U-Boot using execv().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -14,7 +23,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  6 files changed, 48 insertions(+)
 
 diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
-index c461fb0db0..cc40266546 100644
+index c461fb0db0..ed044e87fb 100644
 --- a/arch/sandbox/cpu/os.c
 +++ b/arch/sandbox/cpu/os.c
 @@ -817,3 +817,17 @@ void *os_find_text_base(void)
@@ -22,8 +31,8 @@ index c461fb0db0..cc40266546 100644
  	return base;
  }
 +
-+void os_relaunch(int argc, char *argv[]) {
-+
++void os_relaunch(int argc, char *argv[])
++{
 +	char **args;
 +
 +	args = calloc(argc + 1, sizeof(char *));

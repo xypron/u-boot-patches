@@ -1,10 +1,10 @@
-From ab2b010ea7b97f227cf3b72f4b8b02bda091dea0 Mon Sep 17 00:00:00 2001
+From db5d60ee791d0f377b1d221be85c616e2e7f3a8b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 25 Oct 2020 00:38:30 +0200
 Subject: [PATCH 1/1] sandbox: eth-raw: do not close the console input
 
 When the sandbox eth-raw device host_lo is removed this leads to closing
-the console input. This should be avoided to allow resetting the sandbox.
+the console input.
 
 Do not call close(0).
 
@@ -51,7 +51,7 @@ index da01d1addf..6a8d809756 100644
  		priv->local_bind_udp_port = 0;
  	}
 diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
-index 7c761afeff..cc40266546 100644
+index e7ec892bdf..c461fb0db0 100644
 --- a/arch/sandbox/cpu/os.c
 +++ b/arch/sandbox/cpu/os.c
 @@ -86,7 +86,10 @@ int os_open(const char *pathname, int os_flags)

@@ -1,10 +1,14 @@
-From c32015fad5f21e8e68c59b43f28cf61a71a2bfc7 Mon Sep 17 00:00:00 2001
+From 62f7f2341968b0b5adb019c7a077c50e7eace87f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 25 Oct 2020 00:50:05 +0200
 Subject: [PATCH 1/1] sandbox: enable poweroff command
 
-Once the sandbox supports reset we need the poweroff command to leave the
-sandbox.
+The command to shut down a device is 'poweroff'. It is a deficit of the
+sandbox that it does not support resetting yet but shuts down upong seeing
+the 'reset' command.
+
+Once the sandbox properly supports reset we need the 'poweroff' command to
+leave the sandbox.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
