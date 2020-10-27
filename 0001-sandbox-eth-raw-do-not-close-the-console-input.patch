@@ -9,6 +9,7 @@ the console input.
 Do not call close(0).
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  arch/sandbox/cpu/eth-raw-os.c | 8 ++++----
  arch/sandbox/cpu/os.c         | 5 ++++-

@@ -7,6 +7,7 @@ As we have a working COLD_RESET on the sandbox the sysreset test has to be
 adjusted.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/dm/sysreset.c | 11 ++++++++---
  1 file changed, 8 insertions(+), 3 deletions(-)

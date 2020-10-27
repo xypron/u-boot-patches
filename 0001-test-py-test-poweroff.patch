@@ -9,6 +9,7 @@ sandbox.
 Adjust the unit test accordingly
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/py/tests/test_sandbox_exit.py | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
