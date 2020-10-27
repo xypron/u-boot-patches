@@ -1,0 +1,37 @@
+From a97e9b20526e2818d604aa3b8c32cb8e95a80f5e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 25 Oct 2020 07:25:05 +0100
+Subject: [PATCH 1/1] Makefile: provide constant with seconds since epoch
+
+Provide a constant U_BOOT_EPOCH with the number of seconds since
+1970-01-01. This constant can be used to initialize a software
+real time clock until it is updated via the 'sntp' command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 5a0ef18668..c21729cf52 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1870,6 +1870,7 @@ define filechk_timestamp.h
+ 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_TZ "%z"'; \
+ 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
+ 			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_BUILD_DATE 0x%Y%m%d'; \
++			LC_ALL=C $${DATE} -u -d "$${SOURCE_DATE}" +'#define U_BOOT_EPOCH %s'; \
+ 		else \
+ 			return 42; \
+ 		fi; \
+@@ -1879,6 +1880,7 @@ define filechk_timestamp.h
+ 		LC_ALL=C date +'#define U_BOOT_TZ "%z"'; \
+ 		LC_ALL=C date +'#define U_BOOT_DMI_DATE "%m/%d/%Y"'; \
+ 		LC_ALL=C date +'#define U_BOOT_BUILD_DATE 0x%Y%m%d'; \
++		LC_ALL=C date +'#define U_BOOT_EPOCH %s'; \
+ 	fi)
+ endef
+ 
+-- 
+2.28.0
+
