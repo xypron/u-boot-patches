@@ -1,0 +1,52 @@
+From 939f5f1e681019e173e5dd4a20df19b577adecee Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 28 Oct 2020 12:27:53 +0100
+Subject: [PATCH 1/1] video: clean up TrueType in Kconfig
+
+Keep all TrueType settings together in the Kconfig menu.
+Don't show font menu header if TrueType is not enabled.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/video/Kconfig | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+index 998271b9b6..eaa5c6c882 100644
+--- a/drivers/video/Kconfig
++++ b/drivers/video/Kconfig
+@@ -160,9 +160,10 @@ config CONSOLE_TRUETYPE
+ 	  With this option you can adjust the text size and use a variety of
+ 	  fonts. Note that this is noticeably slower than with normal console.
+ 
++if CONSOLE_TRUETYPE
++
+ config CONSOLE_TRUETYPE_SIZE
+ 	int "TrueType font size"
+-	depends on CONSOLE_TRUETYPE
+ 	default 18
+ 	help
+ 	  This sets the font size for the console. The size is measured in
+@@ -173,6 +174,10 @@ config CONSOLE_TRUETYPE_SIZE
+ 	  method to select the display's physical size, which would allow
+ 	  U-Boot to calculate the correct font size.
+ 
++source "drivers/video/fonts/Kconfig"
++
++endif
++
+ config SYS_WHITE_ON_BLACK
+ 	bool "Display console as white on a black background"
+ 	default y if ARCH_AT91 || ARCH_EXYNOS || ARCH_ROCKCHIP || ARCH_TEGRA || X86 || ARCH_SUNXI
+@@ -205,8 +210,6 @@ config SIMPLE_PANEL
+ 	  This turns on a simple panel driver that enables a compatible
+ 	  video panel.
+ 
+-source "drivers/video/fonts/Kconfig"
+-
+ config VIDCONSOLE_AS_LCD
+ 	bool "Use 'vidconsole' when CONFIG_VIDCONSOLE_AS_NAME string is seen in stdout"
+ 	depends on DM_VIDEO
+-- 
+2.28.0
+
