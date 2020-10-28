@@ -29,10 +29,6 @@ git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
-git am ../patch/0001-log-move-processing_msg-to-global-data.patch
-git am ../patch/0001-log-allow-for-message-continuation.patch
-git am ../patch/0001-test-log-test-message-continuation.patch
-git am ../patch/0001-log-correct-and-check-array-size-of-log-categories.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
