@@ -1,7 +1,7 @@
-From 7b3153d26c921dc9ceaeeb8fb8c46853da9cd673 Mon Sep 17 00:00:00 2001
+From a23e6d6a94b0fc097f7c78f8c98df112a338b006 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:41 +0900
-Subject: [PATCH 1/1] common: update: add a generic interface for FIT image
+Date: Thu, 29 Oct 2020 13:47:43 +0900
+Subject: [PATCH] common: update: add a generic interface for FIT image
 
 The main purpose of this patch is to separate a generic interface for
 updating firmware using DFU drivers from "auto-update" via tftp.
@@ -10,28 +10,39 @@ This function will also be used in implementing UEFI capsule update
 in a later commit.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
- common/Kconfig      | 14 +++++++++
+ common/Kconfig      | 15 ++++++++++
  common/Makefile     |  3 +-
  common/update.c     | 71 +++++++++++++++++++++++++++++++++++++++++++++
  drivers/dfu/Kconfig |  1 +
  include/image.h     | 12 ++++++++
- 5 files changed, 99 insertions(+), 2 deletions(-)
+ 5 files changed, 100 insertions(+), 2 deletions(-)
 
 diff --git a/common/Kconfig b/common/Kconfig
-index 431dd3473a..07b33cd332 100644
+index 318d372a48..2bce8c9ba1 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -1050,6 +1050,20 @@ endmenu
+@@ -599,9 +599,15 @@ endmenu
  
  menu "Update support"
  
 +config UPDATE_COMMON
 +	bool
 +	default n
-+	select DFU_ALT
++	select DFU_WRITE_ALT
 +
+ config UPDATE_TFTP
+ 	bool "Auto-update using fitImage via TFTP"
+ 	depends on FIT
++	select UPDATE_COMMON
+ 	help
+ 	  This option allows performing update of NOR with data in fitImage
+ 	  sent via TFTP boot.
+@@ -616,6 +622,15 @@ config UPDATE_TFTP_MSEC_MAX
+ 	default 100
+ 	depends on UPDATE_TFTP
+ 
 +config UPDATE_FIT
 +	bool "Firmware update using fitImage"
 +	depends on FIT
@@ -59,26 +70,26 @@ index 2e7a090588..bcf352d016 100644
  obj-$(CONFIG_CMDLINE) += cli_readline.o cli_simple.o
  
 diff --git a/common/update.c b/common/update.c
-index 756e6365db..c1ed563fb7 100644
+index 8dd6ee8b7d..808be0880d 100644
 --- a/common/update.c
 +++ b/common/update.c
-@@ -20,6 +20,7 @@
- #include <dfu.h>
+@@ -29,6 +29,7 @@
  #include <errno.h>
+ #include <mtd/cfi_flash.h>
  
 +#ifdef CONFIG_DFU_TFTP
  /* env variable holding the location of the update file */
  #define UPDATE_FILE_ENV		"updatefile"
  
-@@ -86,6 +87,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
+@@ -98,6 +99,7 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
  
  	return rv;
  }
 +#endif /* CONFIG_DFU_TFTP */
  
- static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
- 						ulong *fladdr, ulong *size)
-@@ -103,6 +105,7 @@ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
+ #ifdef CONFIG_MTD_NOR_FLASH
+ static int update_flash_protect(int prot, ulong addr_first, ulong addr_last)
+@@ -231,6 +233,7 @@ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
  	return 0;
  }
  
@@ -86,7 +97,7 @@ index 756e6365db..c1ed563fb7 100644
  int update_tftp(ulong addr, char *interface, char *devstring)
  {
  	char *filename, *env_addr, *fit_image_name;
-@@ -189,3 +192,71 @@ next_node:
+@@ -337,3 +340,71 @@ next_node:
  
  	return ret;
  }
@@ -159,22 +170,22 @@ index 756e6365db..c1ed563fb7 100644
 +}
 +#endif /* CONFIG_UPDATE_FIT */
 diff --git a/drivers/dfu/Kconfig b/drivers/dfu/Kconfig
-index 7d0abe736c..e5c9c021b8 100644
+index 10196f390f..b7427fc4f0 100644
 --- a/drivers/dfu/Kconfig
 +++ b/drivers/dfu/Kconfig
-@@ -20,6 +20,7 @@ config DFU_TFTP
- 	depends on FIT
- 	depends on OF_LIBFDT
- 	select DFU_ALT
+@@ -22,6 +22,7 @@ config DFU_TFTP
+ 	bool "DFU via TFTP"
+ 	select DFU_WRITE_ALT
+ 	select DFU_OVER_TFTP
 +	select UPDATE_COMMON
  	help
- 	  This option allows updating DFU-managed media using a FIT image
- 	  received via TFTP.
+ 	  This option allows performing update of DFU-managed medium with data
+ 	  sent via TFTP boot.
 diff --git a/include/image.h b/include/image.h
-index 9a5a87dbf8..35b8b7c3d8 100644
+index 4094ee588a..00bc03bebe 100644
 --- a/include/image.h
 +++ b/include/image.h
-@@ -1592,4 +1592,16 @@ struct fit_loadable_tbl {
+@@ -1602,4 +1602,16 @@ struct fit_loadable_tbl {
  		.handler = _handler, \
  	}
  

@@ -1,8 +1,7 @@
-From 8b032e91c80b811dd3abad1eb124c1fc795ebb63 Mon Sep 17 00:00:00 2001
+From bc60a273ee68a78c5147f5d9f082f46ee8654a9a Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:49 +0900
-Subject: [PATCH 1/1] efi_loader: add firmware management protocol for FIT
- image
+Date: Thu, 29 Oct 2020 13:47:51 +0900
+Subject: [PATCH] efi_loader: add firmware management protocol for FIT image
 
 In this commit, a very simple firmware management protocol driver
 is implemented. It will take a common FIT image firmware in a capsule
@@ -16,7 +15,6 @@ Fit image is a common file format for firmware update on U-Boot, and
 this protocol works neatly just as a wrapper for one.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h             |   4 +
  include/efi_loader.h          |   2 +
@@ -28,10 +26,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_firmware.c
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index db51c1e0dc..4e9e65189e 100644
+index 966bc6e590..071d0ba866 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -1845,6 +1845,10 @@ struct efi_signature_list {
+@@ -1849,6 +1849,10 @@ struct efi_signature_list {
  	EFI_GUID(0x86c77a67, 0x0b97, 0x4633, 0xa1, 0x87, \
  		 0x49, 0x10, 0x4d, 0x06, 0x85, 0xc7)
  
@@ -39,14 +37,14 @@ index db51c1e0dc..4e9e65189e 100644
 +	EFI_GUID(0xae13ff2d, 0x9ad4, 0x4e25, 0x9a, 0xc8, \
 +		 0x6d, 0x80, 0xb3, 0xb2, 0x21, 0x47)
 +
- #define EFI_IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x1
- #define EFI_IMAGE_ATTRIBUTE_RESET_REQUIRED		0x2
- #define EFI_IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x4
+ #define IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x0000000000000001
+ #define IMAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+ #define IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 9adc7e857b..6959f62b80 100644
+index b3b575f10c..de6d353de3 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -810,6 +810,8 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+@@ -811,6 +811,8 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
  /* commonly used helper function */
  u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
  
@@ -56,7 +54,7 @@ index 9adc7e857b..6959f62b80 100644
  efi_status_t EFIAPI efi_update_capsule(
  		struct efi_capsule_header **capsule_header_array,
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 98bbf6d4ca..bc12f0afb4 100644
+index 6ae18a4220..94c1ad2af0 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -134,6 +134,17 @@ config EFI_CAPSULE_FIRMWARE_MANAGEMENT
@@ -90,10 +88,10 @@ index c7d231f0e5..23b1828b0f 100644
  obj-y += efi_device_path.o
  obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index 85b5ed25e2..3f987df49e 100644
+index 2015929e37..a44f81daae 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
-@@ -797,7 +797,17 @@ static void efi_capsule_scan_done(void)
+@@ -804,7 +804,17 @@ static void efi_capsule_scan_done(void)
   */
  efi_status_t __weak arch_efi_load_capsule_drivers(void)
  {
@@ -114,7 +112,7 @@ index 85b5ed25e2..3f987df49e 100644
  /**
 diff --git a/lib/efi_loader/efi_firmware.c b/lib/efi_loader/efi_firmware.c
 new file mode 100644
-index 0000000000..ee98ba683f
+index 0000000000..4c395f4eb5
 --- /dev/null
 +++ b/lib/efi_loader/efi_firmware.c
 @@ -0,0 +1,291 @@
@@ -207,16 +205,11 @@ index 0000000000..ee98ba683f
 +	}
 +	*image_info_size = total_size;
 +
-+	if (descriptor_version)
-+		*descriptor_version = EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION;
-+	if (descriptor_count)
-+		*descriptor_count = dfu_num;
-+	if (descriptor_size)
-+		*descriptor_size = sizeof(*image_info);
-+	if (package_version)
-+		*package_version = 0xffffffff; /* not supported */
-+	if (package_version_name)
-+		*package_version_name = NULL; /* not supported */
++	*descriptor_version = EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION;
++	*descriptor_count = dfu_num;
++	*descriptor_size = sizeof(*image_info);
++	*package_version = 0xffffffff; /* not supported */
++	*package_version_name = NULL; /* not supported */
 +
 +	/* DFU alt number should correspond to image_index */
 +	i = 0;
@@ -237,9 +230,9 @@ index 0000000000..ee98ba683f
 +		image_info[i].version_name = NULL; /* not supported */
 +		image_info[i].size = 0;
 +		image_info[i].attributes_supported =
-+				EFI_IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
++				IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
 +		image_info[i].attributes_setting =
-+				EFI_IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
++				IMAGE_ATTRIBUTE_IMAGE_UPDATABLE;
 +		image_info[i].lowest_supported_image_version = 0;
 +		image_info[i].last_attempt_version = 0;
 +		image_info[i].last_attempt_status = LAST_ATTEMPT_STATUS_SUCCESS;
@@ -290,7 +283,12 @@ index 0000000000..ee98ba683f
 +		  descriptor_version, descriptor_count, descriptor_size,
 +		  package_version, package_version_name);
 +
-+	if (!image_info_size || (*image_info_size && !image_info))
++	if (!image_info_size)
++		return EFI_EXIT(EFI_INVALID_PARAMETER);
++
++	if (*image_info_size &&
++	    (!image_info || !descriptor_version || !descriptor_count ||
++	     !descriptor_size || !package_version || !package_version_name))
 +		return EFI_EXIT(EFI_INVALID_PARAMETER);
 +
 +	ret = efi_get_dfu_info(image_info_size, image_info,

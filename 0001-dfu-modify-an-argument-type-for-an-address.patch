@@ -1,13 +1,14 @@
-From 6363629b43c6505e23fc1f98a0eb0d4e8aba60ef Mon Sep 17 00:00:00 2001
+From 8e94f5ded28b72106ad70790d4e63ecf61315365 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:40 +0900
-Subject: [PATCH 1/1] dfu: modify an argument type for an address
+Date: Thu, 29 Oct 2020 13:47:42 +0900
+Subject: [PATCH] dfu: modify an argument type for an address
 
 The range of an addressable pointer can go beyond 'integer'.
 So change the argument type to a void pointer.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  common/update.c       | 3 ++-
  drivers/dfu/dfu_alt.c | 6 +++---
@@ -15,13 +16,13 @@ Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  3 files changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/common/update.c b/common/update.c
-index 756e6365db..fd1a23dada 100644
+index 39946776d7..8dd6ee8b7d 100644
 --- a/common/update.c
 +++ b/common/update.c
-@@ -177,7 +177,8 @@ got_update_file:
- 		}
- 
- 		if (fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE)) {
+@@ -324,7 +324,8 @@ got_update_file:
+ 			}
+ 		} else if (fit_image_check_type(fit, noffset,
+ 						IH_TYPE_FIRMWARE)) {
 -			ret = dfu_write_by_name(fit_image_name, update_addr,
 +			ret = dfu_write_by_name(fit_image_name,
 +						(void *)update_addr,
@@ -59,13 +60,13 @@ index 5b1b13d717..7528806cd1 100644
  done:
  	dfu_free_entities();
 diff --git a/include/dfu.h b/include/dfu.h
-index cecfbd7659..2299a83a3d 100644
+index a4cd86c0a6..d3d7e07b60 100644
 --- a/include/dfu.h
 +++ b/include/dfu.h
 @@ -507,10 +507,10 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
   * Return:		0 - on success, error code - otherwise
   */
- #if CONFIG_IS_ENABLED(DFU_ALT)
+ #if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
 -int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
 +int dfu_write_by_name(char *dfu_entity_name, void *addr,
  		      unsigned int len, char *interface, char *devstring);

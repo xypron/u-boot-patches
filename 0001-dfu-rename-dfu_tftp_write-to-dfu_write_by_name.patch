@@ -1,16 +1,17 @@
-From f6d9d99e1c36a6ff11e6b8d7e6cd664306cfed64 Mon Sep 17 00:00:00 2001
+From b5e5e2d2419e7a7c10e74022327a09efe84a55c8 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:39 +0900
-Subject: [PATCH 1/1] dfu: rename dfu_tftp_write() to dfu_write_by_name()
+Date: Thu, 29 Oct 2020 13:47:41 +0900
+Subject: [PATCH] dfu: rename dfu_tftp_write() to dfu_write_by_name()
 
-This function is essentially independent from tffp, and will also be
+This function is essentially independent from tftp, and will also be
 utilised in implementing UEFI capsule update in a later commit.
 So just give it a more generic name.
-In addition, a new configuration option, CONFIG_DFU_ALT, was introduced
-so that the file will be compiled with different options, particularly
-one added in a later commit.
+In addition, a new configuration option, CONFIG_DFU_WRITE_ALT, was
+introduced so that the file will be compiled with different options,
+particularly one added in a later commit.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  common/update.c        |  5 +--
  drivers/dfu/Kconfig    |  5 +++
@@ -23,13 +24,13 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
  delete mode 100644 drivers/dfu/dfu_tftp.c
 
 diff --git a/common/update.c b/common/update.c
-index 5811fac269..756e6365db 100644
+index 36b6b7523d..39946776d7 100644
 --- a/common/update.c
 +++ b/common/update.c
-@@ -177,8 +177,9 @@ got_update_file:
- 		}
- 
- 		if (fit_image_check_type(fit, noffset, IH_TYPE_FIRMWARE)) {
+@@ -324,8 +324,9 @@ got_update_file:
+ 			}
+ 		} else if (fit_image_check_type(fit, noffset,
+ 						IH_TYPE_FIRMWARE)) {
 -			ret = dfu_tftp_write(fit_image_name, update_addr,
 -					     update_size, interface, devstring);
 +			ret = dfu_write_by_name(fit_image_name, update_addr,
@@ -39,28 +40,25 @@ index 5811fac269..756e6365db 100644
  				return ret;
  		}
 diff --git a/drivers/dfu/Kconfig b/drivers/dfu/Kconfig
-index 106f38817a..7d0abe736c 100644
+index 0eec00ba73..10196f390f 100644
 --- a/drivers/dfu/Kconfig
 +++ b/drivers/dfu/Kconfig
-@@ -10,11 +10,16 @@ config DFU_OVER_USB
- 	depends on USB_GADGET
+@@ -14,8 +14,13 @@ config DFU_OVER_TFTP
+ 	depends on NET
  
  if DFU
-+config DFU_ALT
++config DFU_WRITE_ALT
 +	bool
 +	default n
 +
  config DFU_TFTP
  	bool "DFU via TFTP"
- 	depends on NET
- 	depends on FIT
- 	depends on OF_LIBFDT
-+	select DFU_ALT
++	select DFU_WRITE_ALT
+ 	select DFU_OVER_TFTP
  	help
- 	  This option allows updating DFU-managed media using a FIT image
- 	  received via TFTP.
+ 	  This option allows performing update of DFU-managed medium with data
 diff --git a/drivers/dfu/Makefile b/drivers/dfu/Makefile
-index 0d7925c083..cc7de1d3ed 100644
+index 0d7925c083..dfbf64da66 100644
 --- a/drivers/dfu/Makefile
 +++ b/drivers/dfu/Makefile
 @@ -9,5 +9,5 @@ obj-$(CONFIG_$(SPL_)DFU_MTD) += dfu_mtd.o
@@ -68,7 +66,7 @@ index 0d7925c083..cc7de1d3ed 100644
  obj-$(CONFIG_$(SPL_)DFU_RAM) += dfu_ram.o
  obj-$(CONFIG_$(SPL_)DFU_SF) += dfu_sf.o
 -obj-$(CONFIG_$(SPL_)DFU_TFTP) += dfu_tftp.o
-+obj-$(CONFIG_$(SPL_)DFU_ALT) += dfu_alt.o
++obj-$(CONFIG_$(SPL_)DFU_WRITE_ALT) += dfu_alt.o
  obj-$(CONFIG_$(SPL_)DFU_VIRT) += dfu_virt.o
 diff --git a/drivers/dfu/dfu_alt.c b/drivers/dfu/dfu_alt.c
 new file mode 100644
@@ -135,7 +133,7 @@ index 0000000000..5b1b13d717
 +	free(sb);
 +	if (alt_setting_num < 0) {
 +		pr_err("Alt setting [%d] to write not found!",
-+		      alt_setting_num);
++		       alt_setting_num);
 +		ret = -ENODEV;
 +		goto done;
 +	}
@@ -226,7 +224,7 @@ index ffae4bb54f..0000000000
 -	return ret;
 -}
 diff --git a/include/dfu.h b/include/dfu.h
-index 84abdc79ac..cecfbd7659 100644
+index 84abdc79ac..a4cd86c0a6 100644
 --- a/include/dfu.h
 +++ b/include/dfu.h
 @@ -494,27 +494,27 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
@@ -257,7 +255,7 @@ index 84abdc79ac..cecfbd7659 100644
 -#if CONFIG_IS_ENABLED(DFU_TFTP)
 -int dfu_tftp_write(char *dfu_entity_name, unsigned int addr, unsigned int len,
 -		   char *interface, char *devstring);
-+#if CONFIG_IS_ENABLED(DFU_ALT)
++#if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
 +int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
 +		      unsigned int len, char *interface, char *devstring);
  #else

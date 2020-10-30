@@ -1,7 +1,7 @@
-From cfde728ed8536a4292b33f2abdbc71d51694be66 Mon Sep 17 00:00:00 2001
+From 9bfccd555f40e1bdfaa074b38804c77a88520d87 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:53 +0900
-Subject: [PATCH 1/1] tools: add mkeficapsule command for UEFI capsule update
+Date: Thu, 29 Oct 2020 13:47:55 +0900
+Subject: [PATCH] tools: add mkeficapsule command for UEFI capsule update
 
 This is a utility mainly for test purpose.
   mkeficapsule -f: create a test capsule file for FIT image firmware
@@ -11,20 +11,19 @@ your specific requirements for your platform.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
- tools/Makefile       |   3 +
- tools/mkeficapsule.c | 237 +++++++++++++++++++++++++++++++++++++++++++
+ tools/Makefile       |   2 +
+ tools/mkeficapsule.c | 238 +++++++++++++++++++++++++++++++++++++++++++
  2 files changed, 240 insertions(+)
  create mode 100644 tools/mkeficapsule.c
 
 diff --git a/tools/Makefile b/tools/Makefile
-index 51123fd929..1532356129 100644
+index 51123fd929..66d9376803 100644
 --- a/tools/Makefile
 +++ b/tools/Makefile
-@@ -218,6 +218,9 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
+@@ -218,6 +218,8 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
  hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
  HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
  
-+# TODO: only build this for capsule pytest
 +hostprogs-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += mkeficapsule
 +
  # We build some files with extra pedantic flags to try to minimize things
@@ -32,10 +31,10 @@ index 51123fd929..1532356129 100644
  # exceptions for files that aren't complaint.
 diff --git a/tools/mkeficapsule.c b/tools/mkeficapsule.c
 new file mode 100644
-index 0000000000..93f22192fd
+index 0000000000..db95426457
 --- /dev/null
 +++ b/tools/mkeficapsule.c
-@@ -0,0 +1,237 @@
+@@ -0,0 +1,238 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2018 Linaro Limited
@@ -167,6 +166,7 @@ index 0000000000..93f22192fd
 +	image.update_image_size = bin_stat.st_size;
 +	image.update_vendor_code_size = 0; /* none */
 +	image.update_hardware_instance = instance;
++	image.image_capsule_support = 0;
 +
 +	size = fwrite(&image, 1, sizeof(image), f);
 +	if (size < sizeof(image)) {

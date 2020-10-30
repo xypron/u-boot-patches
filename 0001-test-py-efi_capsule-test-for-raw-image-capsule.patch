@@ -1,8 +1,7 @@
-From 5a0906e305748d6d20501c08a4aa28c9fc78ba6e Mon Sep 17 00:00:00 2001
+From e2c83c74c52ed45210836134a79a65a9335abd5b Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:55 +0900
-Subject: [PATCH 1/1] test/py: test for uefi firmware update capsule of raw
- image
+Date: Thu, 29 Oct 2020 13:47:57 +0900
+Subject: [PATCH] test/py: efi_capsule: test for raw image capsule
 
 The test can run on sandbox build and it attempts to execute a firmware
 update via a capsule-on-disk, using a raw image capsule,
@@ -10,9 +9,10 @@ CONFIG_EFI_CAPSULE_RAW.
 
 To run this test successfully, you need configure U-Boot specifically;
 See test_capsule_firmware.py for requirements, and hence it won't run
-on Travis CI.
+on Travis CI, at least, for now.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  test/py/tests/test_efi_capsule/conftest.py    |  3 +
  .../test_efi_capsule/test_capsule_firmware.py | 63 +++++++++++++++++++
@@ -33,7 +33,7 @@ index 4e7c36f04b..4544a24d53 100644
          # Create a disk image with EFI system partition
          check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
 diff --git a/test/py/tests/test_efi_capsule/test_capsule_firmware.py b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-index 1673a48777..2b2c7baa7b 100644
+index ab7c2a7d6b..c9b180ac65 100644
 --- a/test/py/tests/test_efi_capsule/test_capsule_firmware.py
 +++ b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
 @@ -15,6 +15,7 @@ from defs import *
@@ -55,9 +55,6 @@ index 1673a48777..2b2c7baa7b 100644
 +        Test Case 3 - Update U-Boot on SPI Flash, raw image format
 +                      0x100000-0x150000: U-Boot binary (but dummy)
 +        """
-+        # "-T" (or "-D") is required to enable spi flash on sandbox
-+        u_boot_console.restart_uboot_with_flags('-T')
-+
 +        disk_img = efi_capsule_data
 +        with u_boot_console.log.section('Test Case 3-a, before reboot'):
 +            output = u_boot_console.run_command_list([
@@ -65,7 +62,7 @@ index 1673a48777..2b2c7baa7b 100644
 +                'efidebug boot add 1 TEST host 0:1 /helloworld.efi ""',
 +                'efidebug boot order 1',
 +                'env set -e -nv -bs -rt OsIndications =0x0000000000000004',
-+                'env set dfu_alt_info sf 0:0=u-boot-bin raw 0x100000 0x50000\;u-boot-env raw 0x150000 0x200000',
++                'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
 +                'env save'])
 +
 +            # initialize content
@@ -85,13 +82,16 @@ index 1673a48777..2b2c7baa7b 100644
 +            assert 'Test02' in ''.join(output)
 +
 +        # reboot
-+        u_boot_console.restart_uboot_with_flags('-T')
++        u_boot_console.restart_uboot()
 +
 +        capsule_early = u_boot_config.buildconfig.get(
 +            'config_efi_capsule_on_disk_early')
 +        with u_boot_console.log.section('Test Case 3-b, after reboot'):
 +            if not capsule_early:
++                # make sure that dfu_alt_info exists even persistent variables
++                # are not available.
 +                output = u_boot_console.run_command_list([
++                    'env set dfu_alt_info "sf 0:0=u-boot-bin raw 0x100000 0x50000;u-boot-env raw 0x150000 0x200000"',
 +                    'host bind 0 %s' % disk_img,
 +                    'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
 +                assert 'Test02' in ''.join(output)

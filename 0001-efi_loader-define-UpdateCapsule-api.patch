@@ -1,7 +1,7 @@
-From 8da700a131cc33200303c4665f6126e91e1131c9 Mon Sep 17 00:00:00 2001
+From d1484d99dae5846f0fefc3c1a8e3f36208329dfb Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:45 +0900
-Subject: [PATCH 1/1] efi_loader: define UpdateCapsule api
+Date: Thu, 29 Oct 2020 13:47:47 +0900
+Subject: [PATCH] efi_loader: define UpdateCapsule api
 
 In this commit, skeleton functions for capsule-related API's are
 added under CONFIG_EFI_UPDATE_CAPSULE configuration.
@@ -9,7 +9,6 @@ Detailed implementation for a specific capsule type will be added
 in the succeeding patches.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h            |  12 +++
  include/efi_loader.h         |  13 +++
@@ -52,10 +51,10 @@ index 5744f6aed8..c128a0a66c 100644
  #define EFI_RT_SUPPORTED_SET_TIME			0x0002
  #define EFI_RT_SUPPORTED_GET_WAKEUP_TIME		0x0004
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index a4a123c149..ca50e1c2a1 100644
+index 6865a4847d..ffe7728666 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -208,6 +208,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
+@@ -207,6 +207,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
  
  /* GUID of RNG protocol */
  extern const efi_guid_t efi_guid_rng_protocol;
@@ -64,7 +63,7 @@ index a4a123c149..ca50e1c2a1 100644
  
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
-@@ -806,6 +808,17 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+@@ -807,6 +809,17 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
  /* commonly used helper function */
  u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
  
@@ -83,7 +82,7 @@ index a4a123c149..ca50e1c2a1 100644
  
  /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index cbd8fe8c0a..ee9ebe348a 100644
+index 075481428c..3ca396df36 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -93,6 +93,17 @@ config EFI_SET_TIME
@@ -288,7 +287,7 @@ index 0000000000..02a8435cd3
 +	return EFI_EXIT(ret);
 +}
 diff --git a/lib/efi_loader/efi_runtime.c b/lib/efi_loader/efi_runtime.c
-index dea2b4e5ee..58b37200fc 100644
+index 1fa1595e40..0b171c1ff7 100644
 --- a/lib/efi_loader/efi_runtime.c
 +++ b/lib/efi_loader/efi_runtime.c
 @@ -133,6 +133,10 @@ efi_status_t efi_init_runtime_supported(void)
@@ -302,7 +301,7 @@ index dea2b4e5ee..58b37200fc 100644
  
  	ret = efi_install_configuration_table(&efi_rt_properties_table_guid,
  					      rt_table);
-@@ -435,6 +439,50 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
+@@ -448,6 +452,50 @@ efi_status_t __weak __efi_runtime EFIAPI efi_set_time(struct efi_time *time)
  	return EFI_UNSUPPORTED;
  }
  
@@ -353,7 +352,7 @@ index dea2b4e5ee..58b37200fc 100644
  /**
   * efi_is_runtime_service_pointer() - check if pointer points to runtime table
   *
-@@ -458,6 +506,13 @@ void efi_runtime_detach(void)
+@@ -471,6 +519,13 @@ void efi_runtime_detach(void)
  	efi_runtime_services.reset_system = efi_reset_system;
  	efi_runtime_services.get_time = efi_get_time;
  	efi_runtime_services.set_time = efi_set_time;
@@ -367,7 +366,7 @@ index dea2b4e5ee..58b37200fc 100644
  
  	/* Update CRC32 */
  	efi_update_table_header_crc32(&efi_runtime_services.hdr);
-@@ -866,50 +921,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
+@@ -879,50 +934,6 @@ static efi_status_t __efi_runtime EFIAPI efi_unimplemented(void)
  	return EFI_UNSUPPORTED;
  }
  
@@ -418,7 +417,7 @@ index dea2b4e5ee..58b37200fc 100644
  struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
  	.hdr = {
  		.signature = EFI_RUNTIME_SERVICES_SIGNATURE,
-@@ -927,7 +938,12 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
+@@ -940,7 +951,12 @@ struct efi_runtime_services __efi_runtime_data efi_runtime_services = {
  	.set_variable = efi_set_variable,
  	.get_next_high_mono_count = (void *)&efi_unimplemented,
  	.reset_system = &efi_reset_system_boottime,
@@ -432,7 +431,7 @@ index dea2b4e5ee..58b37200fc 100644
  	.query_variable_info = efi_query_variable_info,
  };
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index a09a7b607e..75926c77e6 100644
+index 6346eda771..3a1c8ea004 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
 @@ -101,9 +101,9 @@ static efi_status_t efi_init_secure_boot(void)
@@ -509,7 +508,7 @@ index a09a7b607e..75926c77e6 100644
  	efi_status_t ret = EFI_SUCCESS;
  
  	/* Initialize once only */
-@@ -163,13 +209,7 @@ efi_status_t efi_init_obj_list(void)
+@@ -168,13 +214,7 @@ efi_status_t efi_init_obj_list(void)
  		goto out;
  
  	/* Indicate supported features */
@@ -524,7 +523,7 @@ index a09a7b607e..75926c77e6 100644
  	if (ret != EFI_SUCCESS)
  		goto out;
  
-@@ -222,6 +262,10 @@ efi_status_t efi_init_obj_list(void)
+@@ -227,6 +267,10 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
  

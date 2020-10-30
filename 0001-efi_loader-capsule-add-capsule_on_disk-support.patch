@@ -1,7 +1,7 @@
-From 530c464ddcca1df30668728f0c052f0a4e38f019 Mon Sep 17 00:00:00 2001
+From 8fe6b17e8fdb4954e44026d1e9e6bedaefa6cda2 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:46 +0900
-Subject: [PATCH 1/1] efi_loader: capsule: add capsule_on_disk support
+Date: Thu, 29 Oct 2020 13:47:48 +0900
+Subject: [PATCH] efi_loader: capsule: add capsule_on_disk support
 
 Capsule data can be loaded into the system either via UpdateCapsule
 runtime service or files on a file system (of boot device).
@@ -25,7 +25,7 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
  5 files changed, 541 insertions(+)
 
 diff --git a/common/main.c b/common/main.c
-index 62ab3344e5..71fb749be4 100644
+index 4b3cd302c3..ae5bcdb32f 100644
 --- a/common/main.c
 +++ b/common/main.c
 @@ -16,6 +16,7 @@
@@ -36,9 +36,9 @@ index 62ab3344e5..71fb749be4 100644
  
  static void run_preboot_environment_command(void)
  {
-@@ -50,6 +51,9 @@ void main_loop(void)
- 	if (IS_ENABLED(CONFIG_USE_PREBOOT))
- 		run_preboot_environment_command();
+@@ -53,6 +54,9 @@ void main_loop(void)
+ 	if (IS_ENABLED(CONFIG_UPDATE_TFTP))
+ 		update_tftp(0UL, NULL, NULL);
  
 +	if (IS_ENABLED(CONFIG_EFI_CAPSULE_ON_DISK_EARLY))
 +		efi_launch_capsules();
@@ -47,10 +47,10 @@ index 62ab3344e5..71fb749be4 100644
  	if (cli_process_fdt(&s))
  		cli_secure_boot_cmd(s);
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index ca50e1c2a1..157c560034 100644
+index ffe7728666..572cfadd49 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -819,6 +819,11 @@ efi_status_t EFIAPI efi_query_capsule_caps(
+@@ -820,6 +820,11 @@ efi_status_t EFIAPI efi_query_capsule_caps(
  		u64 *maximum_capsule_size,
  		u32 *reset_type);
  
@@ -62,7 +62,7 @@ index ca50e1c2a1..157c560034 100644
  #else /* CONFIG_IS_ENABLED(EFI_LOADER) */
  
  /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
-@@ -835,6 +840,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
+@@ -836,6 +841,10 @@ static inline void efi_set_bootdev(const char *dev, const char *devnr,
  				   const char *path) { }
  static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
  static inline void efi_print_image_infos(void *pc) { }
@@ -74,7 +74,7 @@ index ca50e1c2a1..157c560034 100644
  #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
  
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index ee9ebe348a..6e35cbe64c 100644
+index 3ca396df36..a2a015225a 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -104,6 +104,28 @@ config EFI_RUNTIME_UPDATE_CAPSULE
@@ -624,7 +624,7 @@ index 02a8435cd3..2259bfbf3d 100644
 +}
 +#endif /* CONFIG_EFI_CAPSULE_ON_DISK */
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 75926c77e6..2830a70944 100644
+index 3a1c8ea004..99146671c8 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
 @@ -156,6 +156,10 @@ static efi_status_t efi_init_os_indications(void)
@@ -638,7 +638,7 @@ index 75926c77e6..2830a70944 100644
  	return efi_set_variable_int(L"OsIndicationsSupported",
  				    &efi_global_variable_guid,
  				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
-@@ -271,6 +275,10 @@ efi_status_t efi_init_obj_list(void)
+@@ -276,6 +280,10 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
  

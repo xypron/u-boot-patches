@@ -1,7 +1,7 @@
-From 3265887f7569e81aa0828662b0f48f32bb77ca4b Mon Sep 17 00:00:00 2001
+From 9c1936c00a476381da6ab8498ebdaac3123c9b17 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:50 +0900
-Subject: [PATCH 1/1] dfu: add dfu_write_by_alt()
+Date: Thu, 29 Oct 2020 13:47:52 +0900
+Subject: [PATCH] dfu: add dfu_write_by_alt()
 
 This function is a variant of dfu_write_by_name() and takes a DFU alt
 setting number for dfu configuration.
@@ -10,14 +10,14 @@ It will be utilised to implement UEFI capsule management protocol for
 raw image in a later commit.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  drivers/dfu/dfu_alt.c | 47 +++++++++++++++++++++++++++++++++++++++++++
  include/dfu.h         | 26 +++++++++++++++++++++++-
  2 files changed, 72 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/dfu/dfu_alt.c b/drivers/dfu/dfu_alt.c
-index 5b1b13d717..b090e8f07a 100644
+index 7528806cd1..d582781207 100644
 --- a/drivers/dfu/dfu_alt.c
 +++ b/drivers/dfu/dfu_alt.c
 @@ -76,3 +76,50 @@ done:
@@ -72,14 +72,14 @@ index 5b1b13d717..b090e8f07a 100644
 +	return ret;
 +}
 diff --git a/include/dfu.h b/include/dfu.h
-index 76d846ee9d..dc85f78d6b 100644
+index eaf4bfc0d5..a767adee41 100644
 --- a/include/dfu.h
 +++ b/include/dfu.h
 @@ -496,6 +496,7 @@ static inline int dfu_fill_entity_virt(struct dfu_entity *dfu, char *devstr,
  }
  #endif
  
-+#if CONFIG_IS_ENABLED(DFU_ALT)
++#if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
  /**
   * dfu_write_by_name() - write data to DFU medium
   * @dfu_entity_name:	Name of DFU entity to write
@@ -87,7 +87,7 @@ index 76d846ee9d..dc85f78d6b 100644
   *
   * Return:		0 - on success, error code - otherwise
   */
--#if CONFIG_IS_ENABLED(DFU_ALT)
+-#if CONFIG_IS_ENABLED(DFU_WRITE_ALT)
  int dfu_write_by_name(char *dfu_entity_name, void *addr,
  		      unsigned int len, char *interface, char *devstring);
 +
@@ -109,7 +109,7 @@ index 76d846ee9d..dc85f78d6b 100644
  #else
  static inline int dfu_write_by_name(char *dfu_entity_name, void *addr,
  				    unsigned int len, char *interface,
-@@ -520,6 +536,14 @@ static inline int dfu_write_by_name(char *dfu_entity_name, unsigned int addr,
+@@ -520,6 +536,14 @@ static inline int dfu_write_by_name(char *dfu_entity_name, void *addr,
  	puts("write support for DFU not available!\n");
  	return -ENOSYS;
  }

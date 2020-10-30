@@ -1,8 +1,7 @@
-From 7a7a04d23325bd09cc01bcfc42b889b1e5dd297c Mon Sep 17 00:00:00 2001
+From 9726e81469a2bbb1a4097e223cf6e49f85ea41c5 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:51 +0900
-Subject: [PATCH 1/1] efi_loader: add firmware management protocol for raw
- image
+Date: Thu, 29 Oct 2020 13:47:53 +0900
+Subject: [PATCH] efi_loader: add firmware management protocol for raw image
 
 In this commit, a very simple firmware management protocol driver
 is implemented. It will take a binary image in a capsule file and
@@ -19,14 +18,14 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
  lib/efi_loader/Kconfig        |  16 +++
  lib/efi_loader/Makefile       |   2 +-
  lib/efi_loader/efi_capsule.c  |   8 ++
- lib/efi_loader/efi_firmware.c | 221 +++++++++++++++++++++++++---------
- 6 files changed, 194 insertions(+), 58 deletions(-)
+ lib/efi_loader/efi_firmware.c | 226 +++++++++++++++++++++++++---------
+ 6 files changed, 199 insertions(+), 58 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
-index 4e9e65189e..d5a0e28ae7 100644
+index 071d0ba866..c7038f863a 100644
 --- a/include/efi_api.h
 +++ b/include/efi_api.h
-@@ -1849,6 +1849,10 @@ struct efi_signature_list {
+@@ -1853,6 +1853,10 @@ struct efi_signature_list {
  	EFI_GUID(0xae13ff2d, 0x9ad4, 0x4e25, 0x9a, 0xc8, \
  		 0x6d, 0x80, 0xb3, 0xb2, 0x21, 0x47)
  
@@ -34,14 +33,14 @@ index 4e9e65189e..d5a0e28ae7 100644
 +	EFI_GUID(0xe2bb9c06, 0x70e9, 0x4b14, 0x97, 0xa3, \
 +		 0x5a, 0x79, 0x13, 0x17, 0x6e, 0x3f)
 +
- #define EFI_IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x1
- #define EFI_IMAGE_ATTRIBUTE_RESET_REQUIRED		0x2
- #define EFI_IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x4
+ #define IMAGE_ATTRIBUTE_IMAGE_UPDATABLE		0x0000000000000001
+ #define IMAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
+ #define IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 6959f62b80..d9ffc33332 100644
+index de6d353de3..0f85873a72 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -811,6 +811,7 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+@@ -812,6 +812,7 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
  u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
  
  extern const struct efi_firmware_management_protocol efi_fmp_fit;
@@ -50,7 +49,7 @@ index 6959f62b80..d9ffc33332 100644
  /* Capsule update */
  efi_status_t EFIAPI efi_update_capsule(
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index bc12f0afb4..ae8c3f07b3 100644
+index 94c1ad2af0..25b4ef1200 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
 @@ -126,6 +126,10 @@ config EFI_CAPSULE_ON_DISK_EARLY
@@ -78,7 +77,7 @@ index bc12f0afb4..ae8c3f07b3 100644
 +	bool "FMP driver for raw image"
 +	depends on EFI_CAPSULE_FIRMWARE_MANAGEMENT
 +	select DFU
-+	select DFU_ALT
++	select DFU_WRITE_ALT
 +	select EFI_CAPSULE_FIRMWARE
 +	default n
 +	help
@@ -102,10 +101,10 @@ index 23b1828b0f..a7631d92a3 100644
  obj-y += efi_device_path.o
  obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index 3f987df49e..70c341882c 100644
+index a44f81daae..af40b4a159 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
-@@ -807,6 +807,14 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
+@@ -814,6 +814,14 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
  				&efi_fmp_fit, NULL));
  	}
  
@@ -121,7 +120,7 @@ index 3f987df49e..70c341882c 100644
  }
  
 diff --git a/lib/efi_loader/efi_firmware.c b/lib/efi_loader/efi_firmware.c
-index ee98ba683f..5be64db457 100644
+index 4c395f4eb5..7e56077383 100644
 --- a/lib/efi_loader/efi_firmware.c
 +++ b/lib/efi_loader/efi_firmware.c
 @@ -13,16 +13,66 @@
@@ -201,7 +200,7 @@ index ee98ba683f..5be64db457 100644
  
  /**
   * efi_get_dfu_info - return information about the current firmware image
-@@ -134,6 +184,18 @@ static efi_status_t efi_get_dfu_info(
+@@ -129,6 +179,18 @@ static efi_status_t efi_get_dfu_info(
  	return EFI_SUCCESS;
  }
  
@@ -240,7 +239,7 @@ index ee98ba683f..5be64db457 100644
  /**
   * efi_firmware_fit_set_image - update the firmware image
   * @this:		Protocol instance
-@@ -233,59 +282,117 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
+@@ -233,59 +282,122 @@ efi_status_t EFIAPI efi_firmware_fit_set_image(
  	return EFI_EXIT(EFI_SUCCESS);
  }
  
@@ -321,7 +320,12 @@ index ee98ba683f..5be64db457 100644
 +		  descriptor_version, descriptor_count, descriptor_size,
 +		  package_version, package_version_name);
 +
-+	if (!image_info_size || (*image_info_size && !image_info))
++	if (!image_info_size)
++		return EFI_EXIT(EFI_INVALID_PARAMETER);
++
++	if (*image_info_size &&
++	    (!image_info || !descriptor_version || !descriptor_count ||
++	     !descriptor_size || !package_version || !package_version_name))
 +		return EFI_EXIT(EFI_INVALID_PARAMETER);
 +
 +	ret = efi_get_dfu_info(image_info_size, image_info,

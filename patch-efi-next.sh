@@ -77,27 +77,31 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-efi_loader-fix-DisconnectController-for-sole-child.patch
 git am ../patch/0001-rtc-use-probe-to-initialize-emulated-RTC.patch
 git am ../patch/0001-rtc-initialize-emulated-RTC-from-environment-variabl.patch
-exit
-
-git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
 git am ../patch/0001-dfu-modify-an-argument-type-for-an-address.patch
 git am ../patch/0001-common-update-add-a-generic-interface-for-FIT-image.patch
 git am ../patch/0001-dfu-export-dfu_list.patch
+git am ../patch/0001-dfu-add-dfu_write_by_alt.patch
+
 git am ../patch/0001-efi_loader-add-option-to-initialise-EFI-subsystem-ea.patch
 git am ../patch/0001-efi_loader-add-efi_create_indexed_name.patch
+exit
+
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
 git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
 git am ../patch/0001-efi_loader-capsule-add-memory-range-capsule-definiti.patch
 git am ../patch/0001-efi_loader-capsule-support-firmware-update.patch
 git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-FIT-.patch
-git am ../patch/0001-dfu-add-dfu_write_by_alt.patch
 git am ../patch/0001-efi_loader-add-firmware-management-protocol-for-raw-.patch
 git am ../patch/0001-cmd-add-efidebug-capsule-command.patch
 git am ../patch/0001-tools-add-mkeficapsule-command-for-UEFI-capsule-upda.patch
-git am ../patch/0001-test-py-add-a-test-for-uefi-firmware-update-capsule-.patch
-git am ../patch/0001-test-py-test-for-uefi-firmware-update-capsule-of-raw.patch
+git am ../patch/0001-test-py-efi_capsule-test-for-FIT-image-capsule.patch
+git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
+
+exit
+
+git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 
 exit
 

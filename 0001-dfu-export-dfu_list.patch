@@ -1,12 +1,13 @@
-From 7055ac3a519af0afa30264b3c62131e6512894a1 Mon Sep 17 00:00:00 2001
+From 5766bc45bc9d35657bbf8285e95106725a3c2775 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Mon, 3 Aug 2020 14:43:42 +0900
-Subject: [PATCH 1/1] dfu: export dfu_list
+Date: Thu, 29 Oct 2020 13:47:44 +0900
+Subject: [PATCH] dfu: export dfu_list
 
 This variable will be utilized to enumerate all dfu entities
 for UEFI capsule firmware update in a later commit.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  drivers/dfu/dfu.c | 2 +-
  include/dfu.h     | 3 +++
@@ -26,7 +27,7 @@ index a298c2c439..501a60b344 100644
  static int alt_num_cnt;
  static struct hash_algo *dfu_hash_algo;
 diff --git a/include/dfu.h b/include/dfu.h
-index cecfbd7659..76d846ee9d 100644
+index d3d7e07b60..eaf4bfc0d5 100644
 --- a/include/dfu.h
 +++ b/include/dfu.h
 @@ -158,6 +158,9 @@ struct dfu_entity {
