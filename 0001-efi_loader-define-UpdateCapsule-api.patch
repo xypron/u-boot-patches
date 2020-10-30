@@ -186,7 +186,7 @@ index 0000000000..02a8435cd3
 +	struct efi_time time;
 +	efi_status_t ret;
 +
-+	efi_create_indexed_name(variable_name16, L"Capsule", index);
++	efi_create_indexed_name(variable_name16, "Capsule", index);
 +
 +	result.variable_total_size = sizeof(result);
 +	result.capsule_guid = capsule->capsule_guid;

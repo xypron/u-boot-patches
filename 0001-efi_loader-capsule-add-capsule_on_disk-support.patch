@@ -612,7 +612,7 @@ index 02a8435cd3..2259bfbf3d 100644
 +	free(files);
 +
 +	/* CapsuleLast */
-+	efi_create_indexed_name(variable_name16, L"Capsule", index - 1);
++	efi_create_indexed_name(variable_name16, "Capsule", index - 1);
 +	efi_set_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
 +			     EFI_VARIABLE_READ_ONLY |
 +			     EFI_VARIABLE_NON_VOLATILE |

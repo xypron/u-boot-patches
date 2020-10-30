@@ -1,0 +1,31 @@
+From 5528526eb887c7cceb0444db127fefb146f30321 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Oct 2020 12:36:06 +0100
+Subject: [PATCH] log: typo logl_pref in documentation
+
+The name of structure element logl_prev is not matched by the
+documentation.
+
+%s/logl_pref/logl_prev/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/asm-generic/global_data.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/asm-generic/global_data.h b/include/asm-generic/global_data.h
+index 0157af1aa4..0e8843b478 100644
+--- a/include/asm-generic/global_data.h
++++ b/include/asm-generic/global_data.h
+@@ -378,7 +378,7 @@ struct global_data {
+ 	 */
+ 	int logc_prev;
+ 	/**
+-	 * @logl_pref: logging level of the previous message
++	 * @logl_prev: logging level of the previous message
+ 	 *
+ 	 * This value is used as logging level for continuation messages.
+ 	 */
+-- 
+2.28.0
+

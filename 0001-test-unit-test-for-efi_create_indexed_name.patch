@@ -1,0 +1,52 @@
+From 8ad3aa17b87b2b758fc3e62095b93952d2f1905d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Oct 2020 12:23:59 +0100
+Subject: [PATCH] test: unit test for efi_create_indexed_name()
+
+Provide a unit test for function efi_create_indexed_name().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/unicode_ut.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/test/unicode_ut.c b/test/unicode_ut.c
+index 26d96336f3..33fc8b0ee1 100644
+--- a/test/unicode_ut.c
++++ b/test/unicode_ut.c
+@@ -8,6 +8,7 @@
+ #include <common.h>
+ #include <charset.h>
+ #include <command.h>
++#include <efi_loader.h>
+ #include <errno.h>
+ #include <log.h>
+ #include <malloc.h>
+@@ -594,6 +595,24 @@ static int unicode_test_u16_strsize(struct unit_test_state *uts)
+ }
+ UNICODE_TEST(unicode_test_u16_strsize);
+ 
++#ifdef CONFIG_EFI_LOADER
++static int unicode_test_efi_create_indexed_name(struct unit_test_state *uts)
++{
++	u16 buf[16];
++	u16 const expected[] = L"Capsule0AF9";
++	u16 *pos;
++
++	memset(buf, 0xeb, sizeof(buf));
++	pos = efi_create_indexed_name(buf, "Capsule", 0x0af9);
++
++	ut_asserteq_mem(expected, buf, sizeof(expected));
++	ut_asserteq(pos - buf, u16_strnlen(buf, SIZE_MAX));
++
++	return 0;
++}
++UNICODE_TEST(unicode_test_efi_create_indexed_name);
++#endif
++
+ int do_ut_unicode(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
+ {
+ 	struct unit_test *tests = ll_entry_start(struct unit_test, unicode_test);
+-- 
+2.28.0
+

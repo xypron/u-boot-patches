@@ -28,6 +28,7 @@ git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
+git am ../patch/0001-log-typo-logl_pref-in-documentation.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -77,6 +78,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-efi_loader-fix-DisconnectController-for-sole-child.patch
 git am ../patch/0001-rtc-use-probe-to-initialize-emulated-RTC.patch
 git am ../patch/0001-rtc-initialize-emulated-RTC-from-environment-variabl.patch
+git am ../patch/0001-efi_loader-typo-in-function-description-of-u16_strnl.patch
 
 git am ../patch/0001-dfu-rename-dfu_tftp_write-to-dfu_write_by_name.patch
 git am ../patch/0001-dfu-modify-an-argument-type-for-an-address.patch
@@ -86,6 +88,7 @@ git am ../patch/0001-dfu-add-dfu_write_by_alt.patch
 
 git am ../patch/0001-efi_loader-add-option-to-initialise-EFI-subsystem-ea.patch
 git am ../patch/0001-efi_loader-add-efi_create_indexed_name.patch
+git am ../patch/0001-test-unit-test-for-efi_create_indexed_name.patch
 exit
 
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch

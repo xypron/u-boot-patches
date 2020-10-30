@@ -1,0 +1,28 @@
+From ab86adb06a3b686ae05d3ce7eeaadb7f61005ca5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Oct 2020 12:14:16 +0100
+Subject: [PATCH 1/1] efi_loader: typo in function description of u16_strnlen
+
+%/u16_strlen/u16_strnlen()/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/charset.h b/include/charset.h
+index 5564f3bce5..cc650a2ce7 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -219,7 +219,7 @@ size_t u16_strlen(const void *in);
+ size_t u16_strsize(const void *in);
+ 
+ /**
+- * u16_strlen - count non-zero words
++ * u16_strnlen() - count non-zero words
+  *
+  * This function matches wscnlen_s() if the -fshort-wchar compiler flag is set.
+  * In the EFI context we explicitly need a function handling u16 strings.
+-- 
+2.28.0
+
