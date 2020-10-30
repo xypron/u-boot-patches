@@ -1,0 +1,75 @@
+From 13bc4661141f0a3bc06cf6a84a907c2c4acf8a79 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Oct 2020 05:46:51 +0100
+Subject: [PATCH 1/1] env: fix 'env select'
+
+A platform may define priorities for multiple environments, e.g.
+
+    env_locations[] = { ENVL_NOWHERE, ENVL_EXT4, ENVL_FAT };
+
+As the priority list is hard coded and not related to Kconfig we have to
+consider the case that there isn't a driver for each priority. The missing
+drivers can be at the start or in the middle of the list.
+
+Currently the initialization of env drivers and the 'env select' command
+stop at the first priority for which no driver is found in the list.
+
+The following changes are made in this patch:
+
+* In env_init() initialize all available drivers.
+* When executing 'env select' search in the list of all available drivers.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ board/sandbox/sandbox.c |  1 +
+ env/env.c               | 24 ++++++++++++++++++------
+ 2 files changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/env/env.c b/env/env.c
+index 42c7d8155e..ec52293361 100644
+--- a/env/env.c
++++ b/env/env.c
+@@ -323,14 +323,22 @@ int env_erase(void)
+ int env_init(void)
+ {
+ 	struct env_driver *drv;
+-	int ret = -ENOENT;
++	int r, ret = -ENOENT;
+ 	int prio;
+ 
+-	for (prio = 0; (drv = env_driver_lookup(ENVOP_INIT, prio)); prio++) {
+-		if (!drv->init || !(ret = drv->init()))
++	for (prio = 0; env_get_location(ENVOP_INIT, prio) != ENVL_UNKNOWN;
++	     prio++) {
++		drv = env_driver_lookup(ENVOP_INIT, prio);
++		if (!drv)
++			continue;
++		if (!drv->init || !(r = drv->init())) {
+ 			env_set_inited(drv->location);
+-
+-		debug("%s: Environment %s init done (ret=%d)\n", __func__,
++			if (ret) {
++				gd->env_load_prio = prio;
++				ret = 0;
++			}
++		}
++		printf("%s: Environment %s init done (ret=%d)\n", __func__,
+ 		      drv->name, ret);
+ 	}
+ 
+@@ -372,7 +380,11 @@ int env_select(const char *name)
+ 	}
+ 
+ 	/* search priority by driver */
+-	for (prio = 0; (drv = env_driver_lookup(ENVOP_INIT, prio)); prio++) {
++	for (prio = 0; env_get_location(ENVOP_INIT, prio) != ENVL_UNKNOWN;
++	     prio++) {
++		drv = env_driver_lookup(ENVOP_INIT, prio);
++		if (!drv)
++			continue;
+ 		if (entry->location == env_get_location(ENVOP_LOAD, prio)) {
+ 			/* when priority change, reset the ENV flags */
+ 			if (gd->env_load_prio != prio) {
+-- 
+2.28.0
+

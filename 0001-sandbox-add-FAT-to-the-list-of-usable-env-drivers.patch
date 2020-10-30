@@ -1,0 +1,27 @@
+From e7f94d911a0f796c384e66c51c2c6147cdb2c09a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 30 Oct 2020 06:31:28 +0100
+Subject: [PATCH] sandbox: add FAT to the list of usable env drivers
+
+Add the FAT environment driver to the priority list.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ board/sandbox/sandbox.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/board/sandbox/sandbox.c b/board/sandbox/sandbox.c
+index 937ce28411..36573f4e5f 100644
+--- a/board/sandbox/sandbox.c
++++ b/board/sandbox/sandbox.c
+@@ -49,6 +49,7 @@ unsigned long timer_read_counter(void)
+ static enum env_location env_locations[] = {
+ 	ENVL_NOWHERE,
+ 	ENVL_EXT4,
++	ENVL_FAT,
+ };
+ 
+ enum env_location env_get_location(enum env_operation op, int prio)
+-- 
+2.28.0
+
