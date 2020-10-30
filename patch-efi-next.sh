@@ -71,6 +71,8 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2021-01-rc2-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 git am ../patch/0001-efi_loader-fix-DisconnectController-for-sole-child.patch
+git am ../patch/0001-rtc-use-probe-to-initialize-emulated-RTC.patch
+git am ../patch/0001-rtc-initialize-emulated-RTC-from-environment-variabl.patch
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
