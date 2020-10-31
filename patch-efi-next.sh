@@ -27,6 +27,8 @@ git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
+git am ../patch/0001-test-test-bloblist.c-depends-on-asm-state.h.patch
+git am ../patch/0001-test-linking-test-compression.c-fails.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
