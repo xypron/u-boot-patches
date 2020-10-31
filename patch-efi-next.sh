@@ -21,14 +21,12 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
-git am ../patch/0001-clk-kendryte-no-need-to-check-argument-of-free.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
-git am ../patch/0001-log-typo-logl_pref-in-documentation.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -56,7 +54,6 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 # git am ../patch/0001-sandbox-redefine-getc.patch
-git am ../patch/0001-sandbox-make-SDL-window-resizable.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-eth-raw-do-not-close-the-console-input.patch
