@@ -72,8 +72,11 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2021-01-rc2-2
+# efi-2021-01-rc2-3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
+
+git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
+
 exit
 
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch

@@ -1,0 +1,33 @@
+From 9c3da5760caad2025801fd3813f43117790cedbb Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 2 Nov 2020 19:32:24 +0100
+Subject: [PATCH 1/1] efi_loader: non-volatile variable not deleted from file
+
+When deleting a non-volatile variable it was deleted from memory but the
+deletion was not persisted to the file system.
+
+SetVariable() may be called with attributes == 0 to delete a variable. To
+determine if the deletion shall be persisted we have to consider the
+non-volatile flag in the attributes of the deleted variable and not the
+value passed in the call parameter.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_variable.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/efi_variable.c b/lib/efi_loader/efi_variable.c
+index a10b9caa8b..0c689cfb47 100644
+--- a/lib/efi_loader/efi_variable.c
++++ b/lib/efi_loader/efi_variable.c
+@@ -393,6 +393,7 @@ efi_status_t efi_set_variable_int(u16 *variable_name, const efi_guid_t *vendor,
+ 
+ 	if (delete) {
+ 		/* EFI_NOT_FOUND has been handled before */
++		attributes = var->attr;
+ 		ret = EFI_SUCCESS;
+ 	} else if (append) {
+ 		u16 *old_data = var->name;
+-- 
+2.28.0
+
