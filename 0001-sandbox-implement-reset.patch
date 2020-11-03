@@ -1,51 +1,45 @@
-From b74676d86b74a4085a60f75cb42d8b5a3fe15e89 Mon Sep 17 00:00:00 2001
+From a3212b18f13ce888e81e08e47854e88c60d45745 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 24 Oct 2020 21:59:06 +0200
+Date: Tue, 27 Oct 2020 20:29:25 +0100
 Subject: [PATCH 1/1] sandbox: implement reset
 
 Up to now the sandbox would shutdown upon a cold reset request. Instead it
 should be reset.
 
-In our coding we use static variables. The only safe way to return to an
-initial state is to relaunch the U-Boot binary.
+In our coding we use static variables like LIST_HEAD(efi_obj_list). A reset
+can occur at any time, e.g. via an UEFI binary calling the reset service.
+The only safe way to return to an initial state is to relaunch the U-Boot
+binary.
 
-The reset implementation uses a longjmp() to return to the main() function
-and then relaunches U-Boot using execv().
+The reset implementation uses execv() to relaunch U-Boot.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- arch/sandbox/cpu/os.c                     | 14 ++++++++++++++
- arch/sandbox/cpu/start.c                  | 22 ++++++++++++++++++++++
+ arch/sandbox/cpu/os.c                     |  6 ++++++
+ arch/sandbox/cpu/start.c                  | 26 +++++++++++++++++++++++
  arch/sandbox/cpu/state.c                  |  1 +
- arch/sandbox/include/asm/u-boot-sandbox.h |  3 +++
+ arch/sandbox/include/asm/u-boot-sandbox.h | 10 +++++++++
  drivers/sysreset/sysreset_sandbox.c       |  3 +++
- include/os.h                              |  5 +++++
- 6 files changed, 48 insertions(+)
+ include/os.h                              | 15 +++++++++++++
+ 6 files changed, 61 insertions(+)
 
 diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
-index c461fb0db0..ed044e87fb 100644
+index 7e474d6364..0d8efd83f6 100644
 --- a/arch/sandbox/cpu/os.c
 +++ b/arch/sandbox/cpu/os.c
-@@ -817,3 +817,17 @@ void *os_find_text_base(void)
+@@ -822,3 +822,9 @@ void *os_find_text_base(void)
  
  	return base;
  }
 +
-+void os_relaunch(int argc, char *argv[])
++void os_relaunch(char *argv[])
 +{
-+	char **args;
-+
-+	args = calloc(argc + 1, sizeof(char *));
-+	if (!args)
-+		goto out;
-+	memcpy(args, argv, sizeof(char *) * argc);
-+	args[argc] = NULL;
-+	execv(args[0], args);
-+out:
++	execv(argv[0], argv);
 +	os_exit(1);
 +}
 diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
-index c6a2bbe468..ee1d4b9581 100644
+index 58ada13fba..a03e5aa0b3 100644
 --- a/arch/sandbox/cpu/start.c
 +++ b/arch/sandbox/cpu/start.c
 @@ -5,6 +5,7 @@
@@ -56,23 +50,16 @@ index c6a2bbe468..ee1d4b9581 100644
  #include <errno.h>
  #include <init.h>
  #include <os.h>
-@@ -14,11 +15,15 @@
- #include <asm/io.h>
- #include <asm/malloc.h>
- #include <asm/sections.h>
-+#include <asm/setjmp.h>
- #include <asm/state.h>
- #include <linux/ctype.h>
+@@ -19,6 +20,8 @@
  
  DECLARE_GLOBAL_DATA_PTR;
  
-+/* longjmp buffer for reset */
-+static struct jmp_buf_data reset_jmp;
++static char **os_argv;
 +
  /* Compare two options so that they can be sorted into alphabetical order */
  static int h_compare_opt(const void *p1, const void *p2)
  {
-@@ -394,12 +399,29 @@ void state_show(struct sandbox_state *state)
+@@ -403,12 +406,35 @@ void state_show(struct sandbox_state *state)
  	printf("\n");
  }
  
@@ -86,8 +73,8 @@ index c6a2bbe468..ee1d4b9581 100644
 +	if (dm_uninit())
 +		os_exit(2);
 +
-+	/* This is considered normal termination for now */
-+	longjmp(&reset_jmp, 1);
++	/* Restart U-Boot */
++	os_relaunch(os_argv);
 +}
 +
  int main(int argc, char *argv[])
@@ -96,8 +83,14 @@ index c6a2bbe468..ee1d4b9581 100644
  	gd_t data;
  	int ret;
  
-+	if (setjmp(&reset_jmp))
-+		os_relaunch(argc, argv);
++	/*
++	 * Copy argv[] so that we can pass the arguments in the original
++	 * sequence when resetting the sandbox.
++	 */
++	os_argv = calloc(argc + 1, sizeof(char *));
++	if (!os_argv)
++		os_exit(1);
++	memcpy(os_argv, argv, sizeof(char *) * (argc + 1));
 +
  	memset(&data, '\0', sizeof(data));
  	gd = &data;
@@ -115,21 +108,28 @@ index 34b6fff7e7..59f37fab0b 100644
  
  	memset(&state->wdt, '\0', sizeof(state->wdt));
 diff --git a/arch/sandbox/include/asm/u-boot-sandbox.h b/arch/sandbox/include/asm/u-boot-sandbox.h
-index 798d003077..b1bdcbcde5 100644
+index 798d003077..73b1897191 100644
 --- a/arch/sandbox/include/asm/u-boot-sandbox.h
 +++ b/arch/sandbox/include/asm/u-boot-sandbox.h
-@@ -84,6 +84,9 @@ void sandbox_set_enable_pci_map(int enable);
+@@ -84,6 +84,16 @@ void sandbox_set_enable_pci_map(int enable);
   */
  int sandbox_read_fdt_from_file(void);
  
-+/* Reset sandbox */
++/**
++ * sandbox_reset() - reset sandbox
++ *
++ * This functions implements the cold reboot of the sandbox. It relaunches the
++ * U-Boot binary with the same command line parameters as the original call.
++ * The PID of the process stays the same. All file descriptors that have not
++ * been opened with O_CLOEXEC stay open including stdin, stdout, stderr.
++ */
 +void sandbox_reset(void);
 +
  /* Exit sandbox (quit U-Boot) */
  void sandbox_exit(void);
  
 diff --git a/drivers/sysreset/sysreset_sandbox.c b/drivers/sysreset/sysreset_sandbox.c
-index 69c22a7000..c92132798c 100644
+index 71cabd1956..7026a48c4b 100644
 --- a/drivers/sysreset/sysreset_sandbox.c
 +++ b/drivers/sysreset/sysreset_sandbox.c
 @@ -56,6 +56,9 @@ static int sandbox_sysreset_request(struct udevice *dev, enum sysreset_t type)
@@ -143,17 +143,27 @@ index 69c22a7000..c92132798c 100644
  	case SYSRESET_POWER_OFF:
  		state->last_sysreset = type;
 diff --git a/include/os.h b/include/os.h
-index 1874ae674f..187dbf06f2 100644
+index 1874ae674f..88dfb71c1a 100644
 --- a/include/os.h
 +++ b/include/os.h
-@@ -355,4 +355,9 @@ int os_read_file(const char *name, void **bufp, int *sizep);
+@@ -355,4 +355,19 @@ int os_read_file(const char *name, void **bufp, int *sizep);
   */
  void *os_find_text_base(void);
  
 +/**
 + * os_relaunch() - restart the sandbox
++ *
++ * This functions is used to implement the cold reboot of the sand box.
++ * @argv[0] specifies the binary that is started while the calling process
++ * stops immediately. If the new binary cannot be started, the process is
++ * terminated and 1 is set as shell return code.
++ *
++ * The PID of the process stays the same. All file descriptors that have not
++ * been opened with O_CLOEXEC stay open including stdin, stdout, stderr.
++ *
++ * @argv:	NULL terminated list of command line parameters
 + */
-+void os_relaunch(int argc, char *argv[]);
++void os_relaunch(char *argv[]);
 +
  #endif
 -- 
