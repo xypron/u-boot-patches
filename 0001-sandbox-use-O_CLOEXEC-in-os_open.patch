@@ -1,0 +1,33 @@
+From cb2a6ed5f4e25869fe3c6f5a387a2b078d779d3b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 27 Oct 2020 20:29:24 +0100
+Subject: [PATCH] sandbox: use O_CLOEXEC in os_open()
+
+During a cold reset execv() is used to relaunch the U-Boot binary.
+We must ensure that all files are closed in this case.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ arch/sandbox/cpu/os.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
+index c461fb0db0..7e474d6364 100644
+--- a/arch/sandbox/cpu/os.c
++++ b/arch/sandbox/cpu/os.c
+@@ -80,6 +80,11 @@ int os_open(const char *pathname, int os_flags)
+ 		flags |= O_CREAT;
+ 	if (os_flags & OS_O_TRUNC)
+ 		flags |= O_TRUNC;
++	/*
++	 * During a cold reset execv() is used to relaunch the U-Boot binary.
++	 * We must ensure that all files are closed in this case.
++	 */
++	flags |= O_CLOEXEC;
+ 
+ 	return open(pathname, flags, 0777);
+ }
+-- 
+2.28.0
+
