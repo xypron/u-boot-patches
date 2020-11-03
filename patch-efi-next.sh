@@ -64,6 +64,8 @@ git am ../patch/0001-test-py-test-poweroff.patch
 git am ../patch/0001-sandbox-use-O_CLOEXEC-in-os_open.patch
 git am ../patch/0001-sandbox-implement-reset.patch
 git am ../patch/0001-test-adjust-sysreset-tests.patch
+git am ../patch/0001-sandbox-update-function-descriptions-in-os.h.patch
+git am ../patch/0001-doc-add-sandbox-API.patch
 
 git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch

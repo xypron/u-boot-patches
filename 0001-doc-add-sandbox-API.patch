@@ -1,0 +1,45 @@
+From 4f028dbfb1270d2fdbc33905a3440b9171222f9a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 27 Oct 2020 20:29:28 +0100
+Subject: [PATCH] doc: add sandbox API
+
+Add sandbox API to generated HTML documentation
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ doc/api/index.rst   | 1 +
+ doc/api/sandbox.rst | 9 +++++++++
+ 2 files changed, 10 insertions(+)
+ create mode 100644 doc/api/sandbox.rst
+
+diff --git a/doc/api/index.rst b/doc/api/index.rst
+index ae4a1b6c63..cbecd10755 100644
+--- a/doc/api/index.rst
++++ b/doc/api/index.rst
+@@ -12,6 +12,7 @@ U-Boot API documentation
+    linker_lists
+    pinctrl
+    rng
++   sandbox
+    serial
+    timer
+    unicode
+diff --git a/doc/api/sandbox.rst b/doc/api/sandbox.rst
+new file mode 100644
+index 0000000000..724776399b
+--- /dev/null
++++ b/doc/api/sandbox.rst
+@@ -0,0 +1,9 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++Sandbox
++=======
++
++The following API routines are used to implement the U-Boot sandbox.
++
++.. kernel-doc:: include/os.h
++   :internal:
+-- 
+2.28.0
+
