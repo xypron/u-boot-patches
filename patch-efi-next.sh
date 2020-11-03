@@ -67,6 +67,8 @@ git am ../patch/0001-test-adjust-sysreset-tests.patch
 git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
 
+git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
+
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 

@@ -1,0 +1,59 @@
+From d68d7516105c957e5886feb0f1613a0d241d657e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 3 Nov 2020 05:48:34 +0100
+Subject: [PATCH 1/1] sandbox: implement runtime system reset
+
+Implement a reset function that we can call after ExitBootServices(),
+when all driver model devices are gone.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/start.c | 10 ++++++++++
+ lib/efi_loader/Kconfig   |  3 ++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
+index cc47b28d1d..c90642ccd3 100644
+--- a/arch/sandbox/cpu/start.c
++++ b/arch/sandbox/cpu/start.c
+@@ -6,6 +6,7 @@
+ #include <common.h>
+ #include <command.h>
+ #include <dm/root.h>
++#include <efi_loader.h>
+ #include <errno.h>
+ #include <init.h>
+ #include <os.h>
+@@ -397,6 +398,15 @@ void state_show(struct sandbox_state *state)
+ 	printf("\n");
+ }
+ 
++void __efi_runtime EFIAPI efi_reset_system(
++		enum efi_reset_type reset_type,
++		efi_status_t reset_status,
++		unsigned long data_size, void *reset_data)
++{
++	/* Restart U-Boot */
++	os_relaunch(os_argv);
++}
++
+ void sandbox_reset(void)
+ {
+ 	/* Do this here while it still has an effect */
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index ab42f3ba75..bcf098533b 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -160,7 +160,8 @@ config EFI_HAVE_RUNTIME_RESET
+ 	# bool "Reset runtime service is available"
+ 	bool
+ 	default y
+-	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || SYSRESET_X86
++	depends on ARCH_BCM283X || FSL_LAYERSCAPE || PSCI_RESET || \
++		   SANDBOX || SYSRESET_X86
+ 
+ config EFI_GRUB_ARM32_WORKAROUND
+ 	bool "Workaround for GRUB on 32bit ARM"
+-- 
+2.28.0
+
