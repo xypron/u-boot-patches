@@ -84,6 +84,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
+git am ../patch/0001-efi_selftest-add-tool-to-download-dtb.patch
 
 exit
 
