@@ -24,7 +24,6 @@ git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
-git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
 git am ../patch/0001-test-test-bloblist.c-depends-on-asm-state.h.patch
@@ -85,6 +84,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # efi-2021-01-rc2-3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
 git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
 git am ../patch/0001-efi_selftest-add-tool-to-download-dtb.patch
 
