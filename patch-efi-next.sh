@@ -33,6 +33,7 @@ git am ../patch/0001-riscv-sort-SPECIFIC_OPTIONS.patch
 git am ../patch/0001-riscv-enable-SATA-disk-on-QEMU-RISC-V.patch
 git am ../patch/0001-doc-qemu-riscv-describe-attaching-a-disk-image.patch
 git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
+git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch

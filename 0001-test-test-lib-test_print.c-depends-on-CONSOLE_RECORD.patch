@@ -1,0 +1,30 @@
+From 1bc7e4a4d3a0f91569e2788ab4e164366da34eb7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 5 Nov 2020 01:25:46 +0100
+Subject: [PATCH 1/1] test: test/lib/test_print.c depends on CONSOLE_RECORD
+
+The tests in test/lib/test_print.c fail without CONFIG_CONSOLE_RECORD=y.
+
+Add a build dependency.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/lib/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/lib/Makefile b/test/lib/Makefile
+index 98a9abf40e..97c11e35a8 100644
+--- a/test/lib/Makefile
++++ b/test/lib/Makefile
+@@ -7,7 +7,7 @@ obj-$(CONFIG_EFI_LOADER) += efi_device_path.o
+ obj-$(CONFIG_EFI_SECURE_BOOT) += efi_image_region.o
+ obj-y += hexdump.o
+ obj-y += lmb.o
+-obj-y += test_print.o
++obj-$(CONFIG_CONSOLE_RECORD) += test_print.o
+ obj-$(CONFIG_SSCANF) += sscanf.o
+ obj-y += string.o
+ obj-$(CONFIG_ERRNO_STR) += test_errno_str.o
+-- 
+2.28.0
+
