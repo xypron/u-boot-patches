@@ -1,0 +1,39 @@
+From 88dfecb24bba13038cc34e9e92df1287128b7416 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 5 Nov 2020 00:24:16 +0100
+Subject: [PATCH 1/1] cmd: CMD_CPU depends on CPU
+
+Compiling with CONFIG_CMD_CPU=y and CONFIG_CPU=n fails with:
+
+aarch64-linux-gnu-ld.bfd: cmd/built-in.o: in function `print_cpu_list':
+/home/user/u-boot/cmd/cpu.c:34: undefined reference to `cpu_get_desc'
+aarch64-linux-gnu-ld.bfd:
+/home/user/u-boot/cmd/cpu.c:39: undefined reference to `cpu_get_info'
+Segmentation fault (core dumped)
+make: *** [Makefile:1757: u-boot] Error 139
+make: *** Deleting file 'u-boot'
+
+See error report in https://stackoverflow.com/questions/64678347.
+
+Add the missing build dependency.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 1595de999b..efc8721b9d 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -113,6 +113,7 @@ config CMD_CONSOLE
+ 
+ config CMD_CPU
+ 	bool "cpu"
++	depends on CPU
+ 	help
+ 	  Print information about available CPUs. This normally shows the
+ 	  number of CPUs, type (e.g. manufacturer, architecture, product or
+-- 
+2.28.0
+
