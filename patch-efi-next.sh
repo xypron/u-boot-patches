@@ -74,6 +74,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
+git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch
 git am ../patch/0001-input-add-support-for-FN1-FN10-on-crosswire-kbd.patch
 git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
 git am ../patch/0001-efi_selftest-add-tool-to-download-dtb.patch
