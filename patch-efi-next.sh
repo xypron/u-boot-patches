@@ -26,8 +26,6 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
-git am ../patch/0001-test-test-bloblist.c-depends-on-asm-state.h.patch
-git am ../patch/0001-test-linking-test-compression.c-fails.patch
 git am ../patch/0001-riscv-sort-SPECIFIC_OPTIONS.patch
 git am ../patch/0001-riscv-enable-SATA-disk-on-QEMU-RISC-V.patch
 git am ../patch/0001-doc-qemu-riscv-describe-attaching-a-disk-image.patch
@@ -62,16 +60,7 @@ git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 # git am ../patch/0001-sandbox-redefine-getc.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
-git am ../patch/0001-sandbox-eth-raw-do-not-close-the-console-input.patch
-git am ../patch/0001-sandbox-enable-poweroff-command.patch
-git am ../patch/0001-test-py-test-poweroff.patch
-git am ../patch/0001-sandbox-use-O_CLOEXEC-in-os_open.patch
-git am ../patch/0001-sandbox-implement-reset.patch
-git am ../patch/0001-test-adjust-sysreset-tests.patch
-git am ../patch/0001-sandbox-update-function-descriptions-in-os.h.patch
-git am ../patch/0001-doc-add-sandbox-API.patch
-
-git am ../patch/0001-env-fix-env-select.patch
+# git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
@@ -85,8 +74,10 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
+git am ../patch/0001-input-add-support-for-FN1-FN10-on-crosswire-kbd.patch
 git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
 git am ../patch/0001-efi_selftest-add-tool-to-download-dtb.patch
+git am ../patch/0001-tpm-Change-response-length-of-tpm2_get_capability.patch
 
 exit
 

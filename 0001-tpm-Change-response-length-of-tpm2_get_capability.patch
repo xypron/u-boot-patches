@@ -1,0 +1,55 @@
+From a432195b967f9a25668673d4105c172963e2ee8e Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Thu, 5 Nov 2020 23:58:43 +0200
+Subject: [PATCH 1/1] tpm: Change response length of tpm2_get_capability()
+
+For implementing the EFI_TCG2_PROTOCOL we need the count field returned by
+the TPM when reading capabilities via tpm2_get_capability().
+
+Adjust the implementation of the 'tpm2 get_capability' command accordingly.
+
+Suggested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/tpm-v2.c | 4 ++--
+ lib/tpm-v2.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/cmd/tpm-v2.c b/cmd/tpm-v2.c
+index e6742656f5..5fa4788a72 100644
+--- a/cmd/tpm-v2.c
++++ b/cmd/tpm-v2.c
+@@ -191,10 +191,10 @@ static int do_tpm_get_capability(struct cmd_tbl *cmdtp, int flag, int argc,
+ 	for (i = 0; i < count; i++) {
+ 		printf("Property 0x");
+ 		for (j = 0; j < 4; j++)
+-			printf("%02x", data[(i * 8) + j]);
++			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
+ 		printf(": 0x");
+ 		for (j = 4; j < 8; j++)
+-			printf("%02x", data[(i * 8) + j]);
++			printf("%02x", data[(i * 8) + j + sizeof(u32)]);
+ 		printf("\n");
+ 	}
+ 
+diff --git a/lib/tpm-v2.c b/lib/tpm-v2.c
+index a4c352e3ef..91759068cf 100644
+--- a/lib/tpm-v2.c
++++ b/lib/tpm-v2.c
+@@ -184,10 +184,10 @@ u32 tpm2_get_capability(struct udevice *dev, u32 capability, u32 property,
+ 	/*
+ 	 * In the response buffer, the properties are located after the:
+ 	 * tag (u16), response size (u32), response code (u32),
+-	 * YES/NO flag (u8), TPM_CAP (u32) and TPMU_CAPABILITIES (u32).
++	 * YES/NO flag (u8), TPM_CAP (u32).
+ 	 */
+ 	properties_off = sizeof(u16) + sizeof(u32) + sizeof(u32) +
+-			 sizeof(u8) + sizeof(u32) + sizeof(u32);
++			 sizeof(u8) + sizeof(u32);
+ 	memcpy(buf, &response[properties_off], response_len - properties_off);
+ 
+ 	return 0;
+-- 
+2.28.0
+
