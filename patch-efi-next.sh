@@ -75,6 +75,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch
 git am ../patch/0001-efi_loader-incorrect-buffer-size-in-efi_file_setinfo.patch
+git am ../patch/0001-tpm-Add-some-headers-from-the-spec.patch
 
 exit
 
