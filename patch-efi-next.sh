@@ -57,8 +57,10 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
-# git am ../patch/0001-sandbox-redefine-getc.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
+
+git am ../patch/0001-sandbox-add-handler-for-exceptions.patch
+git am ../patch/0001-cmd-sandbox-implement-exception-command.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
@@ -76,6 +78,7 @@ git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch
 git am ../patch/0001-efi_loader-incorrect-buffer-size-in-efi_file_setinfo.patch
 git am ../patch/0001-tpm-Add-some-headers-from-the-spec.patch
+git am ../patch/0001-efi_selftest-implement-exception-test-for-sandbox.patch
 
 exit
 

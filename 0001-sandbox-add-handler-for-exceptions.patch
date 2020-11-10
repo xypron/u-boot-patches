@@ -1,0 +1,164 @@
+From e6a4115d7a408fc2209ce3d9341430c63b7468ff Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 10 Nov 2020 23:31:01 +0100
+Subject: [PATCH 1/1] sandbox: add handler for exceptions
+
+Add a handler for SIGILL, SIGBUS, SIGSEGV.
+
+When an exception occurs print the program counter and the loaded
+UEFI binaries and reset the system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/os.c         | 31 +++++++++++++++++++++++++++++++
+ arch/sandbox/cpu/start.c      |  4 ++++
+ arch/sandbox/lib/interrupts.c | 30 ++++++++++++++++++++++++++++++
+ include/os.h                  | 17 +++++++++++++++++
+ 4 files changed, 82 insertions(+)
+
+diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
+index 0d8efd83f6..080dbb7219 100644
+--- a/arch/sandbox/cpu/os.c
++++ b/arch/sandbox/cpu/os.c
+@@ -3,6 +3,8 @@
+  * Copyright (c) 2011 The Chromium OS Authors.
+  */
+ 
++#define _GNU_SOURCE
++
+ #include <dirent.h>
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -15,6 +17,7 @@
+ #include <string.h>
+ #include <termios.h>
+ #include <time.h>
++#include <ucontext.h>
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+@@ -191,6 +194,34 @@ static void os_sigint_handler(int sig)
+ 	raise(SIGINT);
+ }
+ 
++static void os_signal_handler(int sig, siginfo_t *info, void *con)
++{
++	ucontext_t *context = con;
++	unsigned long pc = 0;
++
++#ifdef __x86_64__
++	pc = context->uc_mcontext.gregs[REG_RIP];
++#elif __aarch64__
++	pc = context->uc_mcontext.pc;
++#endif
++
++	os_signal_action(sig, pc);
++}
++
++int os_setup_signal_handlers(void)
++{
++	struct sigaction act;
++
++	act.sa_sigaction = os_signal_handler;
++	sigemptyset(&act.sa_mask);
++	act.sa_flags = SA_SIGINFO;
++	if (sigaction(SIGILL, &act, NULL) ||
++            sigaction(SIGBUS, &act, NULL) ||
++            sigaction(SIGSEGV, &act, NULL))
++		return -1;
++	return 0;
++}
++
+ /* Put tty into raw mode so <tab> and <ctrl+c> work */
+ void os_tty_raw(int fd, bool allow_sigs)
+ {
+diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
+index a03e5aa0b3..f6c98545e0 100644
+--- a/arch/sandbox/cpu/start.c
++++ b/arch/sandbox/cpu/start.c
+@@ -451,6 +451,10 @@ int main(int argc, char *argv[])
+ 	if (ret)
+ 		goto err;
+ 
++	ret = os_setup_signal_handlers();
++	if (ret)
++		goto err;
++
+ #if CONFIG_VAL(SYS_MALLOC_F_LEN)
+ 	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+ #endif
+diff --git a/arch/sandbox/lib/interrupts.c b/arch/sandbox/lib/interrupts.c
+index 21f761ac3b..3c8f3df715 100644
+--- a/arch/sandbox/lib/interrupts.c
++++ b/arch/sandbox/lib/interrupts.c
+@@ -6,7 +6,13 @@
+  */
+ 
+ #include <common.h>
++#include <efi_loader.h>
+ #include <irq_func.h>
++#include <os.h>
++#include <asm-generic/signal.h>
++#include <asm/u-boot-sandbox.h>
++
++DECLARE_GLOBAL_DATA_PTR;
+ 
+ int interrupt_init(void)
+ {
+@@ -21,3 +27,27 @@ int disable_interrupts(void)
+ {
+ 	return 0;
+ }
++
++void os_signal_action(int sig, unsigned long pc)
++{
++	efi_restore_gd();
++
++	switch (sig) {
++	case SIGILL:
++		printf("Illegal instruction\n");
++		break;
++	case SIGBUS:
++		printf("Bus error\n");
++		break;
++	case SIGSEGV:
++		printf("Segmentation violation\n");
++		break;
++	default:
++		break;
++	}
++	printf("pc = 0x%lx, ", pc);
++	printf("pc_reloc = 0x%lx\n", pc - gd->reloc_off);
++	efi_print_image_infos((void *)pc);
++	printf("Resetting ...\n\n");
++	sandbox_reset();
++}
+diff --git a/include/os.h b/include/os.h
+index 1fe44f3510..0913b47b3a 100644
+--- a/include/os.h
++++ b/include/os.h
+@@ -407,4 +407,21 @@ void *os_find_text_base(void);
+  */
+ void os_relaunch(char *argv[]);
+ 
++/**
++ * os_setup_signal_handlers() - setup signal handlers
++ *
++ * Install signal handlers for SIGBUS and SIGSEGV.
++ *
++ * Return:	0 for success
++ */
++int os_setup_signal_handlers(void);
++
++/**
++ * os_signal_action() - handle a signal
++ *
++ * @sig:	signal
++ * @pc:		program counter
++ */
++void os_signal_action(int sig, unsigned long pc);
++
+ #endif
+-- 
+2.28.0
+
