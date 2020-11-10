@@ -63,22 +63,18 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
 
-git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
 # UEFI
 
-# efi-2021-01-rc2-3
+# efi-2021-01-rc3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-git am ../patch/0001-cmd-conitrace-replace-getc-by-getchar.patch
+git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch
-git am ../patch/0001-input-add-support-for-FN1-FN10-on-crosswire-kbd.patch
-git am ../patch/0001-efi_loader-non-volatile-variable-not-deleted-from-fi.patch
-git am ../patch/0001-efi_selftest-add-tool-to-download-dtb.patch
-git am ../patch/0001-tpm-Change-response-length-of-tpm2_get_capability.patch
+git am ../patch/0001-efi_loader-incorrect-buffer-size-in-efi_file_setinfo.patch
 
 exit
 
