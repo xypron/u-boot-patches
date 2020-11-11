@@ -61,6 +61,7 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-add-handler-for-exceptions.patch
 git am ../patch/0001-cmd-sandbox-implement-exception-command.patch
+git am ../patch/0001-test-unit-test-for-exception-command.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch

@@ -1,0 +1,46 @@
+From ba9bf1439838a3c4f6b5abe5da46fc6f034af4b1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 11 Nov 2020 19:45:20 +0100
+Subject: [PATCH 1/1] test: unit test for exception command
+
+Test that an exception SIGILL is answered by a reset on the sandbox.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/Kconfig                       |  1 +
+ test/py/tests/test_sandbox_exit.py | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 3aa99e08fc..b936d2dffc 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -112,6 +112,7 @@ config SANDBOX
+ 	imply BITREVERSE
+ 	select BLOBLIST
+ 	imply CMD_DM
++	imply CMD_EXCEPTION
+ 	imply CMD_GETTIME
+ 	imply CMD_HASH
+ 	imply CMD_IO
+diff --git a/test/py/tests/test_sandbox_exit.py b/test/py/tests/test_sandbox_exit.py
+index 2d242ae0f6..eef9d94ca2 100644
+--- a/test/py/tests/test_sandbox_exit.py
++++ b/test/py/tests/test_sandbox_exit.py
+@@ -19,3 +19,13 @@ def test_ctrl_c(u_boot_console):
+ 
+     u_boot_console.kill(signal.SIGINT)
+     assert(u_boot_console.validate_exited())
++
++@pytest.mark.boardspec('sandbox')
++@pytest.mark.boardspec('cmd_exception')
++def test_exception(u_boot_console):
++    """Test that SIGILL causes a reset."""
++
++    u_boot_console.run_command('exception undefined', wait_for_prompt=False)
++    m = u_boot_console.p.expect(['resetting ...', 'U-Boot'])
++    if m != 0:
++        raise Exception('SIGILL did not lead to reset')
+-- 
+2.28.0
+

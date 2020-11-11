@@ -1,4 +1,4 @@
-From d5e8c2f57ce5422c1d1531fcf9de93e43c1f19a9 Mon Sep 17 00:00:00 2001
+From 8bc0d1dfdc3220cc8e43d7c7d5b5c978405ce028 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Nov 2020 23:31:01 +0100
 Subject: [PATCH 1/1] sandbox: add handler for exceptions
@@ -118,21 +118,21 @@ index 21f761ac3b..3c8f3df715 100644
 +
 +	switch (sig) {
 +	case SIGILL:
-+		printf("Illegal instruction\n");
++		printf("\nIllegal instruction\n");
 +		break;
 +	case SIGBUS:
-+		printf("Bus error\n");
++		printf("\nBus error\n");
 +		break;
 +	case SIGSEGV:
-+		printf("Segmentation violation\n");
++		printf("\nSegmentation violation\n");
 +		break;
 +	default:
 +		break;
 +	}
 +	printf("pc = 0x%lx, ", pc);
-+	printf("pc_reloc = 0x%lx\n", pc - gd->reloc_off);
++	printf("pc_reloc = 0x%lx\n\n", pc - gd->reloc_off);
 +	efi_print_image_infos((void *)pc);
-+	printf("Resetting ...\n\n");
++	printf("resetting ...\n\n");
 +	sandbox_reset();
 +}
 diff --git a/include/os.h b/include/os.h
