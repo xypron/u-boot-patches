@@ -1,15 +1,15 @@
-From cbb20d1eb02e4bb614450d9a29d1220c03040804 Mon Sep 17 00:00:00 2001
+From 08ae1704e40e22f3c33b9970d71242da2d2cf83b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 11 Nov 2020 19:45:20 +0100
-Subject: [PATCH] test: unit test for exception command
+Subject: [PATCH 1/1] test: unit test for exception command
 
 Test that an exception SIGILL is answered by a reset on the sandbox.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/Kconfig                       |  1 +
- test/py/tests/test_sandbox_exit.py | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+ test/py/tests/test_sandbox_exit.py | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+)
 
 diff --git a/arch/Kconfig b/arch/Kconfig
 index 3aa99e08fc..b936d2dffc 100644
@@ -24,10 +24,10 @@ index 3aa99e08fc..b936d2dffc 100644
  	imply CMD_HASH
  	imply CMD_IO
 diff --git a/test/py/tests/test_sandbox_exit.py b/test/py/tests/test_sandbox_exit.py
-index 2d242ae0f6..e20ec74b3c 100644
+index 2d242ae0f6..72e05e0c58 100644
 --- a/test/py/tests/test_sandbox_exit.py
 +++ b/test/py/tests/test_sandbox_exit.py
-@@ -19,3 +19,14 @@ def test_ctrl_c(u_boot_console):
+@@ -19,3 +19,17 @@ def test_ctrl_c(u_boot_console):
  
      u_boot_console.kill(signal.SIGINT)
      assert(u_boot_console.validate_exited())
@@ -41,7 +41,10 @@ index 2d242ae0f6..e20ec74b3c 100644
 +    m = u_boot_console.p.expect(['resetting ...', 'U-Boot'])
 +    if m != 0:
 +        raise Exception('SIGILL did not lead to reset')
-+    u_boot_console.drain_console()
++    m = u_boot_console.p.expect(['U-Boot', '=>'])
++    if m != 0:
++        raise Exception('SIGILL did not lead to reset')
++    u_boot_console.restart_uboot()
 -- 
 2.28.0
 
