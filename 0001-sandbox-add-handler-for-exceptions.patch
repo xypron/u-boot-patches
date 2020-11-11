@@ -6,7 +6,8 @@ Subject: [PATCH 1/1] sandbox: add handler for exceptions
 Add a handler for SIGILL, SIGBUS, SIGSEGV.
 
 When an exception occurs print the program counter and the loaded
-UEFI binaries and reset the system.
+UEFI binaries and reset the system if CONFIG_SANDBOX_CRASH_RESET=y
+or exit to the OS otherwise.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
