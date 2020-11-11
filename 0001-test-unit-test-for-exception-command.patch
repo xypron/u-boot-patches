@@ -1,15 +1,16 @@
-From 08ae1704e40e22f3c33b9970d71242da2d2cf83b Mon Sep 17 00:00:00 2001
+From a8fc43df9cb50227cc3ceb35333595fe24f2d135 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 11 Nov 2020 19:45:20 +0100
 Subject: [PATCH 1/1] test: unit test for exception command
 
-Test that an exception SIGILL is answered by a reset on the sandbox.
+Test that an exception SIGILL is answered by a reset on the sandbox if
+CONFIG_SANDBOX_CRASH_RESET=y or by exiting to the OS otherwise.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/Kconfig                       |  1 +
- test/py/tests/test_sandbox_exit.py | 14 ++++++++++++++
- 2 files changed, 15 insertions(+)
+ test/py/tests/test_sandbox_exit.py | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
 diff --git a/arch/Kconfig b/arch/Kconfig
 index 3aa99e08fc..b936d2dffc 100644
@@ -24,17 +25,18 @@ index 3aa99e08fc..b936d2dffc 100644
  	imply CMD_HASH
  	imply CMD_IO
 diff --git a/test/py/tests/test_sandbox_exit.py b/test/py/tests/test_sandbox_exit.py
-index 2d242ae0f6..72e05e0c58 100644
+index 2d242ae0f6..706f5fa359 100644
 --- a/test/py/tests/test_sandbox_exit.py
 +++ b/test/py/tests/test_sandbox_exit.py
-@@ -19,3 +19,17 @@ def test_ctrl_c(u_boot_console):
+@@ -19,3 +19,27 @@ def test_ctrl_c(u_boot_console):
  
      u_boot_console.kill(signal.SIGINT)
      assert(u_boot_console.validate_exited())
 +
 +@pytest.mark.boardspec('sandbox')
-+@pytest.mark.boardspec('cmd_exception')
-+def test_exception(u_boot_console):
++@pytest.mark.buildconfigspec('cmd_exception')
++@pytest.mark.buildconfigspec('sandbox_crash_reset')
++def test_exception_reset(u_boot_console):
 +    """Test that SIGILL causes a reset."""
 +
 +    u_boot_console.run_command('exception undefined', wait_for_prompt=False)
@@ -45,6 +47,15 @@ index 2d242ae0f6..72e05e0c58 100644
 +    if m != 0:
 +        raise Exception('SIGILL did not lead to reset')
 +    u_boot_console.restart_uboot()
++
++@pytest.mark.boardspec('sandbox')
++@pytest.mark.buildconfigspec('cmd_exception')
++@pytest.mark.notbuildconfigspec('sandbox_crash_reset')
++def test_exception_exit(u_boot_console):
++    """Test that SIGILL causes a reset."""
++
++    u_boot_console.run_command('exception undefined', wait_for_prompt=False)
++    assert(u_boot_console.validate_exited())
 -- 
 2.28.0
 

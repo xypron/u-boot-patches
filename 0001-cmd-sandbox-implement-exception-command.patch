@@ -1,4 +1,4 @@
-From 42f43b555f9902dbe9032122ce61f16b889c7229 Mon Sep 17 00:00:00 2001
+From 7ca0cfb3993c292319a7affa44f0b6002fab3baa Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Nov 2020 23:34:28 +0100
 Subject: [PATCH 1/1] cmd: sandbox: implement exception command
@@ -16,6 +16,7 @@ Here is a possible output:
     Resetting ...
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  cmd/Kconfig             |  2 +-
  cmd/Makefile            |  1 +

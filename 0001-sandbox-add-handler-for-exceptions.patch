@@ -1,4 +1,4 @@
-From bbece8a3d135da140e8a62bdea55bb387ef5563f Mon Sep 17 00:00:00 2001
+From 21e794ab5ab07f1315a91425d2cb12ac412414b8 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Nov 2020 23:31:01 +0100
 Subject: [PATCH 1/1] sandbox: add handler for exceptions
@@ -10,12 +10,33 @@ UEFI binaries and reset the system.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
+ arch/sandbox/Kconfig          |  9 ++++++++
  arch/sandbox/cpu/os.c         | 40 +++++++++++++++++++++++++++++++++++
  arch/sandbox/cpu/start.c      |  4 ++++
- arch/sandbox/lib/interrupts.c | 30 ++++++++++++++++++++++++++
+ arch/sandbox/lib/interrupts.c | 35 ++++++++++++++++++++++++++++++
  include/os.h                  | 17 +++++++++++++++
- 4 files changed, 91 insertions(+)
+ 5 files changed, 105 insertions(+)
 
+diff --git a/arch/sandbox/Kconfig b/arch/sandbox/Kconfig
+index 65f988e736..f83282d9d5 100644
+--- a/arch/sandbox/Kconfig
++++ b/arch/sandbox/Kconfig
+@@ -51,6 +51,15 @@ config HOST_64BIT
+ 
+ endchoice
+ 
++config SANDBOX_CRASH_RESET
++	bool "Reset on crash"
++	help
++	  If an illegal instruction or an illegal memory access occurs, the
++	  sandbox by default writes a crash dump and exits. If you set this
++	  flag, the sandbox is reset instead. This may be useful when running
++	  test suites like the UEFI self certification test which continue
++	  with the next test after a crash.
++
+ config SANDBOX_BITS_PER_LONG
+ 	int
+ 	default 32 if HOST_32BIT
 diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
 index 0d8efd83f6..b56fa04a34 100644
 --- a/arch/sandbox/cpu/os.c
@@ -102,7 +123,7 @@ index a03e5aa0b3..f6c98545e0 100644
  	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
  #endif
 diff --git a/arch/sandbox/lib/interrupts.c b/arch/sandbox/lib/interrupts.c
-index 21f761ac3b..20fb1f670f 100644
+index 21f761ac3b..9c2c60b8c6 100644
 --- a/arch/sandbox/lib/interrupts.c
 +++ b/arch/sandbox/lib/interrupts.c
 @@ -6,7 +6,13 @@
@@ -119,7 +140,7 @@ index 21f761ac3b..20fb1f670f 100644
  
  int interrupt_init(void)
  {
-@@ -21,3 +27,27 @@ int disable_interrupts(void)
+@@ -21,3 +27,32 @@ int disable_interrupts(void)
  {
  	return 0;
  }
@@ -144,8 +165,13 @@ index 21f761ac3b..20fb1f670f 100644
 +	printf("pc = 0x%lx, ", pc);
 +	printf("pc_reloc = 0x%lx\n\n", pc - gd->reloc_off);
 +	efi_print_image_infos((void *)pc);
-+	printf("resetting ...\n\n");
-+	sandbox_reset();
++
++	if (IS_ENABLED(CONFIG_SANDBOX_CRASH_RESET)) {
++		printf("resetting ...\n\n");
++		sandbox_reset();
++	} else {
++		sandbox_exit();
++	}
 +}
 diff --git a/include/os.h b/include/os.h
 index 1fe44f3510..0913b47b3a 100644
