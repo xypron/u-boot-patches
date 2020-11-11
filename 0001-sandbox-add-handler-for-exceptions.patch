@@ -61,7 +61,7 @@ index 0d8efd83f6..d1c2c9fddd 100644
 +
 +	act.sa_sigaction = os_signal_handler;
 +	sigemptyset(&act.sa_mask);
-+	act.sa_flags = SA_SIGINFO;
++	act.sa_flags = SA_SIGINFO || SA_NODEFER;
 +	if (sigaction(SIGILL, &act, NULL) ||
 +	    sigaction(SIGBUS, &act, NULL) ||
 +	    sigaction(SIGSEGV, &act, NULL))
