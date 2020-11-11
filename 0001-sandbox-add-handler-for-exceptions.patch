@@ -1,7 +1,7 @@
-From ba2a9eec6bc1f97d30df23fa126e2c0986aa3b6f Mon Sep 17 00:00:00 2001
+From d5e8c2f57ce5422c1d1531fcf9de93e43c1f19a9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 10 Nov 2020 23:31:01 +0100
-Subject: [PATCH] sandbox: add handler for exceptions
+Subject: [PATCH 1/1] sandbox: add handler for exceptions
 
 Add a handler for SIGILL, SIGBUS, SIGSEGV.
 
@@ -10,14 +10,14 @@ UEFI binaries and reset the system.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- arch/sandbox/cpu/os.c         | 31 +++++++++++++++++++++++++++++++
+ arch/sandbox/cpu/os.c         | 33 +++++++++++++++++++++++++++++++++
  arch/sandbox/cpu/start.c      |  4 ++++
  arch/sandbox/lib/interrupts.c | 30 ++++++++++++++++++++++++++++++
  include/os.h                  | 17 +++++++++++++++++
- 4 files changed, 82 insertions(+)
+ 4 files changed, 84 insertions(+)
 
 diff --git a/arch/sandbox/cpu/os.c b/arch/sandbox/cpu/os.c
-index 0d8efd83f6..d1c2c9fddd 100644
+index 0d8efd83f6..1bc0aa85e3 100644
 --- a/arch/sandbox/cpu/os.c
 +++ b/arch/sandbox/cpu/os.c
 @@ -3,6 +3,8 @@
@@ -37,7 +37,7 @@ index 0d8efd83f6..d1c2c9fddd 100644
  #include <unistd.h>
  #include <sys/mman.h>
  #include <sys/stat.h>
-@@ -191,6 +194,34 @@ static void os_sigint_handler(int sig)
+@@ -191,6 +194,36 @@ static void os_sigint_handler(int sig)
  	raise(SIGINT);
  }
  
@@ -46,10 +46,12 @@ index 0d8efd83f6..d1c2c9fddd 100644
 +	ucontext_t *context = con;
 +	unsigned long pc = 0;
 +
-+#ifdef __x86_64__
++#if defined(__x86_64__)
 +	pc = context->uc_mcontext.gregs[REG_RIP];
-+#elif __aarch64__
++#elif defined(__aarch64__)
 +	pc = context->uc_mcontext.pc;
++#elif defined(__riscv)
++	pc = context->uc_mcontext.__gregs[REG_PC];
 +#endif
 +
 +	os_signal_action(sig, pc);
@@ -61,7 +63,7 @@ index 0d8efd83f6..d1c2c9fddd 100644
 +
 +	act.sa_sigaction = os_signal_handler;
 +	sigemptyset(&act.sa_mask);
-+	act.sa_flags = SA_SIGINFO || SA_NODEFER;
++	act.sa_flags = SA_SIGINFO | SA_NODEFER;
 +	if (sigaction(SIGILL, &act, NULL) ||
 +	    sigaction(SIGBUS, &act, NULL) ||
 +	    sigaction(SIGSEGV, &act, NULL))
