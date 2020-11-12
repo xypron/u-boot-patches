@@ -78,6 +78,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-efi_selftest-keep-devices-in-ExitBootServices.patch
 git am ../patch/0001-efi_loader-missing-n-in-RNG-log-messages.patch
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch

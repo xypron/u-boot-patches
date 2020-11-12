@@ -1,0 +1,78 @@
+From ef5b729eef4cbf682d2dc8776dbdf8c0c0eeaa4f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 12 Nov 2020 21:26:28 +0100
+Subject: [PATCH 1/1] efi_selftest: keep devices in ExitBootServices()
+
+When calling ExitBootServices during out unit tests we should not detach
+devices as we need console output for runtime tests.
+
+Fixes: 529441ca89b1 ("efi_loader: Disable devices before handing over control")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h            |  3 +++
+ lib/efi_loader/efi_boottime.c   | 13 +++++++++----
+ lib/efi_selftest/efi_selftest.c |  3 +++
+ 3 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index f550ced568..455b9c8031 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -59,6 +59,9 @@ extern efi_handle_t efi_root;
+ /* Set to EFI_SUCCESS when initialized */
+ extern efi_status_t efi_obj_list_initialized;
+ 
++/* Flag used by the selftest to avoid detaching devices in ExitBootServices() */
++extern bool efi_st_keep_devices;
++
+ /* EFI system partition */
+ extern struct efi_system_partition {
+ 	enum if_type if_type;
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index dfa71b1774..246b59d3b3 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -38,6 +38,9 @@ LIST_HEAD(efi_event_queue);
+ /* Flag to disable timer activity in ExitBootServices() */
+ static bool timers_enabled = true;
+ 
++/* Flag used by the selftest to avoid detaching devices in ExitBootServices() */
++bool efi_st_keep_devices;
++
+ /* List of all events registered by RegisterProtocolNotify() */
+ LIST_HEAD(efi_register_notify_events);
+ 
+@@ -1996,10 +1999,12 @@ static efi_status_t EFIAPI efi_exit_boot_services(efi_handle_t image_handle,
+ 			list_del(&evt->link);
+ 	}
+ 
+-	if IS_ENABLED(CONFIG_USB_DEVICE)
+-		udc_disconnect();
+-	board_quiesce_devices();
+-	dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
++	if (!efi_st_keep_devices) {
++		if IS_ENABLED(CONFIG_USB_DEVICE)
++			udc_disconnect();
++		board_quiesce_devices();
++		dm_remove_devices_flags(DM_REMOVE_ACTIVE_ALL);
++	}
+ 
+ 	/* Patch out unsupported runtime function */
+ 	efi_runtime_detach();
+diff --git a/lib/efi_selftest/efi_selftest.c b/lib/efi_selftest/efi_selftest.c
+index 85e819bdfa..b8eed048c2 100644
+--- a/lib/efi_selftest/efi_selftest.c
++++ b/lib/efi_selftest/efi_selftest.c
+@@ -38,6 +38,9 @@ void efi_st_exit_boot_services(void)
+ 	efi_status_t ret;
+ 	struct efi_mem_desc *memory_map;
+ 
++	/* Do not detach devices in ExitBootServices. We need the console. */
++	efi_st_keep_devices = true;
++
+ 	ret = boottime->get_memory_map(&map_size, NULL, &map_key, &desc_size,
+ 				       &desc_version);
+ 	if (ret != EFI_BUFFER_TOO_SMALL) {
+-- 
+2.28.0
+
