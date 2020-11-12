@@ -1,15 +1,15 @@
-From edac3b0c3aa9270f816937c55d10be659838dc2f Mon Sep 17 00:00:00 2001
+From 509295f1e45b80aa43fbb5d50fff1dc7de25aded Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 12 Nov 2020 19:53:10 +0100
-Subject: [PATCH 1/1] efi_selftest: provide for the EFI_TCG2_PROTOCOL
+Subject: [PATCH] efi_selftest: provide unit test for the EFI_TCG2_PROTOCOL
 
 Provide a minimal test for the EFI_TCG2_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile            |  1 +
- lib/efi_selftest/efi_selftest_tcg2.c | 66 ++++++++++++++++++++++++++++
- 2 files changed, 67 insertions(+)
+ lib/efi_selftest/efi_selftest_tcg2.c | 70 ++++++++++++++++++++++++++++
+ 2 files changed, 71 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_tcg2.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -26,10 +26,10 @@ index aabb743ecb..58fb43fcdf 100644
  obj-y += efi_selftest_fdt.o
 diff --git a/lib/efi_selftest/efi_selftest_tcg2.c b/lib/efi_selftest/efi_selftest_tcg2.c
 new file mode 100644
-index 0000000000..f1c0b7d3fe
+index 0000000000..d0a08ae4cc
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_tcg2.c
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,70 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * efi_selftest_devicepath
@@ -46,14 +46,14 @@ index 0000000000..f1c0b7d3fe
 +static const efi_guid_t guid_tcg2 = EFI_TCG2_PROTOCOL_GUID;
 +
 +/**
-+ * setup() - setup test
++ * efi_st_tcg2_setup() - setup test
 + *
 + * @handle:	handle of the loaded image
 + * @systable:	system table
 + * @return:	status code
 + */
-+static int setup(const efi_handle_t img_handle,
-+		 const struct efi_system_table *systable)
++static int efi_st_tcg2_setup(const efi_handle_t img_handle,
++			     const struct efi_system_table *systable)
 +{
 +	boottime = systable->boottime;
 +
@@ -61,14 +61,18 @@ index 0000000000..f1c0b7d3fe
 +}
 +
 +/**
-+ * execute() - execute
++ * efi_st_tcg2_execute() - execute test
++ *
++ * Call the GetCapability service of the EFI_TCG2_PROTOCOL.
 + *
 + * Return:	status code
 + */
-+static int execute(void)
++static int efi_st_tcg2_execute(void)
 +{
-+	struct efi_tcg2_protocol tcg2;
-+	struct efi_tcg2_boot_service_capability capability = { 0 };
++	struct efi_tcg2_protocol *tcg2;
++	struct efi_tcg2_boot_service_capability capability = {
++		.size = sizeof(struct efi_tcg2_boot_service_capability)
++	};
 +	efi_status_t ret;
 +
 +	ret = boottime->locate_protocol(&guid_tcg2, NULL, (void **)&tcg2);
@@ -76,7 +80,7 @@ index 0000000000..f1c0b7d3fe
 +		efi_st_error("TCG2 protocol is not available.\n");
 +		return EFI_ST_FAILURE;
 +	}
-+	ret = tcg2.get_capability(&tcg2, &capability);
++	ret = tcg2->get_capability(tcg2, &capability);
 +	if (ret != EFI_SUCCESS) {
 +		efi_st_error("tcg2->get_capability failed\n");
 +		return EFI_ST_FAILURE;
@@ -85,7 +89,7 @@ index 0000000000..f1c0b7d3fe
 +		efi_st_error("TPM not present\n");
 +		return EFI_ST_FAILURE;
 +	}
-+	efi_st_printf("supported event logs: 0x%.8x\n",
++	efi_st_printf("TPM supports 0x%.8x event logs\n",
 +		      capability.supported_event_logs);
 +	return EFI_ST_SUCCESS;
 +}
@@ -93,8 +97,8 @@ index 0000000000..f1c0b7d3fe
 +EFI_UNIT_TEST(tcg2) = {
 +	.name = "tcg2",
 +	.phase = EFI_EXECUTE_BEFORE_BOOTTIME_EXIT,
-+	.execute = execute,
-+	.setup = setup,
++	.execute = efi_st_tcg2_execute,
++	.setup = efi_st_tcg2_setup,
 +};
 -- 
 2.28.0
