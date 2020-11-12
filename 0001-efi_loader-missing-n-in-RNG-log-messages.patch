@@ -1,6 +1,6 @@
-From 047fec4376b69da3e4f3438a542e7ad9ff8581cb Mon Sep 17 00:00:00 2001
+From 55a7de27ea662e32d20717dec210053276f32a16 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Thu, 12 Nov 2020 19:34:29 +0100
+Date: Thu, 12 Nov 2020 19:52:02 +0100
 Subject: [PATCH 1/1] efi_loader: missing \n in RNG log messages
 
 When setting up the EFI_RNG_PROTOCOL warning messages may be issued.

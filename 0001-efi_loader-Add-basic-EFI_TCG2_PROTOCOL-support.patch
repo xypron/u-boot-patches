@@ -1,7 +1,7 @@
-From 5a05aba9c60e904e6f3a093cd48d0420a6f8fc40 Mon Sep 17 00:00:00 2001
+From afbdaa0f35afa03c45f23c2dbb919b5b963a9da4 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Date: Wed, 11 Nov 2020 11:18:11 +0200
-Subject: [PATCH 1/1] efi: Add basic EFI_TCG2_PROTOCOL support
+Subject: [PATCH 1/1] efi_loader: Add basic EFI_TCG2_PROTOCOL support
 
 Since U-boot EFI implementation is getting richer it makes sense to
 add support for EFI_TCG2_PROTOCOL taking advantage of any hardware TPM
@@ -13,14 +13,15 @@ TPMv2 devices.
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 Acked-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_loader.h       |   2 +
  include/efi_tcg2.h         |  94 +++++++
  lib/efi_loader/Kconfig     |   7 +
  lib/efi_loader/Makefile    |   1 +
  lib/efi_loader/efi_setup.c |   7 +
- lib/efi_loader/efi_tcg2.c  | 539 +++++++++++++++++++++++++++++++++++++
- 6 files changed, 650 insertions(+)
+ lib/efi_loader/efi_tcg2.c  | 534 +++++++++++++++++++++++++++++++++++++
+ 6 files changed, 645 insertions(+)
  create mode 100644 include/efi_tcg2.h
  create mode 100644 lib/efi_loader/efi_tcg2.c
 
@@ -187,10 +188,10 @@ index 45226c5c1a..e206b60bb8 100644
  	if (ret != EFI_SUCCESS)
 diff --git a/lib/efi_loader/efi_tcg2.c b/lib/efi_loader/efi_tcg2.c
 new file mode 100644
-index 0000000000..d600cff66a
+index 0000000000..f5812ed2e9
 --- /dev/null
 +++ b/lib/efi_loader/efi_tcg2.c
-@@ -0,0 +1,539 @@
+@@ -0,0 +1,534 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Defines APIs that allow an OS to interact with UEFI firmware to query
@@ -237,16 +238,11 @@ index 0000000000..d600cff66a
 + */
 +__weak efi_status_t platform_get_tpm2_device(struct udevice **dev)
 +{
-+	int ret;
-+	struct udevice *devp;
-+
-+	ret = uclass_get_device(UCLASS_TPM, 0, &devp);
-+	if (ret)
-+		return EFI_DEVICE_ERROR;
-+
-+	*dev = devp;
-+
-+	return EFI_SUCCESS;
++	for_each_tpm_device((*dev)) {
++		if (tpm_get_version(*dev) == TPM_V2)
++			return EFI_SUCCESS;
++	}
++	return EFI_NOT_FOUND;
 +}
 +
 +/**
@@ -719,14 +715,14 @@ index 0000000000..d600cff66a
 +
 +	tpm_ver = tpm_get_version(dev);
 +	if (tpm_ver != TPM_V2) {
-+		log_warning("Only TPMv2 supported for EFI_TCG2_PROTOCOL");
++		log_warning("Only TPMv2 supported for EFI_TCG2_PROTOCOL\n");
 +		return EFI_SUCCESS;
 +	}
 +
 +	ret = efi_add_protocol(efi_root, &efi_guid_tcg2_protocol,
 +			       (void *)&efi_tcg2_protocol);
 +	if (ret != EFI_SUCCESS)
-+		log_err("Cannot install EFI_TCG2_PROTOCOL");
++		log_err("Cannot install EFI_TCG2_PROTOCOL\n");
 +
 +	return ret;
 +}
