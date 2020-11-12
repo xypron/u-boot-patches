@@ -70,6 +70,9 @@ git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 
+# TRACE
+git am ../patch/0001-trace-avoid-infinite-recursion.patch
+
 # UEFI
 
 # efi-2021-01-rc3

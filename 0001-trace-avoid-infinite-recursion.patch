@@ -1,0 +1,68 @@
+From 1fed0f6b3a23e4ed96129e0a513d4457792e3cd6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 12 Nov 2020 08:06:39 +0100
+Subject: [PATCH 1/1] trace: avoid infinite recursion
+
+When tracing functions is enabled this adds calls to
+__cyg_profile_func_enter() and __cyg_profile_func_exit() to the traced
+functions.
+
+__cyg_profile_func_enter() and __cyg_profile_func_exit() invoke
+timer_get_us() to record the entry and exit time.
+
+If timer_get_us() or any function used to implement does not carry
+__attribute__((no_instrument_function)) this will lead to an indefinite
+recursion.
+
+The patch changes __cyg_profile_func_enter() and
+__cyg_profile_func_exit() such that during their execution no function is
+traced by temporarily setting trace_enabled to false.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/trace.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/lib/trace.c b/lib/trace.c
+index defc9716d8..c4422c973c 100644
+--- a/lib/trace.c
++++ b/lib/trace.c
+@@ -141,9 +141,12 @@ static void __attribute__((no_instrument_function)) add_textbase(void)
+ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
+ 		void *func_ptr, void *caller)
+ {
++
+ 	if (trace_enabled) {
+ 		int func;
++		char trace_enabled_old = trace_enabled;
+ 
++		trace_enabled = 0;
+ 		trace_swap_gd();
+ 		add_ftrace(func_ptr, caller, FUNCF_ENTRY);
+ 		func = func_ptr_to_num(func_ptr);
+@@ -157,6 +160,7 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_enter(
+ 		if (hdr->depth > hdr->depth_limit)
+ 			hdr->max_depth = hdr->depth;
+ 		trace_swap_gd();
++		trace_enabled = trace_enabled_old;
+ 	}
+ }
+ 
+@@ -170,10 +174,14 @@ void __attribute__((no_instrument_function)) __cyg_profile_func_exit(
+ 		void *func_ptr, void *caller)
+ {
+ 	if (trace_enabled) {
++		char trace_enabled_old = trace_enabled;
++
++		trace_enabled = 0;
+ 		trace_swap_gd();
+ 		add_ftrace(func_ptr, caller, FUNCF_EXIT);
+ 		hdr->depth--;
+ 		trace_swap_gd();
++		trace_enabled = trace_enabled_old;
+ 	}
+ }
+ 
+-- 
+2.28.0
+
