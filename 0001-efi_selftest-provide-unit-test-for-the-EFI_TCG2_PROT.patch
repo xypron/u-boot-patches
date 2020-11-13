@@ -79,7 +79,7 @@ index 0000000000..dcaac34618
 +		return EFI_ST_FAILURE;
 +	}
 +	capability.size = sizeof(struct efi_tcg2_boot_service_capability) - 1;
-+	ret = tcg2->get_capability(tcg2, &capability_short);
++	ret = tcg2->get_capability(tcg2, &capability);
 +	if (ret != EFI_BUFFER_TOO_SMALL) {
 +		efi_st_error("tcg2->get_capability on small buffer failed\n");
 +		return EFI_ST_FAILURE;
