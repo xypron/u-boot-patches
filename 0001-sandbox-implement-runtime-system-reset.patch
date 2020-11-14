@@ -33,7 +33,7 @@ index cc47b28d1d..c90642ccd3 100644
 +		efi_status_t reset_status,
 +		unsigned long data_size, void *reset_data)
 +{
-+	/* Restart U-Boot */
++	os_fd_restore();
 +	os_relaunch(os_argv);
 +}
 +
