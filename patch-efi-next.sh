@@ -76,6 +76,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-dfu-simplify-the-dependencies-of-DFU_TFTP.patch
+git am ../patch/0001-efi_loader-tcg2-protocol-updates.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
