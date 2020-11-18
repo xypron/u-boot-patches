@@ -26,9 +26,6 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-env-typo-enougth.patch
-git am ../patch/0001-riscv-sort-SPECIFIC_OPTIONS.patch
-git am ../patch/0001-riscv-enable-SATA-disk-on-QEMU-RISC-V.patch
-git am ../patch/0001-doc-qemu-riscv-describe-attaching-a-disk-image.patch
 git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
 git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 
@@ -61,7 +58,7 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-add-handler-for-exceptions.patch
 git am ../patch/0001-cmd-sandbox-implement-exception-command.patch
-git am ../patch/0001-test-unit-test-for-exception-command.patch
+git am ../patch/0001-efi_selftest-implement-exception-test-for-sandbox.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
@@ -77,15 +74,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-01-rc3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-git am ../patch/0001-efi_selftest-keep-devices-in-ExitBootServices.patch
-git am ../patch/0001-efi_loader-Add-missing-newline-to-log_-err-warning.patch
-git am ../patch/0001-efi_loader-incorrect-buffer-size-in-efi_file_setinfo.patch
-git am ../patch/0001-efi_selftest-implement-exception-test-for-sandbox.patch
-git am ../patch/0001-tpm-Add-some-headers-from-the-spec.patch
-git am ../patch/0001-efi_loader-Add-basic-EFI_TCG2_PROTOCOL-support.patch
-git am ../patch/0001-efi_selftest-provide-unit-test-for-the-EFI_TCG2_PROT.patch
 
-git am ../patch/0001-cros_ec-Handling-EC_CMD_GET_NEXT_EVENT.patch
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
 exit
