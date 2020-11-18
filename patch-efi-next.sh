@@ -75,6 +75,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-dfu-simplify-the-dependencies-of-DFU_TFTP.patch
+
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
 exit
