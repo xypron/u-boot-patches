@@ -1,0 +1,30 @@
+From 519fa6c90a620a03c946b0f7e53c46706698d43d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 19 Nov 2020 06:47:35 +0100
+Subject: [PATCH 1/1] fat: use constant DELETED_FLAG
+
+When deleting a directory entry 0xe5 is written to name[0].
+
+We have a constant for this value and should use it consistently.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index a2682b5f46..7b761992f9 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1289,7 +1289,7 @@ static int delete_dentry(fat_itr *itr)
+ 	 *  - find and mark the "new" first invalid entry as name[0]=0x00
+ 	 */
+ 	memset(dentptr, 0, sizeof(*dentptr));
+-	dentptr->name[0] = 0xe5;
++	dentptr->name[0] = DELETED_FLAG;
+ 
+ 	if (flush_dir(itr)) {
+ 		printf("error: writing directory entry\n");
+-- 
+2.29.2
+

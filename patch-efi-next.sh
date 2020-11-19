@@ -29,6 +29,10 @@ git am ../patch/0001-env-typo-enougth.patch
 git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
 git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 
+# FAT file system
+git am ../patch/0001-fat-use-constant-DELETED_FLAG.patch
+git am ../patch/0001-fat-deletion-of-long-file-names.patch
+
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
