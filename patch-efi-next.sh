@@ -30,6 +30,9 @@ git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 
 # FAT file system
 git am ../patch/0001-fs-fat-avoid-NULL-dereference-when-root-dir-is-full.patch
+
+git am ../patch/0001-fs-fat-create-correct-short-names.patch
+
 git am ../patch/0001-fs-fat-use-constant-DELETED_FLAG.patch
 git am ../patch/0001-fs-fat-first-dentry-of-long-name-in-FAT-iterator.patch
 git am ../patch/0001-fs-fat-deletion-of-long-file-names.patch
