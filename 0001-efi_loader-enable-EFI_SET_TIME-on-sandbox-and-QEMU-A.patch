@@ -1,0 +1,28 @@
+From 01f173fb133a359e12dfd291915bec9715fe4a2f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 21 Nov 2020 20:52:18 +0100
+Subject: [PATCH 1/1] efi_loader: enable EFI_SET_TIME on sandbox and QEMU ARM
+
+Enable EFI_SET_TIME on the sandbox and QEMU ARM to ensure that we compile
+and test the relevant code.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 29ea14b2ee..7fd3a3c90c 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -88,6 +88,7 @@ config EFI_GET_TIME
+ config EFI_SET_TIME
+ 	bool "SetTime() runtime service"
+ 	depends on EFI_GET_TIME
++	default y if ARCH_QEMU || SANDBOX
+ 	default n
+ 	help
+ 	  Provide the SetTime() runtime service at boottime. This service
+-- 
+2.29.2
+

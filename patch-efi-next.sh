@@ -83,12 +83,14 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-01-rc3
+# efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-dfu-simplify-the-dependencies-of-DFU_TFTP.patch
 git am ../patch/0001-efi_loader-tcg2-protocol-updates.patch
 git am ../patch/0001-efi_loader-parameter-check-in-GetNextVariableName.patch
+
+git am ../patch/0001-efi_loader-enable-EFI_SET_TIME-on-sandbox-and-QEMU-A.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
