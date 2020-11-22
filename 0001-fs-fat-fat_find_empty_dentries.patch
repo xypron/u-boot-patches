@@ -1,0 +1,90 @@
+From c72aff11195c9b43fbdc799cce063208163ba5fd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Nov 2020 09:58:44 +0100
+Subject: [PATCH 1/1] fs: fat: fat_find_empty_dentries()
+
+Provide a function to find a series of empty directory entries.
+
+The current directory is scanned for deleted entries.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index f8e54358cc..690b1fb4b7 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -203,6 +203,68 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+ 	return 0;
+ }
+ 
++/**
++ * fat_find_empty_dentries() - find a sequence of available directory entries
++ *
++ * @itr:	directory iterator
++ * @count:	number of directory entries to find
++ * Return:	0 on success or negative error number
++ */
++static int fat_find_empty_dentries(fat_itr *itr, int count)
++{
++	int dent_rem;
++	unsigned dent_clust;
++	dir_entry *dent_start = NULL;
++	unsigned int n = 0;
++
++	/* position to the start of the directory */
++	itr->dent = NULL;
++	itr->remaining = 0;
++	if (itr->clust != itr->start_clust) {
++		itr->next_clust = itr->start_clust;
++		itr->last_cluster = 0;
++		fat_next_cluster(itr, &nbytes);
++	};
++	if (!nbytes)
++		return -EIO;
++
++	for (; n < count;) {
++		switch (itr->dent.name[0]) {
++		case 0x00:
++		case 0xe5:
++			++n;
++			if (!dent_start) {
++				dent_start = itr->dent;
++				dent_clust = itr->clust;
++				dent_rem = itr->remaining;
++			}
++			if (n == count)
++				goto done;
++			break;
++		default:
++			n = 0;
++			break;
++		}
++		if (!next_dent(itr)) {
++			if (n)
++				goto done;
++			else
++				retur -EIO;
++		}
++	}
++done:
++	if (itr->clust != dent_clust) {
++		itr->next_clust = dent_clust;
++		itr->last_cluster = 0;
++		fat_next_cluster(itr, &nbytes);
++		if (!nbytes)
++			return -EIO;
++	};
++	itr->dent = dent_start;
++	itr->remaining = dent_rem;
++	return 0;
++}
++
+ /*
+  * Set the file name information from 'name' into 'slotptr',
+  */
+-- 
+2.29.2
+
