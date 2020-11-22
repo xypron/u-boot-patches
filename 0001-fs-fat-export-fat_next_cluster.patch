@@ -1,0 +1,70 @@
+From a0dd022c7bfbc61740b0b44211edf847870ca913 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Nov 2020 09:19:52 +0100
+Subject: [PATCH 1/1] fs: fat: export fat_next_cluster()
+
+Rename function next_cluster() to fat_next_cluster() and export it.
+
+When creating a new directory entries we should reuse deleted entries.
+This requires re-scanning the directory.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c  | 16 +++++++++++++---
+ include/fat.h |  1 +
+ 2 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index fb6ba89466..738ced562b 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -621,7 +621,7 @@ static int get_fs_info(fsdata *mydata)
+ 		/*
+ 		 * The root directory is not cluster-aligned and may be on a
+ 		 * "negative" cluster, this will be handled specially in
+-		 * next_cluster().
++		 * fat_next_cluster().
+ 		 */
+ 		mydata->root_cluster = 0;
+ 	}
+@@ -753,7 +753,17 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
+ 	itr->last_cluster = 0;
+ }
+ 
+-static void *next_cluster(fat_itr *itr, unsigned *nbytes)
++/**
++ * fat_next_cluster() - load next FAT cluster
++ *
++ * The function is used when iterating through directories. It loads the
++ * next cluster with directory entries
++ *
++ * @itr:	directory iterator
++ * @nbytes:	number of bytes read, 0 on error
++ * Return:	first directory entry, NULL on error
++ */
++void *fat_next_cluster(fat_itr *itr, unsigned *nbytes)
+ {
+ 	fsdata *mydata = itr->fsdata;  /* for silly macros */
+ 	int ret;
+@@ -825,7 +835,7 @@ static dir_entry *next_dent(fat_itr *itr)
+ {
+ 	if (itr->remaining == 0) {
+ 		unsigned nbytes;
+-		struct dir_entry *dent = next_cluster(itr, &nbytes);
++		struct dir_entry *dent = fat_next_cluster(itr, &nbytes);
+ 
+ 		/* have we reached the last cluster? */
+ 		if (!dent) {
+diff --git a/include/fat.h b/include/fat.h
+index 02742f92a5..a57adcaba4 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -208,4 +208,5 @@ void fat_closedir(struct fs_dir_stream *dirs);
+ int fat_unlink(const char *filename);
+ int fat_mkdir(const char *dirname);
+ void fat_close(void);
++void *fat_next_cluster(fat_itr *itr, unsigned *nbytes);
+ #endif /* _FAT_H_ */
+-- 
+2.29.2
+

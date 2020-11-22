@@ -38,7 +38,7 @@ index 28aa5aaa9f..3269d87d7e 100644
  		dent = next_dent(itr);
 -		if (!dent)
 +		if (!dent) {
-+			itr->dent_start = 0;
++			itr->dent_start = NULL;
  			return 0;
 -
 +		}
