@@ -1,0 +1,73 @@
+From a8574c906f3767518f24cf8e7fe424b3b96f3cde Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 22 Nov 2020 11:54:22 +0100
+Subject: [PATCH] fs: fat: reuse deleted directory entries
+
+When creating new directory entries try to reuse entries marked as deleted.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 6c86d8175a..fe72b5423b 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1280,6 +1280,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+ 	} else {
+ 		/* Create a new file */
+ 		char shortname[SHORT_NAME_SIZE];
++		int ndent;
+ 
+ 		if (itr->is_root) {
+ 			/* root dir cannot have "." or ".." */
+@@ -1305,10 +1306,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+ 		memset(itr->dent, 0, sizeof(*itr->dent));
+ 
+ 		/* Check if long name is needed */
+-		ret = set_name(itr->dent, filename, shortname);
+-		if (ret < 0)
++		ndent = set_name(itr->dent, filename, shortname);
++		if (ndent < 0) {
++			ret = ndent;
+ 			goto exit;
+-		if (ret > 1) {
++		}
++		ret = fat_find_empty_dentries(itr, ndent);
++		if (ret)
++			goto exit;
++		if (ndent > 1) {
+ 			/* Set long name entries */
+ 			ret = fill_dir_slot(itr, filename);
+ 			if (ret)
+@@ -1550,6 +1556,7 @@ int fat_mkdir(const char *new_dirname)
+ 		goto exit;
+ 	} else {
+ 		char shortname[SHORT_NAME_SIZE];
++		int ndent;
+ 
+ 		if (itr->is_root) {
+ 			/* root dir cannot have "." or ".." */
+@@ -1569,10 +1576,15 @@ int fat_mkdir(const char *new_dirname)
+ 		memset(itr->dent, 0, sizeof(*itr->dent));
+ 
+ 		/* Check if long name is needed */
+-		ret = set_name(itr->dent, dirname, shortname);
+-		if (ret < 0)
++		ndent = set_name(itr->dent, dirname, shortname);
++		if (ndent < 0) {
++			ret = ndent;
++			goto exit;
++		}
++		ret = fat_find_empty_dentries(itr, ndent);
++		if (ret)
+ 			goto exit;
+-		if (ret > 1) {
++		if (ndent > 1) {
+ 			/* Set long name entries */
+ 			ret = fill_dir_slot(itr, dirname);
+ 			if (ret)
+-- 
+2.29.2
+

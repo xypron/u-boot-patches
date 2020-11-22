@@ -38,6 +38,7 @@ git am ../patch/0001-fs-fat-create-correct-short-names.patch
 git am ../patch/0001-fs-fat-call-set_name-only-once.patch
 git am ../patch/0001-fs-fat-dentry-iterator-for-fill_dir_slot.patch
 git am ../patch/0001-fs-fat-fat_find_empty_dentries.patch
+git am ../patch/0001-fs-fat-reuse-deleted-directory-entries.patch
 
 git am ../patch/0001-fs-fat-use-constant-DELETED_FLAG.patch
 git am ../patch/0001-fs-fat-first-dentry-of-long-name-in-FAT-iterator.patch
