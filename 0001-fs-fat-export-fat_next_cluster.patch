@@ -1,4 +1,4 @@
-From a0dd022c7bfbc61740b0b44211edf847870ca913 Mon Sep 17 00:00:00 2001
+From dad1c3f3e8cf35f3924de86d32510bf8a4189b93 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 09:19:52 +0100
 Subject: [PATCH 1/1] fs: fat: export fat_next_cluster()
@@ -10,12 +10,12 @@ This requires re-scanning the directory.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c  | 16 +++++++++++++---
- include/fat.h |  1 +
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ fs/fat/fat.c  | 55 +++++++++----------------------------
+ include/fat.h | 76 ++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 88 insertions(+), 43 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index fb6ba89466..738ced562b 100644
+index fb6ba89466..9a5f2c3fe1 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
 @@ -621,7 +621,7 @@ static int get_fs_info(fsdata *mydata)
@@ -27,7 +27,53 @@ index fb6ba89466..738ced562b 100644
  		 */
  		mydata->root_cluster = 0;
  	}
-@@ -753,7 +753,17 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
+@@ -647,45 +647,6 @@ static int get_fs_info(fsdata *mydata)
+ 	return 0;
+ }
+ 
+-
+-/*
+- * Directory iterator, to simplify filesystem traversal
+- *
+- * Implements an iterator pattern to traverse directory tables,
+- * transparently handling directory tables split across multiple
+- * clusters, and the difference between FAT12/FAT16 root directory
+- * (contiguous) and subdirectories + FAT32 root (chained).
+- *
+- * Rough usage:
+- *
+- *   for (fat_itr_root(&itr, fsdata); fat_itr_next(&itr); ) {
+- *      // to traverse down to a subdirectory pointed to by
+- *      // current iterator position:
+- *      fat_itr_child(&itr, &itr);
+- *   }
+- *
+- * For more complete example, see fat_itr_resolve()
+- */
+-
+-typedef struct {
+-	fsdata    *fsdata;        /* filesystem parameters */
+-	unsigned   start_clust;   /* first cluster */
+-	unsigned   clust;         /* current cluster */
+-	unsigned   next_clust;    /* next cluster if remaining == 0 */
+-	int        last_cluster;  /* set once we've read last cluster */
+-	int        is_root;       /* is iterator at root directory */
+-	int        remaining;     /* remaining dent's in current cluster */
+-
+-	/* current iterator position values: */
+-	dir_entry *dent;          /* current directory entry */
+-	char       l_name[VFAT_MAXLEN_BYTES];    /* long (vfat) name */
+-	char       s_name[14];    /* short 8.3 name */
+-	char      *name;          /* l_name if there is one, else s_name */
+-
+-	/* storage for current cluster in memory: */
+-	u8         block[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
+-} fat_itr;
+-
+ static int fat_itr_isdir(fat_itr *itr);
+ 
+ /**
+@@ -753,7 +714,17 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
  	itr->last_cluster = 0;
  }
  
@@ -46,7 +92,7 @@ index fb6ba89466..738ced562b 100644
  {
  	fsdata *mydata = itr->fsdata;  /* for silly macros */
  	int ret;
-@@ -825,7 +835,7 @@ static dir_entry *next_dent(fat_itr *itr)
+@@ -825,7 +796,7 @@ static dir_entry *next_dent(fat_itr *itr)
  {
  	if (itr->remaining == 0) {
  		unsigned nbytes;
@@ -56,10 +102,100 @@ index fb6ba89466..738ced562b 100644
  		/* have we reached the last cluster? */
  		if (!dent) {
 diff --git a/include/fat.h b/include/fat.h
-index 02742f92a5..a57adcaba4 100644
+index 02742f92a5..88136da09c 100644
 --- a/include/fat.h
 +++ b/include/fat.h
-@@ -208,4 +208,5 @@ void fat_closedir(struct fs_dir_stream *dirs);
+@@ -9,8 +9,9 @@
+ #ifndef _FAT_H_
+ #define _FAT_H_
+ 
+-#include <asm/byteorder.h>
+ #include <fs.h>
++#include <asm/byteorder.h>
++#include <asm/cache.h>
+ 
+ struct disk_partition;
+ 
+@@ -179,6 +180,78 @@ typedef struct {
+ 	int	fats;		/* Number of FATs */
+ } fsdata;
+ 
++/**
++ * struct fat_itr - directory iterator, to simplify filesystem traversal
++ *
++ * Implements an iterator pattern to traverse directory tables,
++ * transparently handling directory tables split across multiple
++ * clusters, and the difference between FAT12/FAT16 root directory
++ * (contiguous) and subdirectories + FAT32 root (chained).
++ *
++ * Rough usage
++ *
++ * .. code-block:: c
++ *
++ *     for (fat_itr_root(&itr, fsdata); fat_itr_next(&itr); ) {
++ *         // to traverse down to a subdirectory pointed to by
++ *         // current iterator position:
++ *         fat_itr_child(&itr, &itr);
++ *     }
++ *
++ * For a more complete example, see fat_itr_resolve().
++ */
++struct fat_itr {
++	/**
++	 * @fsdata:		filesystem parameters
++	 */
++	fsdata *fsdata;
++	/**
++	 * @start_clust:	first cluster
++	 */
++	unsigned int start_clust;
++	/**
++	 * @clust:		current cluster
++	 */
++	unsigned int clust;
++	/**
++	 * @next_clust:		next cluster if remaining == 0
++	 */
++	unsigned int next_clust;
++	/**
++	 * @last_cluster:	set if last cluster of directory reached
++	 */
++	int last_cluster;
++	/**
++	 * @is_root:		is iterator at root directory
++	 */
++	int is_root;
++	/**
++	 * @remaining:		remaining directory entries in current cluster
++	 */
++	int remaining;
++	/**
++	 * @dent:		current directory entry
++	 */
++	dir_entry *dent;
++	/**
++	 * @l_name:		long name of current directory entry
++	 */
++	char l_name[VFAT_MAXLEN_BYTES];
++	/**
++	 * @s_name:		short 8.3 name of current directory entry
++	 */
++	char s_name[14];
++	/**
++	 * @name:		l_name if there is one, else s_name
++	 */
++	char *name;
++	/**
++	 * @block:		buffer for current cluster
++	 */
++	u8 block[MAX_CLUSTSIZE] __aligned(ARCH_DMA_MINALIGN);
++};
++typedef struct fat_itr fat_itr;
++
+ static inline u32 clust_to_sect(fsdata *fsdata, u32 clust)
+ {
+ 	return fsdata->data_begin + clust * fsdata->clust_size;
+@@ -208,4 +281,5 @@ void fat_closedir(struct fs_dir_stream *dirs);
  int fat_unlink(const char *filename);
  int fat_mkdir(const char *dirname);
  void fat_close(void);
