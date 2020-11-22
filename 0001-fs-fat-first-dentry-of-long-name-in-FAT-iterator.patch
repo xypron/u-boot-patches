@@ -1,4 +1,4 @@
-From 6ca8edcb5517ea585ac85b252d1be19828bac8e3 Mon Sep 17 00:00:00 2001
+From 87618a4edf39db09c1cf7a42b3a34c0185d8add1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Nov 2020 07:44:08 +0100
 Subject: [PATCH 1/1] fs: fat: first dentry of long name in FAT iterator
@@ -15,35 +15,14 @@ Add the necessary fields to the FAT iterator:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c  |  8 ++++++--
- include/fat.h | 12 ++++++++++++
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ fs/fat/fat.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index 9a5f2c3fe1..3a10a1370c 100644
+index a86e7ac39d..4885a450b7 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -894,9 +894,13 @@ static int fat_itr_next(fat_itr *itr)
- 
- 	while (1) {
- 		dent = next_dent(itr);
--		if (!dent)
-+		if (!dent) {
-+			itr->dent_start = NULL;
- 			return 0;
--
-+		}
-+		itr->dent_rem = itr->remaining;
-+		itr->dent_start = itr->dent;
-+		itr->dent_clust = itr->clust;
- 		if (dent->name[0] == DELETED_FLAG)
- 			continue;
- 
-diff --git a/include/fat.h b/include/fat.h
-index 88136da09c..dfae2bb38b 100644
---- a/include/fat.h
-+++ b/include/fat.h
-@@ -233,6 +233,18 @@ struct fat_itr {
+@@ -700,6 +700,18 @@ struct fat_itr {
  	 * @dent:		current directory entry
  	 */
  	dir_entry *dent;
@@ -62,6 +41,22 @@ index 88136da09c..dfae2bb38b 100644
  	/**
  	 * @l_name:		long name of current directory entry
  	 */
+@@ -966,9 +978,13 @@ static int fat_itr_next(fat_itr *itr)
+ 
+ 	while (1) {
+ 		dent = next_dent(itr);
+-		if (!dent)
++		if (!dent) {
++			itr->dent_start = NULL;
+ 			return 0;
+-
++		}
++		itr->dent_rem = itr->remaining;
++		itr->dent_start = itr->dent;
++		itr->dent_clust = itr->clust;
+ 		if (dent->name[0] == DELETED_FLAG)
+ 			continue;
+ 
 -- 
 2.29.2
 
