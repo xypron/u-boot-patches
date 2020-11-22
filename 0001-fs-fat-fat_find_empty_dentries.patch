@@ -1,4 +1,4 @@
-From c72aff11195c9b43fbdc799cce063208163ba5fd Mon Sep 17 00:00:00 2001
+From 0ab247ba2e547f84ccd02fc3f043f3fedcd95009 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 09:58:44 +0100
 Subject: [PATCH 1/1] fs: fat: fat_find_empty_dentries()
@@ -9,14 +9,14 @@ The current directory is scanned for deleted entries.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 62 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 62 insertions(+)
+ fs/fat/fat_write.c | 63 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index f8e54358cc..690b1fb4b7 100644
+index c282d90927..6c86d8175a 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -203,6 +203,68 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+@@ -204,6 +204,69 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
  	return 0;
  }
  
@@ -33,6 +33,7 @@ index f8e54358cc..690b1fb4b7 100644
 +	unsigned dent_clust;
 +	dir_entry *dent_start = NULL;
 +	unsigned int n = 0;
++	unsigned int nbytes;
 +
 +	/* position to the start of the directory */
 +	itr->dent = NULL;
@@ -46,7 +47,7 @@ index f8e54358cc..690b1fb4b7 100644
 +		return -EIO;
 +
 +	for (; n < count;) {
-+		switch (itr->dent.name[0]) {
++		switch (itr->dent->name[0]) {
 +		case 0x00:
 +		case 0xe5:
 +			++n;
@@ -66,7 +67,7 @@ index f8e54358cc..690b1fb4b7 100644
 +			if (n)
 +				goto done;
 +			else
-+				retur -EIO;
++				return -EIO;
 +		}
 +	}
 +done:
