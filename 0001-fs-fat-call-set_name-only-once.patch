@@ -1,4 +1,4 @@
-From 3f2de39a62b9dc51b4937e9fd04660db845d7710 Mon Sep 17 00:00:00 2001
+From b1d90dcbe1f4aa04065f986743eff4b3bc0c23e0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 21 Nov 2020 08:32:50 +0100
 Subject: [PATCH 1/1] fs: fat: call set_name() only once
@@ -7,15 +7,13 @@ In set_name() we select the short name. Once this is correctly implemented
 this will be a performance intensive operation because we need to check
 that the name does not exist yet. So set_name should only be called once.
 
-Use ATTR_ARCH instead of anonymous 0x20 when calling fill_dentry().
-
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 44 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ fs/fat/fat_write.c | 41 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index f8a72a9be5..4451f102eb 100644
+index c0ddfd6a29..af86c1f41a 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -22,6 +22,9 @@
@@ -120,17 +118,7 @@ index f8a72a9be5..4451f102eb 100644
  		if (ret < 0)
  			goto exit;
  		if (ret > 1) {
-@@ -1234,7 +1253,8 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
- 		}
- 
- 		/* Set short name entry */
--		fill_dentry(itr->fsdata, itr->dent, filename, 0, size, 0x20);
-+		fill_dentry(itr->fsdata, itr->dent, shortname, 0, size,
-+			    ATTR_ARCH);
- 
- 		retdent = itr->dent;
- 	}
-@@ -1466,6 +1486,8 @@ int fat_mkdir(const char *new_dirname)
+@@ -1467,6 +1486,8 @@ int fat_mkdir(const char *new_dirname)
  		ret = -EEXIST;
  		goto exit;
  	} else {
@@ -139,7 +127,7 @@ index f8a72a9be5..4451f102eb 100644
  		if (itr->is_root) {
  			/* root dir cannot have "." or ".." */
  			if (!strcmp(l_dirname, ".") ||
-@@ -1484,7 +1506,7 @@ int fat_mkdir(const char *new_dirname)
+@@ -1485,7 +1506,7 @@ int fat_mkdir(const char *new_dirname)
  		memset(itr->dent, 0, sizeof(*itr->dent));
  
  		/* Check if long name is needed */
@@ -148,7 +136,7 @@ index f8a72a9be5..4451f102eb 100644
  		if (ret < 0)
  			goto exit;
  		if (ret > 1) {
-@@ -1495,7 +1517,7 @@ int fat_mkdir(const char *new_dirname)
+@@ -1496,7 +1517,7 @@ int fat_mkdir(const char *new_dirname)
  		}
  
  		/* Set attribute as archive for regular file */
