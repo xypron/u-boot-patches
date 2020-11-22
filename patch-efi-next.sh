@@ -31,6 +31,7 @@ git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 # FAT file system
 git am ../patch/0001-fs-fat-avoid-NULL-dereference-when-root-dir-is-full.patch
 git am ../patch/0001-fs-fat-directory-entries-starting-with-0x05.patch
+git am ../patch/0001-fs-fat-use-ATTR_ARCH-instead-of-anonymous-0x20.patch
 
 git am ../patch/0001-fs-fat-export-fat_next_cluster.patch
 git am ../patch/0001-fs-fat-create-correct-short-names.patch
