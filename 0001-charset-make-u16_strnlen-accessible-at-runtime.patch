@@ -1,0 +1,41 @@
+From b3d2a3ced5b2274f1d56ff680a1d3526d0920b8c Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Sun, 22 Nov 2020 15:10:26 +0200
+Subject: [PATCH 1/1] charset: make u16_strnlen accessible at runtime
+
+commit 1fabfeef506c ("efi_loader: parameter check in GetNextVariableName()")
+introduces a check using u16_strnlen(). This code is used on EFI
+runtime variables as well, so unless we mark it as runtime, the kernel
+will crash trying to access it.
+
+Fixes: 1fabfeef506c ("efi_loader: parameter check in GetNextVariableName()")
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/charset.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/lib/charset.c b/lib/charset.c
+index 5686d6fb59..2177014ee1 100644
+--- a/lib/charset.c
++++ b/lib/charset.c
+@@ -8,6 +8,7 @@
+ #include <common.h>
+ #include <charset.h>
+ #include <capitalization.h>
++#include <efi_loader.h>
+ #include <malloc.h>
+ 
+ static struct capitalization_table capitalization_table[] =
+@@ -372,7 +373,7 @@ size_t u16_strlen(const void *in)
+ 	return ret;
+ }
+ 
+-size_t u16_strnlen(const u16 *in, size_t count)
++size_t __efi_runtime u16_strnlen(const u16 *in, size_t count)
+ {
+ 	size_t i;
+ 	for (i = 0; count-- && in[i]; i++);
+-- 
+2.29.2
+

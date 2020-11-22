@@ -96,6 +96,7 @@ git am ../patch/0001-efi_loader-parameter-check-in-GetNextVariableName.patch
 
 git am ../patch/0001-efi_loader-enable-EFI_SET_TIME-on-sandbox-and-QEMU-A.patch
 git am ../patch/0001-lib-efi_loader-fix-ABI-in-efi_mm_communicate_header.patch
+git am ../patch/0001-charset-make-u16_strnlen-accessible-at-runtime.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
