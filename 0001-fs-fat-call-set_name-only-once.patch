@@ -1,4 +1,4 @@
-From b1d90dcbe1f4aa04065f986743eff4b3bc0c23e0 Mon Sep 17 00:00:00 2001
+From 1c82a4e2bae3ce1241bca6b372889bd9f6572f4c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 21 Nov 2020 08:32:50 +0100
 Subject: [PATCH 1/1] fs: fat: call set_name() only once
@@ -9,11 +9,11 @@ that the name does not exist yet. So set_name should only be called once.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 41 +++++++++++++++++++++++++++++++----------
- 1 file changed, 31 insertions(+), 10 deletions(-)
+ fs/fat/fat_write.c | 43 ++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 11 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index c0ddfd6a29..af86c1f41a 100644
+index c0ddfd6a29..47481537ed 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -22,6 +22,9 @@
@@ -58,10 +58,12 @@ index c0ddfd6a29..af86c1f41a 100644
  
  	/* Construct an indexed short name */
  	for (i = 1; i < 10000000; ++i) {
-@@ -127,8 +134,12 @@ static int set_name(dir_entry *dirent, const char *filename)
+@@ -126,9 +133,13 @@ static int set_name(dir_entry *dirent, const char *filename)
+ 		/* TODO: Check that the short name does not exist yet. */
  
  		/* Each long name directory entry takes 13 characters. */
- 		return (strlen(filename) + 25) / 13;
+-		return (strlen(filename) + 25) / 13;
++		ret = (strlen(filename) + 25) / 13;
 +		goto out;
  	}
  	return -EIO;
