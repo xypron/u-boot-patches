@@ -1,4 +1,4 @@
-From 8099329e896d89ed2ef69e5cc3703f6c49823d77 Mon Sep 17 00:00:00 2001
+From a91c335f90152c6f3f687aabf35db319532b1f6d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 16:04:47 +0100
 Subject: [PATCH 1/1] fs: fat: set start cluster for root directory
@@ -12,13 +12,22 @@ we do not need any special logic for the root directory.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/fat/fat.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index 9a5f2c3fe1..520efbef26 100644
+index 9a5f2c3fe1..4e29b9b802 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
+@@ -663,7 +663,7 @@ static int fat_itr_root(fat_itr *itr, fsdata *fsdata)
+ 		return -ENXIO;
+ 
+ 	itr->fsdata = fsdata;
+-	itr->start_clust = 0;
++	itr->start_clust = fsdata->root_cluster;
+ 	itr->clust = fsdata->root_cluster;
+ 	itr->next_clust = fsdata->root_cluster;
+ 	itr->dent = NULL;
 @@ -707,6 +707,7 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
  	} else {
  		itr->clust = parent->fsdata->root_cluster;
