@@ -1,21 +1,21 @@
-From f3d4d23b02ad1dc1f9b4bf77b33ac61e85d30d75 Mon Sep 17 00:00:00 2001
+From 99a69465351688cf1c373e0cd7ec1ea34b43a9c1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 19 Nov 2020 07:31:18 +0100
-Subject: [PATCH 1/1] fs: fat: deletion of long file names
+Subject: [PATCH] fs: fat: deletion of long file names
 
 Long file names are stored in multiple directory entries. When deleting a
 file we must delete all of them.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 91 +++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 77 insertions(+), 14 deletions(-)
+ fs/fat/fat_write.c | 90 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 76 insertions(+), 14 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index e12b6d7f07..c178c206f3 100644
+index e12b6d7f07..b52210c0c3 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -1416,32 +1416,95 @@ exit:
+@@ -1416,32 +1416,94 @@ exit:
  	return count;
  }
  
@@ -75,7 +75,6 @@ index e12b6d7f07..c178c206f3 100644
  	fsdata *mydata = itr->fsdata;
 -	dir_entry *dentptr = itr->dent;
 +	dir_entry *dent = itr->dent;
-+	unsigned nbytes;
  
  	/* free cluster blocks */
 -	clear_fatent(mydata, START(dentptr));
@@ -86,11 +85,11 @@ index e12b6d7f07..c178c206f3 100644
  	}
 +	/* Position to first directory entry for long name */
 +	if (itr->clust != itr->dent_clust) {
-+		itr->next_clust = itr->dent_clust;
-+		itr->last_cluster = 0;
-+		fat_next_cluster(itr, &nbytes);
-+		if (!nbytes)
-+			return -EIO;
++		int ret;
++
++		ret = fat_move_to_cluster(itr, itr->dent_clust);
++		if (ret)
++			return ret;
 +	}
 +	itr->dent = itr->dent_start;
 +	itr->remaining = itr->dent_rem;
@@ -124,7 +123,7 @@ index e12b6d7f07..c178c206f3 100644
  	return 0;
  }
  
-@@ -1506,7 +1569,7 @@ int fat_unlink(const char *filename)
+@@ -1506,7 +1568,7 @@ int fat_unlink(const char *filename)
  		}
  	}
  
