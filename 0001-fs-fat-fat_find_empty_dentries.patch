@@ -1,4 +1,4 @@
-From 07d2336726a77e10d5a130d3431f008f77321cda Mon Sep 17 00:00:00 2001
+From c6dd43d1eed3c0133fffe1098f59ea42d0c7cb21 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 09:58:44 +0100
 Subject: [PATCH 1/1] fs: fat: fat_find_empty_dentries()
@@ -9,14 +9,14 @@ The current directory is scanned for deleted entries.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 72 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+ fs/fat/fat_write.c | 73 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 32f08116b5..271010fa2b 100644
+index 021149509b..ccbbd6cfba 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -204,6 +204,78 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+@@ -206,6 +206,79 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
  	return 0;
  }
  
@@ -83,6 +83,7 @@ index 32f08116b5..271010fa2b 100644
 +				itr->remaining = remaining;
 +				return 0;
 +			}
++			break;
 +		default:
 +			n = 0;
 +			break;
