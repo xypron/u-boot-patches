@@ -1,6 +1,6 @@
-From d1484d99dae5846f0fefc3c1a8e3f36208329dfb Mon Sep 17 00:00:00 2001
+From ba05197e063b5603150d052a3f9b1a1b95c2b31e Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:47 +0900
+Date: Tue, 17 Nov 2020 09:27:55 +0900
 Subject: [PATCH] efi_loader: define UpdateCapsule api
 
 In this commit, skeleton functions for capsule-related API's are
@@ -51,10 +51,10 @@ index 5744f6aed8..c128a0a66c 100644
  #define EFI_RT_SUPPORTED_SET_TIME			0x0002
  #define EFI_RT_SUPPORTED_GET_WAKEUP_TIME		0x0004
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 6865a4847d..ffe7728666 100644
+index 3c68b85b68..abd6856b3d 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -207,6 +207,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
+@@ -210,6 +210,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
  
  /* GUID of RNG protocol */
  extern const efi_guid_t efi_guid_rng_protocol;
@@ -63,9 +63,9 @@ index 6865a4847d..ffe7728666 100644
  
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
-@@ -807,6 +809,17 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+@@ -812,6 +814,17 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
  /* commonly used helper function */
- u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
+ u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
  
 +/* Capsule update */
 +efi_status_t EFIAPI efi_update_capsule(
@@ -82,10 +82,10 @@ index 6865a4847d..ffe7728666 100644
  
  /* Without CONFIG_EFI_LOADER we don't have a runtime section, stub it out */
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 075481428c..3ca396df36 100644
+index 7fd3a3c90c..182b9eeb43 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -93,6 +93,17 @@ config EFI_SET_TIME
+@@ -94,6 +94,17 @@ config EFI_SET_TIME
  	  Provide the SetTime() runtime service at boottime. This service
  	  can be used by an EFI application to adjust the real time clock.
  
@@ -104,7 +104,7 @@ index 075481428c..3ca396df36 100644
  	bool "Device path to text protocol"
  	default y
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 9bad1d159b..c7d231f0e5 100644
+index cd4b252a41..056376ff7a 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -23,6 +23,7 @@ endif
@@ -117,7 +117,7 @@ index 9bad1d159b..c7d231f0e5 100644
  obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
 new file mode 100644
-index 0000000000..02a8435cd3
+index 0000000000..575fa75b0a
 --- /dev/null
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -0,0 +1,165 @@
@@ -431,10 +431,10 @@ index 1fa1595e40..0b171c1ff7 100644
  	.query_variable_info = efi_query_variable_info,
  };
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 6346eda771..3a1c8ea004 100644
+index e206b60bb8..8d95de8a1b 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -101,9 +101,9 @@ static efi_status_t efi_init_secure_boot(void)
+@@ -100,9 +100,9 @@ static efi_status_t efi_init_secure_boot(void)
  
  	ret = efi_set_variable_int(L"SignatureSupport",
  				   &efi_global_variable_guid,
@@ -446,7 +446,7 @@ index 6346eda771..3a1c8ea004 100644
  				   sizeof(signature_types),
  				   &signature_types, false);
  	if (ret != EFI_SUCCESS)
-@@ -118,6 +118,53 @@ static efi_status_t efi_init_secure_boot(void)
+@@ -117,6 +117,53 @@ static efi_status_t efi_init_secure_boot(void)
  }
  #endif /* CONFIG_EFI_SECURE_BOOT */
  
@@ -500,7 +500,7 @@ index 6346eda771..3a1c8ea004 100644
  /**
   * efi_init_obj_list() - Initialize and populate EFI object list
   *
-@@ -125,7 +172,6 @@ static efi_status_t efi_init_secure_boot(void)
+@@ -124,7 +171,6 @@ static efi_status_t efi_init_secure_boot(void)
   */
  efi_status_t efi_init_obj_list(void)
  {
@@ -508,7 +508,7 @@ index 6346eda771..3a1c8ea004 100644
  	efi_status_t ret = EFI_SUCCESS;
  
  	/* Initialize once only */
-@@ -168,13 +214,7 @@ efi_status_t efi_init_obj_list(void)
+@@ -174,13 +220,7 @@ efi_status_t efi_init_obj_list(void)
  		goto out;
  
  	/* Indicate supported features */
@@ -523,7 +523,7 @@ index 6346eda771..3a1c8ea004 100644
  	if (ret != EFI_SUCCESS)
  		goto out;
  
-@@ -227,6 +267,10 @@ efi_status_t efi_init_obj_list(void)
+@@ -233,6 +273,10 @@ efi_status_t efi_init_obj_list(void)
  	if (ret != EFI_SUCCESS)
  		goto out;
  
@@ -535,5 +535,5 @@ index 6346eda771..3a1c8ea004 100644
  	ret = efi_reset_system_init();
  	if (ret != EFI_SUCCESS)
 -- 
-2.28.0
+2.29.2
 
