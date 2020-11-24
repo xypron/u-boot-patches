@@ -110,6 +110,7 @@ git am ../patch/0001-cmd-add-efidebug-capsule-command.patch
 git am ../patch/0001-tools-add-mkeficapsule-command-for-UEFI-capsule-upda.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-FIT-image-capsule.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
+git am ../patch/0001-sandbox-enable-capsule-update-for-testing.patch
 
 exit
 

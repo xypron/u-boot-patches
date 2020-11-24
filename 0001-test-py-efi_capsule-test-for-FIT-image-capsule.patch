@@ -1,7 +1,7 @@
-From e28f7794675d8b8d7231d32976c7dda3c02abfea Mon Sep 17 00:00:00 2001
+From f5f83cf6dd57d9e03910525cc149c5d7299c462f Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:56 +0900
-Subject: [PATCH] test/py: efi_capsule: test for FIT image capsule
+Date: Tue, 17 Nov 2020 09:28:03 +0900
+Subject: [PATCH 1/1] test/py: efi_capsule: test for FIT image capsule
 
 The test can run on sandbox build and it attempts to execute a firmware
 update via a capsule-on-disk, using a FIT image capsule,
@@ -13,23 +13,34 @@ on Travis CI, at least, for now.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
- test/py/tests/test_efi_capsule/conftest.py    |  69 +++++++
- test/py/tests/test_efi_capsule/defs.py        |  12 ++
+ .../py/tests/test_efi_capsule/capsule_defs.py |   5 +
+ test/py/tests/test_efi_capsule/conftest.py    |  71 +++++++
  .../test_efi_capsule/test_capsule_firmware.py | 178 ++++++++++++++++++
  .../tests/test_efi_capsule/uboot_bin_env.its  |  36 ++++
  tools/mkeficapsule.c                          |   3 +-
- 5 files changed, 297 insertions(+), 1 deletion(-)
+ 5 files changed, 292 insertions(+), 1 deletion(-)
+ create mode 100644 test/py/tests/test_efi_capsule/capsule_defs.py
  create mode 100644 test/py/tests/test_efi_capsule/conftest.py
- create mode 100644 test/py/tests/test_efi_capsule/defs.py
  create mode 100644 test/py/tests/test_efi_capsule/test_capsule_firmware.py
  create mode 100644 test/py/tests/test_efi_capsule/uboot_bin_env.its
 
+diff --git a/test/py/tests/test_efi_capsule/capsule_defs.py b/test/py/tests/test_efi_capsule/capsule_defs.py
+new file mode 100644
+index 0000000000..4fd6353c20
+--- /dev/null
++++ b/test/py/tests/test_efi_capsule/capsule_defs.py
+@@ -0,0 +1,5 @@
++# SPDX-License-Identifier:      GPL-2.0+
++
++# Directories
++CAPSULE_DATA_DIR = '/EFI/CapsuleTestData'
++CAPSULE_INSTALL_DIR = '/EFI/UpdateCapsule'
 diff --git a/test/py/tests/test_efi_capsule/conftest.py b/test/py/tests/test_efi_capsule/conftest.py
 new file mode 100644
-index 0000000000..4e7c36f04b
+index 0000000000..1472661899
 --- /dev/null
 +++ b/test/py/tests/test_efi_capsule/conftest.py
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,71 @@
 +# SPDX-License-Identifier:      GPL-2.0+
 +# Copyright (c) 2020, Linaro Limited
 +# Author: AKASHI Takahiro <takahiro.akashi@linaro.org>
@@ -39,7 +50,7 @@ index 0000000000..4e7c36f04b
 +import re
 +from subprocess import call, check_call, check_output, CalledProcessError
 +import pytest
-+from defs import *
++from capsule_defs import *
 +
 +#
 +# Fixture for UEFI secure boot test
@@ -57,6 +68,8 @@ index 0000000000..4e7c36f04b
 +    Return:
 +        A path to disk image to be used for testing
 +    """
++    global CAPSULE_DATA_DIR, CAPSULE_INSTALL_DIR
++
 +    mnt_point = u_boot_config.persistent_data_dir + '/test_efi_capsule'
 +    data_dir = mnt_point + CAPSULE_DATA_DIR
 +    install_dir = mnt_point + CAPSULE_INSTALL_DIR
@@ -99,27 +112,9 @@ index 0000000000..4e7c36f04b
 +        call('rm -rf %s' % mnt_point, shell=True)
 +        call('rm -f %s' % image_path, shell=True)
 +        call('rm -f ./spi.bin', shell=True)
-diff --git a/test/py/tests/test_efi_capsule/defs.py b/test/py/tests/test_efi_capsule/defs.py
-new file mode 100644
-index 0000000000..2c5b0ee49b
---- /dev/null
-+++ b/test/py/tests/test_efi_capsule/defs.py
-@@ -0,0 +1,12 @@
-+# SPDX-License-Identifier:      GPL-2.0+
-+
-+# Size in MiB
-+EFI_BOOTDEV_IMAGE_SIZE = 16
-+EFI_BOOTDEV_PART_SIZE = 8
-+
-+# Owner guid
-+GUID = '11111111-2222-3333-4444-123456789abc'
-+
-+# Directories
-+CAPSULE_DATA_DIR = '/EFI/CapsuleTestData'
-+CAPSULE_INSTALL_DIR = '/EFI/UpdateCapsule'
 diff --git a/test/py/tests/test_efi_capsule/test_capsule_firmware.py b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
 new file mode 100644
-index 0000000000..ab7c2a7d6b
+index 0000000000..d8e27707fd
 --- /dev/null
 +++ b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
 @@ -0,0 +1,178 @@
@@ -135,7 +130,7 @@ index 0000000000..ab7c2a7d6b
 +
 +from subprocess import check_call, check_output, CalledProcessError
 +import pytest
-+from defs import *
++from capsule_defs import *
 +
 +
 +@pytest.mark.boardspec('sandbox')
@@ -358,5 +353,5 @@ index db95426457..45e27d74a5 100644
  					+ sizeof(capsule) + sizeof(u64)
  					+ sizeof(image)
 -- 
-2.28.0
+2.29.2
 

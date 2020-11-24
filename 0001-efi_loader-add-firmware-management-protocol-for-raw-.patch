@@ -1,6 +1,6 @@
-From 9726e81469a2bbb1a4097e223cf6e49f85ea41c5 Mon Sep 17 00:00:00 2001
+From e5ab18a5c52c025254d7c3ca065530f46474cb15 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:53 +0900
+Date: Tue, 17 Nov 2020 09:28:00 +0900
 Subject: [PATCH] efi_loader: add firmware management protocol for raw image
 
 In this commit, a very simple firmware management protocol driver
@@ -37,11 +37,11 @@ index 071d0ba866..c7038f863a 100644
  #define IMAGE_ATTRIBUTE_RESET_REQUIRED		0x0000000000000002
  #define IMAGE_ATTRIBUTE_AUTHENTICATION_REQUIRED	0x0000000000000004
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index de6d353de3..0f85873a72 100644
+index d592a0e680..76cd2b36f2 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -812,6 +812,7 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
- u16 *efi_create_indexed_name(u16 *buffer, const u16 *name, unsigned int index);
+@@ -817,6 +817,7 @@ void efi_memcpy_runtime(void *dest, const void *src, size_t n);
+ u16 *efi_create_indexed_name(u16 *buffer, const char *name, unsigned int index);
  
  extern const struct efi_firmware_management_protocol efi_fmp_fit;
 +extern const struct efi_firmware_management_protocol efi_fmp_raw;
@@ -49,10 +49,10 @@ index de6d353de3..0f85873a72 100644
  /* Capsule update */
  efi_status_t EFIAPI efi_update_capsule(
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 94c1ad2af0..25b4ef1200 100644
+index bb0c030cc3..5fdad361d6 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -126,6 +126,10 @@ config EFI_CAPSULE_ON_DISK_EARLY
+@@ -127,6 +127,10 @@ config EFI_CAPSULE_ON_DISK_EARLY
  	  executed as part of U-Boot initialisation so that they will
  	  surely take place whatever is set to distro_bootcmd.
  
@@ -63,7 +63,7 @@ index 94c1ad2af0..25b4ef1200 100644
  config EFI_CAPSULE_FIRMWARE_MANAGEMENT
  	bool "Capsule: Firmware Management Protocol"
  	depends on EFI_HAVE_CAPSULE_SUPPORT
-@@ -140,11 +144,23 @@ config EFI_CAPSULE_FIRMWARE_FIT
+@@ -141,11 +145,23 @@ config EFI_CAPSULE_FIRMWARE_FIT
  	depends on FIT
  	select UPDATE_FIT
  	select DFU
@@ -88,7 +88,7 @@ index 94c1ad2af0..25b4ef1200 100644
  	bool "Device path to text protocol"
  	default y
 diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
-index 23b1828b0f..a7631d92a3 100644
+index 34d02ba7de..0afcaf4813 100644
 --- a/lib/efi_loader/Makefile
 +++ b/lib/efi_loader/Makefile
 @@ -24,7 +24,7 @@ obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
@@ -101,7 +101,7 @@ index 23b1828b0f..a7631d92a3 100644
  obj-y += efi_device_path.o
  obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index a44f81daae..af40b4a159 100644
+index 8265aac226..f385e58378 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -814,6 +814,14 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
@@ -397,5 +397,5 @@ index 4c395f4eb5..7e56077383 100644
  };
 +#endif /* CONFIG_EFI_CAPSULE_FIRMWARE_RAW */
 -- 
-2.28.0
+2.29.2
 

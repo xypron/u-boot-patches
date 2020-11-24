@@ -1,6 +1,6 @@
-From 12484c06c9e40893d1417d487121e79a86601847 Mon Sep 17 00:00:00 2001
+From 2446a4823c8963b2442bbd2e928055545e7f1ab8 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:49 +0900
+Date: Tue, 17 Nov 2020 09:27:57 +0900
 Subject: [PATCH] efi_loader: capsule: add memory range capsule definitions
 
 Memory range capsule gives us a way to notify that some memory regions
@@ -51,5 +51,5 @@ index c128a0a66c..7a2a087c60 100644
  #define EFI_RT_SUPPORTED_SET_TIME			0x0002
  #define EFI_RT_SUPPORTED_GET_WAKEUP_TIME		0x0004
 -- 
-2.28.0
+2.29.2
 

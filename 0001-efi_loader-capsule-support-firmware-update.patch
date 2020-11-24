@@ -1,6 +1,6 @@
-From 2182ce2bb963bc00bdbaa50239b99f8dee14a812 Mon Sep 17 00:00:00 2001
+From 5fcba133a91954e55480d8af57bca6cfcbac3576 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:50 +0900
+Date: Tue, 17 Nov 2020 09:27:58 +0900
 Subject: [PATCH] efi_loader: capsule: support firmware update
 
 A capsule tagged with the guid, EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID,
@@ -183,10 +183,10 @@ index 7a2a087c60..966bc6e590 100644
 +
  #endif
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 572cfadd49..b3b575f10c 100644
+index de1d24b333..ed5a49b520 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -209,6 +209,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
+@@ -212,6 +212,8 @@ extern const efi_guid_t efi_guid_cert_type_pkcs7;
  extern const efi_guid_t efi_guid_rng_protocol;
  /* GUID of capsule update result */
  extern const efi_guid_t efi_guid_capsule_report;
@@ -196,10 +196,10 @@ index 572cfadd49..b3b575f10c 100644
  extern unsigned int __efi_runtime_start, __efi_runtime_stop;
  extern unsigned int __efi_runtime_rel_start, __efi_runtime_rel_stop;
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index a2a015225a..6ae18a4220 100644
+index 790fd9809a..ba0392b641 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -126,6 +126,14 @@ config EFI_CAPSULE_ON_DISK_EARLY
+@@ -127,6 +127,14 @@ config EFI_CAPSULE_ON_DISK_EARLY
  	  executed as part of U-Boot initialisation so that they will
  	  surely take place whatever is set to distro_bootcmd.
  
@@ -215,7 +215,7 @@ index a2a015225a..6ae18a4220 100644
  	bool "Device path to text protocol"
  	default y
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index 2259bfbf3d..2015929e37 100644
+index b3c7d1b735..2f41c17f50 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -15,6 +15,10 @@
@@ -480,10 +480,10 @@ index 2259bfbf3d..2015929e37 100644
  out:
  	return EFI_EXIT(ret);
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
-index 99146671c8..b4303864bd 100644
+index 1fc10478ac..10a4197246 100644
 --- a/lib/efi_loader/efi_setup.c
 +++ b/lib/efi_loader/efi_setup.c
-@@ -160,6 +160,10 @@ static efi_status_t efi_init_os_indications(void)
+@@ -159,6 +159,10 @@ static efi_status_t efi_init_os_indications(void)
  		os_indications_supported |=
  			EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
  
@@ -495,5 +495,5 @@ index 99146671c8..b4303864bd 100644
  				    &efi_global_variable_guid,
  				    EFI_VARIABLE_BOOTSERVICE_ACCESS |
 -- 
-2.28.0
+2.29.2
 

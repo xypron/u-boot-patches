@@ -1,7 +1,7 @@
-From e2c83c74c52ed45210836134a79a65a9335abd5b Mon Sep 17 00:00:00 2001
+From 6327a8b7057ac1284f04a818a7283d9474816b00 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:57 +0900
-Subject: [PATCH] test/py: efi_capsule: test for raw image capsule
+Date: Tue, 17 Nov 2020 09:28:04 +0900
+Subject: [PATCH 1/1] test/py: efi_capsule: test for raw image capsule
 
 The test can run on sandbox build and it attempts to execute a firmware
 update via a capsule-on-disk, using a raw image capsule,
@@ -12,17 +12,16 @@ See test_capsule_firmware.py for requirements, and hence it won't run
 on Travis CI, at least, for now.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Reviewed-by: Tom Rini <trini@konsulko.com>
 ---
  test/py/tests/test_efi_capsule/conftest.py    |  3 +
  .../test_efi_capsule/test_capsule_firmware.py | 63 +++++++++++++++++++
  2 files changed, 66 insertions(+)
 
 diff --git a/test/py/tests/test_efi_capsule/conftest.py b/test/py/tests/test_efi_capsule/conftest.py
-index 4e7c36f04b..4544a24d53 100644
+index 1472661899..e037bd2056 100644
 --- a/test/py/tests/test_efi_capsule/conftest.py
 +++ b/test/py/tests/test_efi_capsule/conftest.py
-@@ -51,6 +51,9 @@ def efi_capsule_data(request, u_boot_config):
+@@ -53,6 +53,9 @@ def efi_capsule_data(request, u_boot_config):
          check_call('cd %s; %s/tools/mkeficapsule --fit uboot_bin_env.itb --version 1 --index 1 Test01' %
                     (data_dir, u_boot_config.build_dir),
                     shell=True)
@@ -33,10 +32,10 @@ index 4e7c36f04b..4544a24d53 100644
          # Create a disk image with EFI system partition
          check_call('virt-make-fs --partition=gpt --size=+1M --type=vfat %s %s' %
 diff --git a/test/py/tests/test_efi_capsule/test_capsule_firmware.py b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-index ab7c2a7d6b..c9b180ac65 100644
+index d8e27707fd..f006fa95d6 100644
 --- a/test/py/tests/test_efi_capsule/test_capsule_firmware.py
 +++ b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-@@ -15,6 +15,7 @@ from defs import *
+@@ -15,6 +15,7 @@ from capsule_defs import *
  
  @pytest.mark.boardspec('sandbox')
  @pytest.mark.buildconfigspec('efi_capsule_firmware_fit')
@@ -111,5 +110,5 @@ index ab7c2a7d6b..c9b180ac65 100644
 +                'md.b 4000000 10'])
 +            assert 'u-boot:New' in ''.join(output)
 -- 
-2.28.0
+2.29.2
 

@@ -1,7 +1,7 @@
-From 9bfccd555f40e1bdfaa074b38804c77a88520d87 Mon Sep 17 00:00:00 2001
+From bdecbc65d1f1faaa7a51c8f59e080e7f32c7fe03 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:55 +0900
-Subject: [PATCH] tools: add mkeficapsule command for UEFI capsule update
+Date: Tue, 17 Nov 2020 09:28:02 +0900
+Subject: [PATCH 1/1] tools: add mkeficapsule command for UEFI capsule update
 
 This is a utility mainly for test purpose.
   mkeficapsule -f: create a test capsule file for FIT image firmware
@@ -274,5 +274,5 @@ index 0000000000..db95426457
 +	return 0;
 +}
 -- 
-2.28.0
+2.29.2
 

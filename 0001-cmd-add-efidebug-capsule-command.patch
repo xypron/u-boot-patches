@@ -1,7 +1,7 @@
-From 601fc1132ff881b916af905e0b7985690364e707 Mon Sep 17 00:00:00 2001
+From 08e47f21821d1ee65ecf50187c5248a8e03877cc Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Thu, 29 Oct 2020 13:47:54 +0900
-Subject: [PATCH] cmd: add "efidebug capsule" command
+Date: Tue, 17 Nov 2020 09:28:01 +0900
+Subject: [PATCH 1/1] cmd: add "efidebug capsule" command
 
 "efidebug capsule" is more or less a debugging utility.
   efidebug capsule update: invoke UpdateCapsule against data on memory
@@ -274,5 +274,5 @@ index 5288b9920b..7d327c8268 100644
  	"  - show UEFI devices\n"
  	"efidebug drivers\n"
 -- 
-2.28.0
+2.29.2
 
