@@ -1,7 +1,7 @@
-From 1cff199737ab35953d72e8fc07bfb2a3ae580e39 Mon Sep 17 00:00:00 2001
+From 9be25c515596ceac588fc52e8f659b7ee682ea81 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 19:19:39 +0100
-Subject: [PATCH 1/1] fs: fat: call set_name() only once
+Subject: [PATCH] fs: fat: call set_name() only once
 
 In set_name() we select the short name. Once this is correctly implemented
 this will be a performance intensive operation because we need to check
@@ -13,10 +13,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 52 insertions(+), 31 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index bd4aa3b4ed..9ecb59ff92 100644
+index 447d534ffe..481916b202 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -22,6 +22,9 @@
+@@ -23,6 +23,9 @@
  /* Characters that may only be used in long file names */
  static const char LONG_ONLY_CHARS[] = "+,;=[]";
  
@@ -26,7 +26,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  /**
   * str2fat() - convert string to valid FAT name characters
   *
-@@ -67,24 +70,28 @@ static int str2fat(char *dest, char *src, int length)
+@@ -68,24 +71,28 @@ static int str2fat(char *dest, char *src, int length)
   *
   * If a long name is needed, a short name is constructed.
   *
@@ -60,7 +60,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  
  	/* Convert filename to upper case short name */
  	period = strrchr(filename, '.');
-@@ -94,20 +101,22 @@ static int set_name(dir_entry *dirent, const char *filename)
+@@ -95,20 +102,22 @@ static int set_name(dir_entry *dirent, const char *filename)
  		period = 0;
  	}
  	if (period)
@@ -91,8 +91,8 @@ index bd4aa3b4ed..9ecb59ff92 100644
 +	}
  
  	/* Construct an indexed short name */
- 	for (i = 1; i < 10000000; ++i) {
-@@ -119,16 +128,20 @@ static int set_name(dir_entry *dirent, const char *filename)
+ 	for (i = 1; i < 0x200000; ++i) {
+@@ -128,16 +137,20 @@ static int set_name(dir_entry *dirent, const char *filename)
  		suffix_start = 8 - suffix_len;
  		if (suffix_start > period_location)
  			suffix_start = period_location;
@@ -116,7 +116,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  }
  
  static int total_sector;
-@@ -1006,18 +1019,27 @@ getit:
+@@ -1015,18 +1028,27 @@ getit:
  	return 0;
  }
  
@@ -148,7 +148,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  }
  
  /*
-@@ -1202,6 +1224,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+@@ -1211,6 +1233,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
  		retdent->size = cpu_to_le32(pos + size);
  	} else {
  		/* Create a new file */
@@ -156,7 +156,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  
  		if (itr->is_root) {
  			/* root dir cannot have "." or ".." */
-@@ -1224,21 +1247,19 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+@@ -1233,21 +1256,19 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
  			goto exit;
  		}
  
@@ -181,7 +181,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  			    ATTR_ARCH);
  
  		retdent = itr->dent;
-@@ -1471,6 +1492,8 @@ int fat_mkdir(const char *new_dirname)
+@@ -1480,6 +1501,8 @@ int fat_mkdir(const char *new_dirname)
  		ret = -EEXIST;
  		goto exit;
  	} else {
@@ -190,7 +190,7 @@ index bd4aa3b4ed..9ecb59ff92 100644
  		if (itr->is_root) {
  			/* root dir cannot have "." or ".." */
  			if (!strcmp(l_dirname, ".") ||
-@@ -1486,21 +1509,19 @@ int fat_mkdir(const char *new_dirname)
+@@ -1495,21 +1518,19 @@ int fat_mkdir(const char *new_dirname)
  			goto exit;
  		}
  

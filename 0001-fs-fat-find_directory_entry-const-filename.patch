@@ -1,4 +1,4 @@
-From d028823cdaa963a1f0d090915f3f21ea6dd6ebc9 Mon Sep 17 00:00:00 2001
+From b4f1074be8643e72523559b7197bee26a398b09a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 25 Nov 2020 16:12:33 +0100
 Subject: [PATCH 1/1] fs: fat: find_directory_entry() const filename
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 7b7ec9b0c2..4ab45757f7 100644
+index 481916b202..5f6f0764f7 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -1047,7 +1047,7 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
+@@ -1056,7 +1056,7 @@ static void fill_dentry(fsdata *mydata, dir_entry *dentptr,
   * If the directory entry is not found,
   * the new position for writing a directory entry will be returned
   */

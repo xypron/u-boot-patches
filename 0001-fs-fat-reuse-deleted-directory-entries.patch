@@ -1,4 +1,4 @@
-From 4e453ede03ae5873b9538de48032f0feb59c0546 Mon Sep 17 00:00:00 2001
+From 66d7564dd3a16d8e65bc95eb79486105e51098db Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 11:54:22 +0100
 Subject: [PATCH 1/1] fs: fat: reuse deleted directory entries
@@ -7,14 +7,23 @@ When creating new directory entries try to reuse entries marked as deleted.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ fs/fat/fat_write.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index e076a9f59f..1592b98e3b 100644
+index a46642dfd3..1c3b7770ba 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -1297,6 +1297,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+@@ -253,7 +253,7 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+  * @count:	number of directory entries to find
+  * Return:	0 on success or negative error number
+  */
+-static int __maybe_unused fat_find_empty_dentries(fat_itr *itr, int count)
++static int fat_find_empty_dentries(fat_itr *itr, int count)
+ {
+ 	unsigned cluster;
+ 	dir_entry *dent;
+@@ -1317,6 +1317,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
  	} else {
  		/* Create a new file */
  		char shortname[SHORT_NAME_SIZE];
@@ -22,13 +31,13 @@ index e076a9f59f..1592b98e3b 100644
  
  		if (itr->is_root) {
  			/* root dir cannot have "." or ".." */
-@@ -1320,10 +1321,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+@@ -1340,10 +1341,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
  		}
  
  		/* Check if long name is needed */
--		ret = set_name(filename, shortname);
+-		ret = set_name(itr, filename, shortname);
 -		if (ret < 0)
-+		ndent = set_name(filename, shortname);
++		ndent = set_name(itr, filename, shortname);
 +		if (ndent < 0) {
 +			ret = ndent;
  			goto exit;
@@ -41,7 +50,7 @@ index e076a9f59f..1592b98e3b 100644
  			/* Set long name entries */
  			ret = fill_dir_slot(itr, filename, shortname);
  			if (ret)
-@@ -1565,6 +1571,7 @@ int fat_mkdir(const char *new_dirname)
+@@ -1585,6 +1591,7 @@ int fat_mkdir(const char *new_dirname)
  		goto exit;
  	} else {
  		char shortname[SHORT_NAME_SIZE];
@@ -49,13 +58,13 @@ index e076a9f59f..1592b98e3b 100644
  
  		if (itr->is_root) {
  			/* root dir cannot have "." or ".." */
-@@ -1582,10 +1589,15 @@ int fat_mkdir(const char *new_dirname)
+@@ -1602,10 +1609,15 @@ int fat_mkdir(const char *new_dirname)
  		}
  
  		/* Check if long name is needed */
--		ret = set_name(dirname, shortname);
+-		ret = set_name(itr, dirname, shortname);
 -		if (ret < 0)
-+		ndent = set_name(dirname, shortname);
++		ndent = set_name(itr, dirname, shortname);
 +		if (ndent < 0) {
 +			ret = ndent;
 +			goto exit;
