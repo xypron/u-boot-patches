@@ -38,7 +38,6 @@ git am ../patch/0001-fs-fat-export-fat_next_cluster.patch
 git am ../patch/0001-fs-fat-create-correct-short-names.patch
 git am ../patch/0001-fs-fat-pass-shortname-to-fill_dir_slot.patch
 git am ../patch/0001-fs-fat-call-set_name-only-once.patch
-git am ../patch/0001-fs-fat-find_directory_entry-const-filename.patch
 git am ../patch/0001-fs-fat-generate-unique-short-names.patch
 git am ../patch/0001-fs-fat-dentry-iterator-for-fill_dir_slot.patch
 git am ../patch/0001-fs-fat-set-start-cluster-for-root-directory.patch
