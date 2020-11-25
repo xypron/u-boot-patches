@@ -1,4 +1,4 @@
-From 6ad0e1f8066a7060bd884bac875ef7a8e048a5cc Mon Sep 17 00:00:00 2001
+From 28dce509899a2a0402082ab0a1571fd8cd426c98 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 09:58:44 +0100
 Subject: [PATCH 1/1] fs: fat: fat_find_empty_dentries()
@@ -9,14 +9,14 @@ The current directory is scanned for deleted entries.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 52 insertions(+)
+ fs/fat/fat_write.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index c7ee514a1e..a46642dfd3 100644
+index 68d0173210..fbc737e7df 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -246,6 +246,58 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+@@ -246,6 +246,63 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
  	return 0;
  }
  
@@ -51,25 +51,30 @@ index c7ee514a1e..a46642dfd3 100644
 +				remaining = itr->remaining;
 +			}
 +			++n;
-+			if (n == count) {
-+				/* Position back to first directory entry */
-+				if (itr->clust != cluster) {
-+					ret = fat_move_to_cluster(itr, cluster);
-+					if (ret)
-+						return ret;
-+				}
-+				itr->dent = dent;
-+				itr->remaining = remaining;
-+				return 0;
-+			}
++			if (n == count)
++				goto out;
 +			break;
 +		default:
 +			n = 0;
 +			break;
 +		}
-+		if (!next_dent(itr))
-+			return 0;
++		if (!next_dent(itr)) {
++			if (n)
++				goto out;
++			else
++				return 0;
++		}
 +	}
++out:
++	/* Position back to first directory entry */
++	if (itr->clust != cluster) {
++		ret = fat_move_to_cluster(itr, cluster);
++		if (ret)
++			return ret;
++	}
++	itr->dent = dent;
++	itr->remaining = remaining;
++	return 0;
 +}
 +
  /*
