@@ -1,4 +1,4 @@
-From 1d169638b944316fe5a8f0d8a1e206985d3b1736 Mon Sep 17 00:00:00 2001
+From 3a446d03ea612032ce55dc40474fd1938832b5c3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 20 Nov 2020 12:55:22 +0100
 Subject: [PATCH 1/1] fs: fat: create correct short names
@@ -22,7 +22,8 @@ Fixes: c30a15e590c ("FAT: Add FAT write feature")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  fs/fat/fat_write.c | 213 +++++++++++++++++++++++++++++----------------
- 1 file changed, 136 insertions(+), 77 deletions(-)
+ lib/Kconfig        |   2 +-
+ 2 files changed, 137 insertions(+), 78 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
 index 4da342f9c9..38e1958849 100644
@@ -282,6 +283,19 @@ index 4da342f9c9..38e1958849 100644
  
  		/* Set attribute as archive for regular file */
  		fill_dentry(itr->fsdata, itr->dent, dirname, 0, 0,
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 7673d2e4e0..06eb8d07dc 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -168,7 +168,7 @@ config REGEX
+ choice
+ 	prompt "Pseudo-random library support type"
+ 	depends on NET_RANDOM_ETHADDR || RANDOM_UUID || CMD_UUID || \
+-		   RNG_SANDBOX || UT_LIB && AES
++		   RNG_SANDBOX || UT_LIB && AES || FAT_WRITE
+ 	default LIB_RAND
+ 	help
+ 	  Select the library to provide pseudo-random number generator
 -- 
 2.29.2
 
