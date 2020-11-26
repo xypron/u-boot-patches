@@ -10,6 +10,8 @@ Cf. Microsoft FAT Specification, August 30 2005
 
 Fixes: 39606d462c97 ("fs: fat: handle deleted directory entries correctly")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  fs/fat/fat.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
