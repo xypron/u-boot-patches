@@ -1,4 +1,4 @@
-From 3a446d03ea612032ce55dc40474fd1938832b5c3 Mon Sep 17 00:00:00 2001
+From 4580eb7a33efab00508adf504add70fe1b957627 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 20 Nov 2020 12:55:22 +0100
 Subject: [PATCH 1/1] fs: fat: create correct short names
@@ -21,15 +21,15 @@ This patch only provides the loop over possible short file names.
 Fixes: c30a15e590c ("FAT: Add FAT write feature")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 213 +++++++++++++++++++++++++++++----------------
+ fs/fat/fat_write.c | 215 +++++++++++++++++++++++++++++----------------
  lib/Kconfig        |   2 +-
- 2 files changed, 137 insertions(+), 78 deletions(-)
+ 2 files changed, 140 insertions(+), 77 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 4da342f9c9..38e1958849 100644
+index 4da342f9c9..058b566629 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
-@@ -8,25 +8,136 @@
+@@ -8,25 +8,140 @@
  #include <common.h>
  #include <command.h>
  #include <config.h>
@@ -68,13 +68,9 @@ index 4da342f9c9..38e1958849 100644
 + * Return:	number of bytes in destination buffer
 + */
 +static int str2fat(char *dest, char *src, int length)
- {
- 	int i;
- 
--	for (i = 0; i < len; i++) {
--		*str = toupper(*str);
--		str++;
--	}
++{
++	int i;
++
 +	for (i = 0; i < length; ++src) {
 +		char c = *src;
 +
@@ -105,13 +101,16 @@ index 4da342f9c9..38e1958849 100644
 + * Return:	number of directory entries needed, negative on error
 + */
 +static int set_name(dir_entry *dirent, const char *filename)
-+{
+ {
 +	char *period;
 +	char *pos;
 +	int period_location;
 +	char buf[13];
-+	int i;
-+
+ 	int i;
+ 
+-	for (i = 0; i < len; i++) {
+-		*str = toupper(*str);
+-		str++;
 +	if (!filename)
 +		return -EIO;
 +
@@ -161,19 +160,23 @@ index 4da342f9c9..38e1958849 100644
 +		if (suffix_start > period_location)
 +			suffix_start = period_location;
 +		memcpy(dirent->name + suffix_start, buf, suffix_len);
-+		sprintf(buf, "%.*s.%.3s", suffix_start + suffix_len,
-+			dirent->name, dirent->ext);
++		if (*dirent->ext != ' ')
++			sprintf(buf, "%.*s.%.3s", suffix_start + suffix_len,
++				dirent->name, dirent->ext);
++		else
++			sprintf(buf, "%.*s", suffix_start + suffix_len,
++				dirent->name);
 +		debug("short name: %s\n", buf);
 +		/* TODO: Check that the short name does not exist yet. */
 +
 +		/* Each long name directory entry takes 13 characters. */
 +		return (strlen(filename) + 25) / 13;
-+	}
+ 	}
 +	return -EIO;
  }
  
  static int total_sector;
-@@ -50,67 +161,6 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
+@@ -50,67 +165,6 @@ static int disk_write(__u32 block, __u32 nr_blocks, void *buf)
  	return ret;
  }
  
@@ -241,7 +244,7 @@ index 4da342f9c9..38e1958849 100644
  /*
   * Write fat buffer into block device
   */
-@@ -1181,13 +1231,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+@@ -1181,13 +1235,15 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
  
  		memset(itr->dent, 0, sizeof(*itr->dent));
  
@@ -263,7 +266,7 @@ index 4da342f9c9..38e1958849 100644
  		}
  
  		/* Set short name entry */
-@@ -1441,9 +1493,16 @@ int fat_mkdir(const char *new_dirname)
+@@ -1441,9 +1497,16 @@ int fat_mkdir(const char *new_dirname)
  
  		memset(itr->dent, 0, sizeof(*itr->dent));
  
