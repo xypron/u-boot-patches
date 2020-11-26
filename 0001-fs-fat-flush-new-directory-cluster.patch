@@ -1,4 +1,4 @@
-From 853e55c99cb99d52c68313cc1db5ce1977e1119f Mon Sep 17 00:00:00 2001
+From 6be8fb3f1d1eb8bfbca7f4842abe9ea6c55e5d23 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 26 Nov 2020 19:06:55 +0100
 Subject: [PATCH 1/1] fs: fat: flush new directory cluster
@@ -13,11 +13,11 @@ flushing fails, we still have a valid directory structure.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ fs/fat/fat_write.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 0746d73f8d..8fe0042861 100644
+index 0746d73f8d..9bbf6f149f 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -738,8 +738,11 @@ static int find_empty_cluster(fsdata *mydata)
@@ -34,7 +34,7 @@ index 0746d73f8d..8fe0042861 100644
   */
  static int new_dir_table(fat_itr *itr)
  {
-@@ -748,6 +751,15 @@ static int new_dir_table(fat_itr *itr)
+@@ -748,6 +751,17 @@ static int new_dir_table(fat_itr *itr)
  	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
  
  	dir_newclust = find_empty_cluster(mydata);
@@ -43,6 +43,8 @@ index 0746d73f8d..8fe0042861 100644
 +	 * Flush before updating FAT to ensure valid directory structure
 +	 * in case of failure.
 +	 */
++	itr->clust = dir_newclust;
++	itr->next_clust = dir_newclust;
 +	memset(itr->block, 0x00, bytesperclust);
 +	if (flush_dir(itr))
 +		return -EIO;
@@ -50,9 +52,13 @@ index 0746d73f8d..8fe0042861 100644
  	set_fatent_value(mydata, itr->clust, dir_newclust);
  	if (mydata->fatsize == 32)
  		set_fatent_value(mydata, dir_newclust, 0xffffff8);
-@@ -760,9 +772,7 @@ static int new_dir_table(fat_itr *itr)
- 	itr->next_clust = dir_newclust;
+@@ -756,13 +770,8 @@ static int new_dir_table(fat_itr *itr)
+ 	else if (mydata->fatsize == 12)
+ 		set_fatent_value(mydata, dir_newclust, 0xff8);
  
+-	itr->clust = dir_newclust;
+-	itr->next_clust = dir_newclust;
+-
  	if (flush_dirty_fat_buffer(mydata) < 0)
 -		return -1;
 -
