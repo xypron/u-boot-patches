@@ -42,7 +42,7 @@ git am ../patch/0001-fs-fat-generate-unique-short-names.patch
 git am ../patch/0001-fs-fat-dentry-iterator-for-fill_dir_slot.patch
 git am ../patch/0001-fs-fat-set-start-cluster-for-root-directory.patch
 git am ../patch/0001-fs-fat-fat_find_empty_dentries.patch
-git am ../patch/0001-fs-fat-ensure-flushing-of-directory.patch
+git am ../patch/0001-fs-fat-search-file-should-not-allocate-cluster.patch
 git am ../patch/0001-fs-fat-reuse-deleted-directory-entries.patch
 
 git am ../patch/0001-fs-fat-use-constant-DELETED_FLAG.patch
