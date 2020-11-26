@@ -1,0 +1,50 @@
+From 2133561de5db685437ede2f2cc7a9fff0cc0295c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 26 Nov 2020 20:34:54 +0100
+Subject: [PATCH] common: always compile fixup_cmdtable()
+
+With our optimization settings the linker eliminates unused functions.
+
+But for debugging it is better to compile with -Og or -O0. With -O0
+compiling the sandbox fails due to the missing function fixup_cmdtable()
+called by dm_reloc() and others.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/command.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/common/command.c b/common/command.c
+index 2c491e20a7..345846f165 100644
+--- a/common/command.c
++++ b/common/command.c
+@@ -16,6 +16,8 @@
+ #include <log.h>
+ #include <linux/ctype.h>
+ 
++DECLARE_GLOBAL_DATA_PTR;
++
+ /*
+  * Use puts() instead of printf() to avoid printf buffer overflow
+  * for long help messages
+@@ -488,9 +490,6 @@ int cmd_get_data_size(char* arg, int default_size)
+ }
+ #endif
+ 
+-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+-DECLARE_GLOBAL_DATA_PTR;
+-
+ void fixup_cmdtable(struct cmd_tbl *cmdtp, int size)
+ {
+ 	int	i;
+@@ -535,7 +534,6 @@ void fixup_cmdtable(struct cmd_tbl *cmdtp, int size)
+ 		cmdtp++;
+ 	}
+ }
+-#endif
+ 
+ int cmd_always_repeatable(struct cmd_tbl *cmdtp, int flag, int argc,
+ 			  char *const argv[], int *repeatable)
+-- 
+2.29.2
+
