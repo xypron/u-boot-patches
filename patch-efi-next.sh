@@ -48,10 +48,10 @@ git am ../patch/0001-fs-fat-flush-new-directory-cluster.patch
 git am ../patch/0001-fs-fat-fat_find_empty_dentries.patch
 git am ../patch/0001-fs-fat-reuse-deleted-directory-entries.patch
 git am ../patch/0001-fs-fat-search-file-should-not-allocate-cluster.patch
-
 git am ../patch/0001-fs-fat-use-constant-DELETED_FLAG.patch
 git am ../patch/0001-fs-fat-first-dentry-of-long-name-in-FAT-iterator.patch
 git am ../patch/0001-fs-fat-deletion-of-long-file-names.patch
+git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch

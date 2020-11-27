@@ -1,0 +1,126 @@
+From db7b0319b15e2e82589333b134100775c6cda64c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 27 Nov 2020 13:55:08 +0100
+Subject: [PATCH 1/1] fs: fat: finding an empty FAT cluster
+
+Currently we have two functions with redundant coding to find an empty
+cluster:
+
+* find_empty_cluster() seeks from the beginning of the FAT table
+* determine_fatent() seeks after a given entry
+
+Both do not detect the end of the FAT table correctly and return an invalid
+cluster number if no empty entry if found.
+
+find_empty_cluster() is replaced by an invocation of determine_fatent().
+
+determine_fatent() is changed to seek in a second round from the beginning
+of the FAT table and to return an error code if no free entry is found.
+With this patch we will always find an empty cluster if it exists.
+
+Further patches are needed to handle the disk full error gracefully.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 56 ++++++++++++++++++++++++----------------------
+ 1 file changed, 29 insertions(+), 27 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 268375391d..8aaf08fce1 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -531,22 +531,41 @@ static int set_fatent_value(fsdata *mydata, __u32 entry, __u32 entry_value)
+ 	return 0;
+ }
+ 
+-/*
+- * Determine the next free cluster after 'entry' in a FAT (12/16/32) table
+- * and link it to 'entry'. EOC marker is not set on returned entry.
++/**
++ * determine_fatent() - get next free FAT cluster
++ *
++ * The parameter @entry indicates the current cluster. To reduce fragementation
++ * the function first searches for a free cluster after the current cluster.
++ * If none is found, the search is repeated from the beginning of the FAT table.
++ *
++ * If @entry is set, the new FAT entry is appended to the given one.
++ * If @entry is zero, only the number of the first free cluster is returned.
++ *
++ * @entry:	current entry
++ * Return:	next free cluster or negative error
+  */
+-static __u32 determine_fatent(fsdata *mydata, __u32 entry)
++static int determine_fatent(fsdata *mydata, __u32 entry)
+ {
+-	__u32 next_fat, next_entry = entry + 1;
++	__u32 next_fat, next_entry = entry;
++	int second_round = 0;
+ 
+ 	while (1) {
++		++next_entry;
++		if (CHECK_CLUST(next_entry, mydata->fatsize)) {
++			if (!second_round) {
++				second_round = 1;
++				next_entry = 3;
++			} else {
++				return -ENOSPC;
++			}
++		}
+ 		next_fat = get_fatent(mydata, next_entry);
+-		if (next_fat == 0) {
++		if (!next_fat) {
+ 			/* found free entry, link to entry */
+-			set_fatent_value(mydata, entry, next_entry);
++			if (entry)
++				set_fatent_value(mydata, entry, next_entry);
+ 			break;
+ 		}
+-		next_entry++;
+ 	}
+ 	debug("FAT%d: entry: %08x, entry_value: %04x\n",
+ 	       mydata->fatsize, entry, next_entry);
+@@ -775,23 +794,6 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
+ 	return 0;
+ }
+ 
+-/*
+- * Find the first empty cluster
+- */
+-static int find_empty_cluster(fsdata *mydata)
+-{
+-	__u32 fat_val, entry = 3;
+-
+-	while (1) {
+-		fat_val = get_fatent(mydata, entry);
+-		if (fat_val == 0)
+-			break;
+-		entry++;
+-	}
+-
+-	return entry;
+-}
+-
+ /**
+  * new_dir_table() - allocate a cluster for additional directory entries
+  *
+@@ -805,7 +807,7 @@ static int new_dir_table(fat_itr *itr)
+ 	int dir_oldclust = itr->clust;
+ 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+ 
+-	dir_newclust = find_empty_cluster(mydata);
++	dir_newclust = determine_fatent(mydata, 0);
+ 
+ 	/*
+ 	 * Flush before updating FAT to ensure valid directory structure
+@@ -1047,7 +1049,7 @@ set_clusters:
+ 
+ 	/* Assure that curclust is valid */
+ 	if (!curclust) {
+-		curclust = find_empty_cluster(mydata);
++		curclust = determine_fatent(mydata, 0);
+ 		set_start_cluster(mydata, dentptr, curclust);
+ 	} else {
+ 		newclust = get_fatent(mydata, curclust);
+-- 
+2.29.2
+
