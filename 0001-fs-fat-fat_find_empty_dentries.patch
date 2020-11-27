@@ -1,4 +1,4 @@
-From 83dfe3070bc952ca2d0cb228ba8fa8b3536bc9bf Mon Sep 17 00:00:00 2001
+From 95078a518038e07e9daae58ab8c7a73b81bbe43b Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 22 Nov 2020 09:58:44 +0100
 Subject: [PATCH 1/1] fs: fat: fat_find_empty_dentries()
@@ -9,11 +9,11 @@ The current directory is scanned for deleted entries.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat_write.c | 58 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 57 insertions(+), 1 deletion(-)
+ fs/fat/fat_write.c | 62 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 61 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 0746d73f8d..6f2cc2df63 100644
+index 941f8789ab..d560b94b60 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -21,6 +21,7 @@
@@ -24,7 +24,7 @@ index 0746d73f8d..6f2cc2df63 100644
  
  /* Characters that may only be used in long file names */
  static const char LONG_ONLY_CHARS[] = "+,;=[]";
-@@ -250,6 +251,62 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
+@@ -250,6 +251,66 @@ static int flush_dirty_fat_buffer(fsdata *mydata)
  	return 0;
  }
  
@@ -48,6 +48,10 @@ index 0746d73f8d..6f2cc2df63 100644
 +		return ret;
 +
 +	for (;;) {
++		if (!itr->dent) {
++			log_debug("Not enough directory entries available\n");
++			return -ENOSPC;
++		}
 +		switch (itr->dent->name[0]) {
 +		case 0x00:
 +		case DELETED_FLAG:
@@ -70,7 +74,7 @@ index 0746d73f8d..6f2cc2df63 100644
 +		if (!itr->dent &&
 +		    (!itr->is_root || itr->fsdata->fatsize == 32) &&
 +		    new_dir_table(itr))
-+			return -EIO;
++			return -ENOSPC;
 +	}
 +out:
 +	/* Position back to first directory entry */
@@ -87,7 +91,7 @@ index 0746d73f8d..6f2cc2df63 100644
  /*
   * Set the file name information from 'name' into 'slotptr',
   */
-@@ -319,7 +376,6 @@ name11_12:
+@@ -319,7 +380,6 @@ name11_12:
  	return 1;
  }
  
