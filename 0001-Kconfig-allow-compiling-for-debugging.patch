@@ -6,7 +6,7 @@ Subject: [PATCH 1/1] Kconfig: allow compiling for debugging
 Currently via Kconfig we can choose between size and performance
 optimization.
 
-Add an option to compile for debugging which passes -Og to GCC.
+Add an option to compile for debugging which passes -O0 to GCC.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -48,7 +48,7 @@ index 6dc20ed25b..3e4d5f979e 100644
 +config CC_OPTIMIZE_FOR_DEBUGGING
 +	bool "Optimize for debugging"
 +	help
-+	  Enabling this option will pass "-Og" to GCC resulting in
++	  Enabling this option will pass "-O0" to GCC resulting in
 +	  an easy to debug U-Boot image.
 +
 +endchoice
@@ -70,7 +70,7 @@ index 17719666fb..850ecf8615 100644
  KBUILD_CFLAGS	+= -O2
  endif
 +ifdef CONFIG_CC_OPTIMIZE_FOR_DEBUGGING
-+KBUILD_CFLAGS	+= -Og
++KBUILD_CFLAGS	+= -O0
 +endif
  
  KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
