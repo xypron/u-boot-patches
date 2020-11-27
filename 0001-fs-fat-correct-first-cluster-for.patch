@@ -10,6 +10,7 @@ to the root directory the fields DIR_FstClusHi and DIR_FstClusLo are 0.
 
 Fixes: 31a18d570d96 ("fs: fat: support mkdir")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
 ---
  fs/fat/fat_write.c | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
