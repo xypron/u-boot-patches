@@ -1,0 +1,77 @@
+From c64b376b3ff6f7389a3c7eb4ac23487f752b674f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 27 Nov 2020 14:55:16 +0100
+Subject: [PATCH 1/1] fs: fat: determine_fatent() error handling
+
+Handle disk full errors.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 4ce1e25ea5..3aac034539 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -808,10 +808,11 @@ static int new_dir_table(fat_itr *itr)
+ {
+ 	fsdata *mydata = itr->fsdata;
+ 	int dir_newclust = 0;
+-	int dir_oldclust = itr->clust;
+ 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+ 
+ 	dir_newclust = determine_fatent(mydata, 0);
++	if (dir_newclust < 0)
++		return dir_newclust;
+ 
+ 	/*
+ 	 * Flush before updating FAT to ensure valid directory structure
+@@ -823,7 +824,6 @@ static int new_dir_table(fat_itr *itr)
+ 	if (flush_dir(itr))
+ 		return -EIO;
+ 
+-	set_fatent_value(mydata, dir_oldclust, dir_newclust);
+ 	if (mydata->fatsize == 32)
+ 		set_fatent_value(mydata, dir_newclust, 0xffffff8);
+ 	else if (mydata->fatsize == 16)
+@@ -912,8 +912,8 @@ set_contents(fsdata *mydata, dir_entry *dentptr, loff_t pos, __u8 *buffer,
+ 	     loff_t maxsize, loff_t *gotsize)
+ {
+ 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
+-	__u32 curclust = START(dentptr);
+-	__u32 endclust = 0, newclust = 0;
++	int curclust = START(dentptr);
++	int endclust = 0, newclust = 0;
+ 	u64 cur_pos, filesize;
+ 	loff_t offset, actsize, wsize;
+ 
+@@ -1054,12 +1054,16 @@ set_clusters:
+ 	/* Assure that curclust is valid */
+ 	if (!curclust) {
+ 		curclust = determine_fatent(mydata, 0);
++		if (curclust < 0)
++			return -1;
+ 		set_start_cluster(mydata, dentptr, curclust);
+ 	} else {
+ 		newclust = get_fatent(mydata, curclust);
+ 
+ 		if (IS_LAST_CLUST(newclust, mydata->fatsize)) {
+ 			newclust = determine_fatent(mydata, curclust);
++			if (newclust < 0)
++				return -1;
+ 			set_fatent_value(mydata, curclust, newclust);
+ 			curclust = newclust;
+ 		} else {
+@@ -1080,6 +1084,8 @@ set_clusters:
+ 		/* search for consecutive clusters */
+ 		while (actsize < filesize) {
+ 			newclust = determine_fatent(mydata, endclust);
++			if (newclust < 0)
++				return -1;
+ 
+ 			if ((newclust - 1) != endclust)
+ 				/* write to <curclust..endclust> */
+-- 
+2.29.2
+
