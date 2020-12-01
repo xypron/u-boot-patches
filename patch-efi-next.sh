@@ -33,9 +33,6 @@ git am ../patch/0001-doc-allow-building-htmldoc-with-Sphinx-3.patch
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
 git am ../patch/0001-Kconfig-allow-compiling-for-debugging.patch
 
-git am ../patch/0001-fs-fat-avoid-NULL-dereference-when-root-dir-is-full.patch
-git am ../patch/0001-fs-fat-directory-entries-starting-with-0x05.patch
-git am ../patch/0001-fs-fat-use-ATTR_ARCH-instead-of-anonymous-0x20.patch
 git am ../patch/0001-fs-fat-correct-first-cluster-for.patch
 
 git am ../patch/0001-fs-fat-export-fat_next_cluster.patch
@@ -101,9 +98,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-git am ../patch/0001-efi_loader-enable-EFI_SET_TIME-on-sandbox-and-QEMU-A.patch
-git am ../patch/0001-lib-efi_loader-fix-ABI-in-efi_mm_communicate_header.patch
-git am ../patch/0001-charset-make-u16_strnlen-accessible-at-runtime.patch
+git am ../patch/0001-efi_loader-replace-printf-by-log-in-efi_uclass.c.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
