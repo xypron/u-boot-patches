@@ -1,6 +1,6 @@
-From 5fcba133a91954e55480d8af57bca6cfcbac3576 Mon Sep 17 00:00:00 2001
+From 74ba8b70bbe98900dfa7c1ce9cd8b4331e1e74df Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 17 Nov 2020 09:27:58 +0900
+Date: Mon, 30 Nov 2020 18:12:11 +0900
 Subject: [PATCH] efi_loader: capsule: support firmware update
 
 A capsule tagged with the guid, EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID,
@@ -16,12 +16,12 @@ variable, but its implementation is deferred to a fmp driver.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
- include/efi_api.h            | 129 +++++++++++++++++++
+ include/efi_api.h            | 129 ++++++++++++++++++
  include/efi_loader.h         |   2 +
  lib/efi_loader/Kconfig       |   8 ++
- lib/efi_loader/efi_capsule.c | 238 ++++++++++++++++++++++++++++++++++-
+ lib/efi_loader/efi_capsule.c | 252 +++++++++++++++++++++++++++++++++--
  lib/efi_loader/efi_setup.c   |   4 +
- 5 files changed, 380 insertions(+), 1 deletion(-)
+ 5 files changed, 383 insertions(+), 12 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index 7a2a087c60..966bc6e590 100644
@@ -215,7 +215,7 @@ index 790fd9809a..ba0392b641 100644
  	bool "Device path to text protocol"
  	default y
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index b3c7d1b735..2f41c17f50 100644
+index b3c7d1b735..3e7ad470d4 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -15,6 +15,10 @@
@@ -229,8 +229,12 @@ index b3c7d1b735..2f41c17f50 100644
  
  #ifdef CONFIG_EFI_CAPSULE_ON_DISK
  /* for file system access */
-@@ -88,6 +92,218 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
- 		printf("EFI: creating %ls failed\n", variable_name16);
+@@ -85,9 +89,214 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
+ 			       EFI_VARIABLE_RUNTIME_ACCESS,
+ 			       sizeof(result), &result);
+ 	if (ret)
+-		printf("EFI: creating %ls failed\n", variable_name16);
++		log_err("EFI: creating %ls failed\n", variable_name16);
  }
  
 +#ifdef CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT
@@ -302,19 +306,19 @@ index b3c7d1b735..2f41c17f50 100644
 +						   &descriptor_size,
 +						   &package_version,
 +						   &package_version_name));
-+		if (ret != EFI_SUCCESS)
++		if (ret != EFI_SUCCESS ||
++		    descriptor_version != EFI_FIRMWARE_IMAGE_DESCRIPTOR_VERSION)
 +			goto skip;
 +
 +		/* matching */
 +		for (j = 0, desc = image_info; j < descriptor_count;
 +		     j++, desc = (void *)desc + descriptor_size) {
-+			EFI_PRINT("+++ desc[%d] index: %d, name: %ls\n",
++			log_debug("+++ desc[%d] index: %d, name: %ls\n",
 +				  j, desc->image_index, desc->image_id_name);
 +			if (!guidcmp(&desc->image_type_id, image_type) &&
 +			    (!instance ||
 +			     !desc->hardware_instance ||
-+			     (descriptor_version >= 3 &&
-+			      desc->hardware_instance == instance)))
++			      desc->hardware_instance == instance))
 +				found = true;
 +		}
 +
@@ -365,10 +369,7 @@ index b3c7d1b735..2f41c17f50 100644
 +			- capsule_data->header_size;
 +
 +	if (capsule->version != 0x00000001)
-+		return EFI_INVALID_PARAMETER;
-+
-+	/* Drivers */
-+	/* TODO: support loading drivers */
++		return EFI_UNSUPPORTED;
 +
 +	handles = NULL;
 +	ret = EFI_CALL(efi_locate_handle_buffer(
@@ -385,36 +386,32 @@ index b3c7d1b735..2f41c17f50 100644
 +		/* sanity check */
 +		if ((capsule->item_offset_list[item] + sizeof(*image)
 +				 >= capsule_size)) {
-+			printf("EFI: A capsule has not enough size of data\n");
++			log_err("EFI: A capsule has not enough data\n");
 +			ret = EFI_INVALID_PARAMETER;
 +			goto out;
 +		}
 +
 +		image = (void *)capsule + capsule->item_offset_list[item];
 +
-+		if (image->version != 0x00000001 &&
-+		    image->version != 0x00000002 &&
-+		    image->version != 0x00000003) {
-+			ret = EFI_INVALID_PARAMETER;
++		if (image->version != 0x00000003) {
++			ret = EFI_UNSUPPORTED;
 +			goto out;
 +		}
 +
 +		/* find a device for update firmware */
 +		/* TODO: should we pass index as well, or nothing but type? */
 +		fmp = efi_fmp_find(&image->update_image_type_id,
-+				   image->version == 0x1 ? 0 :
-+					image->update_hardware_instance,
++				   image->update_hardware_instance,
 +				   handles, no_handles);
 +		if (!fmp) {
-+			printf("EFI Capsule: driver not found for firmware type: %pUl, hardware instance: %lld\n",
-+			       &image->update_image_type_id,
-+			       image->version == 0x1 ? 0 :
-+					image->update_hardware_instance);
++			log_err("EFI Capsule: driver not found for firmware type: %pUl, hardware instance: %lld\n",
++				&image->update_image_type_id,
++				image->update_hardware_instance);
 +			ret = EFI_UNSUPPORTED;
 +			goto out;
 +		}
 +
-+		/* do it */
++		/* do update */
 +		image_binary = (void *)image + sizeof(*image);
 +		vendor_code = image_binary + image->update_image_size;
 +
@@ -425,8 +422,8 @@ index b3c7d1b735..2f41c17f50 100644
 +					      vendor_code, NULL,
 +					      &abort_reason));
 +		if (ret != EFI_SUCCESS) {
-+			printf("EFI Capsule: firmware update failed: %ls\n",
-+			       abort_reason);
++			log_err("EFI Capsule: firmware update failed: %ls\n",
++				abort_reason);
 +			efi_free_pool(abort_reason);
 +			goto out;
 +		}
@@ -448,7 +445,7 @@ index b3c7d1b735..2f41c17f50 100644
  /**
   * efi_update_capsule() - process information from operating system
   * @capsule_header_array:	Array of virtual address pointers
-@@ -118,9 +334,29 @@ efi_status_t EFIAPI efi_update_capsule(
+@@ -118,9 +327,29 @@ efi_status_t EFIAPI efi_update_capsule(
  		goto out;
  	}
  
@@ -459,18 +456,18 @@ index b3c7d1b735..2f41c17f50 100644
 +		/* sanity check */
 +		if (capsule->header_size < sizeof(*capsule) ||
 +		    capsule->capsule_image_size < sizeof(*capsule)) {
-+			printf("EFI: A capsule has not enough size of data\n");
++			log_err("EFI: A capsule has not enough data\n");
 +			continue;
 +		}
 +
-+		EFI_PRINT("Capsule[%d] (guid:%pUl)\n",
++		log_debug("Capsule[%d] (guid:%pUl)\n",
 +			  i, &capsule->capsule_guid);
 +		if (!guidcmp(&capsule->capsule_guid,
 +			     &efi_guid_firmware_management_capsule_id)) {
 +			ret  = efi_capsule_update_firmware(capsule);
 +		} else {
-+			printf("EFI: not support capsule type: %pUl\n",
-+			       &capsule->capsule_guid);
++			log_err("EFI: not support capsule type: %pUl\n",
++				&capsule->capsule_guid);
 +			ret = EFI_UNSUPPORTED;
 +		}
 +
@@ -479,6 +476,69 @@ index b3c7d1b735..2f41c17f50 100644
  	}
  out:
  	return EFI_EXIT(ret);
+@@ -265,7 +494,7 @@ static efi_status_t find_boot_device(void)
+ 	if (ret == EFI_SUCCESS || ret == EFI_BUFFER_TOO_SMALL) {
+ 		/* BootNext does exist here */
+ 		if (ret == EFI_BUFFER_TOO_SMALL || size != sizeof(u16)) {
+-			printf("BootNext must be 16-bit integer\n");
++			log_err("BootNext must be 16-bit integer\n");
+ 			goto skip;
+ 		}
+ 		sprintf((char *)boot_var, "Boot%04X", bootnext);
+@@ -323,7 +552,7 @@ out:
+ 		u16 *path_str;
+ 
+ 		path_str = efi_dp_str(boot_dev);
+-		EFI_PRINT("EFI Capsule: bootdev is %ls\n", path_str);
++		log_debug("EFI Capsule: bootdev is %ls\n", path_str);
+ 		efi_free_pool(path_str);
+ 
+ 		volume = efi_fs_from_path(boot_dev);
+@@ -363,7 +592,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
+ 
+ 	ret = find_boot_device();
+ 	if (ret == EFI_NOT_FOUND) {
+-		EFI_PRINT("EFI Capsule: bootdev is not set\n");
++		log_debug("EFI Capsule: bootdev is not set\n");
+ 		*num = 0;
+ 		return EFI_SUCCESS;
+ 	} else if (ret != EFI_SUCCESS) {
+@@ -619,20 +848,19 @@ efi_status_t efi_launch_capsules(void)
+ 
+ 	/* Launch capsules */
+ 	for (i = 0, ++index; i < nfiles; i++, index++) {
+-		EFI_PRINT("capsule from %ls ...\n", files[i]);
++		log_debug("capsule from %ls ...\n", files[i]);
+ 		if (index > 0xffff)
+ 			index = 0;
+ 		ret = efi_capsule_read_file(files[i], &capsule);
+ 		if (ret == EFI_SUCCESS) {
+ 			ret = EFI_CALL(efi_update_capsule(&capsule, 1, 0));
+ 			if (ret != EFI_SUCCESS)
+-				printf("EFI Capsule update failed at %ls\n",
+-				       files[i]);
++				log_err("EFI Capsule update failed at %ls\n",
++					files[i]);
+ 
+ 			free(capsule);
+ 		} else {
+-			printf("EFI: reading capsule failed: %ls\n",
+-			       files[i]);
++			log_err("EFI: reading capsule failed: %ls\n", files[i]);
+ 		}
+ 		/* create CapsuleXXXX */
+ 		set_capsule_result(index, capsule, ret);
+@@ -640,8 +868,8 @@ efi_status_t efi_launch_capsules(void)
+ 		/* delete a capsule either in case of success or failure */
+ 		ret = efi_capsule_delete_file(files[i]);
+ 		if (ret != EFI_SUCCESS)
+-			printf("EFI: deleting a capsule file failed: %ls\n",
+-			       files[i]);
++			log_err("EFI: deleting a capsule file failed: %ls\n",
++				files[i]);
+ 	}
+ 	efi_capsule_scan_done();
+ 
 diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
 index 1fc10478ac..10a4197246 100644
 --- a/lib/efi_loader/efi_setup.c

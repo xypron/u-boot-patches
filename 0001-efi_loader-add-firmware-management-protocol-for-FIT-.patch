@@ -1,6 +1,6 @@
-From 3ac66279d89e805911951c0af4dd57f30ba3fde9 Mon Sep 17 00:00:00 2001
+From 348c4db5339c0778875687674579d2857a9f24b8 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 17 Nov 2020 09:27:59 +0900
+Date: Mon, 30 Nov 2020 18:12:12 +0900
 Subject: [PATCH] efi_loader: add firmware management protocol for FIT image
 
 In this commit, a very simple firmware management protocol driver
@@ -88,10 +88,10 @@ index 056376ff7a..34d02ba7de 100644
  obj-y += efi_device_path.o
  obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index 2f41c17f50..8265aac226 100644
+index 3e7ad470d4..33425b7c0e 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
-@@ -804,7 +804,17 @@ static void efi_capsule_scan_done(void)
+@@ -797,7 +797,17 @@ static void efi_capsule_scan_done(void)
   */
  efi_status_t __weak arch_efi_load_capsule_drivers(void)
  {
@@ -112,7 +112,7 @@ index 2f41c17f50..8265aac226 100644
  /**
 diff --git a/lib/efi_loader/efi_firmware.c b/lib/efi_loader/efi_firmware.c
 new file mode 100644
-index 0000000000..4c395f4eb5
+index 0000000000..15d33ba591
 --- /dev/null
 +++ b/lib/efi_loader/efi_firmware.c
 @@ -0,0 +1,291 @@
@@ -184,7 +184,7 @@ index 0000000000..4c395f4eb5
 +		dfu_num++;
 +	}
 +	if (!dfu_num) {
-+		EFI_PRINT("Probably dfu_alt_info not defined\n");
++		log_warning("Probably dfu_alt_info not defined\n");
 +		*image_info_size = 0;
 +		dfu_free_entities();
 +

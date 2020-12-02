@@ -1,7 +1,7 @@
-From bdecbc65d1f1faaa7a51c8f59e080e7f32c7fe03 Mon Sep 17 00:00:00 2001
+From 79332a90a54448320f512f079714b08cb00d5534 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 17 Nov 2020 09:28:02 +0900
-Subject: [PATCH 1/1] tools: add mkeficapsule command for UEFI capsule update
+Date: Mon, 30 Nov 2020 18:12:15 +0900
+Subject: [PATCH] tools: add mkeficapsule command for UEFI capsule update
 
 This is a utility mainly for test purpose.
   mkeficapsule -f: create a test capsule file for FIT image firmware
@@ -12,15 +12,15 @@ your specific requirements for your platform.
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 ---
  tools/Makefile       |   2 +
- tools/mkeficapsule.c | 238 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 240 insertions(+)
+ tools/mkeficapsule.c | 236 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 238 insertions(+)
  create mode 100644 tools/mkeficapsule.c
 
 diff --git a/tools/Makefile b/tools/Makefile
-index 51123fd929..66d9376803 100644
+index 253a6b9706..526e1ad4f8 100644
 --- a/tools/Makefile
 +++ b/tools/Makefile
-@@ -218,6 +218,8 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
+@@ -221,6 +221,8 @@ hostprogs-$(CONFIG_MIPS) += mips-relocs
  hostprogs-$(CONFIG_ASN1_COMPILER)	+= asn1_compiler
  HOSTCFLAGS_asn1_compiler.o = -idirafter $(srctree)/include
  
@@ -31,10 +31,10 @@ index 51123fd929..66d9376803 100644
  # exceptions for files that aren't complaint.
 diff --git a/tools/mkeficapsule.c b/tools/mkeficapsule.c
 new file mode 100644
-index 0000000000..db95426457
+index 0000000000..426038ea27
 --- /dev/null
 +++ b/tools/mkeficapsule.c
-@@ -0,0 +1,238 @@
+@@ -0,0 +1,236 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Copyright 2018 Linaro Limited
@@ -80,7 +80,6 @@ index 0000000000..db95426457
 +	{"raw", required_argument, NULL, 'r'},
 +	{"index", required_argument, NULL, 'i'},
 +	{"instance", required_argument, NULL, 'I'},
-+	{"version", required_argument, NULL, 'v'},
 +	{"help", no_argument, NULL, 'h'},
 +	{NULL, 0, NULL, 0},
 +};
@@ -93,14 +92,12 @@ index 0000000000..db95426457
 +	       "\t--raw <raw image>      new raw image file\n"
 +	       "\t--index <index>        update image index\n"
 +	       "\t--instance <instance>  update hardware instance\n"
-+	       "\t--version <version>    firmware version\n"
 +	       "\t--help                 print a help message\n",
 +	       tool_name);
 +}
 +
 +static int create_fwbin(char *path, char *bin, efi_guid_t *guid,
-+			unsigned long version, unsigned long index,
-+			unsigned long instance)
++			unsigned long index, unsigned long instance)
 +{
 +	struct efi_capsule_header header;
 +	struct efi_firmware_management_capsule_header capsule;
@@ -109,12 +106,12 @@ index 0000000000..db95426457
 +	struct stat bin_stat;
 +	u8 *data;
 +	size_t size;
++	u64 offset;
 +
 +#ifdef DEBUG
 +	printf("For output: %s\n", path);
 +	printf("\tbin: %s\n\ttype: %pUl\n" bin, guid);
-+	printf("\tversion: %ld\n\tindex: %ld\n\tinstance: %ld\n",
-+	       version, index, instance);
++	printf("\tindex: %ld\n\tinstance: %ld\n", index, instance);
 +#endif
 +
 +	g = fopen(bin, "r");
@@ -153,14 +150,19 @@ index 0000000000..db95426457
 +	capsule.version = 0x00000001;
 +	capsule.embedded_driver_count = 0;
 +	capsule.payload_item_count = 1;
-+	capsule.item_offset_list[0] = sizeof(capsule) + sizeof(u64);
-+	size = fwrite(&capsule, 1, sizeof(capsule) + sizeof(u64), f);
-+	if (size < (sizeof(capsule) + sizeof(u64))) {
++	size = fwrite(&capsule, 1, sizeof(capsule), f);
++	if (size < (sizeof(capsule))) {
++		printf("write failed (%lx)\n", size);
++		goto err_3;
++	}
++	offset = sizeof(capsule) + sizeof(u64);
++	size = fwrite(&offset, 1, sizeof(offset), f);
++	if (size < sizeof(offset)) {
 +		printf("write failed (%lx)\n", size);
 +		goto err_3;
 +	}
 +
-+	image.version = version;
++	image.version = 0x00000003;
 +	memcpy(&image.update_image_type_id, guid, sizeof(*guid));
 +	image.update_image_index = index;
 +	image.update_image_size = bin_stat.st_size;
@@ -208,14 +210,13 @@ index 0000000000..db95426457
 +{
 +	char *file;
 +	efi_guid_t *guid;
-+	unsigned long index, instance, version;
++	unsigned long index, instance;
 +	int c, idx;
 +
 +	file = NULL;
 +	guid = NULL;
 +	index = 0;
 +	instance = 0;
-+	version = 0;
 +	for (;;) {
 +		c = getopt_long(argc, argv, "f:r:i:I:v:h", options, &idx);
 +		if (c == -1)
@@ -244,9 +245,6 @@ index 0000000000..db95426457
 +		case 'I':
 +			instance = strtoul(optarg, NULL, 0);
 +			break;
-+		case 'v':
-+			version = strtoul(optarg, NULL, 0);
-+			break;
 +		case 'h':
 +			print_usage();
 +			return 0;
@@ -265,7 +263,7 @@ index 0000000000..db95426457
 +		return -1;
 +	}
 +
-+	if (create_fwbin(argv[optind], file, guid, version, index, instance)
++	if (create_fwbin(argv[optind], file, guid, index, instance)
 +			< 0) {
 +		printf("Creating firmware capsule failed\n");
 +		return -1;

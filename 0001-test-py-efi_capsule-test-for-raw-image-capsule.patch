@@ -1,6 +1,6 @@
-From 6327a8b7057ac1284f04a818a7283d9474816b00 Mon Sep 17 00:00:00 2001
+From a5d11e617033842c57053be30840ff4a183f3657 Mon Sep 17 00:00:00 2001
 From: AKASHI Takahiro <takahiro.akashi@linaro.org>
-Date: Tue, 17 Nov 2020 09:28:04 +0900
+Date: Mon, 30 Nov 2020 18:12:17 +0900
 Subject: [PATCH 1/1] test/py: efi_capsule: test for raw image capsule
 
 The test can run on sandbox build and it attempts to execute a firmware
@@ -18,14 +18,14 @@ Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
  2 files changed, 66 insertions(+)
 
 diff --git a/test/py/tests/test_efi_capsule/conftest.py b/test/py/tests/test_efi_capsule/conftest.py
-index 1472661899..e037bd2056 100644
+index d10494a7ee..6ad5608cd7 100644
 --- a/test/py/tests/test_efi_capsule/conftest.py
 +++ b/test/py/tests/test_efi_capsule/conftest.py
 @@ -53,6 +53,9 @@ def efi_capsule_data(request, u_boot_config):
-         check_call('cd %s; %s/tools/mkeficapsule --fit uboot_bin_env.itb --version 1 --index 1 Test01' %
+         check_call('cd %s; %s/tools/mkeficapsule --fit uboot_bin_env.itb --index 1 Test01' %
                     (data_dir, u_boot_config.build_dir),
                     shell=True)
-+        check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --version 1 --index 1 Test02' %
++        check_call('cd %s; %s/tools/mkeficapsule --raw u-boot.bin.new --index 1 Test02' %
 +                   (data_dir, u_boot_config.build_dir),
 +                   shell=True)
  
