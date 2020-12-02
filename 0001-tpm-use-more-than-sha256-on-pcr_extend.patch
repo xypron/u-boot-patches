@@ -1,0 +1,94 @@
+From c64e59a7b0946ba3a01ae738a03bcc4dbec3a921 Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Thu, 26 Nov 2020 23:07:22 +0200
+Subject: [PATCH 1/1] tpm: use more than sha256 on pcr_extend
+
+The current tpm2_pcr_extend is hardcoded using SHA256.
+Let's make the actual command to the TPM2 configurable so we can support
+a wider range of algorithms and keep the current command line as-is i.e
+limited to SHA256 only
+
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Simon Glass <sjg@chromium.org>
+---
+ cmd/tpm-v2.c     |  3 ++-
+ include/tpm-v2.h |  5 ++++-
+ lib/tpm-v2.c     | 11 ++++++-----
+ 3 files changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/cmd/tpm-v2.c b/cmd/tpm-v2.c
+index 5fa4788a72..daae91100a 100644
+--- a/cmd/tpm-v2.c
++++ b/cmd/tpm-v2.c
+@@ -116,7 +116,8 @@ static int do_tpm2_pcr_extend(struct cmd_tbl *cmdtp, int flag, int argc,
+ 	if (index >= priv->pcr_count)
+ 		return -EINVAL;
+ 
+-	rc = tpm2_pcr_extend(dev, index, digest);
++	rc = tpm2_pcr_extend(dev, index, TPM2_ALG_SHA256, digest,
++			     TPM2_DIGEST_LEN);
+ 
+ 	unmap_sysmem(digest);
+ 
+diff --git a/include/tpm-v2.h b/include/tpm-v2.h
+index 74c14fe7c5..f1826ff385 100644
+--- a/include/tpm-v2.h
++++ b/include/tpm-v2.h
+@@ -309,11 +309,14 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
+  *
+  * @dev		TPM device
+  * @index	Index of the PCR
++ * @algorithm	Algorithm used, defined in 'enum tpm2_algorithms'
+  * @digest	Value representing the event to be recorded
++ * @digest_len  len of the hash
+  *
+  * @return code of the operation
+  */
+-u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest);
++u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
++		    const u8 *digest, u32 digest_len);
+ 
+ /**
+  * Issue a TPM2_PCR_Read command.
+diff --git a/lib/tpm-v2.c b/lib/tpm-v2.c
+index 91759068cf..1f3deb06e4 100644
+--- a/lib/tpm-v2.c
++++ b/lib/tpm-v2.c
+@@ -80,11 +80,12 @@ u32 tpm2_clear(struct udevice *dev, u32 handle, const char *pw,
+ 	return tpm_sendrecv_command(dev, command_v2, NULL, NULL);
+ }
+ 
+-u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
++u32 tpm2_pcr_extend(struct udevice *dev, u32 index, u32 algorithm,
++		    const u8 *digest, u32 digest_len)
+ {
+ 	u8 command_v2[COMMAND_BUFFER_SIZE] = {
+ 		tpm_u16(TPM2_ST_SESSIONS),	/* TAG */
+-		tpm_u32(33 + TPM2_DIGEST_LEN),	/* Length */
++		tpm_u32(33 + digest_len),	/* Length */
+ 		tpm_u32(TPM2_CC_PCR_EXTEND),	/* Command code */
+ 
+ 		/* HANDLE */
+@@ -99,7 +100,7 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
+ 		tpm_u16(0),			/* Size of <hmac/password> */
+ 						/* <hmac/password> (if any) */
+ 		tpm_u32(1),			/* Count (number of hashes) */
+-		tpm_u16(TPM2_ALG_SHA256),	/* Algorithm of the hash */
++		tpm_u16(algorithm),	/* Algorithm of the hash */
+ 		/* STRING(digest)		   Digest */
+ 	};
+ 	unsigned int offset = 33;
+@@ -110,8 +111,8 @@ u32 tpm2_pcr_extend(struct udevice *dev, u32 index, const uint8_t *digest)
+ 	 *     - the digest
+ 	 */
+ 	ret = pack_byte_string(command_v2, sizeof(command_v2), "s",
+-			       offset, digest, TPM2_DIGEST_LEN);
+-	offset += TPM2_DIGEST_LEN;
++			       offset, digest, digest_len);
++	offset += digest_len;
+ 	if (ret)
+ 		return TPM_LIB_ERROR;
+ 
+-- 
+2.29.2
+

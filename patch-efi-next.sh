@@ -103,6 +103,11 @@ git am ../patch/0001-efi_loader-replace-printf-by-log-in-efi_uclass.c.patch
 
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 
+git am ../patch/0001-tpm-use-more-than-sha256-on-pcr_extend.patch
+git am ../patch/0001-tpm-Add-tpm2-headers-for-TCG2-eventlog-support.patch
+git am ../patch/0001-efi_loader-Introduce-eventlog-support-for-TCG2_PROTO.patch
+git am ../patch/0001-cmd-efidebug-Add-support-for-TCG2-final-events-table.patch
+
 exit
 
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
