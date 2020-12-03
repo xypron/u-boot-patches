@@ -9,6 +9,7 @@ Change logging messages for uclass creation and destruction to log_debug().
 
 Reported-by: Simon Glass <sjg@chromium.org>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  lib/efi_driver/efi_uclass.c | 18 +++++++++---------
  1 file changed, 9 insertions(+), 9 deletions(-)
