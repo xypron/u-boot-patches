@@ -126,6 +126,7 @@ git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
 git am ../patch/0001-sandbox-enable-capsule-update-for-testing.patch
 
 git am ../patch/0001-efi_loader-resequence-functions-in-efi_boottime.c.patch
+git am ../patch/0001-efi_loader-move-EFI_LOAD_FILE2_PROTOCOL_GUID.patch
 
 exit
 
