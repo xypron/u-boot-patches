@@ -84,9 +84,10 @@ git am ../patch/0001-sandbox-add-handler-for-exceptions.patch
 git am ../patch/0001-cmd-sandbox-implement-exception-command.patch
 git am ../patch/0001-efi_selftest-implement-exception-test-for-sandbox.patch
 
+git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
+
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
-
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
@@ -101,14 +102,16 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 git am ../patch/0001-efi_loader-replace-printf-by-log-in-efi_uclass.c.patch
 
-git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
-
 git am ../patch/0001-tpm-use-more-than-sha256-on-pcr_extend.patch
 git am ../patch/0001-tpm-Add-tpm2-headers-for-TCG2-eventlog-support.patch
 git am ../patch/0001-efi_loader-Introduce-eventlog-support-for-TCG2_PROTO.patch
 git am ../patch/0001-cmd-efidebug-Add-support-for-TCG2-final-events-table.patch
 
 exit
+
+# UEFI next
+
+git am ../patch/0001-common-update-fix-an-unused-warning-against-update_f.patch
 
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
 git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
@@ -121,6 +124,8 @@ git am ../patch/0001-tools-add-mkeficapsule-command-for-UEFI-capsule-upda.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-FIT-image-capsule.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
 git am ../patch/0001-sandbox-enable-capsule-update-for-testing.patch
+
+git am ../patch/0001-efi_loader-resequence-functions-in-efi_boottime.c.patch
 
 exit
 
