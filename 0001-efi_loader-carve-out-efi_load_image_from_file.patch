@@ -1,0 +1,102 @@
+From 6a049be417067bdac9a223587ca0d4810d4c75a2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 6 Dec 2020 10:47:57 +0100
+Subject: [PATCH 1/1] efi_loader: carve out efi_load_image_from_file()
+
+efi_load_image_from_file() should read via either of:
+
+* EFI_SIMPLE_FILE_SYSTEM_PROTOCOL
+* EFI_LOAD_FILE_PROTOCOL
+* EFI_LOAD_FILE2_PROTOCOL
+
+To make the code readable carve out a function to load the image via the
+file system protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 45 ++++++++++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index f18e384c39..1983ca3f6b 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -1855,32 +1855,26 @@ out:
+ }
+ 
+ /**
+- * efi_load_image_from_path() - load an image using a file path
++ * efi_load_image_from_file() - load an image from file system
+  *
+  * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
+  * callers obligation to update the memory type as needed.
+  *
+- * @boot_policy:	true for request originating from the boot manager
+  * @file_path:		the path of the image to load
+  * @buffer:		buffer containing the loaded image
+  * @size:		size of the loaded image
+  * Return:		status code
+  */
+ static
+-efi_status_t efi_load_image_from_path(bool boot_policy,
+-				      struct efi_device_path *file_path,
++efi_status_t efi_load_image_from_file(struct efi_device_path *file_path,
+ 				      void **buffer, efi_uintn_t *size)
+ {
+ 	struct efi_file_info *info = NULL;
+ 	struct efi_file_handle *f;
+-	static efi_status_t ret;
++	efi_status_t ret;
+ 	u64 addr;
+ 	efi_uintn_t bs;
+ 
+-	/* In case of failure nothing is returned */
+-	*buffer = NULL;
+-	*size = 0;
+-
+ 	/* Open file */
+ 	f = efi_file_from_path(file_path);
+ 	if (!f)
+@@ -1928,6 +1922,39 @@ error:
+ 	return ret;
+ }
+ 
++/**
++ * efi_load_image_from_path() - load an image using a file path
++ *
++ * Read a file into a buffer allocated as EFI_BOOT_SERVICES_DATA. It is the
++ * callers obligation to update the memory type as needed.
++ *
++ * @boot_policy:	true for request originating from the boot manager
++ * @file_path:		the path of the image to load
++ * @buffer:		buffer containing the loaded image
++ * @size:		size of the loaded image
++ * Return:		status code
++ */
++static
++efi_status_t efi_load_image_from_path(bool boot_policy,
++				      struct efi_device_path *file_path,
++				      void **buffer, efi_uintn_t *size)
++{
++	efi_handle_t device;
++	efi_status_t ret;
++	struct efi_device_path *dp;
++
++	/* In case of failure nothing is returned */
++	*buffer = NULL;
++	*size = 0;
++
++	dp = file_path;
++	ret = EFI_CALL(efi_locate_device_path(
++		       &efi_simple_file_system_protocol_guid, &dp, &device));
++	if (ret == EFI_SUCCESS)
++		return efi_load_image_from_file(file_path, buffer, size);
++	return EFI_NOT_FOUND;
++}
++
+ /**
+  * efi_load_image() - load an EFI image into memory
+  * @boot_policy:   true for request originating from the boot manager
+-- 
+2.29.2
+
