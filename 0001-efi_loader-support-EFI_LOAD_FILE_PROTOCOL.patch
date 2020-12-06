@@ -1,4 +1,4 @@
-From 91ec255ea3a52eaa3aff868bf556623df50e1f74 Mon Sep 17 00:00:00 2001
+From 6a3fb698f141786066bd23f7e05006b789639ba9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 6 Dec 2020 13:00:15 +0100
 Subject: [PATCH 1/1] efi_loader: support EFI_LOAD_FILE_PROTOCOL
@@ -8,28 +8,30 @@ EFI_LOAD_FILE2_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_boottime.c | 55 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 54 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_boottime.c | 57 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 56 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 1983ca3f6b..58cd5b57c5 100644
+index 1983ca3f6b..1cbeabf6fe 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
-@@ -89,6 +89,13 @@ static efi_status_t EFIAPI efi_disconnect_controller(
+@@ -89,6 +89,15 @@ static efi_status_t EFIAPI efi_disconnect_controller(
  					efi_handle_t controller_handle,
  					efi_handle_t driver_image_handle,
  					efi_handle_t child_handle);
-+efi_status_t EFIAPI efi_handle_protocol(efi_handle_t handle,
++static efi_status_t EFIAPI efi_handle_protocol(
++					efi_handle_t handle,
 +					const efi_guid_t *protocol,
 +					void **protocol_interface);
-+efi_status_t EFIAPI efi_close_protocol(efi_handle_t handle,
-+				       const efi_guid_t *protocol,
-+				       efi_handle_t agent_handle,
-+				       efi_handle_t controller_handle);
++static efi_status_t EFIAPI efi_close_protocol(
++					efi_handle_t handle,
++					const efi_guid_t *protocol,
++					efi_handle_t agent_handle,
++					efi_handle_t controller_handle);
  
  /* Called on every callback entry */
  int __efi_entry_check(void)
-@@ -1942,6 +1949,10 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
+@@ -1942,6 +1951,10 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
  	efi_handle_t device;
  	efi_status_t ret;
  	struct efi_device_path *dp;
@@ -40,7 +42,7 @@ index 1983ca3f6b..58cd5b57c5 100644
  
  	/* In case of failure nothing is returned */
  	*buffer = NULL;
-@@ -1952,7 +1963,49 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
+@@ -1952,7 +1965,49 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
  		       &efi_simple_file_system_protocol_guid, &dp, &device));
  	if (ret == EFI_SUCCESS)
  		return efi_load_image_from_file(file_path, buffer, size);
