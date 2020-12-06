@@ -1,4 +1,4 @@
-From 80a62033d22c7df16f662f843f29d9dd60c2bdf2 Mon Sep 17 00:00:00 2001
+From 91ec255ea3a52eaa3aff868bf556623df50e1f74 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 6 Dec 2020 13:00:15 +0100
 Subject: [PATCH 1/1] efi_loader: support EFI_LOAD_FILE_PROTOCOL
@@ -8,11 +8,11 @@ EFI_LOAD_FILE2_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_boottime.c | 54 ++++++++++++++++++++++++++++++++++-
- 1 file changed, 53 insertions(+), 1 deletion(-)
+ lib/efi_loader/efi_boottime.c | 55 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 54 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
-index 1983ca3f6b..716405948f 100644
+index 1983ca3f6b..58cd5b57c5 100644
 --- a/lib/efi_loader/efi_boottime.c
 +++ b/lib/efi_loader/efi_boottime.c
 @@ -89,6 +89,13 @@ static efi_status_t EFIAPI efi_disconnect_controller(
@@ -40,7 +40,7 @@ index 1983ca3f6b..716405948f 100644
  
  	/* In case of failure nothing is returned */
  	*buffer = NULL;
-@@ -1952,7 +1963,48 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
+@@ -1952,7 +1963,49 @@ efi_status_t efi_load_image_from_path(bool boot_policy,
  		       &efi_simple_file_system_protocol_guid, &dp, &device));
  	if (ret == EFI_SUCCESS)
  		return efi_load_image_from_file(file_path, buffer, size);
@@ -73,8 +73,9 @@ index 1983ca3f6b..716405948f 100644
 +		ret = EFI_OUT_OF_RESOURCES;
 +		goto out;
 +	}
-+	ret = load_file_protocol->load_file(load_file_protocol, dp, boot_policy,
-+					    &buffer_size, (void *)addr);
++	ret = EFI_CALL(load_file_protocol->load_file(
++					load_file_protocol, dp, boot_policy,
++					&buffer_size, (void *)addr));
 +	if (ret != EFI_SUCCESS)
 +		efi_free_pages(addr, pages);
 +out:
