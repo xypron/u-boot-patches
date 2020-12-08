@@ -130,8 +130,10 @@ git am ../patch/0001-efi_loader-move-EFI_LOAD_FILE2_PROTOCOL_GUID.patch
 git am ../patch/0001-efi_loader-pass-boot_policy-to-efi_load_image_from_p.patch
 git am ../patch/0001-efi_loader-carve-out-efi_load_image_from_file.patch
 git am ../patch/0001-efi_loader-support-EFI_LOAD_FILE_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-clean-up-Makefile.patch
 
 git am ../patch/0001-efi_loader-remove-EFI_HII_CONFIG_ROUTING_PROTOCOL.patch
+
 
 exit
 
