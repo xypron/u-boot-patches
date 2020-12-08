@@ -1,0 +1,33 @@
+From 2c405f36546c0e9d86bdd0426df076128b730f53 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 27 Nov 2020 20:50:18 +0100
+Subject: [PATCH 1/1] MAINTAINERS: maintainer for FAT
+
+The FAT file system is currently not maintained.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 874cf2c0e5..0f9e6d3abf 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -714,6 +714,13 @@ F:	test/env/
+ F:	tools/env*
+ F:	tools/mkenvimage.c
+ 
++FAT
++M:	Heinrich Schuchardt <xypron.glpk@gmx.de>
++S:	Maintained
++F:	fs/fat/
++F:	include/fat.h
++F:	test/py/tests/test_fs/
++
+ FPGA
+ M:	Michal Simek <michal.simek@xilinx.com>
+ S:	Maintained
+-- 
+2.29.2
+
