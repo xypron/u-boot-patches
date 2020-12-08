@@ -1,7 +1,7 @@
-From 91510cc55b034706c2625568fb5784fb5c8e9db9 Mon Sep 17 00:00:00 2001
+From 25a090d4e2c9c83da762025cf568e60566eaba52 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 8 Dec 2020 15:55:01 +0100
-Subject: [PATCH] efi_selftest: test EFI_LOAD_FILE_PROTOCOL
+Subject: [PATCH 1/1] efi_selftest: test EFI_LOAD_FILE_PROTOCOL
 
 A unit test is supplied to test the support for the EFI_LOAD_FILE_PROTOCOL
 and the EFI_LOAD_FILE2_PROTOCOL by the LoadImage() boot service.
@@ -14,7 +14,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_selftest/efi_selftest_load_file.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 957f546023..7fb450cb57 100644
+index 706df0b27b..426552bfa0 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -28,6 +28,7 @@ efi_selftest_event_groups.o \
@@ -25,15 +25,15 @@ index 957f546023..7fb450cb57 100644
  efi_selftest_loaded_image.o \
  efi_selftest_loadimage.o \
  efi_selftest_manageprotocols.o \
-@@ -92,6 +93,8 @@ $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
- 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_return.efi > \
- 	$(obj)/efi_miniapp_file_image_return.h
+@@ -94,6 +95,8 @@ $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
+ 
+ $(obj)/efi_selftest_exception.o: $(obj)/efi_miniapp_file_image_exception.h
  
 +$(obj)/efi_selftest_load_file.o: $(obj)/efi_miniapp_file_image_exit.h
 +
  $(obj)/efi_selftest_loadimage.o: $(obj)/efi_miniapp_file_image_exit.h
  
- $(obj)/efi_selftest_exception.o: $(obj)/efi_miniapp_file_image_exception.h
+ $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
 diff --git a/lib/efi_selftest/efi_selftest_load_file.c b/lib/efi_selftest/efi_selftest_load_file.c
 new file mode 100644
 index 0000000000..829d8372d7

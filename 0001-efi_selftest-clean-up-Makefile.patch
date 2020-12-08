@@ -1,17 +1,19 @@
-From fc7a81e027b7bba91c1c1e49ceab33f35e2acd17 Mon Sep 17 00:00:00 2001
+From 967202a2cb15e3929d1f98c603f558816996c81a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 8 Dec 2020 07:12:10 +0100
 Subject: [PATCH 1/1] efi_selftest: clean up Makefile
 
 Bring all obj-y entries together.
 
+Sort *.o targets.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/Makefile | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ lib/efi_selftest/Makefile | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 58fb43fcdf..957f546023 100644
+index 58fb43fcdf..706df0b27b 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -25,9 +25,11 @@ efi_selftest_crc32.o \
@@ -48,6 +50,19 @@ index 58fb43fcdf..957f546023 100644
  targets += \
  efi_miniapp_file_image_exception.h \
  efi_miniapp_file_image_exit.h \
+@@ -94,10 +92,10 @@ $(obj)/efi_miniapp_file_image_return.h: $(obj)/efi_selftest_miniapp_return.efi
+ 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_return.efi > \
+ 	$(obj)/efi_miniapp_file_image_return.h
+ 
+-$(obj)/efi_selftest_loadimage.o: $(obj)/efi_miniapp_file_image_exit.h
+-
+ $(obj)/efi_selftest_exception.o: $(obj)/efi_miniapp_file_image_exception.h
+ 
++$(obj)/efi_selftest_loadimage.o: $(obj)/efi_miniapp_file_image_exit.h
++
+ $(obj)/efi_selftest_startimage_exit.o: $(obj)/efi_miniapp_file_image_exit.h
+ 
+ $(obj)/efi_selftest_startimage_return.o: $(obj)/efi_miniapp_file_image_return.h
 -- 
 2.29.2
 
