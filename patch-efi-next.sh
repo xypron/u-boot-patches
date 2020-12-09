@@ -113,8 +113,8 @@ exit
 
 # UEFI next
 
+# Already merged
 git am ../patch/0001-common-update-fix-an-unused-warning-against-update_f.patch
-
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
 git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
 git am ../patch/0001-efi_loader-capsule-add-memory-range-capsule-definiti.patch
@@ -127,6 +127,10 @@ git am ../patch/0001-test-py-efi_capsule-test-for-FIT-image-capsule.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
 git am ../patch/0001-sandbox-enable-capsule-update-for-testing.patch
 
+# To be added
+git am ../patch/0001-efi_loader-don-t-set-EFI_RT_SUPPORTED_UPDATE_CAPSULE.patch
+git am ../patch/0001-efi_loader-remove-EFI_HII_CONFIG_ROUTING_PROTOCOL.patch
+
 git am ../patch/0001-efi_loader-resequence-functions-in-efi_boottime.c.patch
 git am ../patch/0001-efi_loader-move-EFI_LOAD_FILE2_PROTOCOL_GUID.patch
 git am ../patch/0001-efi_loader-pass-boot_policy-to-efi_load_image_from_p.patch
@@ -135,9 +139,8 @@ git am ../patch/0001-efi_loader-support-EFI_LOAD_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_selftest-clean-up-Makefile.patch
 git am ../patch/0001-efi_selftest-test-EFI_LOAD_FILE_PROTOCOL.patch
 
-git am ../patch/0001-efi_loader-remove-EFI_HII_CONFIG_ROUTING_PROTOCOL.patch
-
-
+git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
+git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
@@ -145,10 +148,6 @@ git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 exit
 
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
-exit
-
-git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
-git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 exit
 
 git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
