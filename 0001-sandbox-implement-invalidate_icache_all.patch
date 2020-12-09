@@ -1,0 +1,76 @@
+From d55fbcc75c8cc2a4184b348d333fb03f3691c1cd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 9 Dec 2020 18:32:47 +0100
+Subject: [PATCH 1/1] sandbox: implement invalidate_icache_all()
+
+Before executing code that we have loaded from a file we need to flush the
+data cache and invalidate the instruction flash.
+
+Implement functions flush_cache() and invalidate_icache_all().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/Makefile |  2 +-
+ arch/sandbox/cpu/cache.c  | 21 +++++++++++++++++++++
+ board/sandbox/sandbox.c   |  4 ----
+ 3 files changed, 22 insertions(+), 5 deletions(-)
+ create mode 100644 arch/sandbox/cpu/cache.c
+
+diff --git a/arch/sandbox/cpu/Makefile b/arch/sandbox/cpu/Makefile
+index bac96447d5..de7fe7f391 100644
+--- a/arch/sandbox/cpu/Makefile
++++ b/arch/sandbox/cpu/Makefile
+@@ -5,7 +5,7 @@
+ # (C) Copyright 2000-2003
+ # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ 
+-obj-y	:= cpu.o state.o
++obj-y	:= cache.o cpu.o state.o
+ extra-y	:= start.o os.o
+ extra-$(CONFIG_SANDBOX_SDL)	+= sdl.o
+ obj-$(CONFIG_SPL_BUILD)	+= spl.o
+diff --git a/arch/sandbox/cpu/cache.c b/arch/sandbox/cpu/cache.c
+new file mode 100644
+index 0000000000..27b8d51eaf
+--- /dev/null
++++ b/arch/sandbox/cpu/cache.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <cpu_func.h>
++#include <asm/state.h>
++
++void flush_cache(unsigned long addr, unsigned long size)
++{
++	__builtin___clear_cache((void *)addr, (void *)(addr + size));
++}
++
++void invalidate_icache_all(void)
++{
++	struct sandbox_state *state = state_get_current();
++
++	__builtin___clear_cache(state->ram_buf,
++			        state->ram_buf + state->ram_size);
++}
+diff --git a/board/sandbox/sandbox.c b/board/sandbox/sandbox.c
+index 18a605de02..3235541a7d 100644
+--- a/board/sandbox/sandbox.c
++++ b/board/sandbox/sandbox.c
+@@ -28,10 +28,6 @@ U_BOOT_DEVICE(gpio_sandbox) = {
+ };
+ #endif
+ 
+-void flush_cache(unsigned long start, unsigned long size)
+-{
+-}
+-
+ #ifndef CONFIG_TIMER
+ /* system timer offset in ms */
+ static unsigned long sandbox_timer_offset;
+-- 
+2.29.2
+
