@@ -1,4 +1,4 @@
-From d55fbcc75c8cc2a4184b348d333fb03f3691c1cd Mon Sep 17 00:00:00 2001
+From 78872dd174386704cca09116a42a0b0e049387e3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 9 Dec 2020 18:32:47 +0100
 Subject: [PATCH 1/1] sandbox: implement invalidate_icache_all()
@@ -11,9 +11,9 @@ Implement functions flush_cache() and invalidate_icache_all().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  arch/sandbox/cpu/Makefile |  2 +-
- arch/sandbox/cpu/cache.c  | 21 +++++++++++++++++++++
+ arch/sandbox/cpu/cache.c  | 23 +++++++++++++++++++++++
  board/sandbox/sandbox.c   |  4 ----
- 3 files changed, 22 insertions(+), 5 deletions(-)
+ 3 files changed, 24 insertions(+), 5 deletions(-)
  create mode 100644 arch/sandbox/cpu/cache.c
 
 diff --git a/arch/sandbox/cpu/Makefile b/arch/sandbox/cpu/Makefile
@@ -31,10 +31,10 @@ index bac96447d5..de7fe7f391 100644
  obj-$(CONFIG_SPL_BUILD)	+= spl.o
 diff --git a/arch/sandbox/cpu/cache.c b/arch/sandbox/cpu/cache.c
 new file mode 100644
-index 0000000000..27b8d51eaf
+index 0000000000..2746905247
 --- /dev/null
 +++ b/arch/sandbox/cpu/cache.c
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,23 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -46,6 +46,7 @@ index 0000000000..27b8d51eaf
 +
 +void flush_cache(unsigned long addr, unsigned long size)
 +{
++	/* Clang uses (char *) parameters, GCC (void *) */
 +	__builtin___clear_cache((void *)addr, (void *)(addr + size));
 +}
 +
@@ -53,8 +54,9 @@ index 0000000000..27b8d51eaf
 +{
 +	struct sandbox_state *state = state_get_current();
 +
-+	__builtin___clear_cache(state->ram_buf,
-+			        state->ram_buf + state->ram_size);
++	/* Clang uses (char *) parameters, GCC (void *) */
++	__builtin___clear_cache((void *)state->ram_buf,
++			        (void *)(state->ram_buf + state->ram_size));
 +}
 diff --git a/board/sandbox/sandbox.c b/board/sandbox/sandbox.c
 index 18a605de02..3235541a7d 100644
