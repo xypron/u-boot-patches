@@ -2,13 +2,7 @@ git am --abort || true
 
 set -e
 
-# Xypron specific patches
-# git am ../patch/0001-vexpress_ca15_tc2_defconfig-build-EFI.patch
-
-# git am ../patch/0001-Test-vexpress-only.patch
-
 # Various fixes
-# git am ../patch/0001-ARM-vexpress-fdtfile-fdt_addr_r-for-vexpress_ca15_tc.patch
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
@@ -103,6 +97,12 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+
+exit
+
+# UEFI next
+
+# Already merged
 git am ../patch/0001-efi_loader-replace-printf-by-log-in-efi_uclass.c.patch
 
 git am ../patch/0001-tpm-use-more-than-sha256-on-pcr_extend.patch
@@ -110,11 +110,6 @@ git am ../patch/0001-tpm-Add-tpm2-headers-for-TCG2-eventlog-support.patch
 git am ../patch/0001-efi_loader-Introduce-eventlog-support-for-TCG2_PROTO.patch
 git am ../patch/0001-cmd-efidebug-Add-support-for-TCG2-final-events-table.patch
 
-exit
-
-# UEFI next
-
-# Already merged
 git am ../patch/0001-common-update-fix-an-unused-warning-against-update_f.patch
 git am ../patch/0001-efi_loader-define-UpdateCapsule-api.patch
 git am ../patch/0001-efi_loader-capsule-add-capsule_on_disk-support.patch
