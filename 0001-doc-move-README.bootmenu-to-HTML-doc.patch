@@ -10,6 +10,7 @@ Adjust the text concerning configuration settings as these now are managed
 via Kconfig.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Pali Rohár <pali@kernel.org>
 ---
  doc/README.bootmenu    | 98 ------------------------------------------
  doc/usage/bootmenu.rst | 95 ++++++++++++++++++++++++++++++++++++++++
