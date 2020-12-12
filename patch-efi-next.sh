@@ -28,6 +28,7 @@ git am ../patch/0001-doc-move-pstore.rst-to-usage-pstore.rst.patch
 git am ../patch/0001-doc-use-code-block-in-pstore.rst.patch
 git am ../patch/0001-doc-move-README.NetConsole-to-HTML-documentation.patch
 git am ../patch/0001-doc-move-README.trace-to-HTML-documentation.patch
+git am ../patch/0001-doc-move-README.bootmenu-to-HTML-doc.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
