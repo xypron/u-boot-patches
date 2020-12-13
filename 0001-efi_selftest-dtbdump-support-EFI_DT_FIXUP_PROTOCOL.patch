@@ -1,4 +1,4 @@
-From a4fdc048db9aec3e942f398550ec4853d53ecb2c Mon Sep 17 00:00:00 2001
+From 3b28c5800b1c88937a1c7fb7151100a99c7ebf38 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 13 Dec 2020 19:13:57 +0100
 Subject: [PATCH 1/1] efi_selftest: dtbdump support EFI_DT_FIXUP_PROTOCOL
@@ -32,7 +32,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 264 insertions(+), 36 deletions(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index d90e3eb768..659cbd9760 100644
+index d90e3eb768..e92b7a0935 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
 @@ -8,10 +8,12 @@
@@ -245,7 +245,7 @@ index d90e3eb768..659cbd9760 100644
 +		error(L"Out of memory\n");
 +		goto out;
 +	}
-+	dtb = (struct fdt_header *)addr;
++	dtb = (struct fdt_header *)(uintptr_t)addr;
 +	ret = file->read(file, &buffer_size, dtb);
 +	if (ret != EFI_SUCCESS) {
 +		error(L"Can't read file\n");
@@ -268,7 +268,7 @@ index d90e3eb768..659cbd9760 100644
 +			error(L"Out of memory\n");
 +			goto out;
 +		}
-+		dtb = (struct fdt_header *)addr;
++		dtb = (struct fdt_header *)(uintptr_t)addr;
 +		ret = file->setpos(file, 0);
 +		if (ret != EFI_SUCCESS) {
 +			error(L"Can't position file\n");
