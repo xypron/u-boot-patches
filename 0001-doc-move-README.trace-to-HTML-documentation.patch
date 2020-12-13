@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: move README.trace to HTML documentation
 Convert README.trace to reStructured text and move it to develop/trace.rst.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/README.trace      | 346 ----------------------------------------
  doc/develop/index.rst |   1 +
