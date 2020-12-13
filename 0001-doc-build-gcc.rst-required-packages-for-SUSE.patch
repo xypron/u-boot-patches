@@ -1,9 +1,9 @@
 From 4326af29d6ffc1a58907843e30f84a40fe6bbb97 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 20 Sep 2020 12:01:30 +0200
-Subject: [PATCH] doc/build/gcc.rst: required packages for Suse
+Subject: [PATCH] doc/build/gcc.rst: required packages for SUSE
 
-Describe the packages required to build U-Boot on Suse.
+Describe the packages required to build U-Boot on SUSE.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
@@ -18,7 +18,7 @@ index fcb0b1ffb3..6250dc1880 100644
        lzma-alone openssl python3 python3-coverage python3-pyelftools \
        python3-pytest python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme swig
  
-+Suse based
++SUSE based
 +~~~~~~~~~~
 +
 +On suse based systems the cross compiler packages are named
