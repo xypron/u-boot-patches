@@ -150,6 +150,12 @@ git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
 
 exit
 
+# EFI_DT_FIXUP_PROTOCOL
+git am ../patch/0001-efi_loader-implement-EFI_DT_FIXUP_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-dtbdump-support-EFI_DT_FIXUP_PROTOCOL.patch
+
+exit
+
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
 exit
 
