@@ -1,4 +1,4 @@
-From 0ae3f4a5769798891603a0318e4316a2763eee54 Mon Sep 17 00:00:00 2001
+From a4fdc048db9aec3e942f398550ec4853d53ecb2c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 13 Dec 2020 19:13:57 +0100
 Subject: [PATCH 1/1] efi_selftest: dtbdump support EFI_DT_FIXUP_PROTOCOL
@@ -28,11 +28,11 @@ A dtbdump.efi session would look like:
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/dtbdump.c | 298 ++++++++++++++++++++++++++++++++-----
- 1 file changed, 262 insertions(+), 36 deletions(-)
+ lib/efi_selftest/dtbdump.c | 300 ++++++++++++++++++++++++++++++++-----
+ 1 file changed, 264 insertions(+), 36 deletions(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index d90e3eb768..737bc9d884 100644
+index d90e3eb768..659cbd9760 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
 @@ -8,10 +8,12 @@
@@ -96,7 +96,7 @@ index d90e3eb768..737bc9d884 100644
  			cout->output_string(cout, outbuf);
  		}
  	}
-@@ -117,60 +138,218 @@ void *get_dtb(struct efi_system_table *systable)
+@@ -117,60 +138,220 @@ void *get_dtb(struct efi_system_table *systable)
  }
  
  /**
@@ -172,8 +172,10 @@ index d90e3eb768..737bc9d884 100644
 -	bs = systable->boottime;
 +	ret = bs->locate_protocol(&efi_dt_fixup_protocol_guid, NULL,
 +				  (void **)&dt_fixup_prot);
-+	if (ret != EFI_SUCCESS)
++	if (ret != EFI_SUCCESS) {
 +		error(L"Device-tree fix-up protocol not found\n");
++		return ret;
++	}
  
 -	cout->set_attribute(cout, EFI_LIGHTGRAY | EFI_BACKGROUND_BLACK);
 -	cout->clear_screen(cout);
@@ -345,7 +347,7 @@ index d90e3eb768..737bc9d884 100644
  		return ret;
  	}
  
-@@ -180,15 +359,14 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -180,15 +361,14 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  				(void **)&file_system, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -363,7 +365,7 @@ index d90e3eb768..737bc9d884 100644
  		return ret;
  	}
  	/* Create file */
-@@ -199,10 +377,10 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -199,10 +379,10 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  		/* Write file */
  		ret = file->write(file, &dtb_size, dtb);
  		if (ret != EFI_SUCCESS)
@@ -376,7 +378,7 @@ index d90e3eb768..737bc9d884 100644
  	}
  	root->close(root);
  
-@@ -213,3 +391,51 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
+@@ -213,3 +393,51 @@ efi_status_t EFIAPI efi_main(efi_handle_t handle,
  
  	return ret;
  }
