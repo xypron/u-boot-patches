@@ -1,4 +1,4 @@
-From 2f6788f4de8a90b6a7ee56445383345eb9a61c06 Mon Sep 17 00:00:00 2001
+From d0253f7e5ca1e1d79a6c42aea330cb9e2355211a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 12 Dec 2020 09:37:47 +0100
 Subject: [PATCH 1/1] doc: move README.NetConsole to HTML documentation
@@ -7,10 +7,12 @@ Convert README.NetConsole to reStructured text and move it to
 doc/usage/netconsole.rst.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/README.NetConsole    |  97 ----------------------------------
+ doc/usage/index.rst      |   2 +
  doc/usage/netconsole.rst | 109 +++++++++++++++++++++++++++++++++++++++
- 2 files changed, 109 insertions(+), 97 deletions(-)
+ 3 files changed, 111 insertions(+), 97 deletions(-)
  delete mode 100644 doc/README.NetConsole
  create mode 100644 doc/usage/netconsole.rst
 
@@ -117,6 +119,19 @@ index af7fc6043a..0000000000
 -
 -Note that unlike the U-Boot implementation the Linux netconsole is
 -unidirectional, i. e. you have console output only in Linux.
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index af7d50650d..063e970981 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -3,6 +3,8 @@ Use U-Boot
+ 
+ .. toctree::
+ 
++   netconsole
++
+ Shell commands
+ --------------
+ 
 diff --git a/doc/usage/netconsole.rst b/doc/usage/netconsole.rst
 new file mode 100644
 index 0000000000..0156f0212d

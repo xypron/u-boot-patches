@@ -14,7 +14,7 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
-git am ../patch/0001-doc-build-gcc.rst-required-packages-for-Suse.patch
+git am ../patch/0001-doc-build-gcc.rst-required-packages-for-SUSE.patch
 git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
@@ -22,7 +22,6 @@ git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
 git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 git am ../patch/0001-doc-allow-building-htmldoc-with-Sphinx-3.patch
-git am ../patch/0001-riscv-qemu-enable-distro-boot-from-scsi.patch
 git am ../patch/0001-doc-move-README.commands-to-HTML-doc.patch
 git am ../patch/0001-doc-move-pstore.rst-to-usage-pstore.rst.patch
 git am ../patch/0001-doc-use-code-block-in-pstore.rst.patch
@@ -61,9 +60,6 @@ git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
-git am ../patch/0001-riscv-don-t-jump-to-0x0-in-handle_ipi.patch
-# git am ../patch/0001-riscv-add-DT-binding-for-BOOT-button-on-Maix-board.patch
-git am ../patch/0001-riscv-reset-after-crash.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch

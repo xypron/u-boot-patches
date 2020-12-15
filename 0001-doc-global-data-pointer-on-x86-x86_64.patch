@@ -7,6 +7,7 @@ On x86 the global data pointer is stored in register fs.
 On x86_64 no register is used for the global data pointer.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/develop/global_data.rst | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
