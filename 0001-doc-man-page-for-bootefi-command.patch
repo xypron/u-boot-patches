@@ -1,0 +1,183 @@
+From cb86b66257eea1ff3fc00ec7bd72b0bd93325436 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 16 Dec 2020 22:08:38 +0100
+Subject: [PATCH 1/1] doc: man-page for bootefi command
+
+Provide a description of the bootefi command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS           |   1 +
+ doc/usage/bootefi.rst | 135 ++++++++++++++++++++++++++++++++++++++++++
+ doc/usage/index.rst   |   1 +
+ 3 files changed, 137 insertions(+)
+ create mode 100644 doc/usage/bootefi.rst
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 127e30c0a5..8675965fe5 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -679,6 +679,7 @@ S:	Maintained
+ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-efi.git
+ F:	doc/api/efi.rst
+ F:	doc/uefi/*
++F:	doc/usage/bootefi.rst
+ F:	drivers/rtc/emul_rtc.c
+ F:	include/capitalization.h
+ F:	include/charset.h
+diff --git a/doc/usage/bootefi.rst b/doc/usage/bootefi.rst
+new file mode 100644
+index 0000000000..432a2b2fed
+--- /dev/null
++++ b/doc/usage/bootefi.rst
+@@ -0,0 +1,135 @@
++.. SPDX-License-Identifier: GPL-2.0+
++.. Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++
++bootefi command
++===============
++
++Synopsis
++--------
++
++.. code-block::
++
++    bootefi [image_addr] [fdt_addr]
++    bootefi bootmgr [fdt_addr]
++    bootefi hello [fdt_addr]
++    bootefi selftest [fdt_addr]
++
++Description
++-----------
++
++The *bootefi* command is used to launch a UEFI binary which can be either of
++
++* UEFI application
++* UEFI boot services driver
++* UEFI run-time services driver
++
++An operating system requires a hardware description which can either be
++presented as ACPI table (CONFIG\_GENERATE\_ACPI\_TABLE=y) or as device-tree
++The load address of the device-tree may be provided as parameter *fdt\_addr*. If
++this address is not specified, the bootefi command will try to fall back in
++sequence to:
++
++* the device-tree specified by environment variable *fdt\_addr*
++* the device-tree specified by environment variable *fdtcontroladdr*
++
++The load address of the binary is specified by parameter *image_address*. A
++command sequence to run a UEFI application might look like
++
++.. code-block::
++
++    load mmc 0:2 $fdt_addr_r dtb
++    load mmc 0:1 $kernel_addr_r /EFI/grub/grubaa64.efi
++    bootefi $kernel_addr_r $fdt_addr_r
++
++The last file loaded defines the image file path in the loaded image protocol.
++Hence the executable should always be loaded last.
++
++The value of the environment variable *bootargs* is converted from UTF-8 to
++UTF-16 and passed as load options in the loaded image protocol to the UEFI
++binary.
++
++Note
++    UEFI binaries that are contained in FIT images are launched via the
++    *bootm* command.
++
++UEFI boot manager
++'''''''''''''''''
++
++The UEFI boot manager is invoked by the *bootefi bootmgr* sub-command.
++Here boot options are defined by UEFI variables with a name consisting of the
++letters *Boot* followed by a four digit hexadecimal number, e.g. *Boot0001* or
++*BootA03E*. The boot variable defines a label, the device path of the binary to
++execute as well as the load options passed in the loaded image protocol.
++
++If the UEFI variable *BootNext* is defined, it specifies the number of the boot
++option to execute next. If no binary can be loaded via *BootNext* the variable
++*BootOrder* specifies in which sequence boot options shalled be tried.
++
++The values of these variables can be managed using the U-Boot command
++*efidebug*.
++
++UEFI hello world application
++''''''''''''''''''''''''''''
++
++U-Boot can be compiled with a hello world application that can be launched using
++the *bootefi hello* sub-command. A session might look like
++
++.. code-block::
++
++    => setenv bootargs 'Greetings to the world'
++    => bootefi hello
++    Booting /MemoryMapped(0x0,0x10001000,0x1000)
++    Hello, world!
++    Running on UEFI 2.8
++    Have SMBIOS table
++    Have device tree
++    Load options: Greetings to the world
++
++UEFI selftest
++'''''''''''''
++
++U-Boot can be compiled with UEFI unit tests. These unit tests are invoked using
++the *bootefi selftest* sub-command.
++
++Which unit test is executed is controlled by the environment variable
++*efi\_selftest*. If this variable is not set, all unit tests that are not marked
++as 'on request' are executed.
++
++To show a list of the available unit tests the value *list* can be used
++
++.. code-block::
++
++    => setenv efi_selftest list
++    => bootefi selftest
++
++    Available tests:
++    'block image transfer' - on request
++    'block device'
++    'configuration tables'
++    ...
++
++A single test is selected for execution by setting the *efi\_selftest*
++environment variable to match one of the listed identifiers
++
++.. code-block::
++
++    => setenv efi_selftest 'block image transfer'
++    => bootefi selftest
++
++Some of the tests execute the ExitBootServices() UEFI boot service and will not
++return to the command line but require a board reset.
++
++Configuration
++-------------
++
++To use the *bootefi* command you must specify CONFIG\_CMD\_BOOTEFI=y.
++The *bootefi hello* sub-command requries CMD\_BOOTEFI\_HELLO=y.
++The *bootefi selftest* sub-command depends on CMD\_BOOTEFI\_SELFTEST=y.
++
++See also
++--------
++
++* *bootm* for launching UEFI binaries packed in FIT images
++* *booti*, *bootm*, *bootz* for launching a Linux kernel without using the
++  UEFI sub-system
++* *efidebug* for setting UEFI boot variables
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index 6c4b5b9240..fbb2c0481c 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -11,6 +11,7 @@ Shell commands
+ .. toctree::
+    :maxdepth: 1
+ 
++   bootefi
+    bootmenu
+    button
+    pstore
+-- 
+2.29.2
+
