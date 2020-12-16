@@ -14,20 +14,12 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
-git am ../patch/0001-doc-build-gcc.rst-required-packages-for-SUSE.patch
-git am ../patch/0001-doc-global-data-pointer-on-x86-x86_64.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-net-sntp-remove-CONFIG_TIMESTAMP-constraint.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
 git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
-git am ../patch/0001-doc-allow-building-htmldoc-with-Sphinx-3.patch
-git am ../patch/0001-doc-move-README.commands-to-HTML-doc.patch
-git am ../patch/0001-doc-move-pstore.rst-to-usage-pstore.rst.patch
-git am ../patch/0001-doc-use-code-block-in-pstore.rst.patch
-git am ../patch/0001-doc-move-README.NetConsole-to-HTML-documentation.patch
-git am ../patch/0001-doc-move-README.trace-to-HTML-documentation.patch
-git am ../patch/0001-doc-move-README.bootmenu-to-HTML-doc.patch
+git am ../patch/0001-doc-button-command.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
@@ -98,8 +90,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
-git am ../patch/0001-doc-uefi-remove-leading-from-bash-commands.patch
 
 exit
 
