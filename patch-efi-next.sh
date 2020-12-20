@@ -93,6 +93,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-efi_loader-make-memory-store-size-customizable.patch
+git am ../patch/0001-tools-add-a-simple-script-to-generate-EFI-variables.patch
 
 exit
 
