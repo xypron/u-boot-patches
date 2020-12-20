@@ -92,8 +92,11 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-doc-button-command.patch
+git am ../patch/0001-doc-man-page-for-bootefi-command.patch
 git am ../patch/0001-efi_loader-make-memory-store-size-customizable.patch
 git am ../patch/0001-tools-add-a-simple-script-to-generate-EFI-variables.patch
+git am ../patch/0001-MAINTAINERS-add-tools-efivar.py-to-EFI-PAYLOAD.patch
 
 exit
 
