@@ -1,7 +1,7 @@
-From 46d9e99abeb38b3c2af6f6c730e12e40c601f356 Mon Sep 17 00:00:00 2001
+From 9456a8b5f53baf2801312ebd9277b4b3c3fd5b2a Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 20 Dec 2020 11:05:38 +0100
-Subject: [PATCH 1/1] efi_loader: make memory store size customizable
+Subject: [PATCH v2] efi_loader: make variable store size customizable
 
 Currently the size of the buffer to keep UEFI variables in memory is fixed
 at 16384 bytes. This size has proven to be too small for some use cases.
@@ -10,10 +10,15 @@ Make the size of the memory buffer for UEFI variables customizable.
 
 Reported-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
- include/efi_variable.h | 2 +-
- lib/efi_loader/Kconfig | 8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+v2:
+	Add a sentence about StandAloneMM considerations to the Kconfig
+	option. Ilias provided the background.
+---
+ include/efi_variable.h |  2 +-
+ lib/efi_loader/Kconfig | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/include/efi_variable.h b/include/efi_variable.h
 index 4704a3c16e..bf5076233e 100644
@@ -29,10 +34,10 @@ index 4704a3c16e..bf5076233e 100644
  /*
   * This constant identifies the file format for storing UEFI variables in
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 7fd3a3c90c..deb86a335a 100644
+index 7fd3a3c90c..dd8b93bd3c 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -77,6 +77,14 @@ config EFI_VAR_SEED_FILE
+@@ -77,6 +77,20 @@ config EFI_VAR_SEED_FILE
  
  endif
  
@@ -41,8 +46,14 @@ index 7fd3a3c90c..deb86a335a 100644
 +	default 16384
 +	range 4096 2147483647
 +	help
-+	  This defines the memory area reserved for keeping UEFI variables.
-+	  Minimum value 4096.
++	  This defines the size in bytes of the memory area reserved for keeping
++	  UEFI variables.
++
++	  When using StandAloneMM (CONFIG_EFI_MM_COMM_TEE=y) this value should
++	  match the value of PcdFlashNvStorageVariableSize used to compile the
++	  StandAloneMM module.
++
++	  Minimum 4096, default 16384.
 +
  config EFI_GET_TIME
  	bool "GetTime() runtime service"
