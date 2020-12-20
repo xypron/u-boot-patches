@@ -1,11 +1,16 @@
 From 13020afeba4730dda364010b47a1b029bca37bde Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 16 Dec 2020 22:08:38 +0100
-Subject: [PATCH 1/1] doc: man-page for bootefi command
+Subject: [PATCH v2 1/1] doc: man-page for bootefi command
 
 Provide a description of the bootefi command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	Replace ".. code-block::" by "::" as the build-system on Gitlab
+	does not like code-block without language. The problem did not
+	occur locally.
 ---
  MAINTAINERS           |   1 +
  doc/usage/bootefi.rst | 135 ++++++++++++++++++++++++++++++++++++++++++
