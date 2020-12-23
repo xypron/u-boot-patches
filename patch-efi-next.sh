@@ -90,6 +90,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+git am ../patch/0001-efi_loader-Extra-checks-while-opening-an-OPTEE-sessi.patch
+
 exit
 
 # UEFI next
