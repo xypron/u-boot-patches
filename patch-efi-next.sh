@@ -21,6 +21,8 @@ git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
 git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 git am ../patch/0001-fs-btrfs-simplify-close_ctree_fs_info.patch
 git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
+git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
+git am ../patch/0001-imx-mx7-clock-use-correct-format-strings.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
