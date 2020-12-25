@@ -1,0 +1,57 @@
+From 025cdf328266f4e08e440accae47202c4ff6b9a9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 25 Dec 2020 14:30:04 +0100
+Subject: [PATCH] fs: fat: eliminate DIRENTSPERBLOCK() macro
+
+The FAT filesystem implementation uses several marcros referring to a magic
+variable name mydata which renders the code less readable. Eliminate one of
+them which is only used for a debug() statement.
+
+Use log_debug() instead of debug().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+Applicable to origin/next
+---
+ fs/fat/fat.c  | 5 ++---
+ include/fat.h | 1 -
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index 3141c7191a..17afe99584 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -811,7 +811,6 @@ static void fat_itr_child(fat_itr *itr, fat_itr *parent)
+  */
+ void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes)
+ {
+-	fsdata *mydata = itr->fsdata;  /* for silly macros */
+ 	int ret;
+ 	u32 sect;
+ 	u32 read_size;
+@@ -839,8 +838,8 @@ void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes)
+ 		read_size = itr->fsdata->clust_size;
+ 	}
+ 
+-	debug("FAT read(sect=%d), clust_size=%d, read_size=%u, DIRENTSPERBLOCK=%zd\n",
+-	      sect, itr->fsdata->clust_size, read_size, DIRENTSPERBLOCK);
++	log_debug("FAT read(sect=%d), clust_size=%d, read_size=%u\n",
++		  sect, itr->fsdata->clust_size, read_size);
+ 
+ 	/*
+ 	 * NOTE: do_fat_read_at() had complicated logic to deal w/
+diff --git a/include/fat.h b/include/fat.h
+index 3c29a4484d..8cae283030 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -22,7 +22,6 @@ struct disk_partition;
+ 
+ #define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
+ 
+-#define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
+ #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
+ 			 sizeof(dir_entry))
+ 
+-- 
+2.29.2
+

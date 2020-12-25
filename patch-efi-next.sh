@@ -42,6 +42,8 @@ git am ../patch/0001-fs-fat-use-constant-DELETED_FLAG.patch
 git am ../patch/0001-fs-fat-first-dentry-of-long-name-in-FAT-iterator.patch
 git am ../patch/0001-fs-fat-deletion-of-long-file-names.patch
 
+git am ../patch/0001-fs-fat-eliminate-DIRENTSPERBLOCK-macro.patch
+
 git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
 git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
 git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
