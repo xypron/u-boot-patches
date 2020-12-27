@@ -69,6 +69,7 @@ git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 
 # DFU
 git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
+git am ../patch/0001-dfu-dfu_sf-use-correct-print-code.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
