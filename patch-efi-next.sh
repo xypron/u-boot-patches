@@ -105,6 +105,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 git am ../patch/0001-efi_loader-Extra-checks-while-opening-an-OPTEE-sessi.patch
 
+git am ../patch/0001-efi_loader-escape-key-handling.patch
+
 exit
 
 # UEFI next
