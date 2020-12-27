@@ -1,0 +1,41 @@
+From 3441b37cc20622a56f3dbc76596c2edb67f84188 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 27 Dec 2020 10:47:08 +0100
+Subject: [PATCH 1/1] mmc: fsl_esdhc_spl: remove superfluous free()
+
+Freeing a buffer before calling hang() is superfluous. Removing the call
+reduces the SPL size.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mmc/fsl_esdhc_spl.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/mmc/fsl_esdhc_spl.c b/drivers/mmc/fsl_esdhc_spl.c
+index afe55fad9d..bee76572ac 100644
+--- a/drivers/mmc/fsl_esdhc_spl.c
++++ b/drivers/mmc/fsl_esdhc_spl.c
+@@ -91,20 +91,17 @@ void __noreturn mmc_boot(void)
+ 					CONFIG_CFG_DATA_SECTOR, 1, tmp_buf);
+ 	if (err != 1) {
+ 		puts("spl: mmc read failed!!\n");
+-		free(tmp_buf);
+ 		hang();
+ 	}
+ 
+ 	val = *(tmp_buf + MBRDBR_BOOT_SIG_55);
+ 	if (0x55 != val) {
+ 		puts("spl: mmc signature is not valid!!\n");
+-		free(tmp_buf);
+ 		hang();
+ 	}
+ 	val = *(tmp_buf + MBRDBR_BOOT_SIG_AA);
+ 	if (0xAA != val) {
+ 		puts("spl: mmc signature is not valid!!\n");
+-		free(tmp_buf);
+ 		hang();
+ 	}
+ 
+-- 
+2.29.2
+

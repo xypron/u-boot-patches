@@ -24,6 +24,7 @@ git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-imx-mx7-clock-use-correct-format-strings.patch
 git am ../patch/0001-dma-bcm6348-incorrect-buffer-allocation.patch
+gti am ../patch/0001-mmc-fsl_esdhc_spl-remove-superfluous-free.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
