@@ -1,0 +1,31 @@
+From 992e89447034786f436282b9231ce344e7aefc06 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 28 Dec 2020 00:25:34 +0100
+Subject: [PATCH 1/1] efi_loader: event queueing
+
+When a new event is queued we have to process the event queue by calling
+efi_process_event_queue(). But there is not reason to call the function
+when the event is not queueable.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_boottime.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_boottime.c b/lib/efi_loader/efi_boottime.c
+index 246b59d3b3..4deb051c4e 100644
+--- a/lib/efi_loader/efi_boottime.c
++++ b/lib/efi_loader/efi_boottime.c
+@@ -244,8 +244,8 @@ static void efi_queue_event(struct efi_event *event)
+ 		}
+ 		if (event)
+ 			list_add_tail(&event->queue_link, &efi_event_queue);
++		efi_process_event_queue();
+ 	}
+-	efi_process_event_queue();
+ }
+ 
+ /**
+-- 
+2.29.2
+
