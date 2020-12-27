@@ -28,6 +28,7 @@ git am ../patch/0001-mmc-fsl_esdhc_spl-remove-superfluous-free.patch
 git am ../patch/0001-zynq-mtd-nand-remove-superfluous-if.patch
 git am ../patch/0001-pinctrl-mediatek-correct-error-handling.patch
 git am ../patch/0001-drivers-qe-avoid-double-free.patch
+git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
