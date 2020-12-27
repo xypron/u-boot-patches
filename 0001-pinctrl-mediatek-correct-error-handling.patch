@@ -1,7 +1,7 @@
-From 2279aa68cb2a70f358713ceba39531e6e9d40a43 Mon Sep 17 00:00:00 2001
+From c8313b97fa9bc7943e13cd0d3c10c022dcaf8f43 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sun, 27 Dec 2020 11:36:58 +0100
-Subject: [PATCH 1/1] pinctrl: mediatek: correct error handling
+Date: Sun, 27 Dec 2020 21:13:50 +0100
+Subject: [PATCH v2 1/1] pinctrl: mediatek: correct error handling
 
 If no GPIO controller is found, the return value should not depend on a
 random value on the stack. Initialize variable ret.
@@ -10,22 +10,24 @@ The problem was indicated by cppcheck.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/pinctrl/mediatek/pinctrl-mtk-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v2:
+	move the assigment to the certain code-path (Andy)
+---
+ drivers/pinctrl/mediatek/pinctrl-mtk-common.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-index 6553dde45c..8b4e0e32c5 100644
+index 6553dde45c..4dd3f73ead 100644
 --- a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
 +++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
-@@ -608,7 +608,7 @@ static int mtk_gpiochip_register(struct udevice *parent)
- {
- 	struct uclass_driver *drv;
- 	struct udevice *dev;
--	int ret;
-+	int ret = -ENOENT;
- 	ofnode node;
+@@ -615,6 +615,7 @@ static int mtk_gpiochip_register(struct udevice *parent)
+ 	if (!drv)
+ 		return -ENOENT;
  
- 	drv = lists_uclass_lookup(UCLASS_GPIO);
++	ret = -ENOENT;
+ 	dev_for_each_subnode(node, parent)
+ 		if (ofnode_read_bool(node, "gpio-controller")) {
+ 			ret = 0;
 -- 
 2.29.2
 
