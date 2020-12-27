@@ -105,7 +105,9 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 git am ../patch/0001-efi_loader-Extra-checks-while-opening-an-OPTEE-sessi.patch
 
+git am ../patch/0001-efi_loader-missing-parentheses-after-if.patch
 git am ../patch/0001-efi_loader-escape-key-handling.patch
+git am ../patch/0001-efi_loader-avoid-invalid-free.patch
 
 exit
 

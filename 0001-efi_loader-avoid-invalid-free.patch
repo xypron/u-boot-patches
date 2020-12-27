@@ -1,0 +1,30 @@
+From 3c8ada4e9bc8e38c0aaa084c194b9475173066e9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 27 Dec 2020 15:46:00 +0100
+Subject: [PATCH] efi_loader: avoid invalid free
+
+load_options passed from do_efibootmgr() to do_bootefi_exec() may contain
+invalid data from the stack which will lead to an invalid free().
+
+Fixes: 0ad64007feb9 ("efi_loader: set load options in boot manager")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_bootmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
+index 61dc72a23d..d3be2f94c6 100644
+--- a/lib/efi_loader/efi_bootmgr.c
++++ b/lib/efi_loader/efi_bootmgr.c
+@@ -275,7 +275,7 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
+ 		memcpy(*load_options, lo.optional_data, size);
+ 		ret = efi_set_load_options(*handle, size, *load_options);
+ 	} else {
+-		load_options = NULL;
++		*load_options = NULL;
+ 	}
+ 
+ error:
+-- 
+2.29.2
+
