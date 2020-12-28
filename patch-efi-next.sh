@@ -135,8 +135,6 @@ git am ../patch/0001-test-py-efi_capsule-test-for-FIT-image-capsule.patch
 git am ../patch/0001-test-py-efi_capsule-test-for-raw-image-capsule.patch
 git am ../patch/0001-sandbox-enable-capsule-update-for-testing.patch
 
-# To be added
-git am ../patch/0001-efi_loader-event-queueing.patch
 git am ../patch/0001-efi_loader-don-t-set-EFI_RT_SUPPORTED_UPDATE_CAPSULE.patch
 git am ../patch/0001-efi_loader-remove-EFI_HII_CONFIG_ROUTING_PROTOCOL.patch
 
@@ -150,6 +148,10 @@ git am ../patch/0001-efi_selftest-test-EFI_LOAD_FILE_PROTOCOL.patch
 
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
 git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
+
+# To be added
+git am ../patch/0001-efi_loader-event-queueing.patch
+
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
