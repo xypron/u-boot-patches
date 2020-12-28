@@ -111,6 +111,7 @@ git am ../patch/0001-efi_loader-escape-key-handling.patch
 git am ../patch/0001-efi_loader-avoid-invalid-free.patch
 git am ../patch/0001-efi_loader-efi_signal_event-fix-comment-typos.patch
 git am ../patch/0001-efi_loader-describe-struct-efi_loaded_image_obj.patch
+git am ../patch/0001-efi_loader-use-after-free-in-efi_exit.patch
 
 exit
 
