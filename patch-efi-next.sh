@@ -110,6 +110,7 @@ git am ../patch/0001-efi_loader-missing-parentheses-after-if.patch
 git am ../patch/0001-efi_loader-escape-key-handling.patch
 git am ../patch/0001-efi_loader-avoid-invalid-free.patch
 git am ../patch/0001-efi_loader-efi_signal_event-fix-comment-typos.patch
+git am ../patch/0001-efi_loader-describe-struct-efi_loaded_image_obj.patch
 
 exit
 
