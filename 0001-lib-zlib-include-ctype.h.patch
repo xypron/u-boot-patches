@@ -1,0 +1,28 @@
+From 364c52d8f7a04a1964dcb573b64eddee14bfac7d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 28 Dec 2020 21:29:53 +0100
+Subject: [PATCH 1/1] lib: zlib: include ctype.h
+
+Our ctype.h is in include/linux/
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/zlib/trees.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/zlib/trees.c b/lib/zlib/trees.c
+index 3e09517ed0..700c62f6d7 100644
+--- a/lib/zlib/trees.c
++++ b/lib/zlib/trees.c
+@@ -38,7 +38,7 @@
+ #include "deflate.h"
+ 
+ #ifdef DEBUG
+-#  include <ctype.h>
++#  include <linux/ctype.h>
+ #endif
+ 
+ /* ===========================================================================
+-- 
+2.29.2
+
