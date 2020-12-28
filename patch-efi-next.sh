@@ -104,8 +104,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-01-rc3-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-git am ../patch/0001-efi_loader-Extra-checks-while-opening-an-OPTEE-sessi.patch
-
 git am ../patch/0001-efi_loader-missing-parentheses-after-if.patch
 git am ../patch/0001-efi_loader-escape-key-handling.patch
 git am ../patch/0001-efi_loader-avoid-invalid-free.patch
