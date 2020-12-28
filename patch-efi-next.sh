@@ -151,6 +151,7 @@ git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 
 # To be added
 git am ../patch/0001-efi_loader-event-queueing.patch
+git am ../patch/0001-efi_loader-Remove-unused-headers-from-efi_load_initr.patch
 
 exit
 

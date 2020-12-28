@@ -1,0 +1,38 @@
+From 67c3b3458bf6f8fd67a41da0aa1b58be696e120b Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Mon, 28 Dec 2020 14:24:36 +0200
+Subject: [PATCH] efi_loader: Remove unused headers from efi_load_initrd.c
+
+dm.h and env.h serve no purpose here. Remove them
+
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+
+Bring headers into alphabetic order
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_load_initrd.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/lib/efi_loader/efi_load_initrd.c b/lib/efi_loader/efi_load_initrd.c
+index 4bf3b5ef68..e4126b33fd 100644
+--- a/lib/efi_loader/efi_load_initrd.c
++++ b/lib/efi_loader/efi_load_initrd.c
+@@ -4,13 +4,11 @@
+  */
+ 
+ #include <common.h>
+-#include <env.h>
+-#include <malloc.h>
+-#include <mapmem.h>
+-#include <dm.h>
+ #include <fs.h>
+ #include <efi_loader.h>
+ #include <efi_load_initrd.h>
++#include <malloc.h>
++#include <mapmem.h>
+ 
+ static efi_status_t EFIAPI
+ efi_load_file2_initrd(struct efi_load_file_protocol *this,
+-- 
+2.29.2
+
