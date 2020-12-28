@@ -29,6 +29,7 @@ git am ../patch/0001-zynq-mtd-nand-remove-superfluous-if.patch
 git am ../patch/0001-pinctrl-mediatek-correct-error-handling.patch
 git am ../patch/0001-drivers-qe-avoid-double-free.patch
 git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
+git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
