@@ -32,6 +32,7 @@ git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
 git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
 git am ../patch/0001-lib-zlib-include-ctype.h.patch
 git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
+git am ../patch/0001-doc-android-boot-image-invalid-C-declaration.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
