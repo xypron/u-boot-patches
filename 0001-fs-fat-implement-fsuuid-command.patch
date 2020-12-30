@@ -1,0 +1,78 @@
+From ee02e0cdedbf7510751571e780133163310010ae Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 31 Dec 2020 00:38:13 +0100
+Subject: [PATCH 1/1] fs/fat: implement fsuuid command
+
+The FAT file system does not have a UUID but a 4 byte volume ID.
+Let the fsuuid command show it in XXXX-XXXX format.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c  | 18 ++++++++++++++++++
+ fs/fs.c       |  2 +-
+ include/fat.h | 12 ++++++++++++
+ 3 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index 47344bb57e..c7a700442e 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1378,3 +1378,21 @@ void fat_closedir(struct fs_dir_stream *dirs)
+ void fat_close(void)
+ {
+ }
++
++int fat_uuid(char *uuid_str)
++{
++	boot_sector bs;
++	volume_info volinfo;
++	int fatsize;
++	int ret;
++	u8 *id;
++
++	ret = read_bootsectandvi(&bs, &volinfo, &fatsize);
++	if (ret)
++		return ret;
++
++	id = volinfo.volume_id;
++	sprintf(uuid_str, "%02X%02X-%02X%02X", id[3], id[2], id[1], id[0]);
++
++	return 0;
++}
+diff --git a/fs/fs.c b/fs/fs.c
+index 7a4020607a..5e80648b5b 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -194,7 +194,7 @@ static struct fstype_info fstypes[] = {
+ 		.unlink = fs_unlink_unsupported,
+ 		.mkdir = fs_mkdir_unsupported,
+ #endif
+-		.uuid = fs_uuid_unsupported,
++		.uuid = fat_uuid,
+ 		.opendir = fat_opendir,
+ 		.readdir = fat_readdir,
+ 		.closedir = fat_closedir,
+diff --git a/include/fat.h b/include/fat.h
+index 3c29a4484d..8f44009d1a 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -213,4 +213,16 @@ int fat_unlink(const char *filename);
+ int fat_mkdir(const char *dirname);
+ void fat_close(void);
+ void *fat_next_cluster(fat_itr *itr, unsigned int *nbytes);
++
++/**
++ * fat_uuid() - get FAT volume ID
++ *
++ * The FAT volume ID returned in @uuid_str as hexadecimal number in XXXX-XXXX
++ * format.
++ *
++ * @uuid_str:	caller allocated buffer of at least 10 bytes for the volume ID
++ * Return:	0 on success
++ */
++int fat_uuid(char *uuid_str);
++
+ #endif /* _FAT_H_ */
+-- 
+2.29.2
+
