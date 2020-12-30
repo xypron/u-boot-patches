@@ -93,6 +93,7 @@ git am ../patch/0001-efi_selftest-implement-exception-test-for-sandbox.patch
 git am ../patch/0001-sandbox-implement-runtime-system-reset.patch
 git am ../patch/0001-sandbox-implement-invalidate_icache_all.patch
 git am ../patch/0001-sandbox-keep-time-offset-when-resetting.patch
+git am ../patch/0001-doc-sandbox-improve-formatting-of-command-line-optio.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
