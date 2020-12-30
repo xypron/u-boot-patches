@@ -1,20 +1,19 @@
-From 67c3b3458bf6f8fd67a41da0aa1b58be696e120b Mon Sep 17 00:00:00 2001
+From bc89c7d07f750b947878b13a8f3a18546b5bb2ce Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Mon, 28 Dec 2020 14:24:36 +0200
-Subject: [PATCH] efi_loader: Remove unused headers from efi_load_initrd.c
+Date: Wed, 30 Dec 2020 17:07:13 +0200
+Subject: [PATCH 1/1] efi_loader: Remove unused headers from efi_load_initrd.c
 
-dm.h and env.h serve no purpose here. Remove them
+dm.h and env.h serve no purpose here. Remove them and sort the
+remaining in alphabetical order.
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-
-Bring headers into alphabetic order
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_load_initrd.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ lib/efi_loader/efi_load_initrd.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/lib/efi_loader/efi_load_initrd.c b/lib/efi_loader/efi_load_initrd.c
-index 4bf3b5ef68..e4126b33fd 100644
+index 4bf3b5ef68..b9ee883905 100644
 --- a/lib/efi_loader/efi_load_initrd.c
 +++ b/lib/efi_loader/efi_load_initrd.c
 @@ -4,13 +4,11 @@
@@ -25,9 +24,10 @@ index 4bf3b5ef68..e4126b33fd 100644
 -#include <malloc.h>
 -#include <mapmem.h>
 -#include <dm.h>
- #include <fs.h>
+-#include <fs.h>
  #include <efi_loader.h>
  #include <efi_load_initrd.h>
++#include <fs.h>
 +#include <malloc.h>
 +#include <mapmem.h>
  
