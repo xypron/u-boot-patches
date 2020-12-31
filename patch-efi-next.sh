@@ -35,6 +35,7 @@ git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
 git am ../patch/0001-doc-android-boot-image-invalid-C-declaration.patch
 git am ../patch/0001-doc-man-page-base-command.patch
 git am ../patch/0001-doc-add-synopsis-for-pstore-command.patch
+git am ../patch/0001-doc-board-fix-README.b4860qds.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
