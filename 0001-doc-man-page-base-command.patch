@@ -1,0 +1,58 @@
+From 20fa7804cf5b6763690dc465f0516b3057415867 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 31 Dec 2020 15:42:05 +0100
+Subject: [PATCH 1/1] doc: man-page base command
+
+Provide a description of the base command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/usage/base.rst  | 23 +++++++++++++++++++++++
+ doc/usage/index.rst |  1 +
+ 2 files changed, 24 insertions(+)
+ create mode 100644 doc/usage/base.rst
+
+diff --git a/doc/usage/base.rst b/doc/usage/base.rst
+new file mode 100644
+index 0000000000..3f49f2e5ae
+--- /dev/null
++++ b/doc/usage/base.rst
+@@ -0,0 +1,23 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++base command
++============
++
++Synopsis
++--------
++
++::
++
++    base [address]
++
++Description
++-----------
++
++The *base* command sets or displays the address offset used by the memory
++commands *cmp, cp, md, mdc, mm, ms, mw, mwc*.
++
++All other commands ignore the address defined by *base*.
++
++address
++    new base address as hexadecimal number. If no value is provided, the current
++    value is displayed.
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index fbb2c0481c..57bf4fe851 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -11,6 +11,7 @@ Shell commands
+ .. toctree::
+    :maxdepth: 1
+ 
++   base
+    bootefi
+    bootmenu
+    button
+-- 
+2.29.2
+

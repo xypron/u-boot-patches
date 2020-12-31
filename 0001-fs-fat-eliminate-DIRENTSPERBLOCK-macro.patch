@@ -10,6 +10,7 @@ them which is only used for a debug() statement.
 Use log_debug() instead of debug().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
 Applicable to origin/next
 ---

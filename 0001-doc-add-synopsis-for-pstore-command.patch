@@ -1,0 +1,40 @@
+From 75de9380ce6dba3494ca2419e0f9a9402fad9296 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 31 Dec 2020 15:58:20 +0100
+Subject: [PATCH 1/1] doc: add synopsis for pstore command
+
+Add a synopsis section.
+
+Use lower case for command name.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/usage/pstore.rst | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/doc/usage/pstore.rst b/doc/usage/pstore.rst
+index 8c4e5274aa..1c8374513a 100644
+--- a/doc/usage/pstore.rst
++++ b/doc/usage/pstore.rst
+@@ -1,8 +1,17 @@
+ .. SPDX-License-Identifier: GPL-2.0+
+ 
+-PStore command
++pstore command
+ ==============
+ 
++Synopsis
++--------
++
++::
++
++    pstore set <addr> <len> [record-size] [console-size] [ftrace-size] [pmsg_size] [ecc-size]
++    pstore display [record-type] [nb]
++    pstore save <interface> <dev[:part]> <directory-path>
++
+ Design
+ ------
+ 
+-- 
+2.29.2
+

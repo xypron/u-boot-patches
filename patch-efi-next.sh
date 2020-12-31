@@ -33,6 +33,8 @@ git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
 git am ../patch/0001-lib-zlib-include-ctype.h.patch
 git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
 git am ../patch/0001-doc-android-boot-image-invalid-C-declaration.patch
+git am ../patch/0001-doc-man-page-base-command.patch
+git am ../patch/0001-doc-add-synopsis-for-pstore-command.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
