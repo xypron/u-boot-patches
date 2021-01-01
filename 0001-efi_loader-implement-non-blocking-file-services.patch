@@ -1,16 +1,16 @@
-From e202adb5e0814cc2f471867fb1860b3db285d242 Mon Sep 17 00:00:00 2001
+From 5b0eb64e5566894b51447d21e5a3f0c6781f8ffb Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 1 Jan 2021 08:39:43 +0100
 Subject: [PATCH] efi_loader: implement non-blocking file services
 
-Implement the OpenEx(), ReadEx(), WriteEx(), and FlushEx() services of the
+Implement services OpenEx(), ReadEx(), WriteEx(), FlushEx() of the
 EFI_FILE_PROTOCOL.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  include/efi_api.h         |  28 ++--
- lib/efi_loader/efi_file.c | 297 +++++++++++++++++++++++++++++++-------
- 2 files changed, 258 insertions(+), 67 deletions(-)
+ lib/efi_loader/efi_file.c | 317 ++++++++++++++++++++++++++++++++------
+ 2 files changed, 280 insertions(+), 65 deletions(-)
 
 diff --git a/include/efi_api.h b/include/efi_api.h
 index ecb43a0607..2b54ee02a2 100644
@@ -67,7 +67,7 @@ index ecb43a0607..2b54ee02a2 100644
  };
  
 diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
-index 72b7ec1e63..b44578b15a 100644
+index 72b7ec1e63..8ece8e71ee 100644
 --- a/lib/efi_loader/efi_file.c
 +++ b/lib/efi_loader/efi_file.c
 @@ -246,18 +246,16 @@ error:
@@ -355,15 +355,54 @@ index 72b7ec1e63..b44578b15a 100644
  out:
  	return EFI_EXIT(ret);
  }
-@@ -761,36 +928,60 @@ out:
+@@ -761,36 +928,84 @@ out:
  	return EFI_EXIT(ret);
  }
  
 -static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *file)
 +/**
++ * efi_file_flush_int() - flush file
++ *
++ * This is the internal implementation of the Flush() and FlushEx() services of
++ * the EFI_FILE_PROTOCOL.
++ *
++ * @this:	file protocol instance
++ * Return:	status code
++ */
++static efi_status_t efi_file_flush_int(struct efi_file_handle *this)
+ {
+-	EFI_ENTRY("%p", file);
+-	return EFI_EXIT(EFI_SUCCESS);
+-}
++	struct file_handle *fh = to_fh(this);
+ 
+-static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *file,
+-			struct efi_file_handle **new_handle,
+-			u16 *file_name, u64 open_mode, u64 attributes,
+-			struct efi_file_io_token *token)
+-{
+-	return EFI_UNSUPPORTED;
+-}
++	if (!this)
++		return EFI_INVALID_PARAMETER;
+ 
+-static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *file,
+-			struct efi_file_io_token *token)
+-{
+-	return EFI_UNSUPPORTED;
++	if (!(fh->open_mode & EFI_FILE_MODE_WRITE))
++		return EFI_ACCESS_DENIED;
++
++	/* TODO: flush for file position after end of file */
++	return EFI_SUCCESS;
+ }
+ 
+-static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *file,
+-			struct efi_file_io_token *token)
++/**
 + * efi_file_flush() - flush file
 + *
-+ * This function implements the FlushEx() service of the EFI_FILE_PROTOCOL.
++ * This function implements the Flush() service of the EFI_FILE_PROTOCOL.
 + *
 + * See the Unified Extensible Firmware Interface (UEFI) specification for
 + * details.
@@ -373,32 +412,13 @@ index 72b7ec1e63..b44578b15a 100644
 + */
 +static efi_status_t EFIAPI efi_file_flush(struct efi_file_handle *this)
  {
--	EFI_ENTRY("%p", file);
--	return EFI_EXIT(EFI_SUCCESS);
--}
-+	efi_status_t ret = EFI_SUCCESS;
- 
--static efi_status_t EFIAPI efi_file_open_ex(struct efi_file_handle *file,
--			struct efi_file_handle **new_handle,
--			u16 *file_name, u64 open_mode, u64 attributes,
--			struct efi_file_io_token *token)
--{
 -	return EFI_UNSUPPORTED;
--}
++	efi_status_t ret;
++
 +	EFI_ENTRY("%p", this);
- 
--static efi_status_t EFIAPI efi_file_read_ex(struct efi_file_handle *file,
--			struct efi_file_io_token *token)
--{
--	return EFI_UNSUPPORTED;
--}
-+	if (!this)
-+		ret = EFI_INVALID_PARAMETER;
- 
--static efi_status_t EFIAPI efi_file_write_ex(struct efi_file_handle *file,
--			struct efi_file_io_token *token)
--{
--	return EFI_UNSUPPORTED;
++
++	ret = efi_file_flush_int(this);
++
 +	return EFI_EXIT(ret);
  }
  
@@ -420,16 +440,18 @@ index 72b7ec1e63..b44578b15a 100644
 +					     struct efi_file_io_token *token)
  {
 -	return EFI_UNSUPPORTED;
-+	efi_status_t ret = EFI_SUCCESS;
++	efi_status_t ret;
 +
 +	EFI_ENTRY("%p, %p", this, token);
 +
-+	if (!this || !token) {
++	if (!token) {
 +		ret = EFI_INVALID_PARAMETER;
 +		goto out;
 +	}
 +
-+	if (token->event) {
++	ret = efi_file_flush_int(this);
++
++	if (ret == EFI_SUCCESS && token->event) {
 +		token->status = EFI_SUCCESS;
 +		efi_signal_event(token->event);
 +	}
