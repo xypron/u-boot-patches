@@ -112,15 +112,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-01-rc3-2
+# efi-2021-01-rc5
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
-git am ../patch/0001-efi_loader-missing-parentheses-after-if.patch
-git am ../patch/0001-efi_loader-escape-key-handling.patch
-git am ../patch/0001-efi_loader-avoid-invalid-free.patch
-git am ../patch/0001-efi_loader-efi_signal_event-fix-comment-typos.patch
-git am ../patch/0001-efi_loader-describe-struct-efi_loaded_image_obj.patch
-git am ../patch/0001-efi_loader-use-after-free-in-efi_exit.patch
 
 exit
 
@@ -161,13 +154,13 @@ git am ../patch/0001-efi_selftest-test-EFI_LOAD_FILE_PROTOCOL.patch
 git am ../patch/0001-efi_loader-make-efi_protocol_open-non-static.patch
 git am ../patch/0001-efi_loader-link-partition-to-block-device.patch
 
-# To be added
 git am ../patch/0001-efi_loader-event-queueing.patch
 
 git am ../patch/0001-efi_loader-Remove-unused-headers-from-efi_load_initr.patch
 git am ../patch/0001-efi_loader-Remove-unconditional-installation-of-file.patch
 git am ../patch/0001-efi_loader-Add-size-checks-to-efi_create_indexed_nam.patch
 
+# To be added
 git am ../patch/0001-efi_loader-implement-non-blocking-file-services.patch
 
 git am ../patch/0001-efi_loader-keyboard-layout.patch
