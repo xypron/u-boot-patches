@@ -8,6 +8,7 @@ Two sibling headings can never be the same.
 Fix the heading levels.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  doc/board/freescale/b4860qds.rst | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
