@@ -38,6 +38,7 @@ git am ../patch/0001-doc-board-fix-README.b4860qds.patch
 git am ../patch/0001-doc-move-README.fdt-overlays-to-HTML-documentation.patch
 git am ../patch/0001-doc-sifive-fu540-fix-heading-levels.patch
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
+git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 
 # FAT file system
 git am ../patch/0001-common-always-compile-fixup_cmdtable.patch
