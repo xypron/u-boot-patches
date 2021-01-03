@@ -1,0 +1,46 @@
+From 609e7c8c6965d8d83ef2ebabbefb9c6b41fdda13 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 3 Jan 2021 18:02:22 +0100
+Subject: [PATCH 1/1] fru: ops: avoid out of bounds access
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Building xilinx_zynq_virt_defconfig fails on origin/next as reported by
+GCC 10.2 (as provided by Debian Bullseye):
+
+  CC      board/xilinx/common/fru_ops.o
+board/xilinx/common/fru_ops.c: In function ‘fru_capture’:
+board/xilinx/common/fru_ops.c:173:8:
+error: array subscript 284 is outside array bounds of
+‘struct fru_table[1]’ [-Werror=array-bounds]
+  173 |  limit = data + sizeof(struct fru_board_data);
+      |  ~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+board/xilinx/common/fru_ops.c:17:18: note: while referencing ‘fru_data’
+   17 | struct fru_table fru_data __section(.data);
+      |                  ^~~~~~~~
+
+When using sizeof(struct fru_board_data) to find the end of the structure
+you should add it to the start of the structure.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ board/xilinx/common/fru_ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/board/xilinx/common/fru_ops.c b/board/xilinx/common/fru_ops.c
+index b4cd3d4998..44f0913f2e 100644
+--- a/board/xilinx/common/fru_ops.c
++++ b/board/xilinx/common/fru_ops.c
+@@ -170,7 +170,7 @@ static int fru_parse_board(unsigned long addr)
+ 	data = (u8 *)&fru_data.brd.manufacturer_type_len;
+ 
+ 	/* Record max structure limit not to write data over allocated space */
+-	limit = data + sizeof(struct fru_board_data);
++	limit = (u8 *)&fru_data.brd + sizeof(struct fru_board_data);
+ 
+ 	for (i = 0; ; i++, data += FRU_BOARD_MAX_LEN) {
+ 		len = fru_check_type_len(*(u8 *)addr, fru_data.brd.lang_code,
+-- 
+2.29.2
+
