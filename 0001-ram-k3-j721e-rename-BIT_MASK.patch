@@ -1,0 +1,122 @@
+From 3e55721184f4a7a2a3aa64ce660b386ad3bd6208 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 3 Jan 2021 19:17:29 +0100
+Subject: [PATCH] ram: k3-j721e: rename BIT_MASK()
+
+The macro BIT_MASK is already defined in include/linux/bitops.h. To avoid
+name collisions rename BIT_MASK() in drivers/ram/k3-j721e/lpddr4_private.h
+to LPDDR4_BIT_MASK().
+
+Remove superfluous parantheses.
+Remove superfluous comparison to 0.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/ram/k3-j721e/lpddr4.c         | 14 +++++++-------
+ drivers/ram/k3-j721e/lpddr4_private.h | 20 ++++++++++++--------
+ 2 files changed, 19 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/ram/k3-j721e/lpddr4.c b/drivers/ram/k3-j721e/lpddr4.c
+index fc80fb1e2c..68043d7cb6 100644
+--- a/drivers/ram/k3-j721e/lpddr4.c
++++ b/drivers/ram/k3-j721e/lpddr4.c
+@@ -719,7 +719,7 @@ uint32_t lpddr4_checkctlinterrupt(const lpddr4_privatedata * pd,
+ 
+ 		/* MISRA compliance (Shifting operation) check */
+ 		if (fieldshift < WORD_SHIFT) {
+-			if (((ctlirqstatus >> fieldshift) & BIT_MASK) > 0U) {
++			if ((ctlirqstatus >> fieldshift) & LPDDR4_BIT_MASK) {
+ 				*irqstatus = true;
+ 			} else {
+ 				*irqstatus = false;
+@@ -746,11 +746,11 @@ uint32_t lpddr4_ackctlinterrupt(const lpddr4_privatedata * pd,
+ 		if (localinterrupt > WORD_SHIFT) {
+ 			localinterrupt =
+ 			    (localinterrupt - (uint32_t) WORD_SHIFT);
+-			regval = ((uint32_t) BIT_MASK << localinterrupt);
++			regval = (uint32_t)LPDDR4_BIT_MASK << localinterrupt;
+ 			CPS_REG_WRITE(&(ctlregbase->LPDDR4__INT_ACK_1__REG),
+ 				      regval);
+ 		} else {
+-			regval = ((uint32_t) BIT_MASK << localinterrupt);
++			regval = (uint32_t)LPDDR4_BIT_MASK << localinterrupt;
+ 			CPS_REG_WRITE(&(ctlregbase->LPDDR4__INT_ACK_0__REG),
+ 				      regval);
+ 		}
+@@ -823,7 +823,7 @@ uint32_t lpddr4_checkphyindepinterrupt(const lpddr4_privatedata * pd,
+ 		phyindepirqstatus =
+ 		    CPS_REG_READ(&(ctlregbase->LPDDR4__PI_INT_STATUS__REG));
+ 		*irqstatus =
+-		    (((phyindepirqstatus >> (uint32_t) intr) & BIT_MASK) > 0U);
++		    !!((phyindepirqstatus >> (uint32_t)intr) & LPDDR4_BIT_MASK);
+ 	}
+ 	return result;
+ }
+@@ -841,7 +841,7 @@ uint32_t lpddr4_ackphyindepinterrupt(const lpddr4_privatedata * pd,
+ 		lpddr4_ctlregs *ctlregbase = (lpddr4_ctlregs *) pd->ctlbase;
+ 
+ 		/* Write 1 to the requested bit to ACk the interrupt */
+-		regval = ((uint32_t) BIT_MASK << ui32shiftinterrupt);
++		regval = (uint32_t)LPDDR4_BIT_MASK << ui32shiftinterrupt;
+ 		CPS_REG_WRITE(&(ctlregbase->LPDDR4__PI_INT_ACK__REG), regval);
+ 	}
+ 
+@@ -894,7 +894,7 @@ static void lpddr4_checkwrlvlerror(lpddr4_ctlregs * ctlregbase,
+ 	    (volatile uint32_t
+ 	     *)(&(ctlregbase->LPDDR4__PHY_WRLVL_ERROR_OBS_0__REG));
+ 	/* PHY_WRLVL_ERROR_OBS_X[1:0] should be zero */
+-	errbitmask = (BIT_MASK << 1) | (BIT_MASK);
++	errbitmask = (LPDDR4_BIT_MASK << 1) | LPDDR4_BIT_MASK;
+ 	for (snum = 0U; snum < DSLICE_NUM; snum++) {
+ 		regval = CPS_REG_READ(regaddress);
+ 		if ((regval & errbitmask) != 0U) {
+@@ -1054,7 +1054,7 @@ static void lpddr4_seterrors(lpddr4_ctlregs * ctlregbase,
+ 			     lpddr4_debuginfo * debuginfo, bool * errfoundptr)
+ {
+ 
+-	uint32_t errbitmask = (BIT_MASK << 0x1U) | (BIT_MASK);
++	uint32_t errbitmask = (LPDDR4_BIT_MASK << 0x1U) | LPDDR4_BIT_MASK;
+ 	/* Check PLL observation registers for PLL lock errors */
+ 
+ 	debuginfo->pllerror =
+diff --git a/drivers/ram/k3-j721e/lpddr4_private.h b/drivers/ram/k3-j721e/lpddr4_private.h
+index 42c923464a..3d5017ea47 100644
+--- a/drivers/ram/k3-j721e/lpddr4_private.h
++++ b/drivers/ram/k3-j721e/lpddr4_private.h
+@@ -14,9 +14,9 @@
+ #define VERSION_0  (0x54d5da40U)
+ #define VERSION_1  (0xc1865a1U)
+ 
+-#define BIT_MASK    (0x1U)
+-#define BYTE_MASK   (0xffU)
+-#define NIBBLE_MASK (0xfU)
++#define LPDDR4_BIT_MASK	(0x1U)
++#define BYTE_MASK	(0xffU)
++#define NIBBLE_MASK	(0xfU)
+ 
+ #define WORD_SHIFT (32U)
+ #define WORD_MASK (0xffffffffU)
+@@ -46,11 +46,15 @@
+ #define IO_CALIB_DONE ((uint32_t)0x1U << 23U)
+ #define IO_CALIB_FIELD ((uint32_t)NIBBLE_MASK << 28U)
+ #define IO_CALIB_STATE ((uint32_t)0xBU << 28U)
+-#define RX_CAL_DONE ((uint32_t)BIT_MASK << 4U)
+-#define CA_TRAIN_RL (((uint32_t)BIT_MASK << 5U) | ((uint32_t)BIT_MASK << 4U))
++#define RX_CAL_DONE ((uint32_t)LPDDR4_BIT_MASK << 4U)
++#define CA_TRAIN_RL (((uint32_t)LPDDR4_BIT_MASK << 5U) | \
++		     ((uint32_t)LPDDR4_BIT_MASK << 4U))
+ #define WR_LVL_STATE (((uint32_t)NIBBLE_MASK) << 13U)
+-#define GATE_LVL_ERROR_FIELDS (((uint32_t)BIT_MASK << 7U) | ((uint32_t)BIT_MASK << 6U))
+-#define READ_LVL_ERROR_FIELDS ((((uint32_t)NIBBLE_MASK) << 28U) | (((uint32_t)BYTE_MASK) << 16U))
+-#define DQ_LVL_STATUS (((uint32_t)BIT_MASK << 26U) | (((uint32_t)BYTE_MASK) << 18U))
++#define GATE_LVL_ERROR_FIELDS (((uint32_t)LPDDR4_BIT_MASK << 7U) | \
++			       ((uint32_t)LPDDR4_BIT_MASK << 6U))
++#define READ_LVL_ERROR_FIELDS ((((uint32_t)NIBBLE_MASK) << 28U) | \
++			       (((uint32_t)BYTE_MASK) << 16U))
++#define DQ_LVL_STATUS (((uint32_t)LPDDR4_BIT_MASK << 26U) | \
++		       (((uint32_t)BYTE_MASK) << 18U))
+ 
+ #endif  /* LPDDR4_PRIV_H */
+-- 
+2.29.2
+

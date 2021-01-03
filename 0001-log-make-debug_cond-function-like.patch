@@ -1,0 +1,51 @@
+From a0a78555600d2826f55e482d50294fa1e0989d56 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 3 Jan 2021 17:09:56 +0100
+Subject: [PATCH] log: make debug_cond() function like
+
+Change debug_cond() such that it can be used instead of a function like
+debug().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/log.h | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+diff --git a/include/log.h b/include/log.h
+index 29f18a82dc..34cea802a1 100644
+--- a/include/log.h
++++ b/include/log.h
+@@ -217,10 +217,9 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
+ #if !_DEBUG && CONFIG_IS_ENABLED(LOG)
+ 
+ #define debug_cond(cond, fmt, args...)			\
+-	do {						\
+-		if (1)					\
+-			log(LOG_CATEGORY, LOGL_DEBUG, fmt, ##args); \
+-	} while (0)
++({							\
++	log(LOG_CATEGORY, LOGL_DEBUG, fmt, ##args);	\
++})
+ 
+ #else /* _DEBUG */
+ 
+@@ -229,11 +228,11 @@ static inline int _log_nop(enum log_category_t cat, enum log_level_t level,
+  * computed by a preprocessor in the best case, allowing for the best
+  * optimization.
+  */
+-#define debug_cond(cond, fmt, args...)			\
+-	do {						\
+-		if (cond)				\
+-			printf(pr_fmt(fmt), ##args);	\
+-	} while (0)
++#define debug_cond(cond, fmt, args...)		\
++({						\
++	if (cond)				\
++		printf(pr_fmt(fmt), ##args);	\
++})
+ 
+ #endif /* _DEBUG */
+ 
+-- 
+2.29.2
+

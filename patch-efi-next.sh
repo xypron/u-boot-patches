@@ -73,6 +73,12 @@ git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 
+git am ../patch/0001-ram-k3-j721e-rename-BIT_MASK.patch
+git am ../patch/0001-log-make-debug_cond-function-like.patch
+git am ../patch/0001-log-provide-missing-macros.patch
+git am ../patch/0001-log-convert-pr_-to-logging.patch
+git am ../patch/0001-test-unit-test-for-pr_err-pr_cont.patch
+
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 
