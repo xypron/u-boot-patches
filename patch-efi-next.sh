@@ -178,6 +178,7 @@ git am ../patch/0001-efi_loader-typedef-efi_string_t-text-output-protocol.patch
 git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
 git am ../patch/0001-efi_loader-delete-HII-protocol-implementations.patch
 git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.patch
+git am ../patch/0001-efi_loader-EFI_HII_STRING_PROTOCOL.patch
 
 exit
 
