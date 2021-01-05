@@ -169,11 +169,15 @@ git am ../patch/0001-efi_loader-Remove-unconditional-installation-of-file.patch
 git am ../patch/0001-efi_loader-Add-size-checks-to-efi_create_indexed_nam.patch
 
 # To be added
-git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
 git am ../patch/0001-efi_loader-implement-non-blocking-file-services.patch
 
-git am ../patch/0001-efi_loader-keyboard-layout.patch
-git am ../patch/0001-Separate-HII-protocols.patch
+
+# HII
+git am ../patch/0001-efi_loader-move-efi_-u-intn_t-to-efi.h.patch
+git am ../patch/0001-efi_loader-typedef-efi_string_t-text-output-protocol.patch
+git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
+git am ../patch/0001-efi_loader-delete-HII-protocol-implementations.patch
+git am ../patch/0001-efi_loader-EFI_HII_DATABASE_PROTOCOL.patch
 
 exit
 

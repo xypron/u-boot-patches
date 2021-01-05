@@ -1,63 +1,184 @@
-From ccac414fec00a9b41fc111d1bf152d6228e3fbdf Mon Sep 17 00:00:00 2001
+From cf7555b38ba1fad7ac317d1ae079c4ae73309264 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Sat, 2 Jan 2021 12:20:15 +0100
-Subject: [PATCH 1/1] efi_loader: keyboard layout
+Date: Tue, 5 Jan 2021 18:36:44 +0100
+Subject: [PATCH 1/1] efi_loader: EFI_HII_DATABASE_PROTOCOL
 
-Provide an include with the en-US keyboard layout.
+Implement the EFI HII Database Protocol.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_api.h             |  25 ----
- include/efi_keyboard_layout.h | 246 ++++++++++++++++++++++++++++++++++
- 2 files changed, 246 insertions(+), 25 deletions(-)
- create mode 100644 include/efi_keyboard_layout.h
+ cmd/efidebug.c                    |   9 +
+ include/efi_hii.h                 | 115 +++++++++++++
+ include/efi_hii_keyboard_layout.h | 266 ++++++++++++++++++++++++++++++
+ lib/efi_loader/Kconfig            |   7 +
+ lib/efi_loader/Makefile           |   1 +
+ lib/efi_loader/efi_hii_db.c       |  12 ++
+ lib/efi_loader/efi_root_node.c    |   6 +
+ 7 files changed, 416 insertions(+)
+ create mode 100644 include/efi_hii.h
+ create mode 100644 include/efi_hii_keyboard_layout.h
+ create mode 100644 lib/efi_loader/efi_hii_db.c
 
-diff --git a/include/efi_api.h b/include/efi_api.h
-index 5744f6aed8..537ac3a958 100644
---- a/include/efi_api.h
-+++ b/include/efi_api.h
-@@ -972,31 +972,6 @@ typedef efi_uintn_t efi_browser_action_request_t;
- /*
-  * HII keyboard package
-  */
--typedef enum {
--	EFI_KEY_LCTRL, EFI_KEY_A0, EFI_KEY_LALT, EFI_KEY_SPACE_BAR,
--	EFI_KEY_A2, EFI_KEY_A3, EFI_KEY_A4, EFI_KEY_RCTRL, EFI_KEY_LEFT_ARROW,
--	EFI_KEY_DOWN_ARROW, EFI_KEY_RIGHT_ARROW, EFI_KEY_ZERO,
--	EFI_KEY_PERIOD, EFI_KEY_ENTER, EFI_KEY_LSHIFT, EFI_KEY_B0,
--	EFI_KEY_B1, EFI_KEY_B2, EFI_KEY_B3, EFI_KEY_B4, EFI_KEY_B5, EFI_KEY_B6,
--	EFI_KEY_B7, EFI_KEY_B8, EFI_KEY_B9, EFI_KEY_B10, EFI_KEY_RSHIFT,
--	EFI_KEY_UP_ARROW, EFI_KEY_ONE, EFI_KEY_TWO, EFI_KEY_THREE,
--	EFI_KEY_CAPS_LOCK, EFI_KEY_C1, EFI_KEY_C2, EFI_KEY_C3, EFI_KEY_C4,
--	EFI_KEY_C5, EFI_KEY_C6, EFI_KEY_C7, EFI_KEY_C8, EFI_KEY_C9,
--	EFI_KEY_C10, EFI_KEY_C11, EFI_KEY_C12, EFI_KEY_FOUR, EFI_KEY_FIVE,
--	EFI_KEY_SIX, EFI_KEY_PLUS, EFI_KEY_TAB, EFI_KEY_D1, EFI_KEY_D2,
--	EFI_KEY_D3, EFI_KEY_D4, EFI_KEY_D5, EFI_KEY_D6, EFI_KEY_D7, EFI_KEY_D8,
--	EFI_KEY_D9, EFI_KEY_D10, EFI_KEY_D11, EFI_KEY_D12, EFI_KEY_D13,
--	EFI_KEY_DEL, EFI_KEY_END, EFI_KEY_PG_DN, EFI_KEY_SEVEN, EFI_KEY_EIGHT,
--	EFI_KEY_NINE, EFI_KEY_E0, EFI_KEY_E1, EFI_KEY_E2, EFI_KEY_E3,
--	EFI_KEY_E4, EFI_KEY_E5, EFI_KEY_E6, EFI_KEY_E7, EFI_KEY_E8, EFI_KEY_E9,
--	EFI_KEY_E10, EFI_KEY_E11, EFI_KEY_E12, EFI_KEY_BACK_SPACE,
--	EFI_KEY_INS, EFI_KEY_HOME, EFI_KEY_PG_UP, EFI_KEY_NLCK, EFI_KEY_SLASH,
--	EFI_KEY_ASTERISK, EFI_KEY_MINUS, EFI_KEY_ESC, EFI_KEY_F1, EFI_KEY_F2,
--	EFI_KEY_F3, EFI_KEY_F4, EFI_KEY_F5, EFI_KEY_F6, EFI_KEY_F7, EFI_KEY_F8,
--	EFI_KEY_F9, EFI_KEY_F10, EFI_KEY_F11, EFI_KEY_F12, EFI_KEY_PRINT,
--	EFI_KEY_SLCK, EFI_KEY_PAUSE,
--} efi_key;
--
- struct efi_key_descriptor {
- 	u32 key;
- 	u16 unicode;
-diff --git a/include/efi_keyboard_layout.h b/include/efi_keyboard_layout.h
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index b631260bdf..089289d58f 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -8,6 +8,7 @@
+ #include <charset.h>
+ #include <common.h>
+ #include <command.h>
++#include <efi_hii.h>
+ #include <efi_loader.h>
+ #include <efi_rng.h>
+ #include <exports.h>
+@@ -467,6 +468,14 @@ static const struct {
+ 		"Graphics Output",
+ 		EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID,
+ 	},
++	{
++		"HII String",
++		EFI_HII_STRING_PROTOCOL_GUID,
++	},
++	{
++		"HII Database",
++		EFI_HII_DATABASE_PROTOCOL_GUID,
++	},
+ 	{
+ 		"Load File2",
+ 		EFI_LOAD_FILE2_PROTOCOL_GUID,
+diff --git a/include/efi_hii.h b/include/efi_hii.h
 new file mode 100644
-index 0000000000..1d76729c24
+index 0000000000..2d1fa79404
 --- /dev/null
-+++ b/include/efi_keyboard_layout.h
-@@ -0,0 +1,246 @@
++++ b/include/efi_hii.h
+@@ -0,0 +1,115 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ *  EFI HII Database Protocol
++ *
++ *  Copyright (c) 2021 Heinrich Schuchardt
++ */
++
++#include <efi.h>
++#include <efi_hii_keyboard_layout.h>
++#include <linux/list.h>
++
++#define EFI_HII_DATABASE_PROTOCOL_GUID \
++	EFI_GUID(0xef9fc172, 0xa1b2, 0x4693, 0xb3, 0x27, \
++		 0x6d, 0x32, 0xfc, 0x41, 0x60, 0x42)
++
++#define EFI_HII_STRING_PROTOCOL_GUID \
++	EFI_GUID(0x0fd96974, 0x23aa, 0x4cdc, 0xb9, 0xcb, \
++		 0x98, 0xd1, 0x77, 0x50, 0x32, 0x2a)
++
++extern const efi_guid_t efi_guid_hii_database_protocol;
++extern const efi_guid_t efi_guid_hii_string_protocol;
++
++struct efi_hii_package_list_header {
++	efi_guid_t package_list_guid;
++	u32 package_length;
++};
++
++struct efi_hii_handle {
++	struct list_head link;
++	const efi_handle_t driver_handle;
++	struct efi_hii_package_list_header *package_list;
++};
++
++struct efi_hii_package_header {
++	u32 length_type;
++	u8 data[];
++};
++
++struct efi_hii_notify_handle {
++	struct list_head link;
++	const efi_guid_t *package_guid;
++	efi_uintn_t notify_type;
++	efi_status_t (EFIAPI *package_notify_fn) (
++		u8 package_type,
++		const efi_guid_t *package_guid,
++		const struct efi_hii_package_header *package,
++		struct efi_hii_handle *handle,
++		efi_uintn_t notify_type
++	);
++};
++
++struct efi_hii_database_protocol {
++	efi_status_t (EFIAPI *new_package_list)(
++			const struct efi_hii_database_protocol *this,
++			const struct efi_hii_package_list_header *package_list,
++			const efi_handle_t driver_handle,
++			struct efi_hii_handle **handle);
++	efi_status_t (EFIAPI *remove_package_list) (
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle);
++	efi_status_t (EFIAPI *update_package_list) (
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle,
++			const struct efi_hii_package_list_header *package_list);
++	efi_status_t (EFIAPI *list_package_lists) (
++			const struct efi_hii_database_protocol *this,
++			u8 package_type,
++			efi_guid_t *package_guid,
++			efi_uintn_t *handle_buffer_length,
++			struct efi_hii_handle **handle);
++	efi_status_t (EFIAPI *export_package_lists) (
++			const struct efi_hii_database_protocol *this,
++			efi_handle_t driver_handle,
++			efi_uintn_t *buffer_size,
++			struct efi_hii_package_list_header *buffer);
++	efi_status_t (EFIAPI *register_package_notify) (
++			const struct efi_hii_database_protocol *this,
++			u8 package_type,
++			const efi_guid_t *package_guid,
++			efi_status_t (EFIAPI *package_notify_fn) (
++				u8 package_type,
++				const efi_guid_t *package_guid,
++				const struct efi_hii_package_header *package,
++				struct efi_hii_handle *handle,
++				efi_uintn_t notify_type
++			),
++			efi_uintn_t notify_type,
++			struct efi_hii_notify_handle **notify_handle);
++	efi_status_t (EFIAPI *unregister_package_notify) (
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_notify_handle *notify_handle);
++	efi_status_t (EFIAPI *find_keyboard_layouts) (
++			const struct efi_hii_database_protocol *this,
++			u16 key_guid_buffer_length,
++			efi_guid_t *key_guid_buffer);
++	efi_status_t (EFIAPI *get_keyboard_layout) (
++			const struct efi_hii_database_protocol *this,
++			efi_guid_t *key_guid,
++			u16 *key_buffer_length,
++			struct efi_hii_keyboard_layout *keyboard_layout);
++	efi_status_t (EFIAPI *set_keyboard_layout) (
++			const struct efi_hii_database_protocol *this,
++			efi_guid_t *key_guid);
++	efi_status_t (EFIAPI *get_package_list_handle) (
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle,
++			efi_handle_t driver_handle);
++};
++
++struct efi_hii_string_protocol {
++};
++
++extern struct efi_hii_database_protocol efi_hii_database_protocol;
++
++extern struct efi_hii_string_protocol efi_hii_string_protocol;
+diff --git a/include/efi_hii_keyboard_layout.h b/include/efi_hii_keyboard_layout.h
+new file mode 100644
+index 0000000000..d4525017d4
+--- /dev/null
++++ b/include/efi_hii_keyboard_layout.h
+@@ -0,0 +1,266 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +/*
 + * UEFI keyboard layout definitions
 + */
++
++#include <linux/compiler_attributes.h>
 +
 +typedef enum {
 +	EFI_KEY_LCTRL, EFI_KEY_A0, EFI_KEY_LALT, EFI_KEY_SPACE_BAR,
@@ -300,6 +421,96 @@ index 0000000000..1d76729c24
 +	{EFI_KEY_PERIOD, '.', '.', 0, 0, EFI_DELETE_MODIFIER, \
 +	 EFI_AFFECTED_BY_STANDARD_SHIFT | EFI_AFFECTED_BY_NUM_LOCK}, \
 +}
++
++struct efi_key_descriptor {
++	u32 key;
++	u16 unicode;
++	u16 shifted_unicode;
++	u16 alt_gr_unicode;
++	u16 shifted_alt_gr_unicode;
++	u16 modifier;
++	u16 affected_modifier;
++} __packed;
++
++struct efi_hii_keyboard_layout {
++	u16 layout_length;
++	efi_guid_t *guid;
++	u32 layout_descriptor_string_offset;
++	u8 descriptor_count;
++	struct efi_key_descriptor descriptors[];
++} __packed;
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 9b6b9a0139..07b0ec52ca 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -200,6 +200,13 @@ config EFI_DEVICE_PATH_TO_TEXT
+ 	  The device path to text protocol converts device nodes and paths to
+ 	  human readable strings.
+ 
++config EFI_HII
++	bool "HII protocols"
++	default y
++	help
++	  Provide the HII Database Protocol and the HII String Protocol. 
++	  Both are needed to run the UEFI Shell.
++
+ config EFI_UNICODE_COLLATION_PROTOCOL2
+ 	bool "Unicode collation protocol"
+ 	default y
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index 2fef506d97..37a7c1917c 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -30,6 +30,7 @@ obj-y += efi_device_path.o
+ obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
+ obj-y += efi_device_path_utilities.o
+ obj-y += efi_file.o
++obj-$(CONFIG_EFI_HII) += efi_hii_db.o
+ obj-y += efi_image_loader.o
+ obj-y += efi_memory.o
+ obj-y += efi_root_node.o
+diff --git a/lib/efi_loader/efi_hii_db.c b/lib/efi_loader/efi_hii_db.c
+new file mode 100644
+index 0000000000..8100d420e9
+--- /dev/null
++++ b/lib/efi_loader/efi_hii_db.c
+@@ -0,0 +1,12 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  EFI HII Database Protocol
++ *
++ *  Copyright (c) 2021 Heinrich Schuchardt
++ */
++
++#include <common.h>
++#include <efi_hii.h>
++
++const efi_guid_t efi_guid_hii_database_protocol = EFI_HII_DATABASE_PROTOCOL_GUID;
++struct efi_hii_database_protocol efi_hii_database_protocol;
+diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
+index eaf8c15d29..192a6b8ce2 100644
+--- a/lib/efi_loader/efi_root_node.c
++++ b/lib/efi_loader/efi_root_node.c
+@@ -7,6 +7,7 @@
+ 
+ #include <common.h>
+ #include <malloc.h>
++#include <efi_hii.h>
+ #include <efi_loader.h>
+ 
+ const efi_guid_t efi_u_boot_guid = U_BOOT_GUID;
+@@ -69,6 +70,11 @@ efi_status_t efi_root_node_register(void)
+ 			 /* Current Unicode collation protocol */
+ 			 &efi_guid_unicode_collation_protocol2,
+ 			 (void *)&efi_unicode_collation_protocol2,
++#endif
++#if CONFIG_IS_ENABLED(EFI_HII)
++			 /* HII database protocol */
++			 &efi_guid_hii_database_protocol,
++			 (void *)&efi_hii_database_protocol,
+ #endif
+ 			 NULL));
+ 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
 -- 
 2.29.2
 

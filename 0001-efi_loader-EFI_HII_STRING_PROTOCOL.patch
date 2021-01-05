@@ -1,0 +1,64 @@
+From 1551f7797e602f7a128de1fd5f970478212d4cc1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 5 Jan 2021 18:42:38 +0100
+Subject: [PATCH 1/1] efi_loader: EFI_HII_STRING_PROTOCOL
+
+Implement the EFI HII String Protocol
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/Makefile         |  2 +-
+ lib/efi_loader/efi_hii_string.c | 13 +++++++++++++
+ lib/efi_loader/efi_root_node.c  |  3 +++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
+ create mode 100644 lib/efi_loader/efi_hii_string.c
+
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index 37a7c1917c..ea7db526a7 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -30,7 +30,7 @@ obj-y += efi_device_path.o
+ obj-$(CONFIG_EFI_DEVICE_PATH_TO_TEXT) += efi_device_path_to_text.o
+ obj-y += efi_device_path_utilities.o
+ obj-y += efi_file.o
+-obj-$(CONFIG_EFI_HII) += efi_hii_db.o
++obj-$(CONFIG_EFI_HII) += efi_hii_db.o efi_hii_string.o
+ obj-y += efi_image_loader.o
+ obj-y += efi_memory.o
+ obj-y += efi_root_node.o
+diff --git a/lib/efi_loader/efi_hii_string.c b/lib/efi_loader/efi_hii_string.c
+new file mode 100644
+index 0000000000..0dd519dcbb
+--- /dev/null
++++ b/lib/efi_loader/efi_hii_string.c
+@@ -0,0 +1,13 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  EFI HII Database Protocol
++ *
++ *  Copyright (c) 2021 Heinrich Schuchardt
++ */
++
++#include <common.h>
++#include <efi_hii.h>
++
++const efi_guid_t efi_guid_hii_string_protocol = EFI_HII_STRING_PROTOCOL_GUID;
++struct efi_hii_string_protocol efi_hii_string_protocol;
++
+diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
+index 192a6b8ce2..8979f212a8 100644
+--- a/lib/efi_loader/efi_root_node.c
++++ b/lib/efi_loader/efi_root_node.c
+@@ -75,6 +75,9 @@ efi_status_t efi_root_node_register(void)
+ 			 /* HII database protocol */
+ 			 &efi_guid_hii_database_protocol,
+ 			 (void *)&efi_hii_database_protocol,
++			 /* HII string protocol */
++			 &efi_guid_hii_string_protocol,
++			 (void *)&efi_hii_string_protocol,
+ #endif
+ 			 NULL));
+ 	efi_root->type = EFI_OBJECT_TYPE_U_BOOT_FIRMWARE;
+-- 
+2.29.2
+

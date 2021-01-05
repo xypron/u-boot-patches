@@ -1,0 +1,63 @@
+From 972314093991f911c718b198c6f23ecd749a9cdc Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 5 Jan 2021 07:50:09 +0100
+Subject: [PATCH 1/1] efi_loader: typedef efi_string_t text output protocol
+
+We do not want to use typedefs in U-Boot.
+
+Do not use efi_string_t in the EFI_TEXT_OUTPUT_PROTOCOL.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h            | 4 ++--
+ lib/efi_loader/efi_console.c | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index e6e321c4e8..110396b899 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -701,10 +701,10 @@ struct efi_simple_text_output_protocol {
+ 			char extended_verification);
+ 	efi_status_t (EFIAPI *output_string)(
+ 			struct efi_simple_text_output_protocol *this,
+-			const efi_string_t str);
++			const u16 *str);
+ 	efi_status_t (EFIAPI *test_string)(
+ 			struct efi_simple_text_output_protocol *this,
+-			const efi_string_t str);
++			const u16 *str);
+ 	efi_status_t(EFIAPI *query_mode)(
+ 			struct efi_simple_text_output_protocol *this,
+ 			unsigned long mode_number, unsigned long *columns,
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 705109596e..edcfce7bec 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -141,12 +141,12 @@ static int term_read_reply(int *n, int num, char end_char)
+  */
+ static efi_status_t EFIAPI efi_cout_output_string(
+ 			struct efi_simple_text_output_protocol *this,
+-			const efi_string_t string)
++			const u16 *string)
+ {
+ 	struct simple_text_output_mode *con = &efi_con_mode;
+ 	struct cout_mode *mode = &efi_cout_modes[con->mode];
+ 	char *buf, *pos;
+-	u16 *p;
++	const u16 *p;
+ 	efi_status_t ret = EFI_SUCCESS;
+ 
+ 	EFI_ENTRY("%p, %p", this, string);
+@@ -230,7 +230,7 @@ out:
+  */
+ static efi_status_t EFIAPI efi_cout_test_string(
+ 			struct efi_simple_text_output_protocol *this,
+-			const efi_string_t string)
++			const u16 *string)
+ {
+ 	EFI_ENTRY("%p, %p", this, string);
+ 	return EFI_EXIT(EFI_SUCCESS);
+-- 
+2.29.2
+
