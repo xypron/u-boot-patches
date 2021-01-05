@@ -1,0 +1,29 @@
+From fe9c28d58994054365a62f8bd19c2c791fea2d26 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 5 Jan 2021 08:22:51 +0100
+Subject: [PATCH 1/1] efi_loader: remove outdated TODO in efi_memory.c
+
+In efi_mem_sort() adjacent memory regions of same type are coalesced.
+Remove the remark "Merging of adjacent free regions is missing".
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_memory.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_memory.c b/lib/efi_loader/efi_memory.c
+index 11e755363e..a3106aba7f 100644
+--- a/lib/efi_loader/efi_memory.c
++++ b/lib/efi_loader/efi_memory.c
+@@ -541,8 +541,6 @@ efi_status_t efi_free_pages(uint64_t memory, efi_uintn_t pages)
+ 
+ 	ret = efi_add_memory_map_pg(memory, pages, EFI_CONVENTIONAL_MEMORY,
+ 				    false);
+-	/* Merging of adjacent free regions is missing */
+-
+ 	if (ret != EFI_SUCCESS)
+ 		return EFI_NOT_FOUND;
+ 
+-- 
+2.29.2
+

@@ -169,10 +169,12 @@ git am ../patch/0001-efi_loader-Remove-unconditional-installation-of-file.patch
 git am ../patch/0001-efi_loader-Add-size-checks-to-efi_create_indexed_nam.patch
 
 # To be added
+git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
 git am ../patch/0001-efi_loader-implement-non-blocking-file-services.patch
 
 git am ../patch/0001-efi_loader-keyboard-layout.patch
 git am ../patch/0001-Separate-HII-protocols.patch
+
 exit
 
 git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
