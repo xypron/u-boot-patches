@@ -169,7 +169,10 @@ git am ../patch/0001-efi_loader-Add-size-checks-to-efi_create_indexed_nam.patch
 
 # To be added
 git am ../patch/0001-efi_loader-implement-non-blocking-file-services.patch
-
+git am ../patch/0001-tools-efivar.py-without-arguments.patch
+git am ../patch/0001-tools-efivar.py-incorrect-indentation.patch
+git am ../patch/0001-tools-efivar.py-should-check-GUID-when-deleting.patch
+git am ../patch/0001-tools-efivar.py-unused-variable.patch
 
 # HII
 git am ../patch/0001-efi_loader-move-efi_-u-intn_t-to-efi.h.patch
