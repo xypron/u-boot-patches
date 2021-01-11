@@ -1,7 +1,7 @@
-From cf7555b38ba1fad7ac317d1ae079c4ae73309264 Mon Sep 17 00:00:00 2001
+From 159150d33fad3a911371b2b5b11ecc2932de0374 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 5 Jan 2021 18:36:44 +0100
-Subject: [PATCH 1/1] efi_loader: EFI_HII_DATABASE_PROTOCOL
+Subject: [PATCH] efi_loader: EFI_HII_DATABASE_PROTOCOL
 
 Implement the EFI HII Database Protocol.
 
@@ -12,9 +12,9 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_hii_keyboard_layout.h | 266 ++++++++++++++++++++++++++++++
  lib/efi_loader/Kconfig            |   7 +
  lib/efi_loader/Makefile           |   1 +
- lib/efi_loader/efi_hii_db.c       |  12 ++
+ lib/efi_loader/efi_hii_db.c       | 172 +++++++++++++++++++
  lib/efi_loader/efi_root_node.c    |   6 +
- 7 files changed, 416 insertions(+)
+ 7 files changed, 576 insertions(+)
  create mode 100644 include/efi_hii.h
  create mode 100644 include/efi_hii_keyboard_layout.h
  create mode 100644 lib/efi_loader/efi_hii_db.c
@@ -471,10 +471,10 @@ index 2fef506d97..37a7c1917c 100644
  obj-y += efi_root_node.o
 diff --git a/lib/efi_loader/efi_hii_db.c b/lib/efi_loader/efi_hii_db.c
 new file mode 100644
-index 0000000000..8100d420e9
+index 0000000000..f544f569ae
 --- /dev/null
 +++ b/lib/efi_loader/efi_hii_db.c
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,172 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + *  EFI HII Database Protocol
@@ -484,9 +484,169 @@ index 0000000000..8100d420e9
 +
 +#include <common.h>
 +#include <efi_hii.h>
++#include <efi_loader.h>
 +
 +const efi_guid_t efi_guid_hii_database_protocol = EFI_HII_DATABASE_PROTOCOL_GUID;
-+struct efi_hii_database_protocol efi_hii_database_protocol;
++
++static efi_status_t EFIAPI efi_hii_new_package_list(
++			const struct efi_hii_database_protocol *this,
++			const struct efi_hii_package_list_header *package_list,
++			const efi_handle_t driver_handle,
++			struct efi_hii_handle **handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p, %p, %p", this, package_list, driver_handle, handle);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_remove_package_list(
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p", this, handle);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_update_package_list(
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle,
++			const struct efi_hii_package_list_header *package_list)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p", this, package_list);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_list_package_lists(
++			const struct efi_hii_database_protocol *this,
++			u8 package_type,
++			efi_guid_t *package_guid,
++			efi_uintn_t *handle_buffer_length,
++			struct efi_hii_handle **handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p, %p", this, handle_buffer_length, handle);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_export_package_lists(
++			const struct efi_hii_database_protocol *this,
++			efi_handle_t driver_handle,
++			efi_uintn_t *buffer_size,
++			struct efi_hii_package_list_header *buffer)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p, %p, %p", this, driver_handle, buffer_size, buffer);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_register_package_notify(
++			const struct efi_hii_database_protocol *this,
++			u8 package_type,
++			const efi_guid_t *package_guid,
++			efi_status_t (EFIAPI *package_notify_fn) (
++				u8 package_type,
++				const efi_guid_t *package_guid,
++				const struct efi_hii_package_header *package,
++				struct efi_hii_handle *handle,
++				efi_uintn_t notify_type
++			),
++			efi_uintn_t notify_type,
++			struct efi_hii_notify_handle **notify_handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %pUl, %p, 0x%zx, %p", this, package_guid,
++		  package_notify_fn, notify_type, notify_handle);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_unregister_package_notify(
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_notify_handle *notify_handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p", this, notify_handle);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_find_keyboard_layouts(
++			const struct efi_hii_database_protocol *this,
++			u16 key_guid_buffer_length,
++			efi_guid_t *key_guid_buffer)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, 0x%hx, %p", this, key_guid_buffer_length,
++		  key_guid_buffer);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_get_keyboard_layout(
++			const struct efi_hii_database_protocol *this,
++			efi_guid_t *key_guid,
++			u16 *key_buffer_length,
++			struct efi_hii_keyboard_layout *keyboard_layout)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %pUl, %p, %p", this, key_guid, key_buffer_length,
++		  keyboard_layout);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_set_keyboard_layout(
++			const struct efi_hii_database_protocol *this,
++			efi_guid_t *key_guid)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p", this, key_guid);
++
++	return EFI_EXIT(ret);
++}
++
++static efi_status_t EFIAPI efi_hii_get_package_list_handle(
++			const struct efi_hii_database_protocol *this,
++			struct efi_hii_handle *handle,
++			efi_handle_t driver_handle)
++{
++	efi_status_t ret = EFI_UNSUPPORTED;
++
++	EFI_ENTRY("%p, %p, %p", this, handle, driver_handle);
++
++	return EFI_EXIT(ret);
++}
++
++struct efi_hii_database_protocol efi_hii_database_protocol = {
++	.new_package_list	   = efi_hii_new_package_list,
++	.remove_package_list	   = efi_hii_remove_package_list,
++	.update_package_list	   = efi_hii_update_package_list,
++	.list_package_lists	   = efi_hii_list_package_lists,
++	.export_package_lists	   = efi_hii_export_package_lists,
++	.register_package_notify   = efi_hii_register_package_notify,
++	.unregister_package_notify = efi_hii_unregister_package_notify,
++	.find_keyboard_layouts	   = efi_hii_find_keyboard_layouts,
++	.get_keyboard_layout	   = efi_hii_get_keyboard_layout,
++	.set_keyboard_layout	   = efi_hii_set_keyboard_layout,
++	.get_package_list_handle   = efi_hii_get_package_list_handle,
++};
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
 index eaf8c15d29..192a6b8ce2 100644
 --- a/lib/efi_loader/efi_root_node.c
