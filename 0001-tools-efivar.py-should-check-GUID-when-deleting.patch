@@ -7,6 +7,7 @@ When deleting a variable we must check that the GUID provided by the
 user matches the GUID of the variable.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 ---
  tools/efivar.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

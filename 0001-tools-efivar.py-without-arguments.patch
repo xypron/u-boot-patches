@@ -15,6 +15,7 @@ AttributeError: 'Namespace' object has no attribute 'func'
 Show the online help if the arguments do not specify a function.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
 ---
  tools/efivar.py | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
