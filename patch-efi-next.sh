@@ -173,6 +173,7 @@ git am ../patch/0001-tools-efivar.py-without-arguments.patch
 git am ../patch/0001-tools-efivar.py-incorrect-indentation.patch
 git am ../patch/0001-tools-efivar.py-should-check-GUID-when-deleting.patch
 git am ../patch/0001-tools-efivar.py-unused-variable.patch
+git am ../patch/0001-efi_loader-simplify-running-helloworld.efi.patch
 
 # HII
 git am ../patch/0001-efi_loader-move-efi_-u-intn_t-to-efi.h.patch

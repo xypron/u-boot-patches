@@ -1,0 +1,45 @@
+From 6c6c777cf86bd6b8a45f5648b33c0724dd6a81c1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 12 Jan 2021 17:44:08 +0100
+Subject: [PATCH 1/1] efi_loader: simplify running helloworld.efi
+
+Currently when executing 'bootefi hello' we copy helloworld.efi to the
+address identified by environment variable loadaddr. This is unexected
+behavior for a user. There is no need to copy helloworld.efi before
+executing it after relocation.
+
+Remove the copy action.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index ac520c3f9a..68ee0c8f32 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -403,19 +403,9 @@ static int do_bootefi_image(const char *image_opt)
+ 
+ #ifdef CONFIG_CMD_BOOTEFI_HELLO
+ 	if (!strcmp(image_opt, "hello")) {
+-		char *saddr;
+-
+-		saddr = env_get("loadaddr");
++		image_buf = __efi_helloworld_begin;
+ 		size = __efi_helloworld_end - __efi_helloworld_begin;
+ 
+-		if (saddr)
+-			addr = simple_strtoul(saddr, NULL, 16);
+-		else
+-			addr = CONFIG_SYS_LOAD_ADDR;
+-
+-		image_buf = map_sysmem(addr, size);
+-		memcpy(image_buf, __efi_helloworld_begin, size);
+-
+ 		efi_free_pool(bootefi_device_path);
+ 		efi_free_pool(bootefi_image_path);
+ 		bootefi_device_path = NULL;
+-- 
+2.29.2
+
