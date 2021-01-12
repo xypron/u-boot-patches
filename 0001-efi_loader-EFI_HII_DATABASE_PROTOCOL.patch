@@ -1,7 +1,7 @@
-From 159150d33fad3a911371b2b5b11ecc2932de0374 Mon Sep 17 00:00:00 2001
+From 790b8924b5a1d9c5b581395971e30f1256c4cee4 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 5 Jan 2021 18:36:44 +0100
-Subject: [PATCH] efi_loader: EFI_HII_DATABASE_PROTOCOL
+Subject: [PATCH 1/1] efi_loader: EFI_HII_DATABASE_PROTOCOL
 
 Implement the EFI HII Database Protocol.
 
@@ -12,9 +12,9 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  include/efi_hii_keyboard_layout.h | 266 ++++++++++++++++++++++++++++++
  lib/efi_loader/Kconfig            |   7 +
  lib/efi_loader/Makefile           |   1 +
- lib/efi_loader/efi_hii_db.c       | 172 +++++++++++++++++++
+ lib/efi_loader/efi_hii_db.c       | 175 ++++++++++++++++++++
  lib/efi_loader/efi_root_node.c    |   6 +
- 7 files changed, 576 insertions(+)
+ 7 files changed, 579 insertions(+)
  create mode 100644 include/efi_hii.h
  create mode 100644 include/efi_hii_keyboard_layout.h
  create mode 100644 lib/efi_loader/efi_hii_db.c
@@ -471,10 +471,10 @@ index 2fef506d97..37a7c1917c 100644
  obj-y += efi_root_node.o
 diff --git a/lib/efi_loader/efi_hii_db.c b/lib/efi_loader/efi_hii_db.c
 new file mode 100644
-index 0000000000..f544f569ae
+index 0000000000..c663141211
 --- /dev/null
 +++ b/lib/efi_loader/efi_hii_db.c
-@@ -0,0 +1,172 @@
+@@ -0,0 +1,175 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + *  EFI HII Database Protocol
@@ -485,6 +485,9 @@ index 0000000000..f544f569ae
 +#include <common.h>
 +#include <efi_hii.h>
 +#include <efi_loader.h>
++#include <linux/list.h>
++
++LIST_HEAD(efi_hii_package_lists);
 +
 +const efi_guid_t efi_guid_hii_database_protocol = EFI_HII_DATABASE_PROTOCOL_GUID;
 +
