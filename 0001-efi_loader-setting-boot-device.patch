@@ -1,7 +1,7 @@
-From 873efe9895c6bd0add7ca8d56e792fa85439a016 Mon Sep 17 00:00:00 2001
+From 4cdc37526b03cd8208f4aba605d03029afbd813f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 12 Jan 2021 12:46:24 +0100
-Subject: [PATCH] efi_loader: setting boot device
+Subject: [PATCH 1/1] efi_loader: setting boot device
 
 Up to now the bootefi command used the last file loaded to determine the
 boot partition. This has led to errors when the fdt had been loaded from
@@ -21,18 +21,18 @@ PE-COFF image.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c        | 136 ++++++++++++++++++++++++++-----------------
+ cmd/bootefi.c        | 140 ++++++++++++++++++++++++++-----------------
  doc/uefi/uefi.rst    |  11 ++--
  fs/fs.c              |   3 +-
  include/efi_loader.h |   6 +-
  net/tftp.c           |   9 ++-
- 5 files changed, 98 insertions(+), 67 deletions(-)
+ 5 files changed, 102 insertions(+), 67 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
-index c82a5bacf6..bd0d12ea9b 100644
+index c82a5bacf6..9807d10c57 100644
 --- a/cmd/bootefi.c
 +++ b/cmd/bootefi.c
-@@ -29,6 +29,78 @@ DECLARE_GLOBAL_DATA_PTR;
+@@ -29,6 +29,82 @@ DECLARE_GLOBAL_DATA_PTR;
  
  static struct efi_device_path *bootefi_image_path;
  static struct efi_device_path *bootefi_device_path;
@@ -77,6 +77,7 @@ index c82a5bacf6..bd0d12ea9b 100644
 +
 +	/* Remember only PE-COFF and FIT images */
 +	if (efi_check_pe(buffer, buffer_size, NULL) != EFI_SUCCESS) {
++#ifdef CONFIG_FIT
 +		if (!fit_check_format(buffer))
 +			return;
 +		/*
@@ -85,6 +86,9 @@ index c82a5bacf6..bd0d12ea9b 100644
 +		 */
 +		buffer = 0;
 +		buffer_size = 0;
++#else
++		return;
++#endif
 +	}
 +
 +	/* efi_set_bootdev() is typically called repeatedly, recover memory */
@@ -111,7 +115,7 @@ index c82a5bacf6..bd0d12ea9b 100644
  
  /**
   * efi_env_set_load_options() - set load options from environment variable
-@@ -398,33 +470,28 @@ static int do_bootefi_image(const char *image_opt)
+@@ -398,33 +474,28 @@ static int do_bootefi_image(const char *image_opt)
  {
  	void *image_buf;
  	unsigned long addr, size;
@@ -154,7 +158,7 @@ index c82a5bacf6..bd0d12ea9b 100644
  	}
  	ret = efi_run_image(image_buf, size);
  
-@@ -557,11 +624,8 @@ static efi_status_t bootefi_test_prepare
+@@ -557,11 +628,8 @@ static efi_status_t bootefi_test_prepare
  	if (ret == EFI_SUCCESS)
  		return ret;
  
@@ -167,7 +171,7 @@ index c82a5bacf6..bd0d12ea9b 100644
  	return ret;
  }
  
-@@ -681,39 +745,3 @@ U_BOOT_CMD(
+@@ -681,39 +749,3 @@ U_BOOT_CMD(
  	"Boots an EFI payload from memory",
  	bootefi_help_text
  );
@@ -230,7 +234,7 @@ index dc930d9240..5a67737c15 100644
  Launching a UEFI binary from a FIT image
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 diff --git a/fs/fs.c b/fs/fs.c
-index 5e80648b5b..68a15553cc 100644
+index 7a4020607a..a3989f9bdb 100644
 --- a/fs/fs.c
 +++ b/fs/fs.c
 @@ -752,7 +752,8 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
@@ -244,10 +248,10 @@ index 5e80648b5b..68a15553cc 100644
  	printf("%llu bytes read in %lu ms", len_read, time);
  	if (time > 0) {
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index df29d45a34..2a69ef844b 100644
+index 63459ea649..2465a47a91 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -474,7 +474,8 @@ void efi_restore_gd(void);
+@@ -467,7 +467,8 @@ void efi_restore_gd(void);
  /* Call this to relocate the runtime section to an address space */
  void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
  /* Call this to set the current device name */
@@ -257,7 +261,7 @@ index df29d45a34..2a69ef844b 100644
  /* Add a new object to the object list. */
  void efi_add_handle(efi_handle_t obj);
  /* Create handle */
-@@ -873,7 +874,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+@@ -829,7 +830,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
  /* No loader configured, stub out EFI_ENTRY */
  static inline void efi_restore_gd(void) { }
  static inline void efi_set_bootdev(const char *dev, const char *devnr,
@@ -266,7 +270,7 @@ index df29d45a34..2a69ef844b 100644
 +				   size_t buffer_size) { }
  static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
  static inline void efi_print_image_infos(void *pc) { }
- static inline efi_status_t efi_launch_capsules(void)
+ 
 diff --git a/net/tftp.c b/net/tftp.c
 index 6fdb1a821a..2cfa0b1486 100644
 --- a/net/tftp.c
