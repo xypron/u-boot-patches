@@ -1,0 +1,33 @@
+From f12efa7958440b3548c241495bd41db8057466cd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 27 Dec 2020 00:12:28 +0100
+Subject: [PATCH] cmd: conitrace: increase wait for next key
+
+At 9600 baud or less a 1 ms wait it too short to detect the end of an
+escape sequence.
+
+Increase the wait duration to 10 ms which will work down to 1200 baud.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/conitrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/conitrace.c b/cmd/conitrace.c
+index 811f5c68a9..d50f3bf3cc 100644
+--- a/cmd/conitrace.c
++++ b/cmd/conitrace.c
+@@ -30,8 +30,8 @@ static int do_conitrace(struct cmd_tbl *cmdtp, int flag, int argc,
+ 		printf("%02x ", c);
+ 		first = false;
+ 
+-		/* 1 ms delay - serves to detect separate keystrokes */
+-		udelay(1000);
++		/* 10 ms delay - serves to detect separate keystrokes */
++		udelay(10000);
+ 		if (!tstc()) {
+ 			printf("\n");
+ 			first = true;
+-- 
+2.29.2
+

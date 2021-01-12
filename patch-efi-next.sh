@@ -4,7 +4,6 @@ set -e
 
 # Various fixes
 # git am ../patch/0001-cmd-add-el-command.patch
-git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
@@ -38,6 +37,7 @@ git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 
 # FAT file system
+git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
 git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
 git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
@@ -102,6 +102,10 @@ git am ../patch/0001-efi_loader-setting-boot-device.patch
 git am ../patch/0001-efi_loader-move-efi_-u-intn_t-to-efi.h.patch
 git am ../patch/0001-efi_loader-typedef-efi_string_t-text-output-protocol.patch
 git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
+git am ../patch/0001-cmd-conitrace-increase-wait-for-next-key.patch
+# EFI_DT_FIXUP_PROTOCOL
+git am ../patch/0001-efi_loader-implement-EFI_DT_FIXUP_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-dtbdump-support-EFI_DT_FIXUP_PROTOCOL.patch
 
 exit
 
@@ -112,16 +116,6 @@ git am ../patch/0001-efi_loader-EFI_HII_STRING_PROTOCOL.patch
 
 exit
 
-git am ../patch/0001-efi_loader-separate-device-tree-handling.patch
-
-exit
-
-# EFI_DT_FIXUP_PROTOCOL
-git am ../patch/0001-efi_loader-implement-EFI_DT_FIXUP_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-dtbdump-support-EFI_DT_FIXUP_PROTOCOL.patch
-
-exit
-
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
 exit
 
@@ -129,14 +123,11 @@ git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 
-git am ../patch/0001-efi_loader-variable-cache.patch
-git am ../patch/0001-efi_loader-remove-relocation-header.patch
 exit
 
 # Patches needing rework
 # git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
 
-# Fix simple network protocol
 # KGDB
 # git am ../patch/0001-arm-register-numbers-for-GDB.patch
 # git am ../patch/0001-arm-create-templates-for-kgdb.patch
