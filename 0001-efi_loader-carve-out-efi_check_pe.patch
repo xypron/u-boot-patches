@@ -1,0 +1,141 @@
+From 528c253c70ebe29fa12b6a92bfb07de927f1405d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 12 Jan 2021 12:40:32 +0100
+Subject: [PATCH 1/1] efi_loader: carve out efi_check_pe()
+
+Carve out a function to check that a buffer contains a PE-COFF image.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h              |  2 +
+ lib/efi_loader/efi_image_loader.c | 80 ++++++++++++++++++-------------
+ 2 files changed, 48 insertions(+), 34 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 0fc2255f3f..63459ea649 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -453,6 +453,8 @@ efi_status_t efi_set_watchdog(unsigned long timeout);
+ 
+ /* Called from places to check whether a timer expired */
+ void efi_timer_check(void);
++/* Check if a buffer contains a PE-COFF image */
++efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header);
+ /* PE loader implementation */
+ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 			 void *efi, size_t efi_size,
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index 94f76ef6b8..d4dd9e9433 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -675,6 +675,46 @@ static bool efi_image_authenticate(void *efi, size_t efi_size)
+ }
+ #endif /* CONFIG_EFI_SECURE_BOOT */
+ 
++
++/**
++ * efi_check_pe() - check if a memory buffer contains a PE-COFF image
++ *
++ * @buffer:	buffer to check
++ * @size:	size of buffer
++ * @nt_header:	on return pointer to NT header of PE-COFF image
++ * Return:	EFI_SUCCESS if the buffer contains a PE-COFF image
++ */
++efi_status_t efi_check_pe(void *buffer, size_t size, void **nt_header)
++{
++	IMAGE_DOS_HEADER *dos = buffer;
++	IMAGE_NT_HEADERS32 *nt;
++
++	if (size < sizeof(*dos))
++		return EFI_INVALID_PARAMETER;
++
++	/* Check for DOS magix */
++	if (dos->e_magic != IMAGE_DOS_SIGNATURE)
++		return EFI_INVALID_PARAMETER;
++
++	/*
++	 * Check if the image section header fits into the file. Knowing that at
++	 * least one section header follows we only need to check for the length
++	 * of the 64bit header which is longer than the 32bit header.
++	 */
++	if (size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS32))
++		return EFI_INVALID_PARAMETER;
++	nt = (IMAGE_NT_HEADERS32 *)((u8 *)buffer + dos->e_lfanew);
++
++	/* Check for PE-COFF magic */
++	if (nt->Signature != IMAGE_NT_SIGNATURE)
++		return EFI_INVALID_PARAMETER;
++
++	if (nt_header)
++		*nt_header = nt;
++
++	return EFI_SUCCESS;
++}
++
+ /**
+  * efi_load_pe() - relocate EFI binary
+  *
+@@ -705,36 +745,10 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 	int supported = 0;
+ 	efi_status_t ret;
+ 
+-	/* Sanity check for a file header */
+-	if (efi_size < sizeof(*dos)) {
+-		log_err("Truncated DOS Header\n");
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
+-	}
+-
+-	dos = efi;
+-	if (dos->e_magic != IMAGE_DOS_SIGNATURE) {
+-		log_err("Invalid DOS Signature\n");
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
+-	}
+-
+-	/*
+-	 * Check if the image section header fits into the file. Knowing that at
+-	 * least one section header follows we only need to check for the length
+-	 * of the 64bit header which is longer than the 32bit header.
+-	 */
+-	if (efi_size < dos->e_lfanew + sizeof(IMAGE_NT_HEADERS64)) {
+-		log_err("Invalid offset for Extended Header\n");
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
+-	}
+-
+-	nt = (void *) ((char *)efi + dos->e_lfanew);
+-	if (nt->Signature != IMAGE_NT_SIGNATURE) {
+-		log_err("Invalid NT Signature\n");
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
++	ret = efi_check_pe(efi, efi_size, (void **)&nt);
++	if (ret != EFI_SUCCESS) {
++		log_err("Not a PE-COFF file\n");
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	for (i = 0; machines[i]; i++)
+@@ -746,8 +760,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 	if (!supported) {
+ 		log_err("Machine type 0x%04x is not supported\n",
+ 			nt->FileHeader.Machine);
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	num_sections = nt->FileHeader.NumberOfSections;
+@@ -757,8 +770,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 	if (efi_size < ((void *)sections + sizeof(sections[0]) * num_sections
+ 			- efi)) {
+ 		log_err("Invalid number of sections: %d\n", num_sections);
+-		ret = EFI_LOAD_ERROR;
+-		goto err;
++		return EFI_LOAD_ERROR;
+ 	}
+ 
+ 	/* Authenticate an image */
+-- 
+2.29.2
+

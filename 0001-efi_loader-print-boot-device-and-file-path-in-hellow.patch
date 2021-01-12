@@ -1,6 +1,6 @@
-From 2e5d1ce1f537e4efbe53685d54d43d755f22cdc6 Mon Sep 17 00:00:00 2001
+From d0659062b07b667fb07131b531c2abfe09168101 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Tue, 12 Jan 2021 12:26:11 +0100
+Date: Tue, 12 Jan 2021 12:40:11 +0100
 Subject: [PATCH 1/1] efi_loader: print boot device and file path in helloworld
 
 Let helloworld.efi print the device path of the boot device and the file

@@ -1,0 +1,299 @@
+From 321145054867c83f2f8be0b74172550bab9f43b1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 12 Jan 2021 12:46:24 +0100
+Subject: [PATCH 1/1] efi_loader: setting boot device
+
+Up to now the bootefi command used the last file loaded to determine the
+boot partition. This has led to errors when the fdt had been loaded from
+another partition after the EFI binary.
+
+Before setting the boot device from a loaded file check if it is a PE-COFF
+image or a FIT image.
+
+For a PE-COFF image remember address and size, boot device and path.
+
+For a FIT image remember boot device and path.
+
+If the PE-COFF image is overwritten by loading another file, forget it.
+
+Do not allow to start an image via bootefi which is not the last loaded
+PE-COFF image.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/bootefi.c        | 136 ++++++++++++++++++++++++++-----------------
+ doc/uefi/uefi.rst    |  11 ++--
+ fs/fs.c              |   3 +-
+ include/efi_loader.h |   6 +-
+ net/tftp.c           |   9 ++-
+ 5 files changed, 98 insertions(+), 67 deletions(-)
+
+diff --git a/cmd/bootefi.c b/cmd/bootefi.c
+index c82a5bacf6..bd0d12ea9b 100644
+--- a/cmd/bootefi.c
++++ b/cmd/bootefi.c
+@@ -29,6 +29,78 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ static struct efi_device_path *bootefi_image_path;
+ static struct efi_device_path *bootefi_device_path;
++static void *image_addr;
++static size_t image_size;
++
++/**
++ * efi_clear_bootdev() - clear boot device
++ */
++static void efi_clear_bootdev(void)
++{
++	efi_free_pool(bootefi_device_path);
++	efi_free_pool(bootefi_image_path);
++	bootefi_device_path = NULL;
++	bootefi_image_path = NULL;
++	image_addr = NULL;
++	image_size = 0;
++}
++
++/**
++ * efi_set_bootdev() - set boot device
++ *
++ * This function is called when a file is loaded, e.g. via the 'load' command.
++ * We use the path to this file to inform the UEFI binary about the boot device.
++ *
++ * @dev:		device, e.g. "MMC"
++ * @devnr:		number of the device, e.g. "1:2"
++ * @path:		path to file loaded
++ * @buffer:		buffer with file loaded
++ * @buffer_size:	size of file loaded
++ */
++void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
++		     void *buffer, size_t buffer_size)
++{
++	struct efi_device_path *device, *image;
++	efi_status_t ret;
++
++	/* Forget overwritten image */
++	if (buffer + buffer_size >= image_addr &&
++	    image_addr + image_size >= buffer)
++		efi_clear_bootdev();
++
++	/* Remember only PE-COFF and FIT images */
++	if (efi_check_pe(buffer, buffer_size, NULL) != EFI_SUCCESS) {
++		if (!fit_check_format(buffer))
++			return;
++		/*
++		 * FIT images of type EFI_OS are started via command bootm.
++		 * We should not use their boot device with the bootefi command.
++		 */
++		buffer = 0;
++		buffer_size = 0;
++	}
++
++	/* efi_set_bootdev() is typically called repeatedly, recover memory */
++	efi_clear_bootdev();
++
++	image_addr = buffer;
++	image_size = buffer_size;
++
++	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
++	if (ret == EFI_SUCCESS) {
++		bootefi_device_path = device;
++		if (image) {
++			/* FIXME: image should not contain device */
++			struct efi_device_path *image_tmp = image;
++
++			efi_dp_split_file_path(image, &device, &image);
++			efi_free_pool(image_tmp);
++		}
++		bootefi_image_path = image;
++	} else {
++		efi_clear_bootdev();
++	}
++}
+ 
+ /**
+  * efi_env_set_load_options() - set load options from environment variable
+@@ -398,33 +470,28 @@ static int do_bootefi_image(const char *image_opt)
+ {
+ 	void *image_buf;
+ 	unsigned long addr, size;
+-	const char *size_str;
+ 	efi_status_t ret;
+ 
+ #ifdef CONFIG_CMD_BOOTEFI_HELLO
+ 	if (!strcmp(image_opt, "hello")) {
+ 		image_buf = __efi_helloworld_begin;
+ 		size = __efi_helloworld_end - __efi_helloworld_begin;
+-
+-		efi_free_pool(bootefi_device_path);
+-		efi_free_pool(bootefi_image_path);
+-		bootefi_device_path = NULL;
+-		bootefi_image_path = NULL;
++		efi_clear_bootdev();
+ 	} else
+ #endif
+ 	{
+-		size_str = env_get("filesize");
+-		if (size_str)
+-			size = simple_strtoul(size_str, NULL, 16);
+-		else
+-			size = 0;
+-
+-		addr = simple_strtoul(image_opt, NULL, 16);
++		addr = strtoul(image_opt, NULL, 16);
+ 		/* Check that a numeric value was passed */
+-		if (!addr && *image_opt != '0')
++		if (!addr)
+ 			return CMD_RET_USAGE;
+ 
+ 		image_buf = map_sysmem(addr, size);
++
++		if (image_buf != image_addr) {
++			log_err("No UEFI binary known at %s\n", image_opt);
++			return CMD_RET_FAILURE;
++		}
++		size = image_size;
+ 	}
+ 	ret = efi_run_image(image_buf, size);
+ 
+@@ -557,11 +624,8 @@ static efi_status_t bootefi_test_prepare
+ 	if (ret == EFI_SUCCESS)
+ 		return ret;
+ 
+-	efi_free_pool(bootefi_image_path);
+-	bootefi_image_path = NULL;
+ failure:
+-	efi_free_pool(bootefi_device_path);
+-	bootefi_device_path = NULL;
++	efi_clear_bootdev();
+ 	return ret;
+ }
+ 
+@@ -681,39 +745,3 @@ U_BOOT_CMD(
+ 	"Boots an EFI payload from memory",
+ 	bootefi_help_text
+ );
+-
+-/**
+- * efi_set_bootdev() - set boot device
+- *
+- * This function is called when a file is loaded, e.g. via the 'load' command.
+- * We use the path to this file to inform the UEFI binary about the boot device.
+- *
+- * @dev:	device, e.g. "MMC"
+- * @devnr:	number of the device, e.g. "1:2"
+- * @path:	path to file loaded
+- */
+-void efi_set_bootdev(const char *dev, const char *devnr, const char *path)
+-{
+-	struct efi_device_path *device, *image;
+-	efi_status_t ret;
+-
+-	/* efi_set_bootdev is typically called repeatedly, recover memory */
+-	efi_free_pool(bootefi_device_path);
+-	efi_free_pool(bootefi_image_path);
+-
+-	ret = efi_dp_from_name(dev, devnr, path, &device, &image);
+-	if (ret == EFI_SUCCESS) {
+-		bootefi_device_path = device;
+-		if (image) {
+-			/* FIXME: image should not contain device */
+-			struct efi_device_path *image_tmp = image;
+-
+-			efi_dp_split_file_path(image, &device, &image);
+-			efi_free_pool(image_tmp);
+-		}
+-		bootefi_image_path = image;
+-	} else {
+-		bootefi_device_path = NULL;
+-		bootefi_image_path = NULL;
+-	}
+-}
+diff --git a/doc/uefi/uefi.rst b/doc/uefi/uefi.rst
+index dc930d9240..5a67737c15 100644
+--- a/doc/uefi/uefi.rst
++++ b/doc/uefi/uefi.rst
+@@ -59,13 +59,10 @@ Below you find the output of an example session starting GRUB::
+     120832 bytes read in 7 ms (16.5 MiB/s)
+     => bootefi ${kernel_addr_r} ${fdt_addr_r}
+ 
+-The bootefi command uses the device, the file name, and the file size
+-(environment variable 'filesize') of the most recently loaded file when setting
+-up the binary for execution. So the UEFI binary should be loaded last.
+-
+-The environment variable 'bootargs' is passed as load options in the UEFI system
+-table. The Linux kernel EFI stub uses the load options as command line
+-arguments.
++When booting from a memory location it is unknown from which file it was loaded.
++Therefore the bootefi command uses the device path of the block device partition
++or the network adapter and the file name of the most recently loaded PE-COFF
++file when setting up the loaded image protocol.
+ 
+ Launching a UEFI binary from a FIT image
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+diff --git a/fs/fs.c b/fs/fs.c
+index 7a4020607a..a3989f9bdb 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -752,7 +752,8 @@ int do_load(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
+ 
+ 	if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
+ 		efi_set_bootdev(argv[1], (argc > 2) ? argv[2] : "",
+-				(argc > 4) ? argv[4] : "");
++				(argc > 4) ? argv[4] : "", map_sysmem(addr, 0),
++				len_read);
+ 
+ 	printf("%llu bytes read in %lu ms", len_read, time);
+ 	if (time > 0) {
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 63459ea649..2465a47a91 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -467,7 +467,8 @@ void efi_restore_gd(void);
+ /* Call this to relocate the runtime section to an address space */
+ void efi_runtime_relocate(ulong offset, struct efi_mem_desc *map);
+ /* Call this to set the current device name */
+-void efi_set_bootdev(const char *dev, const char *devnr, const char *path);
++void efi_set_bootdev(const char *dev, const char *devnr, const char *path,
++		     void *buffer, size_t buffer_size);
+ /* Add a new object to the object list. */
+ void efi_add_handle(efi_handle_t obj);
+ /* Create handle */
+@@ -829,7 +830,8 @@ static inline efi_status_t efi_add_runtime_mmio(void *mmio_ptr, u64 len)
+ /* No loader configured, stub out EFI_ENTRY */
+ static inline void efi_restore_gd(void) { }
+ static inline void efi_set_bootdev(const char *dev, const char *devnr,
+-				   const char *path) { }
++				   const char *path, void *buffer,
++				   size_t buffer_size) { }
+ static inline void efi_net_set_dhcp_ack(void *pkt, int len) { }
+ static inline void efi_print_image_infos(void *pc) { }
+ 
+diff --git a/net/tftp.c b/net/tftp.c
+index 6fdb1a821a..2cfa0b1486 100644
+--- a/net/tftp.c
++++ b/net/tftp.c
+@@ -329,6 +329,12 @@ static void tftp_complete(void)
+ 			time_start * 1000, "/s");
+ 	}
+ 	puts("\ndone\n");
++	if (IS_ENABLED(CONFIG_CMD_BOOTEFI)) {
++		if (!tftp_put_active)
++			efi_set_bootdev("Net", "", tftp_filename,
++					map_sysmem(tftp_load_addr, 0),
++					net_boot_file_size);
++	}
+ 	net_set_state(NETLOOP_SUCCESS);
+ }
+ 
+@@ -841,9 +847,6 @@ void tftp_start(enum proto_t protocol)
+ 		printf("Load address: 0x%lx\n", tftp_load_addr);
+ 		puts("Loading: *\b");
+ 		tftp_state = STATE_SEND_RRQ;
+-#ifdef CONFIG_CMD_BOOTEFI
+-		efi_set_bootdev("Net", "", tftp_filename);
+-#endif
+ 	}
+ 
+ 	time_start = get_timer(0);
+-- 
+2.29.2
+
