@@ -206,7 +206,7 @@ index cd4b252a41..814aa53f01 100644
 +obj-y += efi_dt_fixup.o
 +endif
  obj-y += efi_file.o
- obj-$(CONFIG_EFI_LOADER_HII) += efi_hii.o efi_hii_config.o
+ obj-$(CONFIG_EFI_LOADER_HII) += efi_hii.o
  obj-y += efi_image_loader.o
 diff --git a/lib/efi_loader/efi_dt_fixup.c b/lib/efi_loader/efi_dt_fixup.c
 new file mode 100644
