@@ -87,9 +87,11 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-01-rc5
+# efi-2021-04-rc1-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
+0001-efi_loader-move-load-options-to-new-module.patch
+0001-efi_loader-make-the-UEFI-boot-manager-configurable.patch
 exit
 
 # HII
