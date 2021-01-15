@@ -35,7 +35,6 @@ git am ../patch/0001-doc-move-README.fdt-overlays-to-HTML-documentation.patch
 git am ../patch/0001-doc-sifive-fu540-fix-heading-levels.patch
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
-git am ../patch/0001-configs-convert-Bananapi-to-DM_VIDEO.patch
 
 # FAT file system
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
@@ -90,24 +89,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-01-rc5
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
-git am ../patch/0001-efi_loader-implement-non-blocking-file-services.patch
-git am ../patch/0001-tools-efivar.py-without-arguments.patch
-git am ../patch/0001-tools-efivar.py-incorrect-indentation.patch
-git am ../patch/0001-tools-efivar.py-should-check-GUID-when-deleting.patch
-git am ../patch/0001-tools-efivar.py-unused-variable.patch
-git am ../patch/0001-efi_loader-simplify-running-helloworld.efi.patch
-git am ../patch/0001-efi_loader-print-boot-device-and-file-path-in-hellow.patch
-git am ../patch/0001-efi_loader-carve-out-efi_check_pe.patch
-git am ../patch/0001-image-fit-fit_check_format-check-for-valid-FDT.patch
-git am ../patch/0001-efi_loader-setting-boot-device.patch
-git am ../patch/0001-efi_loader-move-efi_-u-intn_t-to-efi.h.patch
-git am ../patch/0001-efi_loader-typedef-efi_string_t-text-output-protocol.patch
-git am ../patch/0001-efi_loader-remove-outdated-TODO-in-efi_memory.c.patch
-git am ../patch/0001-cmd-conitrace-increase-wait-for-next-key.patch
-# EFI_DT_FIXUP_PROTOCOL
-git am ../patch/0001-efi_loader-implement-EFI_DT_FIXUP_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-dtbdump-support-EFI_DT_FIXUP_PROTOCOL.patch
 
 exit
 
