@@ -1,4 +1,4 @@
-From ba10821bb8c823beae79a42d1a459b51bd4c9ebc Mon Sep 17 00:00:00 2001
+From 45e5dbc21998e4a74baecd7bef0e64480ab331c5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 16 Jan 2021 09:44:25 +0100
 Subject: [PATCH 1/1] efi_loader: EFI_DEVICE_PATH_UTILITIES_PROTOCOL
@@ -49,14 +49,14 @@ index a6355d240a..10b42e8847 100644
  obj-y += efi_dt_fixup.o
  endif
 diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
-index 8383fce943..4d59890a7e 100644
+index 8383fce943..bfa57c97fc 100644
 --- a/lib/efi_loader/efi_root_node.c
 +++ b/lib/efi_loader/efi_root_node.c
 @@ -58,9 +58,11 @@ efi_status_t efi_root_node_register(void)
  			 &efi_guid_device_path_to_text_protocol,
  			 (void *)&efi_device_path_to_text,
  #endif
-+#ifdef EFI_DEVICE_PATH_UTIL
++#ifdef CONFIG_EFI_DEVICE_PATH_UTIL
  			 /* Device path utilities protocol */
  			 &efi_guid_device_path_utilities_protocol,
  			 (void *)&efi_device_path_utilities,
