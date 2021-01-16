@@ -90,8 +90,12 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-04-rc1-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-0001-efi_loader-move-load-options-to-new-module.patch
-0001-efi_loader-make-the-UEFI-boot-manager-configurable.patch
+git am ../patch/0001-efi_loader-move-load-options-to-new-module.patch
+git am ../patch/0001-efi_loader-make-the-UEFI-boot-manager-configurable.patch
+git am ../patch/0001-efi_loader-fixup-protocol-avoid-forward-declaration.patch
+git am ../patch/0001-efi_loader-make-EFI_DT_FIXUP_PROTOCOL-configurable.patch
+git am ../patch/0001-efi_loader-EFI_DEVICE_PATH_UTILITIES_PROTOCOL-config.patch
+git am ../patch/0001-efi_loader-remove-EFI_UNICODE_COLLATION_PROTOCOL.patch
 exit
 
 # HII

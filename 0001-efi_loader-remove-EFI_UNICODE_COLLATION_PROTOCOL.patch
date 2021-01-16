@@ -1,0 +1,182 @@
+From cc53662969693ad181887a553f9662ed2246dcab Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 16 Jan 2021 09:58:06 +0100
+Subject: [PATCH 1/1] efi_loader: remove EFI_UNICODE_COLLATION_PROTOCOL
+
+In EFI 1.10 a version of the Unicode collation protocol using ISO 639-2
+language codes existed. This protocol is not part of the UEFI specification
+any longer. It was however required to run the UEFI Self Certification Test
+(SCT) II, version 2.6, 2017. So we implemented it for the sole purpose of
+running the SCT.
+
+As the SCT does not need the protocol anymore it is time for removal.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_api.h                      |  4 ---
+ include/efi_loader.h                   |  3 --
+ lib/efi_loader/Kconfig                 | 11 --------
+ lib/efi_loader/efi_root_node.c         |  6 ----
+ lib/efi_loader/efi_unicode_collation.c | 39 ++++----------------------
+ 5 files changed, 6 insertions(+), 57 deletions(-)
+
+diff --git a/include/efi_api.h b/include/efi_api.h
+index df9bee2ae4..48e48a6263 100644
+--- a/include/efi_api.h
++++ b/include/efi_api.h
+@@ -1693,10 +1693,6 @@ struct efi_driver_binding_protocol {
+ 	efi_handle_t driver_binding_handle;
+ };
+ 
+-/* Deprecated version of the Unicode collation protocol */
+-#define EFI_UNICODE_COLLATION_PROTOCOL_GUID \
+-	EFI_GUID(0x1d85cd7f, 0xf43d, 0x11d2, \
+-		 0x9a, 0x0c, 0x00, 0x90, 0x27, 0x3f, 0xc1, 0x4d)
+ /* Current version of the Unicode collation protocol */
+ #define EFI_UNICODE_COLLATION_PROTOCOL2_GUID \
+ 	EFI_GUID(0xa4c751fc, 0x23ae, 0x4c3e, \
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index e53d286b9d..f759cfe287 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -147,9 +147,6 @@ extern const struct efi_device_path_to_text_protocol efi_device_path_to_text;
+ /* implementation of the EFI_DEVICE_PATH_UTILITIES_PROTOCOL */
+ extern const struct efi_device_path_utilities_protocol
+ 					efi_device_path_utilities;
+-/* deprecated version of the EFI_UNICODE_COLLATION_PROTOCOL */
+-extern const struct efi_unicode_collation_protocol
+-					efi_unicode_collation_protocol;
+ /* current version of the EFI_UNICODE_COLLATION_PROTOCOL */
+ extern const struct efi_unicode_collation_protocol
+ 					efi_unicode_collation_protocol2;
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 038cdc9b6e..e729f727df 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -252,17 +252,6 @@ config EFI_UNICODE_CAPITALIZATION
+ 	  set, only the the correct handling of the letters of the codepage
+ 	  used by the FAT file system is ensured.
+ 
+-config EFI_UNICODE_COLLATION_PROTOCOL
+-	bool "Deprecated version of the Unicode collation protocol"
+-	default n
+-	help
+-	  In EFI 1.10 a version of the Unicode collation protocol using ISO
+-	  639-2 language codes existed. This protocol is not part of the UEFI
+-	  specification any longer. Unfortunately it is required to run the
+-	  UEFI Self Certification Test (SCT) II, version 2.6, 2017.
+-
+-	  Choose this option for testing only. It is bound to be removed.
+-
+ endif
+ 
+ config EFI_LOADER_BOUNCE_BUFFER
+diff --git a/lib/efi_loader/efi_root_node.c b/lib/efi_loader/efi_root_node.c
+index 4d59890a7e..c217d06298 100644
+--- a/lib/efi_loader/efi_root_node.c
++++ b/lib/efi_loader/efi_root_node.c
+@@ -69,12 +69,6 @@ efi_status_t efi_root_node_register(void)
+ 			 (void *)&efi_dt_fixup_prot,
+ #endif
+ #if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL2)
+-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+-			 /* Deprecated Unicode collation protocol */
+-			 &efi_guid_unicode_collation_protocol,
+-			 (void *)&efi_unicode_collation_protocol,
+-#endif
+-			 /* Current Unicode collation protocol */
+ 			 &efi_guid_unicode_collation_protocol2,
+ 			 (void *)&efi_unicode_collation_protocol2,
+ #endif
+diff --git a/lib/efi_loader/efi_unicode_collation.c b/lib/efi_loader/efi_unicode_collation.c
+index 6655c68092..f6c875bc33 100644
+--- a/lib/efi_loader/efi_unicode_collation.c
++++ b/lib/efi_loader/efi_unicode_collation.c
+@@ -38,7 +38,7 @@ const efi_guid_t efi_guid_unicode_collation_protocol2 =
+  * @s2:		second string
+  *
+  * This function implements the StriColl() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  *
+  * See the Unified Extensible Firmware Interface (UEFI) specification for
+  * details.
+@@ -179,7 +179,7 @@ static bool metai_match(const u16 *string, const u16 *pattern)
+  *	- [<char1>-<char2>] matches any character in the range
+  *
+  * This function implements the MetaMatch() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  *
+  * Return:	true if the string is matched.
+  */
+@@ -204,7 +204,7 @@ static bool EFIAPI efi_metai_match(struct efi_unicode_collation_protocol *this,
+  * same number of words this does not pose a problem.
+  *
+  * This function implements the StrLwr() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  */
+ static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
+ 			       u16 *string)
+@@ -225,7 +225,7 @@ static void EFIAPI efi_str_lwr(struct efi_unicode_collation_protocol *this,
+  * same number of words this does not pose a problem.
+  *
+  * This function implements the StrUpr() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  */
+ static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
+ 			       u16 *string)
+@@ -245,7 +245,7 @@ static void EFIAPI efi_str_upr(struct efi_unicode_collation_protocol *this,
+  * @string:	converted string
+  *
+  * This function implements the FatToStr() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  */
+ static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
+ 				  efi_uintn_t fat_size, char *fat, u16 *string)
+@@ -276,7 +276,7 @@ static void EFIAPI efi_fat_to_str(struct efi_unicode_collation_protocol *this,
+  * @fat:	converted string
+  *
+  * This function implements the StrToFat() service of the
+- * EFI_UNICODE_COLLATION_PROTOCOL.
++ * EFI_UNICODE_COLLATION_PROTOCOL2.
+  *
+  * Return:	true if an illegal character was substituted by '_'.
+  */
+@@ -337,30 +337,3 @@ const struct efi_unicode_collation_protocol efi_unicode_collation_protocol2 = {
+ 	.str_to_fat = efi_str_to_fat,
+ 	.supported_languages = "en",
+ };
+-
+-/*
+- * In EFI 1.10 a version of the Unicode collation protocol using ISO 639-2
+- * language codes existed. This protocol is not part of the UEFI specification
+- * any longer. Unfortunately it is required to run the UEFI Self Certification
+- * Test (SCT) II, version 2.6, 2017. So we implement it here for the sole
+- * purpose of running the SCT. It can be removed when a compliant SCT is
+- * available.
+- */
+-#if CONFIG_IS_ENABLED(EFI_UNICODE_COLLATION_PROTOCOL)
+-
+-/* GUID of the EFI_UNICODE_COLLATION_PROTOCOL */
+-const efi_guid_t efi_guid_unicode_collation_protocol =
+-	EFI_UNICODE_COLLATION_PROTOCOL_GUID;
+-
+-const struct efi_unicode_collation_protocol efi_unicode_collation_protocol = {
+-	.stri_coll = efi_stri_coll,
+-	.metai_match = efi_metai_match,
+-	.str_lwr = efi_str_lwr,
+-	.str_upr = efi_str_upr,
+-	.fat_to_str = efi_fat_to_str,
+-	.str_to_fat = efi_str_to_fat,
+-	/* ISO 639-2 language code */
+-	.supported_languages = "eng",
+-};
+-
+-#endif
+-- 
+2.29.2
+
