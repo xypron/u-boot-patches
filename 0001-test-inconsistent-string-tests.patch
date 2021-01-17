@@ -1,0 +1,36 @@
+From fbac3160d38bb1145d33d30f3da721082bb997fa Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 17 Jan 2021 22:03:13 +0000
+Subject: [PATCH 1/1] test: inconsistent string tests
+
+Excluding ut str in test/cmd_ut.c but compiling test/str_ut.c results in
+failure of the Python test invoking the C unit tests as observed on
+sipeed_riscv_smode_defconfig:
+
+FAILED test/py/tests/test_ut.py::test_ut[ut_str_upper]
+
+Allow to compile test/str_ut.c on all boards.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/cmd_ut.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/test/cmd_ut.c b/test/cmd_ut.c
+index fad1c899a4..90674d5de5 100644
+--- a/test/cmd_ut.c
++++ b/test/cmd_ut.c
+@@ -89,9 +89,8 @@ static struct cmd_tbl cmd_ut_sub[] = {
+ 	U_BOOT_CMD_MKENT(bloblist, CONFIG_SYS_MAXARGS, 1, do_ut_bloblist,
+ 			 "", ""),
+ 	U_BOOT_CMD_MKENT(bootm, CONFIG_SYS_MAXARGS, 1, do_ut_bootm, "", ""),
+-	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str,
+-			 "", ""),
+ #endif
++	U_BOOT_CMD_MKENT(str, CONFIG_SYS_MAXARGS, 1, do_ut_str, "", ""),
+ };
+ 
+ static int do_ut_all(struct cmd_tbl *cmdtp, int flag, int argc,
+-- 
+2.28.0
+

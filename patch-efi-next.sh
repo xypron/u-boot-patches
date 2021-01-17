@@ -31,6 +31,11 @@ git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
 git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 
+# Test
+git am ../patch/0001-test-inconsistent-bootm-tests.patch
+git am ../patch/0001-test-inconsistent-string-tests.patch
+git am ../patch/0001-test-missing-build-dependency-for-test_print.c.patch
+
 # Documentation
 git am ../patch/0001-doc-man-page-base-command.patch
 git am ../patch/0001-doc-add-synopsis-for-pstore-command.patch
