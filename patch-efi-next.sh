@@ -29,6 +29,7 @@ git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
 git am ../patch/0001-lib-zlib-include-ctype.h.patch
 git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
 git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
+git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 
 # Documentation
 git am ../patch/0001-doc-man-page-base-command.patch
