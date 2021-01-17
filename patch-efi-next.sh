@@ -101,6 +101,8 @@ git am ../patch/0001-efi_loader-make-EFI_DT_FIXUP_PROTOCOL-configurable.patch
 git am ../patch/0001-efi_loader-EFI_DEVICE_PATH_UTILITIES_PROTOCOL-config.patch
 git am ../patch/0001-efi_loader-remove-EFI_UNICODE_COLLATION_PROTOCOL.patch
 git am ../patch/0001-efi_selftest-ask-before-overwriting-in-dtbdump.efi.patch
+git am ../patch/0001-efi_selftest-don-t-compile-dtbdump-if-GENERATE_ACPI_.patch
+git am ../patch/0001-efi_selftest-provide-initrddump-test-tool.patch
 exit
 
 # HII

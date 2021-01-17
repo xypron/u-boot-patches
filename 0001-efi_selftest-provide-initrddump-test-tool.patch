@@ -1,0 +1,426 @@
+From 0f12a4409d4aeb6844086732d697e4223eaaf6db Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 17 Jan 2021 07:30:26 +0100
+Subject: [PATCH 1/1] efi_loader: provide initrddump test tool
+
+Provide an UEFI application to save the initial RAM disk provided by U-Boot
+via the Load File2 protocol.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile     |   6 +
+ lib/efi_selftest/initrddump.c | 378 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 384 insertions(+)
+ create mode 100644 lib/efi_selftest/initrddump.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index fa3dc66baa..7d6ea30102 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -14,6 +14,8 @@ CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI)
+ CFLAGS_efi_selftest_miniapp_return.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_return.o := $(CFLAGS_NON_EFI)
++CFLAGS_initrddump_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
++CFLAGS_REMOVE_initrddump.o := $(CFLAGS_NON_EFI)
+ 
+ obj-y += \
+ efi_selftest.o \
+@@ -82,6 +84,10 @@ ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
+ always += dtbdump.efi
+ endif
+ 
++ifdef CONFIG_EFI_LOAD_FILE2_INITRD
++always += initrddump.efi
++endif
++
+ $(obj)/efi_miniapp_file_image_exception.h: $(obj)/efi_selftest_miniapp_exception.efi
+ 	$(obj)/../../tools/file2include $(obj)/efi_selftest_miniapp_exception.efi > \
+ 	$(obj)/efi_miniapp_file_image_exception.h
+diff --git a/lib/efi_selftest/initrddump.c b/lib/efi_selftest/initrddump.c
+new file mode 100644
+index 0000000000..e0d578d440
+--- /dev/null
++++ b/lib/efi_selftest/initrddump.c
+@@ -0,0 +1,378 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * initrddump.efi saves the initial RAM disk provided via the
++ * EFI_LOAD_FILE2_PROTOCOL.
++ */
++
++#include <common.h>
++#include <efi_api.h>
++#include <efi_load_initrd.h>
++
++#define BUFFER_SIZE 64
++#define ESC 0x17
++
++#define efi_size_in_pages(size) (((size) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
++
++static struct efi_system_table *systable;
++static struct efi_boot_services *bs;
++static struct efi_simple_text_output_protocol *cerr;
++static struct efi_simple_text_output_protocol *cout;
++static struct efi_simple_text_input_protocol *cin;
++static const efi_guid_t loaded_image_guid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
++static const efi_guid_t guid_simple_file_system_protocol =
++					EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
++static const efi_guid_t load_file2_guid = EFI_LOAD_FILE2_PROTOCOL_GUID;
++static efi_handle_t handle;
++
++/*
++ * Device path defined by Linux to identify the handle providing the
++ * EFI_LOAD_FILE2_PROTOCOL used for loading the initial ramdisk.
++ */
++static const struct efi_initrd_dp initrd_dp = {
++	.vendor = {
++		{
++		   DEVICE_PATH_TYPE_MEDIA_DEVICE,
++		   DEVICE_PATH_SUB_TYPE_VENDOR_PATH,
++		   sizeof(initrd_dp.vendor),
++		},
++		EFI_INITRD_MEDIA_GUID,
++	},
++	.end = {
++		DEVICE_PATH_TYPE_END,
++		DEVICE_PATH_SUB_TYPE_END,
++		sizeof(initrd_dp.end),
++	}
++};
++
++/**
++ * error() - print error string
++ *
++ * @string:	error text
++ */
++static void error(u16 *string)
++{
++	cout->set_attribute(cout, EFI_LIGHTRED | EFI_BACKGROUND_BLACK);
++	cout->output_string(cout, string);
++	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
++}
++
++/**
++ * efi_input_yn() - get answer to yes/no question
++ *
++ * Return:
++ * y or Y
++ *     EFI_SUCCESS
++ * n or N
++ *     EFI_ACCESS_DENIED
++ * ESC
++ *     EFI_ABORTED
++ */
++static efi_status_t efi_input_yn(void)
++{
++	struct efi_input_key key = {0};
++	efi_uintn_t index;
++	efi_status_t ret;
++
++	/* Drain the console input */
++	ret = cin->reset(cin, true);
++	for (;;) {
++		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
++		if (ret != EFI_SUCCESS)
++			continue;
++		ret = cin->read_key_stroke(cin, &key);
++		if (ret != EFI_SUCCESS)
++			continue;
++		switch (key.scan_code) {
++		case 0x17: /* Escape */
++			return EFI_ABORTED;
++		default:
++			break;
++		}
++		/* Convert to lower case */
++		switch (key.unicode_char | 0x20) {
++		case 'y':
++			return EFI_SUCCESS;
++		case 'n':
++			return EFI_ACCESS_DENIED;
++		default:
++			break;
++		}
++	}
++}
++
++/**
++ * efi_input() - read string from console
++ *
++ * @buffer:		input buffer
++ * @buffer_size:	buffer size
++ * Return:		status code
++ */
++static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
++{
++	struct efi_input_key key = {0};
++	efi_uintn_t index;
++	efi_uintn_t pos = 0;
++	u16 outbuf[2] = L" ";
++	efi_status_t ret;
++
++	/* Drain the console input */
++	ret = cin->reset(cin, true);
++	*buffer = 0;
++	for (;;) {
++		ret = bs->wait_for_event(1, &cin->wait_for_key, &index);
++		if (ret != EFI_SUCCESS)
++			continue;
++		ret = cin->read_key_stroke(cin, &key);
++		if (ret != EFI_SUCCESS)
++			continue;
++		switch (key.scan_code) {
++		case 0x17: /* Escape */
++			cout->output_string(cout, L"\nAborted\n");
++			return EFI_ABORTED;
++		default:
++			break;
++		}
++		switch (key.unicode_char) {
++		case 0x08: /* Backspace */
++			if (pos) {
++				buffer[pos--] = 0;
++				cout->output_string(cout, L"\b \b");
++			}
++			break;
++		case 0x0a: /* Linefeed */
++		case 0x0d: /* Carriage return */
++			cout->output_string(cout, L"\n");
++			return EFI_SUCCESS;
++		default:
++			break;
++		}
++		/* Ignore surrogate codes */
++		if (key.unicode_char >= 0xD800 && key.unicode_char <= 0xDBFF)
++			continue;
++		if (key.unicode_char >= 0x20 &&
++		    pos < buffer_size - 1) {
++			*outbuf = key.unicode_char;
++			buffer[pos++] = key.unicode_char;
++			buffer[pos] = 0;
++			cout->output_string(cout, outbuf);
++		}
++	}
++}
++
++/**
++ * skip_whitespace() - skip over leading whitespace
++ *
++ * @pos:	UTF-16 string
++ * Return:	pointer to first non-whitespace
++ */
++static u16 *skip_whitespace(u16 *pos)
++{
++	for (; *pos && *pos <= 0x20; ++pos)
++		;
++	return pos;
++}
++
++/**
++ * starts_with() - check if @string starts with @keyword
++ *
++ * @string:	string to search for keyword
++ * @keyword:	keyword to be searched
++ * Return:	true fi @string starts with the keyword
++ */
++static bool starts_with(u16 *string, u16 *keyword)
++{
++	for (; *keyword; ++string, ++keyword) {
++		if (*string != *keyword)
++			return false;
++	}
++	return true;
++}
++
++/**
++ * do_help() - print help
++ */
++static void do_help(void)
++{
++	error(L"save <initrd> - save initial RAM disk to file\n");
++	error(L"exit          - exit the shell\n");
++}
++
++/**
++ * get_initrd() - read initial RAM disk via EFI_LOAD_FILE2_PROTOCOL
++ *
++ * @initrd:		on return buffer with initial RAM disk
++ * @initrd_size:	size of initial RAM disk
++ * Return:		status code
++ */
++static efi_status_t get_initrd(void **initrd, efi_uintn_t *initrd_size)
++{
++	struct efi_device_path *dp = (struct efi_device_path *)&initrd_dp;
++	struct efi_load_file_protocol *load_file2_prot;
++	u64 buffer;
++	efi_handle_t handle;
++	efi_status_t ret;
++
++	*initrd = NULL;
++	*initrd_size = 0;
++	ret = bs->locate_device_path(&load_file2_guid, &dp, &handle);
++	if (ret != EFI_SUCCESS) {
++		error(L"Load File2 protocol not found\n");
++		return ret;
++	}
++	ret = bs->handle_protocol(handle, &load_file2_guid,
++				 (void **)&load_file2_prot);
++	ret = load_file2_prot->load_file(load_file2_prot, dp, false,
++					 initrd_size, NULL);
++	if (ret != EFI_BUFFER_TOO_SMALL) {
++		error(L"Load File2 protocol does not provide file length\n");
++		return EFI_LOAD_ERROR;
++	}
++	ret = bs->allocate_pages(EFI_ALLOCATE_ANY_PAGES, EFI_LOADER_DATA,
++				 efi_size_in_pages(*initrd_size), &buffer);
++	if (ret != EFI_SUCCESS) {
++		error(L"Out of memory\n");
++		return ret;
++	}
++	*initrd = (void *)buffer;
++	ret = load_file2_prot->load_file(load_file2_prot, dp, false,
++					 initrd_size, *initrd);
++	if (ret != EFI_SUCCESS) {
++		error(L"Load File2 protocol failed to provide file\n");
++		bs->free_pages(buffer, efi_size_in_pages(*initrd_size));
++		return EFI_LOAD_ERROR;
++	}
++	return ret;
++}
++
++/**
++ * do_save() - save initial RAM disk
++ *
++ * @filename:	file name
++ * Return:	status code
++ */
++static efi_status_t do_save(u16 *filename)
++{
++	struct efi_loaded_image *loaded_image;
++	struct efi_simple_file_system_protocol *file_system;
++	struct efi_file_handle *root, *file;
++	void *initrd;
++	efi_uintn_t initrd_size;
++	efi_uintn_t ret;
++
++	ret = get_initrd(&initrd, &initrd_size);
++	if (ret != EFI_SUCCESS)
++		return ret;
++
++	filename = skip_whitespace(filename);
++
++	ret = bs->open_protocol(handle, &loaded_image_guid,
++				(void **)&loaded_image, NULL, NULL,
++				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
++	if (ret != EFI_SUCCESS) {
++		error(L"Loaded image protocol not found\n");
++		goto out;
++	}
++
++	/* Open the simple file system protocol */
++	ret = bs->open_protocol(loaded_image->device_handle,
++				&guid_simple_file_system_protocol,
++				(void **)&file_system, NULL, NULL,
++				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
++	if (ret != EFI_SUCCESS) {
++		error(L"Failed to open simple file system protocol\n");
++		goto out;
++	}
++
++	/* Open volume */
++	ret = file_system->open_volume(file_system, &root);
++	if (ret != EFI_SUCCESS) {
++		error(L"Failed to open volume\n");
++		goto out;
++	}
++	/* Check if file already exists */
++	ret = root->open(root, &file, filename, EFI_FILE_MODE_READ, 0);
++	if (ret == EFI_SUCCESS) {
++		file->close(file);
++		cout->output_string(cout, L"Overwrite existing file (y/n)? ");
++		ret = efi_input_yn();
++		cout->output_string(cout, L"\n");
++		if (ret != EFI_SUCCESS) {
++			root->close(root);
++			error(L"Aborted by user\n");
++			goto out;
++		}
++	}
++
++	/* Create file */
++	ret = root->open(root, &file, filename,
++			 EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE |
++			 EFI_FILE_MODE_CREATE, EFI_FILE_ARCHIVE);
++	if (ret == EFI_SUCCESS) {
++		/* Write file */
++		ret = file->write(file, &initrd_size, initrd);
++		if (ret != EFI_SUCCESS) {
++			error(L"Failed to write file\n");
++		} else {
++			cout->output_string(cout, filename);
++			cout->output_string(cout, L" written\n");
++		}
++		file->close(file);
++	} else {
++		error(L"Failed to open file\n");
++	}
++	root->close(root);
++
++out:
++	if (initrd)
++		bs->free_pages((uintptr_t)initrd,
++			       efi_size_in_pages(initrd_size));
++	return ret;
++}
++
++/**
++ * efi_main() - entry point of the EFI application.
++ *
++ * @handle:	handle of the loaded image
++ * @systab:	system table
++ * @return:	status code
++ */
++efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
++			     struct efi_system_table *systab)
++{
++	handle = image_handle;
++	systable = systab;
++	cerr = systable->std_err;
++	cout = systable->con_out;
++	cin = systable->con_in;
++	bs = systable->boottime;
++
++	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
++	cout->clear_screen(cout);
++	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
++	cout->output_string(cout, L"INITRD Dump\n========\n\n");
++	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
++
++	for (;;) {
++		u16 command[BUFFER_SIZE];
++		u16 *pos;
++		efi_uintn_t ret;
++
++		cout->output_string(cout, L"=> ");
++		ret = efi_input(command, sizeof(command));
++		if (ret == EFI_ABORTED)
++			break;
++		pos = skip_whitespace(command);
++		if (starts_with(pos, L"exit"))
++			break;
++		else if (starts_with(pos, L"save "))
++			do_save(pos + 5);
++		else
++			do_help();
++	}
++
++	cout->set_attribute(cout, EFI_LIGHTGRAY | EFI_BACKGROUND_BLACK);
++	cout->clear_screen(cout);
++	return EFI_SUCCESS;
++}
+-- 
+2.29.2
+

@@ -1,4 +1,4 @@
-From ca2c49444d544f0322425d4fd6bde0f10b115117 Mon Sep 17 00:00:00 2001
+From ef0cff413a52851010b46eced1c102153b70a4ea Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 17 Jan 2021 05:13:21 +0100
 Subject: [PATCH 1/1] efi_selftest: ask before overwriting in dtbdump.efi
@@ -7,11 +7,11 @@ Before overwriting an existing file ask the user.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/dtbdump.c | 59 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 58 insertions(+), 1 deletion(-)
+ lib/efi_selftest/dtbdump.c | 60 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 59 insertions(+), 1 deletion(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index efef759863..5bbfa3b265 100644
+index efef759863..cbc9067b5a 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
 @@ -41,7 +41,51 @@ static void error(u16 *string)
@@ -67,7 +67,7 @@ index efef759863..5bbfa3b265 100644
   *
   * @buffer:		input buffer
   * @buffer_size:	buffer size
-@@ -379,6 +423,19 @@ efi_status_t do_save(u16 *filename)
+@@ -379,6 +423,20 @@ efi_status_t do_save(u16 *filename)
  		error(L"Failed to open volume\n");
  		return ret;
  	}
@@ -79,6 +79,7 @@ index efef759863..5bbfa3b265 100644
 +		ret = efi_input_yn();
 +		cout->output_string(cout, L"\n");
 +		if (ret != EFI_SUCCESS) {
++			root->close(root);
 +			error(L"Aborted by user\n");
 +			return ret;
 +		}
