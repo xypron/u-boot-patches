@@ -28,13 +28,17 @@ git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
 git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
 git am ../patch/0001-lib-zlib-include-ctype.h.patch
 git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
+git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
+
+# Documentation
 git am ../patch/0001-doc-man-page-base-command.patch
 git am ../patch/0001-doc-add-synopsis-for-pstore-command.patch
 git am ../patch/0001-doc-board-fix-README.b4860qds.patch
 git am ../patch/0001-doc-move-README.fdt-overlays-to-HTML-documentation.patch
 git am ../patch/0001-doc-sifive-fu540-fix-heading-levels.patch
+git am ../patch/0001-dm-core-describe-uclass_root_s.patch
+
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
-git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 
 # FAT file system
 git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
@@ -96,6 +100,7 @@ git am ../patch/0001-efi_loader-fixup-protocol-avoid-forward-declaration.patch
 git am ../patch/0001-efi_loader-make-EFI_DT_FIXUP_PROTOCOL-configurable.patch
 git am ../patch/0001-efi_loader-EFI_DEVICE_PATH_UTILITIES_PROTOCOL-config.patch
 git am ../patch/0001-efi_loader-remove-EFI_UNICODE_COLLATION_PROTOCOL.patch
+git am ../patch/0001-efi_selftest-ask-before-overwriting-in-dtbdump.efi.patch
 exit
 
 # HII
