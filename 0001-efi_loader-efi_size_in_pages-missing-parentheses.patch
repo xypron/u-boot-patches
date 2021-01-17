@@ -1,0 +1,28 @@
+From f8f3cb55dc50c33891a4603d6f21390d3361377f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 17 Jan 2021 07:52:09 +0100
+Subject: [PATCH 1/1] efi_loader: efi_size_in_pages() missing parentheses
+
+Add parentheses around size to avoid possible operator precedence problems.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index e53d286b9d..3c69d9ce1e 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -564,7 +564,7 @@ struct efi_file_handle *efi_file_from_path(struct efi_device_path *fp);
+  * @size:	size in bytes
+  * Return:	size in pages
+  */
+-#define efi_size_in_pages(size) ((size + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
++#define efi_size_in_pages(size) (((size) + EFI_PAGE_MASK) >> EFI_PAGE_SHIFT)
+ /* Generic EFI memory allocator, call this to get memory */
+ void *efi_alloc(uint64_t len, int memory_type);
+ /* More specific EFI memory allocator, called by EFI payloads */
+-- 
+2.29.2
+
