@@ -30,6 +30,7 @@ git am ../patch/0001-lib-zlib-include-ctype.h.patch
 git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
 git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
+git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
