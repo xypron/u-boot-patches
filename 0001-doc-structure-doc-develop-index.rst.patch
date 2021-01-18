@@ -1,0 +1,52 @@
+From 038e350e98031ddccabda81cfc6b923d77875e56 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 18 Jan 2021 19:33:19 +0100
+Subject: [PATCH 1/1] doc: structure doc/develop/index.rst
+
+Provide sub-chapters for 'Develop U-Boot'
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/develop/index.rst | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/doc/develop/index.rst b/doc/develop/index.rst
+index 0a7e204b34..b108df8e1b 100644
+--- a/doc/develop/index.rst
++++ b/doc/develop/index.rst
+@@ -3,13 +3,29 @@
+ Develop U-Boot
+ ==============
+ 
++Implementation
++--------------
+ 
+ .. toctree::
+-   :maxdepth: 2
++   :maxdepth: 1
+ 
+-   coccinelle
+    commands
+-   crash_dumps
+    global_data
+    logging
++
++Debugging
++---------
++
++.. toctree::
++   :maxdepth: 1
++
++   crash_dumps
+    trace
++
++Testing
++-------
++
++.. toctree::
++   :maxdepth: 1
++
++   coccinelle
+-- 
+2.29.2
+
