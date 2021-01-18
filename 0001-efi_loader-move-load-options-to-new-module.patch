@@ -22,7 +22,7 @@ index 0000000000..349feb8b95
 +/*
 + *  EFI boot manager
 + *
-+ *  Copyright (c) 2017 Rob Clark
++ *  Copyright (c) 2018 AKASHI Takahiro, et.al.
 + */
 +
 +#define LOG_CATEGORY LOGC_EFI
