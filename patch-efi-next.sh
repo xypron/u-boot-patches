@@ -15,8 +15,6 @@ git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
-git am ../patch/0001-cmd-CMD_CPU-depends-on-CPU.patch
-git am ../patch/0001-test-test-lib-test_print.c-depends-on-CONSOLE_RECORD.patch
 git am ../patch/0001-fs-btrfs-simplify-close_ctree_fs_info.patch
 git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
@@ -25,24 +23,14 @@ git am ../patch/0001-mmc-fsl_esdhc_spl-remove-superfluous-free.patch
 git am ../patch/0001-pinctrl-mediatek-correct-error-handling.patch
 git am ../patch/0001-drivers-qe-avoid-double-free.patch
 git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
-git am ../patch/0001-lib-aes-build-failure-with-DEBUG-1.patch
-git am ../patch/0001-lib-zlib-include-ctype.h.patch
-git am ../patch/0001-lib-zlib-our-putc-takes-only-one-argument.patch
-git am ../patch/0001-mtd-misplaced-log.h-and-dm-devres.h.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
 git am ../patch/0001-test-inconsistent-string-tests.patch
-git am ../patch/0001-test-missing-build-dependency-for-test_print.c.patch
 
 # Documentation
-git am ../patch/0001-doc-man-page-base-command.patch
-git am ../patch/0001-doc-add-synopsis-for-pstore-command.patch
-git am ../patch/0001-doc-board-fix-README.b4860qds.patch
-git am ../patch/0001-doc-move-README.fdt-overlays-to-HTML-documentation.patch
-git am ../patch/0001-doc-sifive-fu540-fix-heading-levels.patch
 git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
@@ -57,11 +45,7 @@ git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 
-git am ../patch/0001-ram-k3-j721e-rename-BIT_MASK.patch
-git am ../patch/0001-log-make-debug_cond-function-like.patch
-git am ../patch/0001-log-provide-missing-macros.patch
 git am ../patch/0001-log-convert-pr_-to-logging.patch
-git am ../patch/0001-test-unit-test-for-pr_err-pr_cont.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch

@@ -35,9 +35,9 @@ index 965cf7bc03..4b63c1b43c 100644
  config TRACE
  	bool "Support for tracing of function calls and timing"
 -	imply CMD_TRACE
+ 	select TIMER_EARLY
  	help
  	  Enables function tracing within U-Boot. This allows recording of call
- 	  traces including timing information. The command can write data to
 -- 
 2.24.1
 
