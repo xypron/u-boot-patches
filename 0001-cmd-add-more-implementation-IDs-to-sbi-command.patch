@@ -1,0 +1,79 @@
+From 692bda762b4cd07cb5f4a5232c287d7fb9c45ecd Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 19 Jan 2021 20:24:48 +0100
+Subject: [PATCH 1/1] cmd: add more implementation IDs to sbi command
+
+Additional SBI implementation IDs have been added to the upcoming
+next version of the SBI specification.
+
+https://github.com/riscv/riscv-sbi-doc/blob/master/riscv-sbi.adoc
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/riscv/sbi.c | 37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
+
+diff --git a/cmd/riscv/sbi.c b/cmd/riscv/sbi.c
+index 9897483eb6..90c0811e14 100644
+--- a/cmd/riscv/sbi.c
++++ b/cmd/riscv/sbi.c
+@@ -9,11 +9,25 @@
+ #include <command.h>
+ #include <asm/sbi.h>
+ 
++struct sbi_imp {
++	const long id;
++	const char *name;
++};
++
+ struct sbi_ext {
+ 	const u32 id;
+ 	const char *name;
+ };
+ 
++static struct sbi_imp implementations[] = {
++	{ 0, "Berkeley Boot Loader (BBL)" },
++	{ 1, "OpenSBI" },
++	{ 2, "Xvisor" },
++	{ 3, "KVM" },
++	{ 4, "RustSBI" },
++	{ 5, "Diosix" },
++};
++
+ static struct sbi_ext extensions[] = {
+ 	{ 0x00000000, "sbi_set_timer" },
+ 	{ 0x00000001, "sbi_console_putchar" },
+@@ -43,23 +57,14 @@ static int do_sbi(struct cmd_tbl *cmdtp, int flag, int argc,
+ 		printf("SBI %ld.%ld\n", ret >> 24, ret & 0xffffff);
+ 	ret = sbi_get_impl_id();
+ 	if (ret >= 0) {
+-		switch (ret) {
+-		case 0:
+-			printf("Berkeley Boot Loader (BBL)\n");
+-			break;
+-		case 1:
+-			printf("OpenSBI\n");
+-			break;
+-		case 2:
+-			printf("Xvisor\n");
+-			break;
+-		case 3:
+-			printf("KVM\n");
+-			break;
+-		default:
+-			printf("Unknown implementation\n");
+-			break;
++		for (i = 0; i < ARRAY_SIZE(implementations); ++i) {
++			if (ret == implementations[i].id) {
++				printf("%s\n", implementations[i].name);
++				break;
++			}
+ 		}
++		if (i == ARRAY_SIZE(implementations))
++			printf("Unknown implementation ID %ld\n", ret);
+ 	}
+ 	printf("Extensions:\n");
+ 	for (i = 0; i < ARRAY_SIZE(extensions); ++i) {
+-- 
+2.28.0
+

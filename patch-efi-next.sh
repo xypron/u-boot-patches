@@ -19,6 +19,7 @@ git am ../patch/0001-fs-btrfs-simplify-close_ctree_fs_info.patch
 git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
+git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
 # Test
