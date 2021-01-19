@@ -18,11 +18,6 @@ git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-fs-btrfs-simplify-close_ctree_fs_info.patch
 git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
-git am ../patch/0001-dma-bcm6348-incorrect-buffer-allocation.patch
-git am ../patch/0001-mmc-fsl_esdhc_spl-remove-superfluous-free.patch
-git am ../patch/0001-pinctrl-mediatek-correct-error-handling.patch
-git am ../patch/0001-drivers-qe-avoid-double-free.patch
-git am ../patch/0001-mtd-remove-drivers-mtd-mw_eeprom.c.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
@@ -113,8 +108,6 @@ exit
 
 git am ../patch/0001-test-efi-UEFI-unit-tests.patch
 exit
-
-git am ../patch/0001-efi_loader-EFI_FILE_PROTOCOL-rev-2-stub.patch
 
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 
