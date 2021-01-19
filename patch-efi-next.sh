@@ -99,6 +99,7 @@ git am ../patch/0001-efi_loader-remove-EFI_UNICODE_COLLATION_PROTOCOL.patch
 git am ../patch/0001-efi_selftest-ask-before-overwriting-in-dtbdump.efi.patch
 git am ../patch/0001-efi_selftest-don-t-compile-dtbdump-if-GENERATE_ACPI_.patch
 git am ../patch/0001-efi_selftest-provide-initrddump-test-tool.patch
+git am ../patch/0001-efi_selftest-use-CRLF-as-line-endings-in-dtbdump.patch
 git am ../patch/0001-efi_loader-efi_size_in_pages-missing-parentheses.patch
 git am ../patch/0001-efi_loader-Avoid-emitting-efi_var_buf-to-.GOT.patch
 exit
