@@ -1,0 +1,94 @@
+From 81e831ed27e0ca4a94e5ae307f47323fac7a4bed Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 19 Jan 2021 19:30:04 +0100
+Subject: [PATCH 1/1] doc: document sbi command
+
+Add a man-page for the sbi command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS         |  1 +
+ doc/usage/index.rst |  1 +
+ doc/usage/sbi.rst   | 49 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 51 insertions(+)
+ create mode 100644 doc/usage/sbi.rst
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a7a62dff81..e7a6dd9ce2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -951,6 +951,7 @@ S:	Maintained
+ T:	git https://gitlab.denx.de/u-boot/custodians/u-boot-riscv.git
+ F:	arch/riscv/
+ F:	cmd/riscv/
++F:	doc/usage/sbi.rst
+ F:	drivers/timer/andes_plmt_timer.c
+ F:	drivers/timer/sifive_clint_timer.c
+ F:	tools/prelink-riscv.c
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index 6def250766..eedcdb110b 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -19,3 +19,4 @@ Shell commands
+    button
+    mbr
+    pstore
++   sbi
+diff --git a/doc/usage/sbi.rst b/doc/usage/sbi.rst
+new file mode 100644
+index 0000000000..66bf4f634d
+--- /dev/null
++++ b/doc/usage/sbi.rst
+@@ -0,0 +1,49 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++sbi command
++===========
++
++Synopsis
++--------
++
++::
++
++    sbi
++
++Description
++-----------
++
++The sbi command is used to display information about the SBI (Supervisor Binary
++Interface) implementation on RISC-V systems.
++
++The output may look like:
++
++::
++
++    => sbi
++    SBI 0.2
++    OpenSBI
++    Extensions:
++      sbi_set_timer
++      sbi_console_putchar
++      sbi_console_getchar
++      sbi_clear_ipi
++      sbi_send_ipi
++      sbi_remote_fence_i
++      sbi_remote_sfence_vma
++      sbi_remote_sfence_vma_asid
++      sbi_shutdown
++      SBI Base Functionality
++      Timer Extension
++      IPI Extension
++      RFENCE Extension
++      Hart State Management Extension
++
++The first line indicates the version of the RISC-V SBI specification.
++The second line indicates the implementation.
++The further lines enumerate the implemented extensions.
++
++Configuration
++-------------
++
++To use the sbi command you must specify CONFIG_CMD_SBI=y.
+-- 
+2.29.2
+

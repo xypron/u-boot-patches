@@ -30,6 +30,7 @@ git am ../patch/0001-doc-structure-doc-develop-index.rst.patch
 git am ../patch/0001-doc-move-test-README-to-HTML-documentation.patch
 git am ../patch/0001-doc-move-test-py-README.md-to-HTML-documentation.patch
 git am ../patch/0001-doc-move-README.menu-to-HTML-documentation.patch
+git am ../patch/0001-doc-document-sbi-command.patch
 
 git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 
