@@ -1,4 +1,4 @@
-From 0d3a104578bce1bcb69c4268da11ccd1dd42a1e7 Mon Sep 17 00:00:00 2001
+From 3e87b368617ab16a72861d3036911a0a76765663 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 19 Jan 2021 10:06:00 +0100
 Subject: [PATCH 1/1] efi_selftest: use CRLF as line endings in dtbdump
@@ -9,14 +9,14 @@ Provide a print() function to reduce code size.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/dtbdump.c | 93 +++++++++++++++++++++-----------------
- 1 file changed, 51 insertions(+), 42 deletions(-)
+ lib/efi_selftest/dtbdump.c | 94 +++++++++++++++++++++-----------------
+ 1 file changed, 52 insertions(+), 42 deletions(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index cbc9067b5a..4deff7bd0d 100644
+index cbc9067b5a..953b264d9d 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
-@@ -28,6 +28,15 @@ static struct efi_system_table *systable;
+@@ -28,6 +28,16 @@ static struct efi_system_table *systable;
  static const efi_guid_t efi_dt_fixup_protocol_guid = EFI_DT_FIXUP_PROTOCOL_GUID;
  static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
  
@@ -25,14 +25,15 @@ index cbc9067b5a..4deff7bd0d 100644
 + *
 + * @string:	text
 + */
-+static void print(u16 *string) {
++static void print(u16 *string)
++{
 +	cout->output_string(cout, string);
 +}
 +
  /**
   * error() - print error string
   *
-@@ -36,7 +45,7 @@ static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
+@@ -36,7 +46,7 @@ static const efi_guid_t efi_file_info_guid = EFI_FILE_INFO_GUID;
  static void error(u16 *string)
  {
  	cout->set_attribute(cout, EFI_LIGHTRED | EFI_BACKGROUND_BLACK);
@@ -41,7 +42,7 @@ index cbc9067b5a..4deff7bd0d 100644
  	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
  }
  
-@@ -111,7 +120,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
+@@ -111,7 +121,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
  			continue;
  		switch (key.scan_code) {
  		case 0x17: /* Escape */
@@ -50,7 +51,7 @@ index cbc9067b5a..4deff7bd0d 100644
  			return EFI_ABORTED;
  		default:
  			break;
-@@ -120,12 +129,12 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
+@@ -120,12 +130,12 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
  		case 0x08: /* Backspace */
  			if (pos) {
  				buffer[pos--] = 0;
@@ -65,7 +66,7 @@ index cbc9067b5a..4deff7bd0d 100644
  			return EFI_SUCCESS;
  		default:
  			break;
-@@ -138,7 +147,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
+@@ -138,7 +148,7 @@ static efi_status_t efi_input(u16 *buffer, efi_uintn_t buffer_size)
  			*outbuf = key.unicode_char;
  			buffer[pos++] = key.unicode_char;
  			buffer[pos] = 0;
@@ -74,7 +75,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		}
  	}
  }
-@@ -215,9 +224,9 @@ bool starts_with(u16 *string, u16 *keyword)
+@@ -215,9 +225,9 @@ bool starts_with(u16 *string, u16 *keyword)
   */
  void do_help(void)
  {
@@ -87,7 +88,7 @@ index cbc9067b5a..4deff7bd0d 100644
  }
  
  /**
-@@ -242,7 +251,7 @@ efi_status_t do_load(u16 *filename)
+@@ -242,7 +252,7 @@ efi_status_t do_load(u16 *filename)
  	ret = bs->locate_protocol(&efi_dt_fixup_protocol_guid, NULL,
  				  (void **)&dt_fixup_prot);
  	if (ret != EFI_SUCCESS) {
@@ -96,7 +97,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		return ret;
  	}
  
-@@ -252,7 +261,7 @@ efi_status_t do_load(u16 *filename)
+@@ -252,7 +262,7 @@ efi_status_t do_load(u16 *filename)
  				(void **)&loaded_image, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -105,7 +106,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		return ret;
  	}
  	/* Open the simple file system protocol */
-@@ -261,57 +270,57 @@ efi_status_t do_load(u16 *filename)
+@@ -261,57 +271,57 @@ efi_status_t do_load(u16 *filename)
  				(void **)&file_system, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -172,7 +173,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		goto out;
  	}
  	/* Fixup file, expecting EFI_BUFFER_TOO_SMALL */
-@@ -322,24 +331,24 @@ efi_status_t do_load(u16 *filename)
+@@ -322,24 +332,24 @@ efi_status_t do_load(u16 *filename)
  		/* Read file into larger buffer */
  		ret = bs->free_pages(addr, pages);
  		if (ret != EFI_SUCCESS)
@@ -201,7 +202,7 @@ index cbc9067b5a..4deff7bd0d 100644
  			goto out;
  		}
  		buffer_size = pages << EFI_PAGE_SHIFT;
-@@ -349,24 +358,24 @@ efi_status_t do_load(u16 *filename)
+@@ -349,24 +359,24 @@ efi_status_t do_load(u16 *filename)
  				EFI_DT_INSTALL_TABLE);
  	}
  	if (ret == EFI_SUCCESS)
@@ -231,7 +232,7 @@ index cbc9067b5a..4deff7bd0d 100644
  	}
  	return ret;
  }
-@@ -388,11 +397,11 @@ efi_status_t do_save(u16 *filename)
+@@ -388,11 +398,11 @@ efi_status_t do_save(u16 *filename)
  
  	dtb = get_dtb(systable);
  	if (!dtb) {
@@ -245,7 +246,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		return EFI_NOT_FOUND;
  	}
  	dtb_size = f2h(dtb->totalsize);
-@@ -403,7 +412,7 @@ efi_status_t do_save(u16 *filename)
+@@ -403,7 +413,7 @@ efi_status_t do_save(u16 *filename)
  				(void **)&loaded_image, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -254,7 +255,7 @@ index cbc9067b5a..4deff7bd0d 100644
  		return ret;
  	}
  
-@@ -413,26 +422,26 @@ efi_status_t do_save(u16 *filename)
+@@ -413,26 +423,26 @@ efi_status_t do_save(u16 *filename)
  				(void **)&file_system, NULL, NULL,
  				EFI_OPEN_PROTOCOL_GET_PROTOCOL);
  	if (ret != EFI_SUCCESS) {
@@ -286,7 +287,7 @@ index cbc9067b5a..4deff7bd0d 100644
  			return ret;
  		}
  	}
-@@ -445,16 +454,16 @@ efi_status_t do_save(u16 *filename)
+@@ -445,16 +455,16 @@ efi_status_t do_save(u16 *filename)
  		/* Write file */
  		ret = file->write(file, &dtb_size, dtb);
  		if (ret != EFI_SUCCESS)
@@ -307,7 +308,7 @@ index cbc9067b5a..4deff7bd0d 100644
  	}
  
  	return ret;
-@@ -480,7 +489,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
+@@ -480,7 +490,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
  	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
  	cout->clear_screen(cout);
  	cout->set_attribute(cout, EFI_WHITE | EFI_BACKGROUND_BLACK);
@@ -316,7 +317,7 @@ index cbc9067b5a..4deff7bd0d 100644
  	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
  
  	for (;;) {
-@@ -488,7 +497,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
+@@ -488,7 +498,7 @@ efi_status_t EFIAPI efi_main(efi_handle_t image_handle,
  		u16 *pos;
  		efi_uintn_t ret;
  
