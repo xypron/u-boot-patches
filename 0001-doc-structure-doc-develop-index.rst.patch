@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: structure doc/develop/index.rst
 Provide sub-chapters for 'Develop U-Boot'
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/develop/index.rst | 22 +++++++++++++++++++---
  1 file changed, 19 insertions(+), 3 deletions(-)

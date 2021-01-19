@@ -19,6 +19,7 @@ Only compile test/bootm.c on the sandbox.
 
 Fixes: f158ba15ee0f ("bootm: Add tests for fixup_silent_linux()")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: move test/README to HTML documentation
 Move test/README to the 'Develop U-Boot' chapter of the HTML documentation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/develop/index.rst   |  1 +
  doc/develop/testing.rst | 96 +++++++++++++++++++++++++++++++++++++++++

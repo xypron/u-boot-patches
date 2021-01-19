@@ -12,6 +12,7 @@ FAILED test/py/tests/test_ut.py::test_ut[ut_str_upper]
 Allow to compile test/str_ut.c on all boards.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/cmd_ut.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)

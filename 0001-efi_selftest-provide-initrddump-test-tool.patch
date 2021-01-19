@@ -7,6 +7,7 @@ Provide an UEFI application to save the initial RAM disk provided by U-Boot
 via the Load File2 protocol.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
  lib/efi_selftest/Makefile               |   6 +
  lib/efi_selftest/efi_selftest_console.c |   3 +-

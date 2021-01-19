@@ -7,6 +7,7 @@ Convert test/py/README.md to restructured text and add it to the generated
 HTML documentation.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/develop/index.rst      |   1 +
  doc/develop/py_testing.rst | 426 +++++++++++++++++++++++++++++++++++++
