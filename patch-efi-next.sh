@@ -21,6 +21,7 @@ git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
+git am ../patch/0001-cmd-change-suppress-newline-in-echo-command.patch
 
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
@@ -32,6 +33,7 @@ git am ../patch/0001-doc-move-test-README-to-HTML-documentation.patch
 git am ../patch/0001-doc-move-test-py-README.md-to-HTML-documentation.patch
 git am ../patch/0001-doc-move-README.menu-to-HTML-documentation.patch
 git am ../patch/0001-doc-document-sbi-command.patch
+git am ../patch/0001-doc-describe-exit-command.patch
 
 git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 

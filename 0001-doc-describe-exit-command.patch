@@ -1,0 +1,75 @@
+From f2babb38fd13179bd6f92bb2d41f83b6738748c2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 20 Jan 2021 12:14:01 +0100
+Subject: [PATCH 1/1] doc: describe exit command
+
+Man-page for exit shell command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/usage/exit.rst  | 40 ++++++++++++++++++++++++++++++++++++++++
+ doc/usage/index.rst |  1 +
+ 2 files changed, 41 insertions(+)
+ create mode 100644 doc/usage/exit.rst
+
+diff --git a/doc/usage/exit.rst b/doc/usage/exit.rst
+new file mode 100644
+index 0000000000..c220e30236
+--- /dev/null
++++ b/doc/usage/exit.rst
+@@ -0,0 +1,40 @@
++exit command
++============
++
++Synopsis
++--------
++
++::
++
++    exit
++
++Description
++-----------
++
++The exit command terminates a script started via the run or source command.
++If scripts are nested, only the innermost script is left.
++
++::
++
++    => setenv inner 'echo entry inner; exit; echo inner done'
++    => setenv outer 'echo entry outer; run inner; echo outer done'
++    => run outer
++    entry outer
++    entry inner
++    outer done
++    =>
++
++When executed outside a script a warning is written. Following commands are not
++executed.
++
++::
++
++    => echo first; exit; echo last
++    first
++    exit not allowed from main input shell.
++    =>
++
++Return value
++------------
++
++$? is always set to 0 (true).
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index eedcdb110b..b8f216b713 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -17,6 +17,7 @@ Shell commands
+    bootefi
+    bootmenu
+    button
++   exit
+    mbr
+    pstore
+    sbi
+-- 
+2.29.2
+
