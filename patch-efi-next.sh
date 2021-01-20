@@ -43,7 +43,7 @@ git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
 # FAT file system
 git am ../patch/0001-fs-fat-consistent-error-handling-for-flush_dir.patch
-
+git am ../patch/0001-fs-fat-structure-for-name-and-extension.patch
 
 #git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 #git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
