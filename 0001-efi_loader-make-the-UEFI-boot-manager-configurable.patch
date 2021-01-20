@@ -1,4 +1,4 @@
-From 982fc320f4381767fbdffe82eba7339a01e3716d Mon Sep 17 00:00:00 2001
+From ff2f532fadd8f5238cc1ac2ae4ab075703bcc313 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 15 Jan 2021 19:02:50 +0100
 Subject: [PATCH 1/1] efi_loader: make the UEFI boot manager configurable
@@ -10,11 +10,12 @@ Provide a configuration option to make the boot manager available.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/bootefi.c           | 13 +++++++++----
- cmd/efidebug.c          |  8 ++++++--
- lib/efi_loader/Kconfig  |  8 ++++++++
- lib/efi_loader/Makefile |  2 +-
- 4 files changed, 24 insertions(+), 7 deletions(-)
+ cmd/bootefi.c                   | 13 +++++++++----
+ cmd/efidebug.c                  |  8 ++++++--
+ include/config_distro_bootcmd.h | 12 +++++++++---
+ lib/efi_loader/Kconfig          |  8 ++++++++
+ lib/efi_loader/Makefile         |  2 +-
+ 5 files changed, 33 insertions(+), 10 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index fe70eec625..c8eb5c32b0 100644
@@ -89,6 +90,34 @@ index 6de81cab00..9a2d4ddd5e 100644
  	"efidebug query [-nv][-bs][-rt][-at]\n"
  	"  - show size of UEFI variables store\n";
  #endif
+diff --git a/include/config_distro_bootcmd.h b/include/config_distro_bootcmd.h
+index c9862260a3..2627c2a6a5 100644
+--- a/include/config_distro_bootcmd.h
++++ b/include/config_distro_bootcmd.h
+@@ -123,14 +123,20 @@
+ #endif
+ #endif
+ 
+-
+-#define BOOTENV_SHARED_EFI                                                \
++#ifdef CONFIG_CMD_BOOTEFI_BOOTMGR
++#define BOOTENV_EFI_BOOTMGR                                               \
+ 	"boot_efi_bootmgr="                                               \
+ 		"if fdt addr ${fdt_addr_r}; then "                        \
+ 			"bootefi bootmgr ${fdt_addr_r};"                  \
+ 		"else "                                                   \
+ 			"bootefi bootmgr;"                                \
+-		"fi\0"                                                    \
++		"fi\0"
++#else
++#define BOOTENV_EFI_BOOTMGR
++#endif
++
++#define BOOTENV_SHARED_EFI                                                \
++	BOOTENV_EFI_BOOTMGR                                               \
+ 	\
+ 	"boot_efi_binary="                                                \
+ 		"load ${devtype} ${devnum}:${distro_bootpart} "           \
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
 index fdf245dea3..106f789b4d 100644
 --- a/lib/efi_loader/Kconfig
