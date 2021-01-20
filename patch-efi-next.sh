@@ -42,10 +42,13 @@ git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
 # FAT file system
-git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
-git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
-git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
-git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
+git am ../patch/0001-fs-fat-consistent-error-handling-for-flush_dir.patch
+
+
+#git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
+#git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
+#git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
+#git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
