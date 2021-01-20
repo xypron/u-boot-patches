@@ -22,6 +22,7 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-cmd-change-suppress-newline-in-echo-command.patch
+git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
 
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
