@@ -94,18 +94,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-04-rc1-2
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
-git am ../patch/0001-efi_loader-move-load-options-to-new-module.patch
-git am ../patch/0001-efi_loader-make-the-UEFI-boot-manager-configurable.patch
-git am ../patch/0001-efi_loader-fixup-protocol-avoid-forward-declaration.patch
-git am ../patch/0001-efi_loader-make-EFI_DT_FIXUP_PROTOCOL-configurable.patch
-git am ../patch/0001-efi_loader-EFI_DEVICE_PATH_UTILITIES_PROTOCOL-config.patch
-git am ../patch/0001-efi_loader-remove-EFI_UNICODE_COLLATION_PROTOCOL.patch
-git am ../patch/0001-efi_selftest-ask-before-overwriting-in-dtbdump.efi.patch
-git am ../patch/0001-efi_selftest-don-t-compile-dtbdump-if-GENERATE_ACPI_.patch
-git am ../patch/0001-efi_selftest-provide-initrddump-test-tool.patch
-git am ../patch/0001-efi_selftest-use-CRLF-as-line-endings-in-dtbdump.patch
-git am ../patch/0001-efi_loader-efi_size_in_pages-missing-parentheses.patch
-git am ../patch/0001-efi_loader-Avoid-emitting-efi_var_buf-to-.GOT.patch
+git am ../patch/0001-efi_loader-fix-efi_load_image_from_path.patch
 exit
 
 # HII
