@@ -1,4 +1,4 @@
-From 9b1ec8be64b94e006ed499a0365924ae93c0fd83 Mon Sep 17 00:00:00 2001
+From 21675420cc82a4ef5899e091cdf31bec18a19df1 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 20 Jan 2021 18:09:30 +0100
 Subject: [PATCH 1/1] doc: document for statement
@@ -38,10 +38,10 @@ index 0000000000..6768dbb8d6
 +an environment variable takes precedence over a shell variable of the same name.
 +
 +variable
-+    Name of the counter variable
++    name of the counter variable
 +
 +items
-+    Space separated item list
++    space separated item list
 +
 +commands
 +    commands to execute
