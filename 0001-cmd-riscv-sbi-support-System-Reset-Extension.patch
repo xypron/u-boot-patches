@@ -9,6 +9,7 @@ Let the sbi command detect the 'System Reset Extension'
 Cf. https://github.com/riscv/riscv-sbi-doc
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Pragnesh Patel <pragnesh.patel@openfive.com>
 ---
  cmd/riscv/sbi.c | 1 +
  1 file changed, 1 insertion(+)

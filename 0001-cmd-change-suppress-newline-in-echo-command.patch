@@ -21,6 +21,7 @@ To avoid unexpected behavior the patch changes echo to use -n as first
 argument to suppress the line feed.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  cmd/echo.c | 49 ++++++++++++++++++-------------------------------
  1 file changed, 18 insertions(+), 31 deletions(-)

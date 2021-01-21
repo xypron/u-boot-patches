@@ -5,7 +5,6 @@ set -e
 # Various fixes
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
-git am ../patch/0001-cmd-usb-display-bus-number.patch
 git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
@@ -15,8 +14,6 @@ git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
-git am ../patch/0001-fs-btrfs-simplify-close_ctree_fs_info.patch
-git am ../patch/0001-ubifs-do-not-decide-upon-uninitialized-variable.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
