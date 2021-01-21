@@ -1,0 +1,94 @@
+From d7e0bf509d57bb49b8536c38c2d492a348b6e344 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 21 Jan 2021 18:41:28 +0100
+Subject: [PATCH] test: unit test for echo command
+
+Provide a unit test for the unit command
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/cmd/Makefile    |  3 +++
+ test/cmd/test_echo.c | 57 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 60 insertions(+)
+ create mode 100644 test/cmd/test_echo.c
+
+diff --git a/test/cmd/Makefile b/test/cmd/Makefile
+index 758bc14273..5451e9ea90 100644
+--- a/test/cmd/Makefile
++++ b/test/cmd/Makefile
+@@ -2,6 +2,9 @@
+ #
+ # Copyright (c) 2013 Google, Inc
+ 
++ifdef CONFIG_HUSH_PARSER
++obj-$(CONFIG_CONSOLE_RECORD) += test_echo.o
++endif
+ obj-y += mem.o
+ obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
+ obj-$(CONFIG_CMD_PWM) += pwm.o
+diff --git a/test/cmd/test_echo.c b/test/cmd/test_echo.c
+new file mode 100644
+index 0000000000..4183cf75bb
+--- /dev/null
++++ b/test/cmd/test_echo.c
+@@ -0,0 +1,57 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Tests for echo command
++ *
++ * Copyright 2020, Heinrich Schuchadt <xypron.glpk@gmx.de>
++ */
++
++#include <common.h>
++#include <command.h>
++#include <display_options.h>
++#include <test/lib.h>
++#include <test/test.h>
++#include <test/ut.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++struct test_data {
++	char *cmd;
++	char *expected;
++};
++
++static struct test_data echo_data[] = {
++	{"echo 1 2 3",
++	 "1 2 3"},
++	/* Test new line handling */
++	{"echo -n 1 2 3; echo a b c",
++	 "1 2 3a b c"},
++	/*
++	 * Test handling of environment variables.
++	 *
++	 * j, q, x are among the least frequent letters in English.
++	 * Hence no collision for the variable name jQx is expected.
++	 */
++	{"setenv jQx X; echo \"a)\" ${jQx} 'b)' '${jQx}' c) ${jQx}; setenv jQx",
++	 "a) X b) ${jQx} c) X"},
++	/* Test handling of shell variables. */
++	{"setenv jQx; for jQx in 1 2 3; do echo -n \"${jQx}, \"; done; echo;",
++	 "1, 2, 3, "},
++};
++
++static int lib_test_hush_echo(struct unit_test_state *uts)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(echo_data); ++i) {
++		console_record_reset_enable();
++		ut_assertok(run_command(echo_data[i].cmd, 0));
++		gd->flags &= ~GD_FLG_RECORD;
++		console_record_readline(uts->actual_str,
++					sizeof(uts->actual_str));
++		ut_asserteq_str(echo_data[i].expected, uts->actual_str);
++		ut_assertok(ut_check_console_end(uts));
++	}
++	return 0;
++}
++
++LIB_TEST(lib_test_hush_echo, 0);
+-- 
+2.29.2
+
