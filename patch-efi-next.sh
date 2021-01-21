@@ -34,6 +34,7 @@ git am ../patch/0001-doc-move-README.menu-to-HTML-documentation.patch
 git am ../patch/0001-doc-document-sbi-command.patch
 git am ../patch/0001-doc-describe-exit-command.patch
 git am ../patch/0001-doc-document-for-statement.patch
+git am ../patch/0001-doc-document-echo-command.patch
 
 git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 
