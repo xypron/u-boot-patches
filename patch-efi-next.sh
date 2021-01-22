@@ -94,6 +94,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-efi_loader-fix-efi_load_image_from_path.patch
+
+git am ../patch/0001-tools-mkeficapsule-fill-reserved-members-of-structur.patch
 exit
 
 # HII
