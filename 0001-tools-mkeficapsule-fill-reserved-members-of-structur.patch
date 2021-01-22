@@ -8,7 +8,7 @@ structure with zero's for safety.
 
 Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
 Fixes: CID 316354
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  tools/mkeficapsule.c | 3 +++
  1 file changed, 3 insertions(+)

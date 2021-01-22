@@ -1,0 +1,39 @@
+From b1de0b7d4a244384c213925cc86395602d6b2de2 Mon Sep 17 00:00:00 2001
+From: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Date: Fri, 22 Jan 2021 10:43:27 +0900
+Subject: [PATCH 1/1] efi_loader: capsule: fix SIZEOF_MISMATCH warning
+
+CID 316361 says:
+> Passing argument "count * 8UL /* sizeof (*files) */" to
+> function "dlmalloc" and then casting the return value to "u16 **" is
+> suspicious. In this particular case "sizeof (u16 **)" happens to be equal
+> to "sizeof (u16 *)", but this is not a portable assumption.
+> > 767         tmp_files = malloc(count * sizeof(*files));
+
+The change in this patch fixes the ambiguity.
+
+Signed-off-by: AKASHI Takahiro <takahiro.akashi@linaro.org>
+Fixes: CID 316361
+For readability use *tmp_files instead of tmp_files[0]
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_capsule.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index dad1b0fcf7..0d5a7b63ec 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -764,7 +764,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
+ 		goto err;
+ 
+ 	/* make a list */
+-	tmp_files = malloc(count * sizeof(*files));
++	tmp_files = malloc(count * sizeof(*tmp_files));
+ 	if (!tmp_files) {
+ 		ret = EFI_OUT_OF_RESOURCES;
+ 		goto err;
+-- 
+2.29.2
+
