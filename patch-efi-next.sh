@@ -95,6 +95,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 git am ../patch/0001-efi_loader-fix-efi_load_image_from_path.patch
 
+git am ../patch/0001-cmd-efidebug-always-check-return-code-from-get_varia.patch
 git am ../patch/0001-efi_loader-capsule-fix-SIZEOF_MISMATCH-warning.patch
 git am ../patch/0001-tools-mkeficapsule-fill-reserved-members-of-structur.patch
 exit
