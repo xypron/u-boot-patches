@@ -1,0 +1,53 @@
+From ff42527b8c19917905c4f4b66429273dfa94905d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 22 Jan 2021 13:16:04 +0100
+Subject: [PATCH 1/1] cmd: correct long text loadb, loadx, loady
+
+The first argument is the load address and not an offset.
+
+The second argument cannot be entered without the first one.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/load.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/cmd/load.c b/cmd/load.c
+index c6a7cc4651..f252c74894 100644
+--- a/cmd/load.c
++++ b/cmd/load.c
+@@ -1065,25 +1065,25 @@ U_BOOT_CMD(
+ U_BOOT_CMD(
+ 	loadb, 3, 0,	do_load_serial_bin,
+ 	"load binary file over serial line (kermit mode)",
+-	"[ off ] [ baud ]\n"
++	"[ addr [ baud ] ]\n"
+ 	"    - load binary file over serial line"
+-	" with offset 'off' and baudrate 'baud'"
++	" at address 'addr' with baudrate 'baud'"
+ );
+ 
+ U_BOOT_CMD(
+ 	loadx, 3, 0,	do_load_serial_bin,
+ 	"load binary file over serial line (xmodem mode)",
+-	"[ off ] [ baud ]\n"
++	"[ addr [ baud ] ]\n"
+ 	"    - load binary file over serial line"
+-	" with offset 'off' and baudrate 'baud'"
++	" at address 'addr' with baudrate 'baud'"
+ );
+ 
+ U_BOOT_CMD(
+ 	loady, 3, 0,	do_load_serial_bin,
+ 	"load binary file over serial line (ymodem mode)",
+-	"[ off ] [ baud ]\n"
++	"[ addr [ baud ] ]\n"
+ 	"    - load binary file over serial line"
+-	" with offset 'off' and baudrate 'baud'"
++	" at address 'addr' with baudrate 'baud'"
+ );
+ 
+ #endif	/* CONFIG_CMD_LOADB */
+-- 
+2.29.2
+
