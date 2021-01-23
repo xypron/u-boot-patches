@@ -107,6 +107,7 @@ git am ../patch/0001-efi_loader-correct-EFI_BLOCK_IO_PROTOCOL.Media.LastB.patch
 
 # efi-2021-04-rc1-4
 git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
+git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
 exit
 
 # HII
