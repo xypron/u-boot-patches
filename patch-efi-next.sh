@@ -93,7 +93,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-04-rc1-2
+# efi-2021-04-rc1-3
 # git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 git am ../patch/0001-efi_loader-fix-efi_load_image_from_path.patch
@@ -104,6 +104,9 @@ git am ../patch/0001-tools-mkeficapsule-fill-reserved-members-of-structur.patch
 
 git am ../patch/0001-efi_loader-notification-with-TPL_APPLICATION-not-all.patch
 git am ../patch/0001-efi_loader-correct-EFI_BLOCK_IO_PROTOCOL.Media.LastB.patch
+
+# efi-2021-04-rc1-4
+git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
 exit
 
 # HII
