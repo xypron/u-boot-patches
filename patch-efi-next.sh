@@ -40,9 +40,6 @@ git am ../patch/0001-dm-core-describe-uclass_root_s.patch
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
 # FAT file system
-git am ../patch/0001-fs-fat-consistent-error-handling-for-flush_dir.patch
-git am ../patch/0001-fs-fat-structure-for-name-and-extension.patch
-
 #git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
 #git am ../patch/0001-MAINTAINERS-maintainer-for-FAT.patch
 #git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
@@ -89,18 +86,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-04-rc1-3
-# git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
-
-git am ../patch/0001-efi_loader-fix-efi_load_image_from_path.patch
-
-git am ../patch/0001-cmd-efidebug-always-check-return-code-from-get_varia.patch
-git am ../patch/0001-efi_loader-capsule-fix-SIZEOF_MISMATCH-warning.patch
-git am ../patch/0001-tools-mkeficapsule-fill-reserved-members-of-structur.patch
-
-git am ../patch/0001-efi_loader-notification-with-TPL_APPLICATION-not-all.patch
-git am ../patch/0001-efi_loader-correct-EFI_BLOCK_IO_PROTOCOL.Media.LastB.patch
-
 # efi-2021-04-rc1-4
 git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
 git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
@@ -120,6 +105,8 @@ exit
 git am ../patch/0001-efi_loader-protocol-definitions-for-ConnectControlle.patch
 
 exit
+
+# git am ../patch/0001-cmd-add-tool-to-correct-UEFI-binaries.patch
 
 # Patches needing rework
 # git am ../patch/0001-efi_loader-provide-test-files-for-bootmgr.patch
