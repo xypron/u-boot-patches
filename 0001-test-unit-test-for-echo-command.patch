@@ -6,6 +6,7 @@ Subject: [PATCH] test: unit test for echo command
 Provide a unit test for the unit command
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/cmd/Makefile    |  3 +++
  test/cmd/test_echo.c | 57 ++++++++++++++++++++++++++++++++++++++++++++

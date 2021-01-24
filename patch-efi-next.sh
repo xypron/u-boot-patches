@@ -34,8 +34,8 @@ git am ../patch/0001-doc-document-echo-command.patch
 git am ../patch/0001-cmd-correct-long-text-loadb-loadx-loady.patch
 git am ../patch/0001-doc-describe-loady-command.patch
 git am ../patch/0001-doc-document-true-command.patch
-
 git am ../patch/0001-dm-core-describe-uclass_root_s.patch
+git am ../patch/0001-doc-describe-the-false-command.patch
 
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 

@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] doc: document echo command
 Provide a man-page for the echo command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/usage/echo.rst  | 65 +++++++++++++++++++++++++++++++++++++++++++++
  doc/usage/index.rst |  1 +
