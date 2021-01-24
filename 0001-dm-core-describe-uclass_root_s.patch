@@ -3,7 +3,7 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 24 Jan 2021 21:48:00 +0100
 Subject: [PATCH v2 1/1] dm: core: describe uclass_root_s
 
-make htmldocs creates a warning:
+'make htmldocs' creates a warning:
 
 ./include/asm-generic/global_data.h:443:
 warning: Function parameter or member 'uclass_root_s'

@@ -75,9 +75,9 @@ index 0000000000..e11c35c2a9
 +::
 +
 +    => for i in a b c; do for j in 1 2 3; do echo -n "${i}${j}, "; done; echo; done;
-+    a1, a2, a3, 
-+    b1, b2, b3, 
-+    c1, c2, c3, 
++    a1, a2, a3,
++    b1, b2, b3,
++    c1, c2, c3,
 +    =>
 +
 +Return value
