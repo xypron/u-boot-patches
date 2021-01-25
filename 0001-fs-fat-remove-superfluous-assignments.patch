@@ -1,0 +1,78 @@
+From 154d14039810d2267552ae1e30915d97232521a8 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 26 Jan 2021 00:11:32 +0100
+Subject: [PATCH 1/1] fs: fat: remove superfluous assignments
+
+Do not assign a value to a variable if it is not used.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c       | 3 ++-
+ fs/fat/fat_write.c | 6 +++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index fb6ce094ac..ccba268f61 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -248,7 +248,6 @@ static __u32 get_fatent(fsdata *mydata, __u32 entry)
+ static int
+ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
+ {
+-	__u32 idx = 0;
+ 	__u32 startsect;
+ 	int ret;
+ 
+@@ -277,6 +276,8 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
+ 			size -= mydata->sect_size;
+ 		}
+ 	} else {
++		__u32 idx;
++
+ 		idx = size / mydata->sect_size;
+ 		if (idx == 0)
+ 			ret = 0;
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index aae3a6a3d1..b43a27b205 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -573,7 +573,6 @@ static __u32 determine_fatent(fsdata *mydata, __u32 entry)
+ static int
+ set_sectors(fsdata *mydata, u32 startsect, u8 *buffer, u32 size)
+ {
+-	u32 nsects = 0;
+ 	int ret;
+ 
+ 	debug("startsect: %d\n", startsect);
+@@ -595,6 +594,8 @@ set_sectors(fsdata *mydata, u32 startsect, u8 *buffer, u32 size)
+ 			size -= mydata->sect_size;
+ 		}
+ 	} else if (size >= mydata->sect_size) {
++		u32 nsects;
++
+ 		nsects = size / mydata->sect_size;
+ 		ret = disk_write(startsect, nsects, buffer);
+ 		if (ret != nsects) {
+@@ -785,7 +786,6 @@ get_set_cluster(fsdata *mydata, __u32 clustnum, loff_t pos, __u8 *buffer,
+ 		}
+ 
+ 		size -= wsize;
+-		buffer += wsize;
+ 		*gotsize += wsize;
+ 	}
+ 
+@@ -1482,10 +1482,10 @@ static int delete_single_dentry(fat_itr *itr)
+  */
+ static int delete_long_name(fat_itr *itr)
+ {
+-	struct dir_entry *dent = itr->dent;
+ 	int seqn = itr->dent->nameext.name[0] & ~LAST_LONG_ENTRY_MASK;
+ 
+ 	while (seqn--) {
++		struct dir_entry *dent;
+ 		int ret;
+ 
+ 		ret = delete_single_dentry(itr);
+-- 
+2.29.2
+

@@ -87,6 +87,7 @@ git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
 git am ../patch/0001-efi_loader-switch-to-non-secure-mode-later.patch
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 git am ../patch/0001-fs-fat-avoid-out-of-bounds-access-warning.patch
+git am ../patch/0001-fs-fat-remove-superfluous-assignments.patch
 exit
 
 # HII
