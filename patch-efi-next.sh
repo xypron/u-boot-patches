@@ -28,6 +28,7 @@ git am ../patch/0001-test-inconsistent-bootm-tests.patch
 git am ../patch/0001-test-inconsistent-string-tests.patch
 
 # Documentation
+git am ../patch/0001-doc-board-fix-Microchip-MPFS-Icicle-Kit-doc.patch
 
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
