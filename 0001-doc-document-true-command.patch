@@ -43,7 +43,7 @@ index 0000000000..aeac6b76ec
 +The true command sets the return value $? to 0 (true).
 +
 +Example
-+--------
++-------
 +
 +::
 +

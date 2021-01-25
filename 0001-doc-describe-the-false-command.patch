@@ -34,7 +34,7 @@ index 0000000000..5f8ed7150d
 +The false command sets the return value $? to 1 (false).
 +
 +Example
-+--------
++-------
 +
 +::
 +
