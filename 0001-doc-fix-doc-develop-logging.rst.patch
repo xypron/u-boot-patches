@@ -1,0 +1,88 @@
+From 349977da52377633c074848b816bb932636496a4 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 25 Jan 2021 21:06:57 +0100
+Subject: [PATCH 1/1] doc: fix doc/develop/logging.rst
+
+Sphinx 3 builds fail due to doc/develop/logging.rst producing duplicate
+labels.
+
+Include logging.h only once in the API section and use cross-references for
+the enums log_level_t and log_category_t.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/api/index.rst       |  1 +
+ doc/api/logging.rst     |  6 ++++++
+ doc/develop/logging.rst | 13 +++----------
+ 3 files changed, 10 insertions(+), 10 deletions(-)
+ create mode 100644 doc/api/logging.rst
+
+diff --git a/doc/api/index.rst b/doc/api/index.rst
+index cbecd10755..ea02aa5715 100644
+--- a/doc/api/index.rst
++++ b/doc/api/index.rst
+@@ -10,6 +10,7 @@ U-Boot API documentation
+    efi
+    getopt
+    linker_lists
++   logging
+    pinctrl
+    rng
+    sandbox
+diff --git a/doc/api/logging.rst b/doc/api/logging.rst
+new file mode 100644
+index 0000000000..1e6cbc4931
+--- /dev/null
++++ b/doc/api/logging.rst
+@@ -0,0 +1,6 @@
++.. SPDX-License-Identifier: GPL-2.0+
++
++Logging API
++===========
++
++.. kernel-doc:: include/log.h
+diff --git a/doc/develop/logging.rst b/doc/develop/logging.rst
+index 7fdd1132ef..60c18c5b3a 100644
+--- a/doc/develop/logging.rst
++++ b/doc/develop/logging.rst
+@@ -26,8 +26,7 @@ Logging levels
+ 
+ There are a number logging levels available.
+ 
+-.. kernel-doc:: include/log.h
+-   :identifiers: log_level_t
++See enum :c:type:`log_level_t`
+ 
+ Logging category
+ ----------------
+@@ -36,8 +35,7 @@ Logging can come from a wide variety of places within U-Boot. Each log message
+ has a category which is intended to allow messages to be filtered according to
+ their source.
+ 
+-.. kernel-doc:: include/log.h
+-   :identifiers: log_category_t
++See enum :c:type:`log_category_t`
+ 
+ Enabling logging
+ ----------------
+@@ -67,7 +65,7 @@ to enable building in of all logging statements in a single file. Put it at
+ the top of the file, before any #includes.
+ 
+ To actually get U-Boot to output this you need to also set the default logging
+-level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:type:`LOGL_DEBUG`) or more.
++level - e.g. set CONFIG_LOG_DEFAULT_LEVEL to 7 (:c:data:`LOGL_DEBUG`) or more.
+ Otherwise debug output is suppressed and will not be generated.
+ 
+ Using DEBUG
+@@ -290,8 +288,3 @@ number dropped due to them being generated before the log system was ready.
+ Add a printf() format string pragma so that log statements are checked properly
+ 
+ Add a command to delete existing log records.
+-
+-Logging API
+------------
+-.. kernel-doc:: include/log.h
+-   :internal:
+-- 
+2.29.2
+

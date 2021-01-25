@@ -29,7 +29,9 @@ git am ../patch/0001-test-inconsistent-string-tests.patch
 
 # Documentation
 git am ../patch/0001-doc-board-fix-Microchip-MPFS-Icicle-Kit-doc.patch
-
+git am ../patch/0001-doc-fix-doc-develop-logging.rst.patch
+git am ../patch/0001-doc-remove-illegal-characters.patch
+git am ../patch/0001-.gitlab-ci-install-doc-sphinx-requirements.txt.patch
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
 # FAT file system

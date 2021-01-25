@@ -1,0 +1,48 @@
+From 192c8648aa34c33479dc4653b26ed59b96b75a0e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 25 Jan 2021 22:06:25 +0100
+Subject: [PATCH 1/1] .gitlab-ci: install doc/sphinx/requirements.txt
+
+Install all requirements according to doc/sphinx/requirements.txt in the
+virtual environment used for testing 'make htmldocs'.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ .azure-pipelines.yml | 6 +++++-
+ .gitlab-ci.yml       | 3 +++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/.azure-pipelines.yml b/.azure-pipelines.yml
+index 620696c22e..7a3eb78a5e 100644
+--- a/.azure-pipelines.yml
++++ b/.azure-pipelines.yml
+@@ -67,7 +67,11 @@ jobs:
+       image: $(ci_runner_image)
+       options: $(container_option)
+     steps:
+-      - script: make htmldocs
++      - script: |
++          virtualenv -p /usr/bin/python3 /tmp/venvhtml
++          . /tmp/venvhtml/bin/activate
++          pip install -r doc/sphinx/requirements.txt
++          make htmldocs
+ 
+   - job: todo
+     displayName: 'Search for TODO within source tree'
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index 4b0680887b..2cdcd864c8 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -122,6 +122,9 @@ htmldocs:
+   tags: [ 'all' ]
+   stage: testsuites
+   script:
++    - virtualenv -p /usr/bin/python3 /tmp/venvhtml
++    - . /tmp/venvhtml/bin/activate
++    - pip install -r doc/sphinx/requirements.txt
+     - make htmldocs
+ 
+ # some statistics about the code base
+-- 
+2.29.2
+

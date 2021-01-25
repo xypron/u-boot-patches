@@ -3,7 +3,7 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 31 Dec 2020 23:16:46 +0100
 Subject: [PATCH 1/1] doc: update Kernel documentation build system
 
-Update the docomentation build system according to Linux v5.11-rc1.
+Update the documentation build system according to Linux v5.11-rc1.
 
 With this patch we can build the HTML documentation using either of
 Sphinx 2 and Sphinx 3.
