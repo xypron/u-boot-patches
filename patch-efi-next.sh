@@ -28,18 +28,6 @@ git am ../patch/0001-test-inconsistent-bootm-tests.patch
 git am ../patch/0001-test-inconsistent-string-tests.patch
 
 # Documentation
-git am ../patch/0001-doc-document-sbi-command.patch
-git am ../patch/0001-doc-describe-exit-command.patch
-git am ../patch/0001-doc-document-for-statement.patch
-git am ../patch/0001-cmd-change-suppress-newline-in-echo-command.patch
-git am ../patch/0001-test-unit-test-for-echo-command.patch
-git am ../patch/0001-doc-document-echo-command.patch
-git am ../patch/0001-cmd-correct-long-text-loadb-loadx-loady.patch
-git am ../patch/0001-doc-describe-loady-command.patch
-git am ../patch/0001-doc-document-true-command.patch
-git am ../patch/0001-dm-core-describe-uclass_root_s.patch
-git am ../patch/0001-doc-describe-the-false-command.patch
-git am ../patch/0001-doc-describe-command-conitrace.patch
 
 git am ../patch/0001-doc-update-Kernel-documentation-build-system.patch
 
@@ -94,6 +82,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
 git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
 git am ../patch/0001-efi_loader-switch-to-non-secure-mode-later.patch
+git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 exit
 
 # HII
