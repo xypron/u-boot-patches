@@ -1,0 +1,53 @@
+From cc65b1e8d42949a2625c9397a60e657164105900 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 25 Jan 2021 07:25:58 +0100
+Subject: [PATCH] sandbox: fill block device meta information
+
+Provide information about host backed block device.
+
+Mark the device created by 'host bind' as removable.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/block/sandbox.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/block/sandbox.c b/drivers/block/sandbox.c
+index 34c26cda47..f57f690d3c 100644
+--- a/drivers/block/sandbox.c
++++ b/drivers/block/sandbox.c
+@@ -92,6 +92,7 @@ int host_dev_bind(int devnum, char *filename)
+ {
+ 	struct host_block_dev *host_dev;
+ 	struct udevice *dev;
++	struct blk_desc *desc;
+ 	char dev_name[20], *str, *fname;
+ 	int ret, fd;
+ 
+@@ -143,6 +144,12 @@ int host_dev_bind(int devnum, char *filename)
+ 		goto err_file;
+ 	}
+ 
++	desc = blk_get_devnum_by_type(IF_TYPE_HOST, devnum);
++	desc->removable = 1;
++	snprintf(desc->vendor, BLK_VEN_SIZE, "U-Boot");
++	snprintf(desc->product, BLK_PRD_SIZE, "hostfile");
++	snprintf(desc->revision, BLK_REV_SIZE, "1.0");
++
+ 	return 0;
+ err_file:
+ 	os_close(fd);
+@@ -187,6 +194,10 @@ int host_dev_bind(int dev, char *filename)
+ 	blk_dev->block_write = host_block_write;
+ 	blk_dev->devnum = dev;
+ 	blk_dev->part_type = PART_TYPE_UNKNOWN;
++	blk_dev->removable = 1;
++	snprintf(blk_dev->vendor, BLK_VEN_SIZE, "U-Boot");
++	snprintf(blk_dev->product, BLK_PRD_SIZE, "hostfile");
++	snprintf(blk_dev->revision, BLK_REV_SIZE, "1.0");
+ 	part_init(blk_dev);
+ 
+ 	return 0;
+-- 
+2.29.2
+

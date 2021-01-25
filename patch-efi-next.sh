@@ -19,6 +19,9 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
+git am ../patch/0001-avb-AVB_VERIFY-depends-on-MMC.patch
+git am ../patch/0001-sandbox-fill-block-device-meta-information.patch
+git am ../patch/0001-disk-part-sandbox-support-in-dev_print.patch
 
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
