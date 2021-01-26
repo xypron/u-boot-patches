@@ -1,0 +1,27 @@
+From b77a43a01b7bb2c91fa3c6483bd102f078dde9f7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 26 Jan 2021 12:59:09 +0100
+Subject: [PATCH 1/1] doc: exception command
+
+Create man-page for exception command.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/usage/index.rst | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/doc/usage/index.rst b/doc/usage/index.rst
+index f75bd08237..83cfbafd90 100644
+--- a/doc/usage/index.rst
++++ b/doc/usage/index.rst
+@@ -19,6 +19,7 @@ Shell commands
+    button
+    conitrace
+    echo
++   exception
+    exit
+    false
+    for
+-- 
+2.29.2
+
