@@ -5,6 +5,8 @@ Subject: [PATCH 1/1] fs: fat: remove superfluous assignments
 
 Do not assign a value to a variable if it is not used.
 
+Move variables to smallest possible scope.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  fs/fat/fat.c       | 3 ++-
