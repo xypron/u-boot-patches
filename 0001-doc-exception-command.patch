@@ -1,15 +1,94 @@
-From b77a43a01b7bb2c91fa3c6483bd102f078dde9f7 Mon Sep 17 00:00:00 2001
+From 069a4f6b6abdc23dd28efc2c220deb4db28421f5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 26 Jan 2021 12:59:09 +0100
-Subject: [PATCH 1/1] doc: exception command
+Subject: [PATCH v2 1/1] doc: exception command
 
 Create man-page for exception command.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- doc/usage/index.rst | 1 +
- 1 file changed, 1 insertion(+)
+v2:
+	add missing exception.rst
+---
+ doc/usage/exception.rst | 68 +++++++++++++++++++++++++++++++++++++++++
+ doc/usage/index.rst     |  1 +
+ 2 files changed, 69 insertions(+)
+ create mode 100644 doc/usage/exception.rst
 
+diff --git a/doc/usage/exception.rst b/doc/usage/exception.rst
+new file mode 100644
+index 0000000000..412a03ba0f
+--- /dev/null
++++ b/doc/usage/exception.rst
+@@ -0,0 +1,68 @@
++exception command
++=================
++
++Synopsis
++--------
++
++::
++
++    exception <type>
++
++Description
++-----------
++
++The exception command is used to test the handling of exceptions like undefined
++instructions, segmentation faults or alignment faults.
++
++type
++  type of exception to be generated. The available types are architecture
++  dependent. Use 'help exception' to determine which are available.
++
++  **ARM:**
++
++  breakpoint
++    prefetch abort
++
++  unaligned
++    data abort
++
++  undefined
++    undefined instruction
++
++  **RISC-V:**
++
++  unaligned
++    load address misaligned
++
++  undefined
++    undefined instruction
++
++  **Sandbox:**
++
++  sigsegv
++    illegal memory access
++
++  undefined
++    undefined instruction
++
++  **x86:**
++
++  undefined
++    undefined instruction
++
++Examples
++--------
++
++::
++
++    => exception undefined
++
++    Illegal instruction
++    pc = 0x56076dd1a0f9, pc_reloc = 0x540f9
++
++    resetting ...
++
++Return value
++------------
++
++The return value $? is always set to 0 (true).
 diff --git a/doc/usage/index.rst b/doc/usage/index.rst
 index f75bd08237..83cfbafd90 100644
 --- a/doc/usage/index.rst
