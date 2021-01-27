@@ -1,0 +1,31 @@
+From 42f35e2b6bd2e80cb4a3bf604fa7732669f131e9 Mon Sep 17 00:00:00 2001
+From: Gary Bisson <gary.bisson@boundarydevices.com>
+Date: Tue, 26 Jan 2021 14:56:23 +0100
+Subject: [PATCH 1/1] disk: part_efi: update partition table entries after
+ write
+
+Fixes fastboot issues when switching from mbr to gpt partition tables.
+
+Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ disk/part_efi.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/disk/part_efi.c b/disk/part_efi.c
+index 2f922662e6..7a24e33d18 100644
+--- a/disk/part_efi.c
++++ b/disk/part_efi.c
+@@ -867,6 +867,9 @@ int write_mbr_and_gpt_partitions(struct blk_desc *dev_desc, void *buf)
+ 		return 1;
+ 	}
+ 
++	/* Update the partition table entries*/
++	part_init(dev_desc);
++
+ 	return 0;
+ }
+ #endif
+-- 
+2.29.2
+
