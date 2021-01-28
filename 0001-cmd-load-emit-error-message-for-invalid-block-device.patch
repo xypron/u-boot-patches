@@ -7,6 +7,7 @@ The load command should not silently return to the console prompt if an
 invalid block device is specified and no file is loaded.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  fs/fs.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
