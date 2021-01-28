@@ -26,6 +26,7 @@ git am ../patch/0001-disk-part-sandbox-support-in-dev_print.patch
 # Test
 git am ../patch/0001-test-inconsistent-bootm-tests.patch
 git am ../patch/0001-test-inconsistent-string-tests.patch
+git am ../patch/0001-test-correct-entry-point-to-pytest.patch
 
 # Documentation
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
