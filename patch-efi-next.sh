@@ -89,6 +89,7 @@ git am ../patch/0001-fs-fat-avoid-out-of-bounds-access-warning.patch
 git am ../patch/0001-fs-fat-remove-superfluous-assignments.patch
 git am ../patch/0001-disk-part_efi-update-partition-table-entries-after-w.patch
 git am ../patch/0001-tools-add-mkeficapsule-to-.gitignore.patch
+git am ../patch/0001-efi_loader-add-Linux-magic-to-aarch64-crt0.patch
 exit
 
 # HII

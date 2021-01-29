@@ -1,0 +1,43 @@
+From 1c78bc254c52c90689c28fcefa41e021e73de60e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 29 Jan 2021 12:35:51 +0100
+Subject: [PATCH 1/1] efi_loader: add Linux magic to aarch64 crt0
+
+Add the Linux magic to the EFI file header to allow running our test
+programs with GRUB's linux command. Now we can dump the fixed-up device
+tree with our dtbdump.efi tool.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/arm/lib/crt0_aarch64_efi.S | 3 ++-
+ include/asm-generic/pe.h        | 2 ++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/lib/crt0_aarch64_efi.S b/arch/arm/lib/crt0_aarch64_efi.S
+index 368933ecf2..492195f765 100644
+--- a/arch/arm/lib/crt0_aarch64_efi.S
++++ b/arch/arm/lib/crt0_aarch64_efi.S
+@@ -18,7 +18,8 @@
+ 	.globl	ImageBase
+ ImageBase:
+ 	.short	IMAGE_DOS_SIGNATURE		/* 'MZ' */
+-	.skip	58				/* 'MZ' + pad + offset == 64 */
++	.skip	54				/* 'MZ' + pad + offset == 64 */
++	.long   LINUX_ARM64_MAGIC		/* For GRUB's linux command */
+ 	.long	pe_header - ImageBase		/* Offset to the PE header */
+ pe_header:
+ 	.long	IMAGE_NT_SIGNATURE		/* 'PE' */
+diff --git a/include/asm-generic/pe.h b/include/asm-generic/pe.h
+index b247519a3d..a1df747134 100644
+--- a/include/asm-generic/pe.h
++++ b/include/asm-generic/pe.h
+@@ -51,4 +51,6 @@
+ #define IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER	12
+ #define IMAGE_SUBSYSTEM_EFI_ROM			13
+ 
++#define LINUX_ARM64_MAGIC			0x644d5241
++
+ #endif /* _ASM_PE_H */
+-- 
+2.29.2
+
