@@ -87,6 +87,7 @@ git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 git am ../patch/0001-fs-fat-avoid-out-of-bounds-access-warning.patch
 git am ../patch/0001-fs-fat-remove-superfluous-assignments.patch
 git am ../patch/0001-disk-part_efi-update-partition-table-entries-after-w.patch
+git am ../patch/0001-tools-add-mkeficapsule-to-.gitignore.patch
 exit
 
 # HII
