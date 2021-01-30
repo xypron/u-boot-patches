@@ -1,0 +1,78 @@
+From bfb07422c68b27081e86a3fc0537fa8309a78c0e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 30 Jan 2021 14:12:10 +0100
+Subject: [PATCH] fs: fat: remove trailing periods from long name
+
+The FAT32 File System Specification [1] requires leading and trailing
+spaces as well as trailing periods of long names to be ignored.
+
+This renders a test for '.' and '..' as file name superfluous.
+
+But we must check that the resulting name has at least one character.
+
+[1]
+    Microsoft Extensible Firmware Initiative
+    FAT32 File System Specification
+    Version 1.03, December 6, 2000
+    Microsoft Corporation
+    https://www.win.tue.nl/~aeb/linux/fs/fat/fatgen103.pdf
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 0f4786ef0f..1b0a0eda09 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1237,12 +1237,32 @@ again:
+ 		}
+ 
+ 		*last_slash_cont = '\0';
+-		*basename = last_slash_cont + 1;
++		filename = last_slash_cont + 1;
+ 	} else {
+ 		*dirname = "/"; /* root by default */
+-		*basename = filename;
+ 	}
+ 
++	/*
++	 * The FAT32 File System Specification v1.03 requires leading and
++	 * trailing spaces as well as trailing periods to be ignored.
++	 */
++	for (; *filename == ' '; ++filename)
++		;
++	/* Remove trailing periods and spaces */
++	for (p = filename + strlen(filename) - 1; p >= filename; --p) {
++		switch (*p) {
++		case ' ':
++		case '.':
++			*p = 0;
++			break;
++		default:
++			goto done;
++		}
++	}
++
++done:
++	*basename = filename;
++
+ 	return 0;
+ }
+ 
+@@ -1260,10 +1280,7 @@ static int normalize_longname(char *l_filename, const char *filename)
+ {
+ 	const char *p, illegal[] = "<>:\"/\\|?*";
+ 
+-	if (!strcmp(filename, ".") || !strcmp(filename, ".."))
+-		return -1;
+-
+-	if (strlen(filename) >= VFAT_MAXLEN_BYTES)
++	if (!*filename || strlen(filename) >= VFAT_MAXLEN_BYTES)
+ 		return -1;
+ 
+ 	for (p = filename; *p; ++p) {
+-- 
+2.29.2
+
