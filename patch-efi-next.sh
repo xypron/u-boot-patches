@@ -16,17 +16,10 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
-git am ../patch/0001-cmd-add-more-implementation-IDs-to-sbi-command.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
-git am ../patch/0001-avb-AVB_VERIFY-depends-on-MMC.patch
 git am ../patch/0001-sandbox-fill-block-device-meta-information.patch
 git am ../patch/0001-disk-part-sandbox-support-in-dev_print.patch
-
-# Test
-git am ../patch/0001-test-inconsistent-bootm-tests.patch
-git am ../patch/0001-test-inconsistent-string-tests.patch
-git am ../patch/0001-test-correct-entry-point-to-pytest.patch
 
 # Documentation
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
@@ -90,8 +83,6 @@ git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
 git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
 git am ../patch/0001-efi_loader-switch-to-non-secure-mode-later.patch
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
-git am ../patch/0001-fs-fat-avoid-out-of-bounds-access-warning.patch
-git am ../patch/0001-fs-fat-remove-superfluous-assignments.patch
 git am ../patch/0001-disk-part_efi-update-partition-table-entries-after-w.patch
 git am ../patch/0001-tools-add-mkeficapsule-to-.gitignore.patch
 git am ../patch/0001-efi_loader-add-Linux-magic-to-aarch64-crt0.patch
