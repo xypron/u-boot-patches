@@ -40,6 +40,9 @@ git am ../patch/0001-doc-return-value-exception-command.patch
 #git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 
 git am ../patch/0001-fs-fat-usage-basename-in-file_fat_write_at-fat_mkdir.patch
+git am ../patch/0001-fs-fat-must-not-write-directory-.-and.patch
+git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
+git am ../patch/0001-fs-fat-remove-trailing-periods-from-basename.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
