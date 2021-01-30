@@ -39,6 +39,8 @@ git am ../patch/0001-doc-return-value-exception-command.patch
 #git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
 #git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 
+git am ../patch/0001-fs-fat-usage-basename-in-file_fat_write_at-fat_mkdir.patch
+
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
