@@ -69,6 +69,7 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 git am ../patch/0001-sandbox-keep-time-offset-when-resetting.patch
 git am ../patch/0001-doc-sandbox-improve-formatting-of-command-line-optio.patch
 git am ../patch/0001-sandbox-host-bind-must-close-file-descriptor.patch
+git am ../patch/0001-sandbox-mark-os_abort-as-__noreturn.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
