@@ -26,6 +26,7 @@ git am ../patch/0001-test-py-support-pytest-6.patch
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
 git am ../patch/0001-doc-describe-load-command.patch
 git am ../patch/0001-doc-return-value-exception-command.patch
+git am ../patch/0001-doc-dm-describe-end-of-life-of-plat_auto.patch
 
 # FAT file system
 #git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
