@@ -1,0 +1,56 @@
+From 6900eebe8e5cef5438cfa802bcf6528f9670f44c Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 30 Jan 2021 14:12:10 +0100
+Subject: [PATCH] fs: fat: remove trailing periods from basename
+
+FAT file names cannot have trailing periods (as in 'a.', 'a..') The periods
+should simply be ignored.
+
+When splitting a path for fat_mkdir() or file_fat_write_at() we remove
+the trailing periods.
+
+This renders a test for '.' and '..' as file name superfluous.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat_write.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 0f4786ef0f..d7bd001ba6 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1237,12 +1237,18 @@ again:
+ 		}
+ 
+ 		*last_slash_cont = '\0';
+-		*basename = last_slash_cont + 1;
++		filename = last_slash_cont + 1;
+ 	} else {
+ 		*dirname = "/"; /* root by default */
+-		*basename = filename;
+ 	}
+ 
++	/* Remove trailing periods */
++	for (p = filename + strlen(filename) - 1;
++	     p >= filename && *p == '.'; --p)
++		*p = 0;
++
++	*basename = filename;
++
+ 	return 0;
+ }
+ 
+@@ -1260,9 +1266,6 @@ static int normalize_longname(char *l_filename, const char *filename)
+ {
+ 	const char *p, illegal[] = "<>:\"/\\|?*";
+ 
+-	if (!strcmp(filename, ".") || !strcmp(filename, ".."))
+-		return -1;
+-
+ 	if (strlen(filename) >= VFAT_MAXLEN_BYTES)
+ 		return -1;
+ 
+-- 
+2.29.2
+

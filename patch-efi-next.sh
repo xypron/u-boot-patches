@@ -81,14 +81,9 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-04-rc1-4
-git am ../patch/0001-efi_selftest-test-EFI_BLOCK_IO_PROTOCOL.Media-LastBl.patch
-git am ../patch/0001-efi_loader-correct-block-IO-alignment-check.patch
-git am ../patch/0001-efi_loader-switch-to-non-secure-mode-later.patch
+# efi-2021-04-rc2
+
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
-git am ../patch/0001-disk-part_efi-update-partition-table-entries-after-w.patch
-git am ../patch/0001-tools-add-mkeficapsule-to-.gitignore.patch
-git am ../patch/0001-efi_loader-add-Linux-magic-to-aarch64-crt0.patch
 exit
 
 # HII
