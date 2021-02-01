@@ -18,7 +18,7 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
 git am ../patch/0001-test-py-support-pytest-6.patch
-git am ../patch/0001-fs-squashfs-NULL-dereference-in-sqfs_closedir.patch
+git am ../patch/0001-test-py-fix-runtest-wrapper-for-pytest-6.patch
 
 # Documentation
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch

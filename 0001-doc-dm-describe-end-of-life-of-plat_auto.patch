@@ -8,6 +8,7 @@ Describe when plat_auto is freed.
 Fix a typo.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  doc/driver-model/design.rst | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)

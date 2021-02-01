@@ -1,29 +1,27 @@
-From 3fef48289f311e241767f79a5febf19275daedc1 Mon Sep 17 00:00:00 2001
+From 3e8dbea0bb33aff93e6d0847702de099680dce27 Mon Sep 17 00:00:00 2001
 From: Stephen Warren <swarren@wwwdotorg.org>
-Date: Sat, 30 Jan 2021 14:05:44 -0700
-Subject: [PATCH 1/1] test/py: support pytest 6
+Date: Sat, 30 Jan 2021 20:12:18 -0700
+Subject: [PATCH 1/1] test/py: fix runtest wrapper for pytest 6
 
 The implementation of pytest_runtest_protocol() must call
 pytest_runtest_logstart() and pytest_runtest_logfinish(). This appears to
-be necessary even in pytest 5.1.2 judging by the default version of
-pytest_runtest_protocol(), but evidently some form of code
-reorganization in pytest only made this have a practical effect in the
-newer version. I'd previously been under the impression that 100% of the
-required work of pytest_runtest_protocol() was handled by the fact it
-called runtestprotocol() as its implementation. However, it appears that
-custom implementations do need to do a little more than this.
+be necessary even in pytest 5.2.1 judging by the default version of
+pytest_runtest_protocol(), but evidently some form of code reorganization
+in pytest only made this have a practical effect in the newer version. I'd
+previously been under the impression that 100% of the required work of
+pytest_runtest_protocol() was handled by the fact it called
+runtestprotocol() as its implementation. However, it appears that custom
+implementations do need to do a little more than this.
 
 Reported-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Signed-off-by: Stephen Warren <swarren@wwwdotorg.org>
-
-Changes to test/py/test.py dropped.
-Tested-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  test/py/conftest.py | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/test/py/conftest.py b/test/py/conftest.py
-index dc92c0be32..7cacfcec26 100644
+index dc92c0be32..9bfd926345 100644
 --- a/test/py/conftest.py
 +++ b/test/py/conftest.py
 @@ -554,7 +554,10 @@ def pytest_runtest_protocol(item, nextitem):
@@ -42,7 +40,7 @@ index dc92c0be32..7cacfcec26 100644
          console.cleanup_spawn()
  
 -    return reports
-+    return True # reports
++    return True
 -- 
-2.29.2
+2.30.0
 

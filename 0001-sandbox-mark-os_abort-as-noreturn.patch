@@ -9,6 +9,7 @@ provide accurate information.
 os_abort() does not return. Mark it accordingly.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
 v2:
 	use __attribute__((noreturn)) instead of __return
