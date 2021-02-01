@@ -14,12 +14,9 @@ git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
-git am ../patch/0001-sandbox-fix-sandbox_cmdline_cb_test_fdt.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
-git am ../patch/0001-sandbox-fill-block-device-meta-information.patch
-git am ../patch/0001-disk-part-sandbox-support-in-dev_print.patch
 git am ../patch/0001-test-py-support-pytest-6.patch
 git am ../patch/0001-fs-squashfs-NULL-dereference-in-sqfs_closedir.patch
 
@@ -67,8 +64,6 @@ git am ../patch/0001-dfu-dfu_sf-use-correct-print-code.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
-git am ../patch/0001-sandbox-keep-time-offset-when-resetting.patch
-git am ../patch/0001-doc-sandbox-improve-formatting-of-command-line-optio.patch
 git am ../patch/0001-sandbox-host-bind-must-close-file-descriptor.patch
 git am ../patch/0001-sandbox-mark-os_abort-as-noreturn.patch
 git am ../patch/0001-firmware-smci-possible-NULL-dereference.patch
