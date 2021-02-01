@@ -21,6 +21,7 @@ git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
 git am ../patch/0001-sandbox-fill-block-device-meta-information.patch
 git am ../patch/0001-disk-part-sandbox-support-in-dev_print.patch
 git am ../patch/0001-test-py-support-pytest-6.patch
+git am ../patch/0001-fs-squashfs-NULL-dereference-in-sqfs_closedir.patch
 
 # Documentation
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
