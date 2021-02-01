@@ -9,6 +9,7 @@ value in sandbox_scmi_devices_remove().
 The problem was indicated by 'gcc-11 -fanalyzer'.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  drivers/firmware/scmi/sandbox-scmi_devices.c | 3 +++
  1 file changed, 3 insertions(+)
