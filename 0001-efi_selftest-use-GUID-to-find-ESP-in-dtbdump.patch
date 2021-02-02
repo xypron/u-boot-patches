@@ -1,4 +1,4 @@
-From 17e0d2dcbaa29b75e070115cdf22c8bf892f60ee Mon Sep 17 00:00:00 2001
+From d07da3f5f9b9b746a9fa0964a1b3bdf5eafe9fa6 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 2 Feb 2021 18:02:19 +0100
 Subject: [PATCH 1/1] efi_selftest: use GUID to find ESP in dtbdump
@@ -13,7 +13,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 52 insertions(+), 33 deletions(-)
 
 diff --git a/lib/efi_selftest/dtbdump.c b/lib/efi_selftest/dtbdump.c
-index 953b264d9d..81fda42482 100644
+index 953b264d9d..4733a826ce 100644
 --- a/lib/efi_selftest/dtbdump.c
 +++ b/lib/efi_selftest/dtbdump.c
 @@ -9,6 +9,7 @@
@@ -77,7 +77,7 @@ index 953b264d9d..81fda42482 100644
 +	if (ret != EFI_SUCCESS)
 +		error(L"Failed to open simple file system protocol\r\n");
 +	if (handle)
-+		bs->free_pool(handle);
++		bs->free_pool(handle_buffer);
 +
 +	return ret;
 +}
