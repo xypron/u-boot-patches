@@ -21,6 +21,7 @@ git am ../patch/0001-test-py-support-pytest-6.patch
 git am ../patch/0001-test-py-fix-runtest-wrapper-for-pytest-6.patch
 
 # Documentation
+git am ../patch/0001-doc-correct-project-name-in-doc-conf.py.patch
 git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
 git am ../patch/0001-doc-describe-load-command.patch
 git am ../patch/0001-doc-return-value-exception-command.patch

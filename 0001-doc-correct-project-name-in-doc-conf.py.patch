@@ -1,0 +1,34 @@
+From e4783cad08ee25f1d4659065c3552599f3b6e419 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 2 Feb 2021 17:47:25 +0100
+Subject: [PATCH] doc: correct project name in doc/conf.py
+
+Correct project name, authors, copyright.
+
+Reported-by: Bin Meng <bmeng.cn@gmail.com>
+Fixes: 98f01cf7a22e ("doc: update Kernel documentation build system")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/conf.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/doc/conf.py b/doc/conf.py
+index 3f456a18f5..863810f4c1 100644
+--- a/doc/conf.py
++++ b/doc/conf.py
+@@ -147,9 +147,9 @@ source_suffix = '.rst'
+ master_doc = 'index'
+ 
+ # General information about the project.
+-project = 'The Linux Kernel'
+-copyright = 'The kernel development community'
+-author = 'The kernel development community'
++project = 'Das U-Boot'
++copyright = 'The U-Boot development community'
++author = 'The U-Boot development community'
+ 
+ # The version info for the project you're documenting, acts as replacement for
+ # |version| and |release|, also used in various other places throughout the
+-- 
+2.30.0
+
