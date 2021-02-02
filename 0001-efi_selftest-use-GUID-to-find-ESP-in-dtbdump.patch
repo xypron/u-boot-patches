@@ -1,4 +1,4 @@
-From d07da3f5f9b9b746a9fa0964a1b3bdf5eafe9fa6 Mon Sep 17 00:00:00 2001
+From d31075b921bdc4c8eeb18fd7d61b1deb8e96ce5f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 2 Feb 2021 18:02:19 +0100
 Subject: [PATCH 1/1] efi_selftest: use GUID to find ESP in dtbdump
