@@ -1,7 +1,7 @@
-From cda1c0a572ce22395856311bca9d9fcb5d877cca Mon Sep 17 00:00:00 2001
+From 183adf2146d8910079b07c13a807a8cc695b0db0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 31 Jan 2021 10:29:32 +0100
-Subject: [PATCH 1/1] sandbox: host bind must close file descriptor
+Subject: [PATCH v2 1/1] sandbox: host bind must close file descriptor
 
 Each invocation of the 'host bind' command with a file name argument opens
 a file descriptor. The next invocation of the 'host bind' command destroys
@@ -12,14 +12,17 @@ Close the file descriptor when unbinding the host block device.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- drivers/block/sandbox.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+v2:
+	remove superfluous data checking
+---
+ drivers/block/sandbox.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/block/sandbox.c b/drivers/block/sandbox.c
-index f57f690d3c..02992ac34f 100644
+index f57f690d3c..ac20ff6493 100644
 --- a/drivers/block/sandbox.c
 +++ b/drivers/block/sandbox.c
-@@ -230,6 +230,25 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
+@@ -230,6 +230,18 @@ int host_get_dev_err(int devnum, struct blk_desc **blk_devp)
  }
  
  #ifdef CONFIG_BLK
@@ -28,24 +31,17 @@ index f57f690d3c..02992ac34f 100644
 +{
 +	struct host_block_dev *host_dev;
 +
++	/* Data validity is checked in host_dev_bind() */
 +	host_dev = dev_get_plat(dev);
-+	if (host_dev) {
-+		if (host_dev->fd) {
-+			os_close(host_dev->fd);
-+			host_dev->fd = 0;
-+		} else {
-+			log_err("missing file descriptor\n");
-+		}
-+	} else {
-+		log_err("missing platform data\n");
-+	}
++	os_close(host_dev->fd);
++
 +	return 0;
 +}
 +
  static const struct blk_ops sandbox_host_blk_ops = {
  	.read	= host_block_read,
  	.write	= host_block_write,
-@@ -239,6 +258,7 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
+@@ -239,6 +251,7 @@ U_BOOT_DRIVER(sandbox_host_blk) = {
  	.name		= "sandbox_host_blk",
  	.id		= UCLASS_BLK,
  	.ops		= &sandbox_host_blk_ops,
@@ -54,5 +50,5 @@ index f57f690d3c..02992ac34f 100644
  };
  #else
 -- 
-2.29.2
+2.30.0
 
