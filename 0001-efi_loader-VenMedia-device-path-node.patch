@@ -1,0 +1,44 @@
+From 3f5bf8f186bbc08fb5c55d30b5929c9677644f4a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 3 Feb 2021 18:46:07 +0100
+Subject: [PATCH 1/1] efi_loader: VenMedia device path node
+
+The Load File2 protocol exposes a device path with a VenMedia() node. Hence
+our implementation of the device path to text protocol should support this
+node.
+
+Cc: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path_to_text.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index 5ae4833fa7..1aaa9f94fa 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -244,6 +244,21 @@ static char *dp_media(char *s, struct efi_device_path *dp)
+ 			     cddp->partition_start, cddp->partition_size);
+ 		break;
+ 	}
++	case DEVICE_PATH_SUB_TYPE_VENDOR_PATH: {
++		int i, n;
++		struct efi_device_path_vendor *vdp =
++			(struct efi_device_path_vendor *)dp;
++
++		s += sprintf(s, "VenMedia(%pUl", &vdp->guid);
++		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
++		if (n > 0) {
++			s += sprintf(s, ",");
++			for (i = 0; i < n; ++i)
++				s += sprintf(s, "%02x", vdp->vendor_data[i]);
++		}
++		s += sprintf(s, ")");
++		break;
++	}
+ 	case DEVICE_PATH_SUB_TYPE_FILE_PATH: {
+ 		struct efi_device_path_file_path *fp =
+ 			(struct efi_device_path_file_path *)dp;
+-- 
+2.30.0
+
