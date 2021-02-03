@@ -16,13 +16,9 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
-git am ../patch/0001-cmd-CMD_ACPI-depends-on-ACPIGEN.patch
-git am ../patch/0001-test-py-support-pytest-6.patch
-git am ../patch/0001-test-py-fix-runtest-wrapper-for-pytest-6.patch
 
 # Documentation
 git am ../patch/0001-doc-correct-project-name-in-doc-conf.py.patch
-git am ../patch/0001-cmd-load-emit-error-message-for-invalid-block-device.patch
 git am ../patch/0001-doc-describe-load-command.patch
 git am ../patch/0001-doc-return-value-exception-command.patch
 git am ../patch/0001-doc-dm-describe-end-of-life-of-plat_auto.patch
