@@ -18,7 +18,6 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
 # Documentation
-git am ../patch/0001-doc-correct-project-name-in-doc-conf.py.patch
 git am ../patch/0001-doc-describe-load-command.patch
 git am ../patch/0001-doc-return-value-exception-command.patch
 git am ../patch/0001-doc-dm-describe-end-of-life-of-plat_auto.patch
