@@ -61,8 +61,6 @@ git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-host-bind-must-close-file-descriptor.patch
-git am ../patch/0001-sandbox-mark-os_abort-as-noreturn.patch
-git am ../patch/0001-firmware-smci-possible-NULL-dereference.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
