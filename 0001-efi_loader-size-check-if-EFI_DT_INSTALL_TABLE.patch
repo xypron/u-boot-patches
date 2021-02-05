@@ -1,0 +1,65 @@
+From 15ecb6ab107464194a4d8bda7874c36a1d3eeb89 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 5 Feb 2021 08:25:53 +0100
+Subject: [PATCH 1/1] efi_loader: size check if EFI_DT_INSTALL_TABLE
+
+When the EFI_DT_FIXUP_PROTOCOL installs the device tree we need to be sure
+that it is large enough for fix-ups by the operating system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_dt_fixup.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
+
+diff --git a/lib/efi_loader/efi_dt_fixup.c b/lib/efi_loader/efi_dt_fixup.c
+index 6de57b84d2..f2a76d9525 100644
+--- a/lib/efi_loader/efi_dt_fixup.c
++++ b/lib/efi_loader/efi_dt_fixup.c
+@@ -124,27 +124,30 @@ efi_dt_fixup(struct efi_dt_fixup_protocol *this, void *dtb,
+ 		ret = EFI_INVALID_PARAMETER;
+ 		goto out;
+ 	}
+-	if (flags & EFI_DT_APPLY_FIXUPS) {
+-		/* Check size */
+-		required_size = fdt_off_dt_strings(dtb) +
+-				fdt_size_dt_strings(dtb) +
+-				0x3000;
+-		total_size = fdt_totalsize(dtb);
+-		if (required_size < total_size)
+-			required_size = total_size;
+-		if (required_size > *buffer_size) {
+-			*buffer_size = required_size;
+-			ret = EFI_BUFFER_TOO_SMALL;
+-			goto out;
+-		}
+ 
+-		fdt_set_totalsize(dtb, *buffer_size);
++	/* Check size */
++	required_size = fdt_off_dt_strings(dtb) +
++			fdt_size_dt_strings(dtb) +
++			0x3000;
++	total_size = fdt_totalsize(dtb);
++	if (required_size < total_size)
++		required_size = total_size;
++	if (required_size > *buffer_size) {
++		*buffer_size = required_size;
++		ret = EFI_BUFFER_TOO_SMALL;
++		goto out;
++	}
++	fdt_set_totalsize(dtb, *buffer_size);
++
++	if (flags & EFI_DT_APPLY_FIXUPS) {
+ 		if (image_setup_libfdt(&img, dtb, 0, NULL)) {
+ 			log_err("failed to process device tree\n");
+ 			ret = EFI_INVALID_PARAMETER;
+ 			goto out;
+ 		}
++		fdt_set_totalsize(dtb, *buffer_size);
+ 	}
++
+ 	if (flags & EFI_DT_RESERVE_MEMORY)
+ 		efi_carve_out_dt_rsv(dtb);
+ 
+-- 
+2.30.0
+

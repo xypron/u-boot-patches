@@ -70,6 +70,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-04-rc2
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
+git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 exit
 
 # HII
