@@ -18,9 +18,6 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 
 # Documentation
-git am ../patch/0001-doc-describe-load-command.patch
-git am ../patch/0001-doc-return-value-exception-command.patch
-git am ../patch/0001-doc-dm-describe-end-of-life-of-plat_auto.patch
 
 # FAT file system
 #git am ../patch/0001-fs-fat-validate-sector-and-cluster-size.patch
@@ -28,10 +25,7 @@ git am ../patch/0001-doc-dm-describe-end-of-life-of-plat_auto.patch
 #git am ../patch/0001-fs-fat-finding-an-empty-FAT-cluster.patch
 #git am ../patch/0001-fs-fat-determine_fatent-error-handling.patch
 
-git am ../patch/0001-fs-fat-usage-basename-in-file_fat_write_at-fat_mkdir.patch
-git am ../patch/0001-fs-fat-must-not-write-directory-.-and.patch
 git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
-git am ../patch/0001-fs-fat-remove-trailing-periods-from-long-name.patch
 
 # log
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
@@ -75,11 +69,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-04-rc2
 
-git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
-git am ../patch/0001-efi_loader-only-check-size-if-EFI_DT_APPLY_FIXUPS.patch
-git am ../patch/0001-efi_loader-install-UEFI-System-Partition-GUID.patch
-git am ../patch/0001-efi_selftest-use-GUID-to-find-ESP-in-dtbdump.patch
-git am ../patch/0001-efi_loader-VenMedia-device-path-node.patch
+# git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 exit
 
 # HII
