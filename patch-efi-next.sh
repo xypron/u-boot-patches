@@ -71,6 +71,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
+git am ../patch/0001-efi_loader-don-t-load-beyond-VirtualSize.patch
 exit
 
 # HII

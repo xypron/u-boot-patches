@@ -1,0 +1,36 @@
+From 5d7492ff1a8c79aa859dc353664e8b2e1e789502 Mon Sep 17 00:00:00 2001
+From: Asherah Connor <ashe@kivikakk.ee>
+Date: Tue, 9 Feb 2021 06:19:48 +0000
+Subject: [PATCH 1/1] efi_loader: don't load beyond VirtualSize
+
+PE section table entries' SizeOfRawData must be a multiple of
+FileAlignment, and thus may be rounded up and larger than their
+VirtualSize.
+
+We should not load beyond the VirtualSize, which is "the total size of
+the section when loaded into memory" -- we may clobber real data at the
+target in some other section, since we load sections in reverse order
+and sections are usually laid out sequentially.
+
+Signed-off-by: Asherah Connor <ashe@kivikakk.ee>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_image_loader.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_image_loader.c b/lib/efi_loader/efi_image_loader.c
+index d4dd9e9433..f53ef367ec 100644
+--- a/lib/efi_loader/efi_image_loader.c
++++ b/lib/efi_loader/efi_image_loader.c
+@@ -843,7 +843,7 @@ efi_status_t efi_load_pe(struct efi_loaded_image_obj *handle,
+ 		       sec->Misc.VirtualSize);
+ 		memcpy(efi_reloc + sec->VirtualAddress,
+ 		       efi + sec->PointerToRawData,
+-		       sec->SizeOfRawData);
++		       min(sec->Misc.VirtualSize, sec->SizeOfRawData));
+ 	}
+ 
+ 	/* Run through relocations */
+-- 
+2.30.0
+
