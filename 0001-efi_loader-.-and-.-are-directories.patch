@@ -1,0 +1,32 @@
+From d728a179dcfa962c13881e878b423c63e6d66411 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 9 Feb 2021 17:45:33 +0100
+Subject: [PATCH 1/1] efi_loader: '.' and '..' are directories
+
+'.' and '..' are directories. So when looking for capsule files it is
+sufficient to check that the attribute EFI_FILE_DIRECTORY is not set. We
+don't have to check for these special names.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_capsule.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index 0d5a7b63ec..d39d731080 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -753,9 +753,7 @@ static efi_status_t efi_capsule_scan_dir(u16 ***files, unsigned int *num)
+ 		if (!tmp_size)
+ 			break;
+ 
+-		if (!(dirent->attribute & EFI_FILE_DIRECTORY) &&
+-		    u16_strcmp(dirent->file_name, L".") &&
+-		    u16_strcmp(dirent->file_name, L".."))
++		if (!(dirent->attribute & EFI_FILE_DIRECTORY))
+ 			count++;
+ 	}
+ 
+-- 
+2.30.0
+

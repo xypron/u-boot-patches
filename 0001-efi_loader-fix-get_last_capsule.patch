@@ -1,0 +1,73 @@
+From 30091e7e9df83396e8e50c0c032e1aa0a8aef447 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 9 Feb 2021 20:20:34 +0100
+Subject: [PATCH 1/1] efi_loader: fix get_last_capsule()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+fix get_last_capsule() leads to writes beyond the stack allocated buffer.
+This was indicated when enabling the stack protector.
+
+utf16_utf8_strcpy() only stops copying when reaching '\0'. The current
+invocation always writes beyond the end of value[].
+
+The output length of utf16_utf8_strcpy() may be longer than the number of
+UTF-16 tokens. E.g has "CapsuleКиев" has 11 UTF-16 tokens but 15 UTF-8
+tokens. Hence, using utf16_utf8_strcpy() without checking the input may
+lead to further writes beyond value[].
+
+The current invocation of strict_strtoul() reads beyond the end of value[].
+
+A non-hexadecimal value after "Capsule" (e.g. "CapsuleZZZZ") must result in
+an error. We cat catch this by checking the return value of strict_strtoul().
+
+A value that is too short after "Capsule" (e.g. "Capsule0") must result in
+an error. We must check the string length of value[].
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_capsule.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index d39d731080..0017f0c0db 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -42,20 +42,28 @@ static struct efi_file_handle *bootdev_root;
+ static __maybe_unused unsigned int get_last_capsule(void)
+ {
+ 	u16 value16[11]; /* "CapsuleXXXX": non-null-terminated */
+-	char value[11], *p;
++	char value[5];
+ 	efi_uintn_t size;
+ 	unsigned long index = 0xffff;
+ 	efi_status_t ret;
++	int i;
+ 
+ 	size = sizeof(value16);
+ 	ret = efi_get_variable_int(L"CapsuleLast", &efi_guid_capsule_report,
+ 				   NULL, &size, value16, NULL);
+-	if (ret != EFI_SUCCESS || u16_strncmp(value16, L"Capsule", 7))
++	if (ret != EFI_SUCCESS || size != 22 ||
++	    u16_strncmp(value16, L"Capsule", 7))
+ 		goto err;
++	for (i = 0; i < 4; ++i) {
++		u16 c = value16[i + 7];
+ 
+-	p = value;
+-	utf16_utf8_strcpy(&p, value16);
+-	strict_strtoul(&value[7], 16, &index);
++		if (!c)
++			goto err;
++		value[i] = c;
++	}
++	value[4] = 0;
++	if (strict_strtoul(value, 16, &index))
++		index = 0xffff;
+ err:
+ 	return index;
+ }
+-- 
+2.30.0
+
