@@ -17,6 +17,7 @@ git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
 git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
+git am ../patch/0001-malloc-adjust-memcpy-and-memset-definitions.patch
 
 # Documentation
 
