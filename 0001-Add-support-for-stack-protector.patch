@@ -1,0 +1,246 @@
+From 8dc4277682f241eee97103d1f4f98ae590b39f58 Mon Sep 17 00:00:00 2001
+From: Joel Peshkin <joel.peshkin@broadcom.com>
+Date: Mon, 8 Feb 2021 19:36:07 -0800
+Subject: [PATCH 1/1] Add support for stack-protector
+
+Add support for stack protector for UBOOT, SPL, and TPL
+as well as new pytest for stackprotector
+
+Signed-off-by: Joel Peshkin <joel.peshkin@broadcom.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS                          |  7 +++++++
+ Makefile                             |  5 +++++
+ cmd/Kconfig                          | 10 ++++++++++
+ cmd/Makefile                         |  1 +
+ cmd/stackprot_test.c                 | 21 +++++++++++++++++++++
+ common/Kconfig                       | 17 +++++++++++++++++
+ common/Makefile                      |  2 ++
+ common/stackprot.c                   | 19 +++++++++++++++++++
+ configs/sandbox_defconfig            |  2 ++
+ scripts/Makefile.spl                 |  6 ++++++
+ test/py/tests/test_stackprotector.py | 15 +++++++++++++++
+ 11 files changed, 105 insertions(+)
+ create mode 100644 cmd/stackprot_test.c
+ create mode 100644 common/stackprot.c
+ create mode 100644 test/py/tests/test_stackprotector.py
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b82b7adbeb..6105c338bf 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1058,6 +1058,13 @@ F:	include/sqfs.h
+ F:	cmd/sqfs.c
+ F:	test/py/tests/test_fs/test_squashfs/
+ 
++STACKPROTECTOR
++M:	Joel Peshkin <joel.peshkin@broadcom.com>
++S:	Maintained
++F:	common/stackprot.c
++F:	cmd/stackprot_test.c
++F:	test/py/tests/test_stackprotector.py
++
+ TARGET_BCMNS3
+ M:	Bharat Gooty <bharat.gooty@broadcom.com>
+ M:	Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+diff --git a/Makefile b/Makefile
+index ebbedb1fb1..25224dfad9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -677,7 +677,12 @@ else
+ KBUILD_CFLAGS	+= -O2
+ endif
+ 
++ifeq ($(CONFIG_STACKPROTECTOR),y)
++KBUILD_CFLAGS += $(call cc-option,-fstack-protector-strong)
++CFLAGS_EFI += $(call cc-option,-fno-stack-protector)
++else
+ KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
++endif
+ KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
+ 
+ # disable stringop warnings in gcc 8+
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index 928a2a0a2d..f1745266f8 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -2296,6 +2296,16 @@ config CMD_AVB
+ 	    avb read_part_hex - read data from partition and output to stdout
+ 	    avb write_part - write data to partition
+ 	    avb verify - run full verification chain
++
++config CMD_STACKPROTECTOR_TEST
++	bool "Test command for stack protector"
++	depends on STACKPROTECTOR
++	default n
++	help
++	  Enable stackprot_test command
++	  The stackprot_test command will force a stack overrun to test
++	  the stack smashing detection mechanisms.
++
+ endmenu
+ 
+ config CMD_UBI
+diff --git a/cmd/Makefile b/cmd/Makefile
+index 176bf925fd..161652618b 100644
+--- a/cmd/Makefile
++++ b/cmd/Makefile
+@@ -143,6 +143,7 @@ obj-$(CONFIG_CMD_SPI) += spi.o
+ obj-$(CONFIG_CMD_STRINGS) += strings.o
+ obj-$(CONFIG_CMD_SMC) += smccc.o
+ obj-$(CONFIG_CMD_SYSBOOT) += sysboot.o pxe_utils.o
++obj-$(CONFIG_CMD_STACKPROTECTOR_TEST) += stackprot_test.o
+ obj-$(CONFIG_CMD_TERMINAL) += terminal.o
+ obj-$(CONFIG_CMD_TIME) += time.o
+ obj-$(CONFIG_CMD_TIMER) += timer.o
+diff --git a/cmd/stackprot_test.c b/cmd/stackprot_test.c
+new file mode 100644
+index 0000000000..6ad287e55f
+--- /dev/null
++++ b/cmd/stackprot_test.c
+@@ -0,0 +1,21 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  Copyright 2021 Broadcom
++ */
++
++#include <common.h>
++#include <command.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++static int do_test_stackprot_fail(struct cmd_tbl *cmdtp, int flag, int argc,
++				  char *const argv[])
++{
++	char a[128];
++
++	memset(a, 0xa5, 512);
++	return 0;
++}
++
++U_BOOT_CMD(stackprot_test, 1, 1, do_test_stackprot_fail,
++	   "test stack protector fail", "");
+diff --git a/common/Kconfig b/common/Kconfig
+index 2bb3798f80..2563a60c6f 100644
+--- a/common/Kconfig
++++ b/common/Kconfig
+@@ -604,6 +604,23 @@ config TPL_HASH
+ 	  and the algorithms it supports are defined in common/hash.c. See
+ 	  also CMD_HASH for command-line access.
+ 
++config STACKPROTECTOR
++	bool "Stack Protector buffer overflow detection"
++	default n
++	help
++	  Enable stack smash detection through compiler's stack-protector
++	  canary logic
++
++config SPL_STACKPROTECTOR
++	bool "Stack Protector buffer overflow detection for SPL"
++	depends on STACKPROTECTOR && SPL
++	default n
++
++config TPL_STACKPROTECTOR
++	bool "Stack Protector buffer overflow detection for TPL"
++	depends on STACKPROTECTOR && TPL
++	default n
++
+ endmenu
+ 
+ menu "Update support"
+diff --git a/common/Makefile b/common/Makefile
+index daeea67cf2..27ea952085 100644
+--- a/common/Makefile
++++ b/common/Makefile
+@@ -137,3 +137,5 @@ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
+ obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
+ 
+ obj-$(CONFIG_AVB_VERIFY) += avb_verify.o
++obj-$(CONFIG_$(SPL_TPL_)STACKPROTECTOR) += stackprot.o
++
+diff --git a/common/stackprot.c b/common/stackprot.c
+new file mode 100644
+index 0000000000..282c564ab9
+--- /dev/null
++++ b/common/stackprot.c
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ *  Copyright 2021 Broadcom
++ */
++
++#include <common.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++unsigned long __stack_chk_guard = (unsigned long)(0xfeedf00ddeadbeef & ~0UL);
++
++void __stack_chk_fail(void)
++{
++	void *ra;
++
++	ra = __builtin_extract_return_addr(__builtin_return_address(0));
++	panic("Stack smashing detected in function:\n%p relocated from %p",
++	      ra, ra - gd->reloc_off);
++}
+diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
+index 0c7674efc9..e29f4e3ec9 100644
+--- a/configs/sandbox_defconfig
++++ b/configs/sandbox_defconfig
+@@ -24,6 +24,7 @@ CONFIG_PRE_CONSOLE_BUFFER=y
+ CONFIG_LOG_SYSLOG=y
+ CONFIG_LOG_ERROR_RETURN=y
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
++CONFIG_STACKPROTECTOR=y
+ CONFIG_ANDROID_AB=y
+ CONFIG_CMD_CPU=y
+ CONFIG_CMD_LICENSE=y
+@@ -96,6 +97,7 @@ CONFIG_CMD_CRAMFS=y
+ CONFIG_CMD_EXT4_WRITE=y
+ CONFIG_CMD_SQUASHFS=y
+ CONFIG_CMD_MTDPARTS=y
++CONFIG_CMD_STACKPROTECTOR_TEST=y
+ CONFIG_MAC_PARTITION=y
+ CONFIG_AMIGA_PARTITION=y
+ CONFIG_OF_CONTROL=y
+diff --git a/scripts/Makefile.spl b/scripts/Makefile.spl
+index ea4e045769..636ddbb24b 100644
+--- a/scripts/Makefile.spl
++++ b/scripts/Makefile.spl
+@@ -67,6 +67,12 @@ include $(srctree)/scripts/Makefile.lib
+ KBUILD_CFLAGS += -ffunction-sections -fdata-sections
+ LDFLAGS_FINAL += --gc-sections
+ 
++ifeq ($(CONFIG_$(SPL_TPL_)STACKPROTECTOR),y)
++KBUILD_CFLAGS += -fstack-protector-strong
++else
++KBUILD_CFLAGS += -fno-stack-protector
++endif
++
+ # FIX ME
+ cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
+ 							$(NOSTDINC_FLAGS)
+diff --git a/test/py/tests/test_stackprotector.py b/test/py/tests/test_stackprotector.py
+new file mode 100644
+index 0000000000..7aeec5e919
+--- /dev/null
++++ b/test/py/tests/test_stackprotector.py
+@@ -0,0 +1,15 @@
++# SPDX-License-Identifier: GPL-2.0
++# Copyright (c) 2021 Broadcom
++
++import pytest
++import signal
++
++@pytest.mark.buildconfigspec('cmd_stackprotector_test')
++def test_stackprotector(u_boot_console):
++    """Test that the stackprotector function works."""
++
++    u_boot_console.run_command('stackprot_test',wait_for_prompt=False)
++    expected_response = 'Stack smashing detected'
++    u_boot_console.wait_for(expected_response)
++    u_boot_console.restart_uboot()
++
+-- 
+2.30.0
+
