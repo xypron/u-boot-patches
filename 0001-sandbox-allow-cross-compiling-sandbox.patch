@@ -1,0 +1,57 @@
+From 36118b7163d82f61557f752496b3e16022d9ee74 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 8 Feb 2021 23:06:10 +0100
+Subject: [PATCH v2 1/1] sandbox: allow cross-compiling sandbox
+
+UEFI test files like helloworld.efi require an architecture specific
+PE-COFF header.
+
+Currently this does not work for cross compiling. If $CROSS_COMPILE is set,
+use the first part of the architecture triplet from the variable to
+choose the PE-COFF header.
+
+Now we can cross-compile the sandbox, e.g.
+
+    make sandbox_defconfig NO_SDL=1
+    CROSS_COMPILE=/opt/bin/aarch64-linux-gnu- NO_SDL=1 MK_ARCH=aarch64 make
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	use $CROSS_COMPILE instead of an extra environment variable
+---
+ Makefile | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index ebbedb1fb1..6c256a23b6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -17,9 +17,13 @@ NAME =
+ # o Look for make include files relative to root of kernel src
+ MAKEFLAGS += -rR --include-dir=$(CURDIR)
+ 
+-# Determine host architecture
++# Determine target architecture for the sandbox
+ include include/host_arch.h
+-MK_ARCH="${shell uname -m}"
++ifeq ("", "$(CROSS_COMPILE)")
++  MK_ARCH="${shell uname -m}"
++else
++  MK_ARCH="${shell echo $(CROSS_COMPILE) | sed -n 's/^\s*\([^\/]*\/\)*\([^-]*\)-\S*/\2/p'}"
++endif
+ unexport HOST_ARCH
+ ifeq ("x86_64", $(MK_ARCH))
+   export HOST_ARCH=$(HOST_ARCH_X86_64)
+@@ -27,7 +31,7 @@ else ifneq (,$(findstring $(MK_ARCH), "i386" "i486" "i586" "i686"))
+   export HOST_ARCH=$(HOST_ARCH_X86)
+ else ifneq (,$(findstring $(MK_ARCH), "aarch64" "armv8l"))
+   export HOST_ARCH=$(HOST_ARCH_AARCH64)
+-else ifeq ("armv7l", $(MK_ARCH))
++else ifneq (,$(findstring $(MK_ARCH), "arm" "armv7" "armv7l"))
+   export HOST_ARCH=$(HOST_ARCH_ARM)
+ else ifeq ("riscv32", $(MK_ARCH))
+   export HOST_ARCH=$(HOST_ARCH_RISCV32)
+-- 
+2.30.0
+
