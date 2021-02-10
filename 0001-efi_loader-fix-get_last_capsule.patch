@@ -1,7 +1,7 @@
 From 30091e7e9df83396e8e50c0c032e1aa0a8aef447 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 9 Feb 2021 20:20:34 +0100
-Subject: [PATCH 1/1] efi_loader: fix get_last_capsule()
+Subject: [PATCH v2 1/1] efi_loader: fix get_last_capsule()
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -26,6 +26,9 @@ A value that is too short after "Capsule" (e.g. "Capsule0") must result in
 an error. We must check the string length of value[].
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	check for non-ANSI character
 ---
  lib/efi_loader/efi_capsule.c | 18 +++++++++++++-----
  1 file changed, 13 insertions(+), 5 deletions(-)
@@ -58,7 +61,7 @@ index d39d731080..0017f0c0db 100644
 -	p = value;
 -	utf16_utf8_strcpy(&p, value16);
 -	strict_strtoul(&value[7], 16, &index);
-+		if (!c)
++		if (!c || c > 0x7f)
 +			goto err;
 +		value[i] = c;
 +	}
