@@ -50,7 +50,6 @@ git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 
 # DFU
 git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
-git am ../patch/0001-dfu-dfu_sf-use-correct-print-code.patch
 
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
@@ -74,7 +73,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-04-rc2
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
-git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
+# git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 git am ../patch/0001-efi_loader-don-t-load-beyond-VirtualSize.patch
 git am ../patch/0001-efi_loader-.-and-.-are-directories.patch
 git am ../patch/0001-efi_loader-fix-get_last_capsule.patch
