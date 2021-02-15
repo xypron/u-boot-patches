@@ -18,7 +18,6 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-malloc-adjust-memcpy-and-memset-definitions.patch
-git am ../patch/0001-buildman-Thread-object-has-no-attribute-isAlive.patch
 
 # Documentation
 
@@ -74,9 +73,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
-git am ../patch/0001-efi_loader-don-t-load-beyond-VirtualSize.patch
-git am ../patch/0001-efi_loader-.-and-.-are-directories.patch
-git am ../patch/0001-efi_loader-fix-get_last_capsule.patch
 exit
 
 # HII
