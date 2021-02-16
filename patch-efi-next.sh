@@ -75,6 +75,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
 git am ../patch/0001-Allow-last-block-to-be-read.patch
+git am ../patch/0001-doc-Add-reference-to-U-Boot-project-in-conf.py.patch
 exit
 
 # HII
