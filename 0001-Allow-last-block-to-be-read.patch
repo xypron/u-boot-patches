@@ -1,0 +1,47 @@
+From c9f664ac101fcd0b53db802f471a2c60c31fade8 Mon Sep 17 00:00:00 2001
+From: Jesper Schmitz Mouridsen <jesper@schmitz.computer>
+Date: Tue, 9 Feb 2021 17:17:17 +0100
+Subject: [PATCH v2 1/1] Allow last block to be read
+
+The last block is of size media->block_size
+
+Signed-off-by: Jesper Schmitz Mouridsen <jesper@schmitz.computer>
+
+Simplify expression.
+Apply same change to efi_disk_write_blocks().
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	Add missing signed-off lign.
+	Simplify expression.
+	Apply same change to efi_disk_write_blocks().
+---
+ lib/efi_loader/efi_disk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index 1f6b817dea..307d5d759b 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -148,7 +148,7 @@ static efi_status_t EFIAPI efi_disk_read_blocks(struct efi_block_io *this,
+ 	    (uintptr_t)buffer & (this->media->io_align - 1))
+ 		return EFI_INVALID_PARAMETER;
+ 	if (lba * this->media->block_size + buffer_size >
+-	    this->media->last_block * this->media->block_size)
++	    (this->media->last_block + 1) * this->media->block_size)
+ 		return EFI_INVALID_PARAMETER;
+ 
+ #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+@@ -216,7 +216,7 @@ static efi_status_t EFIAPI efi_disk_write_blocks(struct efi_block_io *this,
+ 	    (uintptr_t)buffer & (this->media->io_align - 1))
+ 		return EFI_INVALID_PARAMETER;
+ 	if (lba * this->media->block_size + buffer_size >
+-	    this->media->last_block * this->media->block_size)
++	    (this->media->last_block + 1) * this->media->block_size)
+ 		return EFI_INVALID_PARAMETER;
+ 
+ #ifdef CONFIG_EFI_LOADER_BOUNCE_BUFFER
+-- 
+2.30.0
+
