@@ -76,6 +76,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 git am ../patch/0001-Allow-last-block-to-be-read.patch
 git am ../patch/0001-doc-Add-reference-to-U-Boot-project-in-conf.py.patch
+git am ../patch/0001-doc-README.distro-kernel_comp_addr_r.patch
 exit
 
 # HII
