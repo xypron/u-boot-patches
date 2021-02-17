@@ -1,0 +1,46 @@
+From 30b2c457542f6e1bddc5e0ab3698ba6c575fbfd3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 17 Feb 2021 09:39:50 +0100
+Subject: [PATCH 1/1] test: missing dependency for test/cmd/setexpr.c
+
+test/cmd/setexpr.c cannot be linked with CONFIG_CMD_SETEXPR=n:
+
+ld.bfd: test/built-in.o: in function `setexpr_test_sub':
+test/cmd/setexpr.c:227: undefined reference to `setexpr_regex_sub'
+ld.bfd: test/built-in.o: in function `setexpr_test_backref':
+test/cmd/setexpr.c:267: undefined reference to `setexpr_regex_sub'
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/cmd/Makefile | 2 +-
+ test/cmd_ut.c     | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/test/cmd/Makefile b/test/cmd/Makefile
+index 5451e9ea90..c84df60395 100644
+--- a/test/cmd/Makefile
++++ b/test/cmd/Makefile
+@@ -8,4 +8,4 @@ endif
+ obj-y += mem.o
+ obj-$(CONFIG_CMD_MEM_SEARCH) += mem_search.o
+ obj-$(CONFIG_CMD_PWM) += pwm.o
+-obj-y += setexpr.o
++obj-$(CONFIG_CMD_SETEXPR) += setexpr.o
+diff --git a/test/cmd_ut.c b/test/cmd_ut.c
+index 90674d5de5..8f3089890e 100644
+--- a/test/cmd_ut.c
++++ b/test/cmd_ut.c
+@@ -75,8 +75,10 @@ static struct cmd_tbl cmd_ut_sub[] = {
+ 	U_BOOT_CMD_MKENT(log, CONFIG_SYS_MAXARGS, 1, do_ut_log, "", ""),
+ #endif
+ 	U_BOOT_CMD_MKENT(mem, CONFIG_SYS_MAXARGS, 1, do_ut_mem, "", ""),
++#ifdef CONFIG_CMD_SETEXPR
+ 	U_BOOT_CMD_MKENT(setexpr, CONFIG_SYS_MAXARGS, 1, do_ut_setexpr, "",
+ 			 ""),
++#endif
+ #ifdef CONFIG_UT_TIME
+ 	U_BOOT_CMD_MKENT(time, CONFIG_SYS_MAXARGS, 1, do_ut_time, "", ""),
+ #endif
+-- 
+2.30.0
+

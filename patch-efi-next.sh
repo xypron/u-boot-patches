@@ -18,6 +18,9 @@ git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-malloc-adjust-memcpy-and-memset-definitions.patch
+git am ../patch/0001-test-missing-dependency-for-test-cmd-setexpr.c.patch
+git am ../patch/0001-bootm-do-not-hang-on-failure.patch
+git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
 
 # Documentation
 
