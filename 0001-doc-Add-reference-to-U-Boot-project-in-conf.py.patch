@@ -8,7 +8,8 @@ references to Linux.
 
 Fix the project references in the generated documentation.
 
-Reported by: Simon Glass <sjg@chromium.org>
+Reported-by: Simon Glass <sjg@chromium.org>
+Reported-by: Bin Meng <bmeng.cn@gmail.com>
 Fixes: 98f01cf7a22e ("doc: update Kernel documentation build system")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
