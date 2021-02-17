@@ -10,14 +10,14 @@ Avoid build warnings observed with gcc 10.2
 
 In file included from lib/rsa/rsa-keyprop.c:16:
 include/u-boot/rsa-mod-exp.h:65:24: warning:
-‘struct udevice’ declared inside parameter list will not be visible outside
-of this definition or declaration
+‘struct udevice’ declared inside parameter list will not be visible
+outside of this definition or declaration
    65 | int rsa_mod_exp(struct udevice *dev, const uint8_t *sig,
       | uint32_t sig_len,
       |                        ^~~~~~~
 include/u-boot/rsa-mod-exp.h:96:24: warning:
-‘struct udevice’ declared inside parameter list will not be visible outside
-of this definition or declaration
+‘struct udevice’ declared inside parameter list will not be visible
+outside of this definition or declaration
    96 |  int (*mod_exp)(struct udevice *dev, const uint8_t *sig,
       |
 
