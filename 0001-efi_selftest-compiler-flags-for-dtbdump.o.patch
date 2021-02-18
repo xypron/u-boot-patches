@@ -1,0 +1,28 @@
+From ae413025157eea0ee57c994f89155510866bcf56 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 18 Feb 2021 07:34:44 +0100
+Subject: [PATCH] efi_selftest: compiler flags for dtbdump.o
+
+Fix a typo. Apply the correct compiler flags to dtbdump.o.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 7d6ea30102..b02fd56e0a 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -8,7 +8,7 @@
+ asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ 
+-CFLAGS_dtbdump_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
++CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
+ CFLAGS_efi_selftest_miniapp_exit.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_efi_selftest_miniapp_exit.o := $(CFLAGS_NON_EFI)
+-- 
+2.30.0
+
