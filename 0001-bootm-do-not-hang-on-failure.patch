@@ -18,6 +18,7 @@ It is preferable to reset the system when U-Boot reaches a state that is
 not recoverable.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  arch/arm/lib/bootm.c | 7 ++-----
  1 file changed, 2 insertions(+), 5 deletions(-)
