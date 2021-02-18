@@ -22,6 +22,10 @@ git am ../patch/0001-test-missing-dependency-for-test-cmd-setexpr.c.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
 
+# Odroid HC4
+git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
+git am ../patch/0001-configs-add-defconfig-for-Odroid-HC4.patch
+
 # Documentation
 
 # FAT file system
@@ -83,6 +87,8 @@ git am ../patch/0001-doc-Add-reference-to-U-Boot-project-in-conf.py.patch
 git am ../patch/0001-doc-README.distro-kernel_comp_addr_r.patch
 git am ../patch/0001-doc-booti-man-page.patch
 git am ../patch/0001-efi_selftest-compiler-flags-for-dtbdump.o.patch
+git am ../patch/0001-efi_selftest-multi-part-device-path-to-text.patch
+git am ../patch/0001-efi_loader-multi-part-device-paths-to-text.patch 
 exit
 
 # HII
