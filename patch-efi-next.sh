@@ -60,6 +60,7 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 
 git am ../patch/0001-sandbox-host-bind-must-close-file-descriptor.patch
 git am ../patch/0001-sandbox-allow-cross-compiling-sandbox.patch
+git am ../patch/0001-sandbox-enable-cros-ec-keyb-in-test.dtb.patch
 
 # git am ../patch/0001-env-fix-env-select.patch
 git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch

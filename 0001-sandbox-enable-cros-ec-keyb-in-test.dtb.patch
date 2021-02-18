@@ -1,0 +1,28 @@
+From a17b5ddb5dfb4c0c78fbb1dab4cdb7e3964f3c7d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 18 Feb 2021 07:54:15 +0100
+Subject: [PATCH 1/1] sandbox: enable cros-ec-keyb in test.dtb
+
+Currently keyboard input fails in the GUI window opened by
+
+    ./u-boot -T -l
+
+Add the missing include to test.dts.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/dts/test.dts | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/sandbox/dts/test.dts b/arch/sandbox/dts/test.dts
+index e95f4631bf..8ffdb14e08 100644
+--- a/arch/sandbox/dts/test.dts
++++ b/arch/sandbox/dts/test.dts
+@@ -1355,3 +1355,4 @@
+ };
+ 
+ #include "sandbox_pmic.dtsi"
++#include "cros-ec-keyboard.dtsi"
+-- 
+2.30.0
+
