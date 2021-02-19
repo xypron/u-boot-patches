@@ -1,0 +1,47 @@
+From dfced76d09ef25c2ae4e9384ef82f2250c620d41 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 20 Feb 2021 06:58:10 +0100
+Subject: [PATCH 1/1] x86: sizeof-array-div error in lpc_common_early_init
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Building qemu-x86_64_defconfig with GCC 11.0 fails with:
+
+arch/x86/cpu/intel_common/lpc.c:
+In function ‘lpc_common_early_init’:
+arch/x86/cpu/intel_common/lpc.c:56:40:
+error: expression does not compute the number of elements in this array;
+element type is ‘struct reg_info’, not ‘u32’ {aka ‘unsigned int’}
+[-Werror=sizeof-array-div]
+   56 |                         sizeof(values) / sizeof(u32));
+      |                                        ^
+arch/x86/cpu/intel_common/lpc.c:56:40: note: add parentheses around the
+second ‘sizeof’ to silence this warning
+arch/x86/cpu/intel_common/lpc.c:50:11: note: array ‘values’ declared here
+   50 |         } values[4], *ptr;
+      |           ^~~~~~
+
+Add parentheses to silence warning.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/x86/cpu/intel_common/lpc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/cpu/intel_common/lpc.c b/arch/x86/cpu/intel_common/lpc.c
+index 23befbef15..f31fddb6fa 100644
+--- a/arch/x86/cpu/intel_common/lpc.c
++++ b/arch/x86/cpu/intel_common/lpc.c
+@@ -53,7 +53,7 @@ int lpc_common_early_init(struct udevice *dev)
+ 
+ 	count = fdtdec_get_int_array_count(gd->fdt_blob, dev_of_offset(dev),
+ 			"intel,gen-dec", (u32 *)values,
+-			sizeof(values) / sizeof(u32));
++			sizeof(values) / (sizeof(u32)));
+ 	if (count < 0)
+ 		return -EINVAL;
+ 
+-- 
+2.30.0
+

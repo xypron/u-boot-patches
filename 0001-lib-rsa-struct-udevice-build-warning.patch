@@ -25,6 +25,7 @@ by defining struct udevice.
 
 Fixes: 401d1c4f5d2d ("common: Drop asm/global_data.h from common header")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  include/u-boot/rsa-mod-exp.h | 2 ++
  1 file changed, 2 insertions(+)

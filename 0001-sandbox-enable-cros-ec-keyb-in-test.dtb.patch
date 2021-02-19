@@ -10,6 +10,7 @@ Currently keyboard input fails in the GUI window opened by
 Add the missing include to test.dts.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  arch/sandbox/dts/test.dts | 1 +
  1 file changed, 1 insertion(+)

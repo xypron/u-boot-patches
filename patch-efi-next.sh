@@ -21,6 +21,7 @@ git am ../patch/0001-malloc-adjust-memcpy-and-memset-definitions.patch
 git am ../patch/0001-test-missing-dependency-for-test-cmd-setexpr.c.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
+git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -89,6 +90,8 @@ git am ../patch/0001-doc-booti-man-page.patch
 git am ../patch/0001-efi_selftest-compiler-flags-for-dtbdump.o.patch
 git am ../patch/0001-efi_selftest-multi-part-device-path-to-text.patch
 git am ../patch/0001-efi_loader-multi-part-device-paths-to-text.patch 
+
+git am ../patch/0001-doc-qfw-man-page.patch
 exit
 
 # HII
