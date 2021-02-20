@@ -22,6 +22,10 @@ git am ../patch/0001-test-missing-dependency-for-test-cmd-setexpr.c.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
 git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
+git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
+git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch 
+git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
+git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch

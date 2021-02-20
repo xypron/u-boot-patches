@@ -1,0 +1,33 @@
+From 0becdb15e24d87f1f5b84e9087749e7f8bdb32d5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 19 Feb 2021 14:47:46 +0100
+Subject: [PATCH 1/1] net: cortina_ni: buffer overrun
+
+When copying to a u32 field we should use sizeof(u32) and not
+sizeof(*u32) in memcpy.
+
+On 64bit systems like cortina_presidio-asic-emmc_defconfig using
+sizeof(*u32) leads to a buffer overrun.
+
+Fixes: febe13b438b3 ("net: cortina_ni: Add eth support for Cortina Access CAxxxx SoCs")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/net/cortina_ni.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/cortina_ni.c b/drivers/net/cortina_ni.c
+index ee424d95bc..ef6ecd88b0 100644
+--- a/drivers/net/cortina_ni.c
++++ b/drivers/net/cortina_ni.c
+@@ -713,7 +713,7 @@ static int cortina_eth_recv(struct udevice *dev, int flags, uchar **packetp)
+ 							 priv->rx_xram_end_adr);
+ 
+ 			memcpy(&packet_status, rx_xram_ptr,
+-			       sizeof(rx_xram_ptr));
++			       sizeof(*rx_xram_ptr));
+ 			if (packet_status.valid == 0) {
+ 				debug("%s: Invalid Packet !!, ", __func__);
+ 				debug("next_link=%d\n", next_link);
+-- 
+2.30.0
+

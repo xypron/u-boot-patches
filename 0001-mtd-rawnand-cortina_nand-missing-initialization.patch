@@ -1,0 +1,33 @@
+From f64a832fc01b9d8b101e26a775743628590716ce Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 19 Feb 2021 12:17:50 +0100
+Subject: [PATCH 1/1] mtd: rawnand: cortina_nand: missing initialization
+
+ca_do_bch_correction() takes a random value from the stack and starts
+counting bitflips from this value. Initialize the counter.
+
+This passed unnoticed as the value is finally ignored in the call
+hierarchy.
+
+Fixes: 161df94b3c43 ("mtd: rawnand: cortina_nand: Add Cortina CAxxxx SoC support")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mtd/nand/raw/cortina_nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/nand/raw/cortina_nand.c b/drivers/mtd/nand/raw/cortina_nand.c
+index 12bd1ded83..81fa8788a4 100644
+--- a/drivers/mtd/nand/raw/cortina_nand.c
++++ b/drivers/mtd/nand/raw/cortina_nand.c
+@@ -546,7 +546,7 @@ static int ca_do_bch_correction(struct nand_chip *chip,
+ 	struct nand_drv *info =
+ 	    (struct nand_drv *)nand_get_controller_data(chip);
+ 	unsigned int reg_v, err_loc0, err_loc1;
+-	int k, max_bitflips;
++	int k, max_bitflips = 0;
+ 
+ 	for (k = 0; k < (err_num + 1) / 2; k++) {
+ 		reg_v = readl(&info->reg->flash_nf_bch_error_loc01 + k);
+-- 
+2.30.0
+
