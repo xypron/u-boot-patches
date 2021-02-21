@@ -1,6 +1,6 @@
-From 664ec70d42fa3d84563ebe5286db1574058a0060 Mon Sep 17 00:00:00 2001
+From 7ff6dd57e00a7392e5c0655b38998b7c1e734556 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Thu, 18 Feb 2021 17:48:41 +0100
+Date: Thu, 18 Feb 2021 18:30:43 +0100
 Subject: [PATCH 1/1] efi_loader: multi part device paths to text
 
 Our current implementation of
@@ -11,6 +11,7 @@ Render device path instance ends as commas. This is not explicitly
 described in the UEFI spec but mimics what EDK II does.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
  lib/efi_loader/efi_device_path_to_text.c | 17 ++++++++++++-----
  1 file changed, 12 insertions(+), 5 deletions(-)
