@@ -1,4 +1,4 @@
-git am --abort || true
+it am --abort || true
 
 set -e
 
@@ -23,7 +23,7 @@ git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
 git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
 git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
-git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch 
+git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch
 git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
 git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
 
@@ -96,6 +96,7 @@ git am ../patch/0001-efi_selftest-multi-part-device-path-to-text.patch
 git am ../patch/0001-efi_loader-multi-part-device-paths-to-text.patch 
 
 git am ../patch/0001-doc-qfw-man-page.patch
+git am ../patch/0001-efi_loader-ACPI-tables-must-be-in-EfiACPIReclaimMemo.patch
 exit
 
 # HII
