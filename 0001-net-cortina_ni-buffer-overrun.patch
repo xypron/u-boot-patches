@@ -11,6 +11,7 @@ sizeof(*u32) leads to a buffer overrun.
 
 Fixes: febe13b438b3 ("net: cortina_ni: Add eth support for Cortina Access CAxxxx SoCs")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Ramon Fried <rfried.dev@gmail.com>
 ---
  drivers/net/cortina_ni.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

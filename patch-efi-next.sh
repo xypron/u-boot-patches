@@ -87,15 +87,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
-git am ../patch/0001-Allow-last-block-to-be-read.patch
-git am ../patch/0001-doc-Add-reference-to-U-Boot-project-in-conf.py.patch
-git am ../patch/0001-doc-README.distro-kernel_comp_addr_r.patch
-git am ../patch/0001-doc-booti-man-page.patch
-git am ../patch/0001-efi_selftest-compiler-flags-for-dtbdump.o.patch
-git am ../patch/0001-efi_selftest-multi-part-device-path-to-text.patch
-git am ../patch/0001-efi_loader-multi-part-device-paths-to-text.patch 
-
-git am ../patch/0001-doc-qfw-man-page.patch
 git am ../patch/0001-efi_loader-ACPI-tables-must-be-in-EfiACPIReclaimMemo.patch
 exit
 
