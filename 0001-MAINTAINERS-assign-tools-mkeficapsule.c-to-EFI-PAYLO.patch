@@ -1,0 +1,28 @@
+From 2a5df8a4fd44df9ae97f64bdaeecdc73645f95fb Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 22 Feb 2021 20:26:34 +0100
+Subject: [PATCH 1/1] MAINTAINERS: assign tools/mkeficapsule.c to EFI PAYLOAD
+
+tools/mkeficapsule.c is used to prepare test files for testing the UEFI
+sub-system.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index b82b7adbeb..a832abc765 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -708,6 +708,7 @@ F:	cmd/efidebug.c
+ F:	cmd/nvedit_efi.c
+ F:	tools/efivar.py
+ F:	tools/file2include.c
++F:	tools/mkeficapsule.c
+ 
+ EFI VARIABLES VIA OP-TEE
+ M:	Ilias Apalodimas <ilias.apalodimas@linaro.org>
+-- 
+2.30.0
+

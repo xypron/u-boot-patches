@@ -88,6 +88,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
 git am ../patch/0001-efi_loader-ACPI-tables-must-be-in-EfiACPIReclaimMemo.patch
+git am ../patch/0001-MAINTAINERS-assign-tools-mkeficapsule.c-to-EFI-PAYLO.patch
+git am ../patch/0001-tools-mkeficapsule.c-fix-DEBUG-build.patch
 exit
 
 # HII
