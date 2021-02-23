@@ -1,0 +1,47 @@
+From 6f3d27d9dc2ef876b3ade030420c2ca03118ee9d Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 23 Feb 2021 21:15:35 +0100
+Subject: [PATCH 1/1] efi_loader: limit output length for VenHw, VenMedia
+
+VenHw and VenMedia device path nodes may carry vendor defined data of
+arbitrary length. When converting a device path node to text ensure that we
+do not overrun our internal buffer.
+
+In our implementation of
+EFI_DEVICE_PATH_TO_TEXT_PROTOCOL.ConvertDevicePathToText() we could first
+determine the output length and then allocate buffers but that would nearly
+double the code size. Therefore keep the preallocated buffers and truncate
+excessive device paths instead.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_device_path_to_text.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/lib/efi_loader/efi_device_path_to_text.c b/lib/efi_loader/efi_device_path_to_text.c
+index 81b8ac23ba..ba1ad33459 100644
+--- a/lib/efi_loader/efi_device_path_to_text.c
++++ b/lib/efi_loader/efi_device_path_to_text.c
+@@ -67,7 +67,8 @@ static char *dp_hardware(char *s, struct efi_device_path *dp)
+ 
+ 		s += sprintf(s, "VenHw(%pUl", &vdp->guid);
+ 		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+-		if (n > 0) {
++		/* Node must fit into MAX_NODE_LEN) */
++		if (n > 0 && n < MAX_NODE_LEN / 2 - 22) {
+ 			s += sprintf(s, ",");
+ 			for (i = 0; i < n; ++i)
+ 				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+@@ -251,7 +252,8 @@ static char *dp_media(char *s, struct efi_device_path *dp)
+ 
+ 		s += sprintf(s, "VenMedia(%pUl", &vdp->guid);
+ 		n = (int)vdp->dp.length - sizeof(struct efi_device_path_vendor);
+-		if (n > 0) {
++		/* Node must fit into MAX_NODE_LEN) */
++		if (n > 0 && n < MAX_NODE_LEN / 2 - 24) {
+ 			s += sprintf(s, ",");
+ 			for (i = 0; i < n; ++i)
+ 				s += sprintf(s, "%02x", vdp->vendor_data[i]);
+-- 
+2.30.0
+
