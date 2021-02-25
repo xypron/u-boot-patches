@@ -91,6 +91,10 @@ git am ../patch/0001-efi_loader-ACPI-tables-must-be-in-EfiACPIReclaimMemo.patch
 git am ../patch/0001-MAINTAINERS-assign-tools-mkeficapsule.c-to-EFI-PAYLO.patch
 git am ../patch/0001-tools-mkeficapsule.c-fix-DEBUG-build.patch
 git am ../patch/0001-efi_loader-limit-output-length-for-VenHw-VenMedia.patch
+
+git am ../patch/0001-efi_loader-require-CONFIG_BLK.patch
+git am ../patch/0001-efi_loader-efi_device_path.c-assume-CONFIG_BLK-y.patch
+git am ../patch/0001-efi_loader-efi_disk.c-assume-CONFIG_BLK-y.patch
 exit
 
 # HII
