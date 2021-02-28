@@ -29,6 +29,7 @@ git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
 git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 git am ../patch/0001-video-add-DejaVu-Mono-font.patch
+git am ../patch/0001-usb-USB-keyboard-requires-DM_KEYBOARD.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
