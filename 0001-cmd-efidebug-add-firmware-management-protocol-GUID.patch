@@ -1,4 +1,4 @@
-From a2c3f1bca4bf21371d041d1de589039aa3459e91 Mon Sep 17 00:00:00 2001
+From 3855f3f352cc003985cf33faaf16c2a8ef815ea3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Fri, 26 Feb 2021 17:57:47 +0100
 Subject: [PATCH 1/1] cmd/efidebug: add firmware management protocol GUID

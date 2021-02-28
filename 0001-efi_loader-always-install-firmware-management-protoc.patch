@@ -1,0 +1,47 @@
+From ee06eb90f54b45607b56f917e6ed236635639cd6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 26 Feb 2021 17:45:03 +0100
+Subject: [PATCH 1/1] efi_loader: always install firmware management protocols
+
+The firmware management protocols are needed both for capsule on disk
+updates indicated by
+OsIndications.EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED as well as
+for UpdateCapsule(). So the they should installed irrespective of the value
+of OsIndications.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_capsule.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index a1a69e619d..44bd71de9c 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -972,6 +972,11 @@ efi_status_t efi_launch_capsules(void)
+ 	u16 variable_name16[12];
+ 	efi_status_t ret;
+ 
++	/* Load capsule drivers */
++	ret = arch_efi_load_capsule_drivers();
++	if (ret != EFI_SUCCESS)
++		return ret;
++
+ 	size = sizeof(os_indications);
+ 	ret = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
+ 				   NULL, &size, &os_indications, NULL);
+@@ -982,11 +987,6 @@ efi_status_t efi_launch_capsules(void)
+ 
+ 	index = get_last_capsule();
+ 
+-	/* Load capsule drivers */
+-	ret = arch_efi_load_capsule_drivers();
+-	if (ret != EFI_SUCCESS)
+-		return ret;
+-
+ 	/*
+ 	 * Find capsules on disk.
+ 	 * All the capsules are collected at the beginning because
+-- 
+2.30.0
+

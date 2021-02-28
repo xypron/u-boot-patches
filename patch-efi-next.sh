@@ -1,4 +1,5 @@
-it am --abort || true
+#!/bin/sh
+git am --abort || true
 
 set -e
 
@@ -26,6 +27,7 @@ git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
 git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch
 git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
 git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
+git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -93,6 +95,9 @@ git am ../patch/0001-tools-mkeficapsule.c-fix-DEBUG-build.patch
 git am ../patch/0001-efi_loader-limit-output-length-for-VenHw-VenMedia.patch
 git am ../patch/0001-efi_loader-fix-documentation-in-efi_loader.h.patch
 git am ../patch/0001-cmd-efidebug-add-firmware-management-protocol-GUID.patch
+
+git am ../patch/0001-cmd-efidebug-add-firmware-management-protocol-GUID.patch
+git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 
 git am ../patch/0001-efi_loader-require-CONFIG_BLK.patch
 git am ../patch/0001-efi_loader-efi_device_path.c-assume-CONFIG_BLK-y.patch
