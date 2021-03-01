@@ -14,19 +14,11 @@ git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
 git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
 git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
 git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
-git am ../patch/0001-video-clean-up-TrueType-in-Kconfig.patch
-git am ../patch/0001-cmd-riscv-sbi-support-System-Reset-Extension.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
-git am ../patch/0001-malloc-adjust-memcpy-and-memset-definitions.patch
-git am ../patch/0001-test-missing-dependency-for-test-cmd-setexpr.c.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
-git am ../patch/0001-lib-rsa-struct-udevice-build-warning.patch
 git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
 git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
-git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch
-git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
-git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 
 # Odroid HC4
@@ -93,15 +85,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
-
-git am ../patch/0001-efi_loader-ACPI-tables-must-be-in-EfiACPIReclaimMemo.patch
-git am ../patch/0001-MAINTAINERS-assign-tools-mkeficapsule.c-to-EFI-PAYLO.patch
-git am ../patch/0001-tools-mkeficapsule.c-fix-DEBUG-build.patch
-git am ../patch/0001-efi_loader-limit-output-length-for-VenHw-VenMedia.patch
-git am ../patch/0001-efi_loader-fix-documentation-in-efi_loader.h.patch
-git am ../patch/0001-cmd-efidebug-add-firmware-management-protocol-GUID.patch
-
-git am ../patch/0001-cmd-efidebug-add-firmware-management-protocol-GUID.patch
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 git am ../patch/0001-efi_loader-console-size-of-vidconsole.patch
 

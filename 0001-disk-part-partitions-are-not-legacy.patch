@@ -135,7 +135,7 @@ index 85b1af55e2..8e076e578d 100644
  	}
 -#endif /* CONFIG_HAVE_BLOCK_DEVICE */
  
- 	return -1;
+ 	return -ENOENT;
  }
 @@ -421,14 +400,12 @@ int blk_get_device_by_str(const char *ifname, const char *dev_hwpart_str,
  		goto cleanup;

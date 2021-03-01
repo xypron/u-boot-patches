@@ -1,7 +1,7 @@
 From 3ccdf1fa4f4097e6ddc8362aec612a1844e47b28 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 27 Feb 2021 12:46:04 +0100
-Subject: [PATCH 1/1] video: add DejaVu Mono font
+Subject: [PATCH v2 1/1] video: add DejaVu Mono font
 
 A TrueType font for U-Boot should fulfill the following requirements:
 
@@ -16,6 +16,10 @@ Let's add the DejaVu Mono font. To reduce the code size the characters are
 limited to code page 437.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+v2:
+	add two symbols used by GRUB
+	add the FontForge script used to generate the reduce font
 ---
  Licenses/dejavu_font_license.txt    | 187 ++++++++++++++++++++
  drivers/video/console_truetype.c    |   4 +
