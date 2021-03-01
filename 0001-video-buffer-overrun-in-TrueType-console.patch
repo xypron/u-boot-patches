@@ -1,0 +1,71 @@
+From 7231ed0585995f2d668c6b8742f1354a44c999d7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 28 Feb 2021 21:42:51 +0100
+Subject: [PATCH 1/1] video: buffer overrun in TrueType console
+
+When scrolling the TrueType console a buffer overrun occurs.
+
+Fixes: a29b012037cc ("video: Add a console driver that uses TrueType fonts")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/video/console_truetype.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/video/console_truetype.c b/drivers/video/console_truetype.c
+index b9d467ac90..6d40be6482 100644
+--- a/drivers/video/console_truetype.c
++++ b/drivers/video/console_truetype.c
+@@ -128,38 +128,36 @@ static int console_truetype_set_row(struct udevice *dev, uint row, int clr)
+ 	struct video_priv *vid_priv = dev_get_uclass_priv(dev->parent);
+ 	struct console_tt_priv *priv = dev_get_priv(dev);
+ 	void *end, *line;
+-	int pixels = priv->font_size * vid_priv->line_length;
+-	int i, ret;
++	int ret;
+ 
+ 	line = vid_priv->fb + row * priv->font_size * vid_priv->line_length;
++	end = line + priv->font_size * vid_priv->line_length;
++
+ 	switch (vid_priv->bpix) {
+ #ifdef CONFIG_VIDEO_BPP8
+ 	case VIDEO_BPP8: {
+-		uint8_t *dst = line;
++		u8 *dst;
+ 
+-		for (i = 0; i < pixels; i++)
+-			*dst++ = clr;
+-		end = dst;
++		for (dst = line; dst < (u8 *)end; ++dst)
++			*dst = clr;
+ 		break;
+ 	}
+ #endif
+ #ifdef CONFIG_VIDEO_BPP16
+ 	case VIDEO_BPP16: {
+-		uint16_t *dst = line;
++		u16 *dst = line;
+ 
+-		for (i = 0; i < pixels; i++)
+-			*dst++ = clr;
+-		end = dst;
++		for (dst = line; dst < (u16 *)end; ++dst)
++			*dst = clr;
+ 		break;
+ 	}
+ #endif
+ #ifdef CONFIG_VIDEO_BPP32
+ 	case VIDEO_BPP32: {
+-		uint32_t *dst = line;
++		u32 *dst = line;
+ 
+-		for (i = 0; i < pixels; i++)
+-			*dst++ = clr;
+-		end = dst;
++		for (dst = line; dst < (u32 *)end; ++dst)
++			*dst = clr;
+ 		break;
+ 	}
+ #endif
+-- 
+2.30.1
+

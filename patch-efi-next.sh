@@ -28,8 +28,6 @@ git am ../patch/0001-dm-ddr-socfpga-don-t-assign-values-that-are-not-used.patch
 git am ../patch/0001-mtd-rawnand-cortina_nand-missing-initialization.patch
 git am ../patch/0001-net-cortina_ni-buffer-overrun.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
-git am ../patch/0001-video-add-DejaVu-Mono-font.patch
-git am ../patch/0001-usb-USB-keyboard-requires-DM_KEYBOARD.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -69,8 +67,12 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
+
+git am ../patch/0001-usb-USB-keyboard-requires-DM_KEYBOARD.patch
+git am ../patch/0001-video-add-DejaVu-Mono-font.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 git am ../patch/0001-video-fix-positioning-in-TrueType-console.patch
+git am ../patch/0001-video-buffer-overrun-in-TrueType-console.patch
 
 git am ../patch/0001-sandbox-host-bind-must-close-file-descriptor.patch
 git am ../patch/0001-sandbox-allow-cross-compiling-sandbox.patch

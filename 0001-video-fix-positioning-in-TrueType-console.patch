@@ -1,0 +1,122 @@
+From a9d240b39b6d584a6e7011dd31bd0c2599a75ce1 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 28 Feb 2021 19:52:46 +0100
+Subject: [PATCH 1/1] video: fix positioning in TrueType console
+
+With the patch accurate positioning is possible for mono-typed fonts:
+
+Fix the return value of console_truetype_putc_xy(). The current position
+is passed as parameter x. Some part of x represents a fractional pixel.
+The return value represents how much the character position must be
+advanced. This should only comprise the width of the current character and
+not the preexisting fractional pixel position.
+
+Characters are not square. As all characters of a mono-type font we can
+take the width of any character. 'W' as one of the widest ANSI characters
+provides also a good value for variable width fonts.
+
+The character width must be a float.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/video/console_truetype.c | 28 ++++++++++++++++++++--------
+ include/video_console.h          |  2 +-
+ 2 files changed, 21 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/video/console_truetype.c b/drivers/video/console_truetype.c
+index 318a060926..b9d467ac90 100644
+--- a/drivers/video/console_truetype.c
++++ b/drivers/video/console_truetype.c
+@@ -211,7 +211,7 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+ 	int width_frac, linenum;
+ 	struct pos_info *pos;
+ 	u8 *bits, *data;
+-	int advance;
++	int advance, kern_adv;
+ 	void *start, *line, *sync_start, *sync_end;
+ 	int row, ret;
+ 	int bg_r, bg_g, bg_b;
+@@ -226,8 +226,11 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+ 	 * this character */
+ 	xpos = frac(VID_TO_PIXEL((double)x));
+ 	if (vc_priv->last_ch) {
+-		xpos += priv->scale * stbtt_GetCodepointKernAdvance(font,
+-							vc_priv->last_ch, ch);
++		kern_adv = stbtt_GetCodepointKernAdvance(font, vc_priv->last_ch,
++							 ch);
++		xpos += priv->scale * kern_adv;
++	} else {
++		kern_adv = 0;
+ 	}
+ 
+ 	/*
+@@ -238,8 +241,8 @@ static int console_truetype_putc_xy(struct udevice *dev, uint x, uint y,
+ 	 */
+ 	x_shift = xpos - (double)tt_floor(xpos);
+ 	xpos += advance * priv->scale;
+-	width_frac = (int)VID_TO_POS(xpos);
+-	if (x + width_frac >= vc_priv->xsize_frac)
++	width_frac = VID_TO_POS(priv->scale * (kern_adv + advance));
++	if (x + (int)VID_TO_POS(xpos) >= vc_priv->xsize_frac)
+ 		return -EAGAIN;
+ 
+ 	/* Write the current cursor position into history */
+@@ -591,23 +594,23 @@ static int console_truetype_probe(struct udevice *dev)
+ 	struct udevice *vid_dev = dev->parent;
+ 	struct video_priv *vid_priv = dev_get_uclass_priv(vid_dev);
+ 	stbtt_fontinfo *font = &priv->font;
+-	int ascent;
++	int advance, ascent, lsb;
+ 
+ 	debug("%s: start\n", __func__);
++
+ 	if (vid_priv->font_size)
+ 		priv->font_size = vid_priv->font_size;
+ 	else
+ 		priv->font_size = CONFIG_CONSOLE_TRUETYPE_SIZE;
++
+ 	priv->font_data = console_truetype_find_font();
+ 	if (!priv->font_data) {
+ 		debug("%s: Could not find any fonts\n", __func__);
+ 		return -EBFONT;
+ 	}
+ 
+-	vc_priv->x_charsize = priv->font_size;
+ 	vc_priv->y_charsize = priv->font_size;
+ 	vc_priv->xstart_frac = VID_TO_POS(2);
+-	vc_priv->cols = vid_priv->xsize / priv->font_size;
+ 	vc_priv->rows = vid_priv->ysize / priv->font_size;
+ 	vc_priv->tab_width_frac = VID_TO_POS(priv->font_size) * 8 / 2;
+ 
+@@ -618,6 +621,15 @@ static int console_truetype_probe(struct udevice *dev)
+ 
+ 	/* Pre-calculate some things we will need regularly */
+ 	priv->scale = stbtt_ScaleForPixelHeight(font, priv->font_size);
++
++	/* Assuming that 'W' is the widest character */
++	stbtt_GetCodepointHMetrics(font, 'W', &advance, &lsb);
++	advance += stbtt_GetCodepointKernAdvance(font, 'W', 'W');
++	vc_priv->cols =
++		(int)VID_TO_POS(vid_priv->xsize - 2) /
++		(int)VID_TO_POS(advance * priv->scale);
++	vc_priv->x_charsize = advance * priv->scale;
++
+ 	stbtt_GetFontVMetrics(font, &ascent, 0, 0);
+ 	priv->baseline = (int)(ascent * priv->scale);
+ 	debug("%s: ready\n", __func__);
+diff --git a/include/video_console.h b/include/video_console.h
+index 8747299d61..cf306e5ca2 100644
+--- a/include/video_console.h
++++ b/include/video_console.h
+@@ -68,7 +68,7 @@ struct vidconsole_priv {
+ 	int ycur;
+ 	int rows;
+ 	int cols;
+-	int x_charsize;
++	double x_charsize;
+ 	int y_charsize;
+ 	int tab_width_frac;
+ 	int xsize_frac;
+-- 
+2.30.1
+
