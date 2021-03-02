@@ -599,7 +599,7 @@ new file mode 100644
 index 0000000000..d14716b3d0
 --- /dev/null
 +++ b/arch/arm/dts/meson-sm1-odroid.dtsi
-@@ -0,0 +1,442 @@
+@@ -0,0 +1,441 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (c) 2020 Dongjin Kim <tobetter@gmail.com>
@@ -1041,7 +1041,6 @@ index 0000000000..d14716b3d0
 +&usb2_phy0 {
 +	phy-supply = <&vcc_5v>;
 +};
-+
 -- 
 2.30.0
 

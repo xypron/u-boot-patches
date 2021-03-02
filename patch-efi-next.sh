@@ -39,8 +39,6 @@ git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
 # git am ../patch/0001-net-use-log_err-for-No-ethernet-found-message.patch
 # git am ../patch/0001-log-mute-messages-generated-by-log-drivers.patch
 
-git am ../patch/0001-log-convert-pr_-to-logging.patch
-
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 
