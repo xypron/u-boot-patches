@@ -91,6 +91,12 @@ git am ../patch/0001-lib-charset-UTF-8-stream-conversion.patch
 git am ../patch/0001-efi_loader-correct-uboot_bin_env.its-file-format.patch
 
 exit
+
+git am ../patch/0001-efi-Add-ESRT-to-the-EFI-system-table.patch
+git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
+git am ../patch/0001-efi-ESRT-creation-tests.patch
+
+exit
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 git am ../patch/0001-efi_loader-require-CONFIG_BLK.patch
 git am ../patch/0001-efi_loader-efi_device_path.c-assume-CONFIG_BLK-y.patch
