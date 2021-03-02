@@ -88,9 +88,9 @@ git am ../patch/0001-efi_loader-move-codepage-437-table.patch
 git am ../patch/0001-efi_loader-carve-out-utf_to_cp.patch
 git am ../patch/0001-lib-charset-utf8_get-should-return-error.patch
 git am ../patch/0001-lib-charset-UTF-8-stream-conversion.patch
+git am ../patch/0001-efi_loader-correct-uboot_bin_env.its-file-format.patch
 
 exit
-
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 git am ../patch/0001-efi_loader-require-CONFIG_BLK.patch
 git am ../patch/0001-efi_loader-efi_device_path.c-assume-CONFIG_BLK-y.patch
