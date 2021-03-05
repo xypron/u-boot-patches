@@ -20,6 +20,7 @@ git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
 git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
+git am ../patch/0001-doc-move-README.dfu-to-HTML-documenation.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
