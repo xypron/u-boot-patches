@@ -1,4 +1,4 @@
-From 80d987130da0b0a15e90490e4200098cfb7c29ce Mon Sep 17 00:00:00 2001
+From eccb6c980329e8d450659e118138a4bbab5a8dfc Mon Sep 17 00:00:00 2001
 From: Jose Marinho <jose.marinho@arm.com>
 Date: Tue, 2 Mar 2021 17:26:38 +0000
 Subject: [PATCH 1/1] efi: Add ESRT to the EFI system table
@@ -18,8 +18,6 @@ Limitations:
 undefined. Setting these values will require a per-platform function
 that returns the image_type/flags as a function of the image fw_class.
 
-Signed-off-by: Jose Marinho <jose.marinho@arm.com>
-
 CC: Heinrich Schuchardt	<xypron.glpk@gmx.de>
 CC: Sughosh Ganu <sughosh.ganu@linaro.org>
 CC: AKASHI Takahiro <takahiro.akashi@linaro.org>
@@ -27,7 +25,12 @@ CC: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 CC: Andre Przywara <andre.przywara@arm.com>
 CC: Alexander Graf <agraf@csgraf.de>
 CC: nd@arm.com
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Jose Marinho <jose.marinho@arm.com>
+
+Remove two EFI_CALL() indirections.
+Move ESRT GUID in efidebug's list of GUIDs.
+
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/efidebug.c                |   4 +
  include/efi_api.h             |  21 ++
@@ -42,20 +45,20 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  create mode 100644 lib/efi_loader/efi_esrt.c
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index e4030f514a..aba04a66e5 100644
+index 7812e5c94e..4bbc8f54c1 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
-@@ -459,6 +459,10 @@ static const struct {
- 		"Block IO",
- 		EFI_BLOCK_IO_PROTOCOL_GUID,
+@@ -576,6 +576,10 @@ static const struct {
+ 		"ACPI table",
+ 		EFI_ACPI_TABLE_GUID,
  	},
 +	{
 +		"EFI System Resource Table",
 +		EFI_SYSTEM_RESOURCE_TABLE_GUID,
 +	},
  	{
- 		"Simple File System",
- 		EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID,
+ 		"device tree",
+ 		EFI_FDT_GUID,
 diff --git a/include/efi_api.h b/include/efi_api.h
 index 48e48a6263..fb53637419 100644
 --- a/include/efi_api.h
@@ -189,7 +192,7 @@ index 41b8949b04..8e8b0a9bc6 100644
  	struct efi_register_notify_event *item;
  	efi_status_t ret = EFI_SUCCESS;
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index b57f0302c5..a1a69e619d 100644
+index 975e453262..53dcd5b11c 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
 @@ -482,6 +482,14 @@ efi_status_t EFIAPI efi_update_capsule(
@@ -199,7 +202,7 @@ index b57f0302c5..a1a69e619d 100644
 +
 +	if (IS_ENABLED(CONFIG_EFI_ESRT)) {
 +		/* Rebuild the ESRT to reflect any updated FW images. */
-+		ret = EFI_CALL(efi_esrt_populate());
++		ret = efi_esrt_populate();
 +		if (ret != EFI_SUCCESS)
 +			log_warning("EFI Capsule: failed to update ESRT\n");
 +	}
@@ -209,7 +212,7 @@ index b57f0302c5..a1a69e619d 100644
  
 diff --git a/lib/efi_loader/efi_esrt.c b/lib/efi_loader/efi_esrt.c
 new file mode 100644
-index 0000000000..c43e898d63
+index 0000000000..947bdb5e95
 --- /dev/null
 +++ b/lib/efi_loader/efi_esrt.c
 @@ -0,0 +1,510 @@
@@ -346,7 +349,7 @@ index 0000000000..c43e898d63
 +	new_esrt->fw_resource_version = EFI_ESRT_VERSION;
 +
 +	/* Install the ESRT in the system configuration table. */
-+	ret = EFI_CALL(efi_install_configuration_table(&esrt_guid, (void *)new_esrt));
++	ret = efi_install_configuration_table(&esrt_guid, (void *)new_esrt);
 +	if (ret != EFI_SUCCESS) {
 +		EFI_PRINT("ESRT failed to install the ESRT in the system table\n");
 +		return ret;
@@ -573,9 +576,9 @@ index 0000000000..c43e898d63
 +		u32 package_version;
 +		u16 *package_version_name;
 +
-+		ret = EFI_CALL(efi_search_protocol(*it_handle,
-+						   &efi_guid_firmware_management_protocol,
-+						   &handler));
++		ret = efi_search_protocol(*it_handle,
++					  &efi_guid_firmware_management_protocol,
++					  &handler);
 +
 +		if (ret != EFI_SUCCESS) {
 +			EFI_PRINT("ESRT Unable to find FMP handle (%d)\n",
