@@ -5,6 +5,9 @@ Subject: [PATCH] sandbox: add FAT to the list of usable env drivers
 
 Add the FAT environment driver to the priority list.
 
+When testing the UEFI sub-system the EFI system partition is formatted with
+FAT so it is reasonable to store the environment there.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  board/sandbox/sandbox.c | 1 +
