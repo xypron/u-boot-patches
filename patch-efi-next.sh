@@ -42,6 +42,7 @@ git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
+git am ../patch/0001-configs-EXT4-FAT-hush-shell-env-on-S-mode-MAIX.patch
 
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
