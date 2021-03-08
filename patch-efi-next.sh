@@ -91,6 +91,7 @@ git am ../patch/0001-lib-charset-UTF-8-stream-conversion.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-efi_loader-correct-uboot_bin_env.its-file-format.patch
+git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
 
 exit
 
