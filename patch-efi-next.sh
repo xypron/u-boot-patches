@@ -44,6 +44,12 @@ git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
 git am ../patch/0001-configs-EXT4-FAT-hush-shell-env-on-S-mode-MAIX.patch
 
+git am ../patch/0001-risv-add-missing-SBI-extension-definitions.patch
+git am ../patch/0001-cmd-sbi-use-constants-instead-of-numerical-values.patch
+git am ../patch/0001-sysreset-provide-SBI-based-sysreset-driver.patch
+git am ../patch/0001-pinctrl-K210_PINCTRL-depends-on-REGMAP-and-on-SYSCON.patch
+git am ../patch/0001-maix-enable-SBI-system-reset-for-MAIX.patch
+
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-nds32-define-__raw_writeq-__raw_readq.patch

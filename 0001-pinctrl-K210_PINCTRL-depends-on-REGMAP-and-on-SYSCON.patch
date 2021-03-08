@@ -1,0 +1,30 @@
+From 30376702ceb29a8aeef4783cc2814fc0a20e4043 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 4 Mar 2021 07:53:06 +0100
+Subject: [PATCH 1/1] pinctrl: K210_PINCTRL depends on REGMAP and on SYSCON
+
+Select missing Kconfig dependencies.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Sean Anderson <seanga2@gmail.com>
+Reviewed-by: Leo Yu-Chi Liang <ycliang@andestech.com>
+---
+ drivers/pinctrl/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/pinctrl/Kconfig b/drivers/pinctrl/Kconfig
+index 77fb851114..2a859ab5d0 100644
+--- a/drivers/pinctrl/Kconfig
++++ b/drivers/pinctrl/Kconfig
+@@ -294,6 +294,8 @@ config ASPEED_AST2500_PINCTRL
+ config PINCTRL_K210
+ 	bool "Kendryte K210 Fully-Programmable Input/Output Array driver"
+ 	depends on DM && PINCTRL_GENERIC
++	select REGMAP
++	select SYSCON
+ 	help
+ 	  Support pin multiplexing on the K210. The "FPIOA" can remap any
+ 	  supported function to any multifunctional IO pin. It can also perform
+-- 
+2.30.1
+
