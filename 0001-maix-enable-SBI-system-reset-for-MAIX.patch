@@ -1,4 +1,4 @@
-From 1187fa342cce0dddd1e335dab16f531b410b7584 Mon Sep 17 00:00:00 2001
+From 073ab9cd29f4c87eba2352d396f4191ede9d2620 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 4 Mar 2021 07:59:12 +0100
 Subject: [PATCH 1/1] maix: enable SBI system reset for MAIX
@@ -12,13 +12,13 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 2 insertions(+)
 
 diff --git a/configs/sipeed_maix_smode_defconfig b/configs/sipeed_maix_smode_defconfig
-index 2516bb7258..aa95893feb 100644
+index c20c389cac..33af82464e 100644
 --- a/configs/sipeed_maix_smode_defconfig
 +++ b/configs/sipeed_maix_smode_defconfig
-@@ -7,4 +7,6 @@ CONFIG_STACK_SIZE=0x100000
- # CONFIG_NET is not set
- # CONFIG_INPUT is not set
+@@ -18,4 +18,6 @@ CONFIG_SF_DEFAULT_BUS=3
  # CONFIG_DM_ETH is not set
+ CONFIG_FS_EXT4=y
+ CONFIG_FS_FAT=y
 +CONFIG_SYSRESET_SBI=y
 +# CONFIG_SYSRESET_SYSCON is not set
  # CONFIG_EFI_UNICODE_CAPITALIZATION is not set
