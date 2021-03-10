@@ -89,14 +89,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
-git am ../patch/0001-efi_loader-console-size-of-vidconsole.patch
-git am ../patch/0001-efi_loader-move-codepage-437-table.patch
-git am ../patch/0001-efi_loader-carve-out-utf_to_cp.patch
-git am ../patch/0001-lib-charset-utf8_get-should-return-error.patch
-git am ../patch/0001-lib-charset-UTF-8-stream-conversion.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
-git am ../patch/0001-efi_loader-correct-uboot_bin_env.its-file-format.patch
 git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
 
 exit
