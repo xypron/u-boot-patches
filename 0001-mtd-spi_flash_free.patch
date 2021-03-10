@@ -1,0 +1,56 @@
+From b7e947de55c9d579ef7f29c7a6b2311d21354240 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 10 Mar 2021 12:45:50 +0100
+Subject: [PATCH 1/1] mtd: spi_flash_free()
+
+dfu_free_entities() invoking dfu_free_entity_sf() has let to segementation
+faults due to double freeing the same device.
+
+spi_flash_free() is not relevant for the driver model but exists only for
+compatibility with old drivers.
+
+We must not remove any device here:
+
+* The device may still be referenced.
+* We don't want to have to probe again.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/mtd/spi/sf-uclass.c | 5 -----
+ include/spi_flash.h         | 4 +++-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/mtd/spi/sf-uclass.c b/drivers/mtd/spi/sf-uclass.c
+index 12d132152d..fd1bec80d6 100644
+--- a/drivers/mtd/spi/sf-uclass.c
++++ b/drivers/mtd/spi/sf-uclass.c
+@@ -46,11 +46,6 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+ 	return dev_get_uclass_priv(dev);
+ }
+ 
+-void spi_flash_free(struct spi_flash *flash)
+-{
+-	device_remove(flash->spi->dev, DM_REMOVE_NORMAL);
+-}
+-
+ int spi_flash_probe_bus_cs(unsigned int busnum, unsigned int cs,
+ 			   unsigned int max_hz, unsigned int spi_mode,
+ 			   struct udevice **devp)
+diff --git a/include/spi_flash.h b/include/spi_flash.h
+index 85cae32cc7..478c543b06 100644
+--- a/include/spi_flash.h
++++ b/include/spi_flash.h
+@@ -97,7 +97,9 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+ 				  unsigned int max_hz, unsigned int spi_mode);
+ 
+ /* Compatibility function - this is the old U-Boot API */
+-void spi_flash_free(struct spi_flash *flash);
++static inline void spi_flash_free(struct spi_flash *flash)
++{
++}
+ 
+ static inline int spi_flash_read(struct spi_flash *flash, u32 offset,
+ 				 size_t len, void *buf)
+-- 
+2.30.1
+
