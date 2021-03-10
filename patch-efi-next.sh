@@ -17,7 +17,6 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
-git am ../patch/0001-x86-sizeof-array-div-error-in-lpc_common_early_init.patch
 git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 git am ../patch/0001-doc-move-README.dfu-to-HTML-documentation.patch
