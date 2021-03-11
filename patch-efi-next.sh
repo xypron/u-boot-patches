@@ -98,6 +98,7 @@ exit
 git am ../patch/0001-efi-Add-ESRT-to-the-EFI-system-table.patch
 git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
 git am ../patch/0001-efi-ESRT-creation-tests.patch
+git am ../patch/0001-test-test-the-ESRT-creation.patch
 
 exit
 

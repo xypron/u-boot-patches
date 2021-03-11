@@ -1,44 +1,22 @@
-From 17dd5ac160f9c03e13b9ba7fcbc6ef742555a49b Mon Sep 17 00:00:00 2001
+From ef70f169aeb39fdb5f4e25481dc244012115dd91 Mon Sep 17 00:00:00 2001
 From: Jose Marinho <jose.marinho@arm.com>
-Date: Tue, 2 Mar 2021 12:13:54 +0000
+Date: Thu, 11 Mar 2021 13:18:52 +0000
 Subject: [PATCH 1/1] efi: ESRT creation tests
 
-This commmit exercises the ESRT creation in two tests.
+This commmit exercises the ESRT creation in a EFI selftest.
 
-test 1:
  A fake FMP, with TEST_ESRT_NUM_ENTRIES FW images, is installed in the
  system leading to the corresponding ESRT entries being populated.
  The ESRT entries are checked against the datastructure used to
  initialize the FMP.
 
-test 1 invocation:
+Invocation from the sandbox platform:
 add to sandbox_defconfig:
-  +CONFIG_EFI_SELFTEST=y
+  +CONFIG_CMD_BOOTEFI_SELFTEST=y
 
  make sandbox_capsule_defconfig all
  ./u-boot -d arch/sandbox/dts/test.dtb
  bootefi selftest
-
-test 2:
- The test is part of test_efi_capsule_fw3.
-
- In order to run the test the following must be added to
- sandbox_defconfig:
-  +CONFIG_CMD_SF=y
-  +CONFIG_CMD_MEMORY=y
-  +CONFIG_CMD_FAT=y
-  +CONFIG_DFU=y
-
- The ESRT is printed in the u-boot shell by calling efidebug esrt.
- The test ensures that, after the capsule is installed, the  ESRT
- contains entries with the GUIDs:
-  - EFI_FIRMWARE_IMAGE_TYPE_UBOOT_FIT_GUID;
-  - EFI_FIRMWARE_IMAGE_TYPE_UBOOT_RAW_GUID;
-
-test 2 invocation:
- sudo ./test/py/test.py --bd sandbox -k capsule_fw3 -l --build
-
-Signed-off-by: Jose Marinho <jose.marinho@arm.com>
 
 CC: Heinrich Schuchardt	<xypron.glpk@gmx.de>
 CC: Sughosh Ganu <sughosh.ganu@linaro.org>
@@ -47,12 +25,13 @@ CC: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 CC: Andre Przywara <andre.przywara@arm.com>
 CC: Alexander Graf <agraf@csgraf.de>
 CC: nd@arm.com
+
+Signed-off-by: Jose Marinho <jose.marinho@arm.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_selftest/Makefile                     |   2 +
- lib/efi_selftest/efi_selftest_esrt.c          | 227 ++++++++++++++++++
- .../test_efi_capsule/test_capsule_firmware.py |   4 +
- 3 files changed, 233 insertions(+)
+ lib/efi_selftest/Makefile            |   2 +
+ lib/efi_selftest/efi_selftest_esrt.c | 291 +++++++++++++++++++++++++++
+ 2 files changed, 293 insertions(+)
  create mode 100644 lib/efi_selftest/efi_selftest_esrt.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -70,10 +49,10 @@ index b02fd56e0a..58b27d6da3 100644
  efi_miniapp_file_image_exit.h \
 diff --git a/lib/efi_selftest/efi_selftest_esrt.c b/lib/efi_selftest/efi_selftest_esrt.c
 new file mode 100644
-index 0000000000..b053b2e6c6
+index 0000000000..99251f22a5
 --- /dev/null
 +++ b/lib/efi_selftest/efi_selftest_esrt.c
-@@ -0,0 +1,227 @@
+@@ -0,0 +1,291 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + *  Test ESRT tables support
@@ -90,6 +69,13 @@ index 0000000000..b053b2e6c6
 +
 +static
 +struct efi_firmware_image_descriptor static_img_info[TEST_ESRT_NUM_ENTRIES];
++
++static const struct efi_system_table *local_systable;
++
++static efi_handle_t fmp_handle;
++
++static const efi_guid_t efi_fmp_guid =
++		EFI_FIRMWARE_MANAGEMENT_PROTOCOL_GUID;
 +
 +static void efi_test_esrt_init_info(void)
 +{
@@ -161,13 +147,25 @@ index 0000000000..b053b2e6c6
 +
 +static void *lib_test_get_esrt(void)
 +{
-+	for (int idx = 0; idx < systab.nr_tables; idx++)
-+		if (!guidcmp(&efi_esrt_guid, &systab.tables[idx].guid))
-+			return systab.tables[idx].table;
++	for (int idx = 0; idx < local_systable->nr_tables; idx++)
++		if (!guidcmp(&efi_esrt_guid, &local_systable->tables[idx].guid))
++			return local_systable->tables[idx].table;
 +
 +	return NULL;
 +}
 +
++/**
++ * lib_test_check_uuid_entry: Find an ESRT entry for which the fw_calss field matches
++ * the image_type_id in the @img_info.
++ * Ensure that all of the field in the ESRT entry have the same value as the corresponding
++ * fields in the @img_info.
++ *
++ * @esrt: pointer to the ESRT
++ * @img_info: an image_info_descriptor output by the FMP get_image_info
++ *
++ * @return: true if matching ESRT entry is found and if all the ESRT entry fields match the
++ * corresponding @img_info fields.
++ */
 +static bool lib_test_check_uuid_entry(struct efi_system_resource_table *esrt,
 +				      struct efi_firmware_image_descriptor
 +				      *img_info)
@@ -177,20 +175,32 @@ index 0000000000..b053b2e6c6
 +
 +	for (u32 idx = 0; idx < filled_entries; idx++) {
 +		if (!guidcmp(&entry[idx].fw_class, &img_info->image_type_id)) {
-+			if (entry[idx].fw_version != img_info->version)
++			if (entry[idx].fw_version != img_info->version) {
++				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
++					     &img_info->image_type_id);
 +				return false;
++			}
 +
 +			if (entry[idx].lowest_supported_fw_version !=
-+				img_info->lowest_supported_image_version)
++				img_info->lowest_supported_image_version) {
++				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
++					     &img_info->image_type_id);
 +				return false;
++			}
 +
 +			if (entry[idx].last_attempt_version !=
-+				img_info->last_attempt_version)
++				img_info->last_attempt_version) {
++				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
++					     &img_info->image_type_id);
 +				return false;
++			}
 +
 +			if (entry[idx].last_attempt_status !=
-+				img_info->last_attempt_status)
++				img_info->last_attempt_status) {
++				efi_st_error("ESRT field mismatch for entry with fw_class=%pUl\n",
++					     &img_info->image_type_id);
 +				return false;
++			}
 +
 +			/*
 +			 * The entry with fw_class = img_uuid matches with the
@@ -201,6 +211,8 @@ index 0000000000..b053b2e6c6
 +	}
 +
 +	/* There exists no entry with fw_class equal to img_uuid in the ESRT. */
++	efi_st_error("ESRT no entry with fw_class= %pUl\n", &img_info->image_type_id);
++
 +	return false;
 +}
 +
@@ -208,7 +220,6 @@ index 0000000000..b053b2e6c6
 + * Setup unit test.
 + *
 + * Initialize the test FMP datastructure.
-+ * Install the FMP in the system.
 + *
 + * @handle:	handle of the loaded image
 + * @systable:	system table
@@ -217,22 +228,9 @@ index 0000000000..b053b2e6c6
 +static int setup(const efi_handle_t handle,
 +		 const struct efi_system_table *systable)
 +{
-+	efi_status_t ret = EFI_SUCCESS;
-+	struct efi_boot_services *bt = systab.boottime;
-+
-+	if (!bt)
-+		return EFI_ST_FAILURE;
++	local_systable = systable;
 +
 +	efi_test_esrt_init_info();
-+
-+	ret = EFI_CALL(bt->install_multiple_protocol_interfaces
-+		(&efi_root,
-+		 &efi_guid_firmware_management_protocol,
-+		 &efi_test_fmp,
-+		 NULL));
-+
-+	if (ret != EFI_SUCCESS)
-+		return EFI_ST_FAILURE;
 +
 +	return EFI_ST_SUCCESS;
 +}
@@ -247,49 +245,94 @@ index 0000000000..b053b2e6c6
 +static int teardown(void)
 +{
 +	efi_status_t ret = EFI_SUCCESS;
-+	struct efi_boot_services *bt = systab.boottime;
++	struct efi_boot_services *bt;
 +
-+	if (!bt)
++	bt = local_systable->boottime;
++
++	if (!bt) {
++		efi_st_error("Cannot find boottime services structure\n");
 +		return EFI_ST_FAILURE;
++	}
 +
-+	ret = EFI_CALL(bt->uninstall_multiple_protocol_interfaces
-+		(efi_root, &efi_guid_firmware_management_protocol,
-+		 &efi_test_fmp, NULL));
++	ret = bt->uninstall_multiple_protocol_interfaces
++		(fmp_handle, &efi_fmp_guid,
++		 &efi_test_fmp, NULL);
 +
-+	if (ret != EFI_SUCCESS)
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("Failed to uninstall FMP\n");
 +		return EFI_ST_FAILURE;
++	}
 +
 +	return EFI_ST_SUCCESS;
 +}
 +
++/*
++ * Perform the test
++ *
++ * The test consists of the following steps:
++ *
++ * 1) Obtain the ESRT
++ * 2) Record the number of ESRT entries prior to test start
++ * 3) Install the test FMP
++ * 4) Re-obtain the ESRT (the ESRT pointer may have changed with the FMP install)
++ * 5) verify that the ESRT entries have increased by the number of entries in the
++ *     test FMP.
++ * 6) Traverse all the elements used as the test FMP input and verify that each
++ *     has a corresponding ESRT entry and that the fields are correctly set.
++ *
++ * The failure of any of the above steps results in a test failure.
++ *
++ */
 +static int execute(void)
 +{
 +	struct efi_system_resource_table *esrt;
 +	efi_status_t ret = EFI_SUCCESS;
++	u32 base_entry_count;
++	u32 entry_delta;
++	struct efi_boot_services *bt;
++
++	bt = local_systable->boottime;
++
++	if (!bt) {
++		efi_st_error("Cannot find boottime services structure\n");
++		return EFI_ST_FAILURE;
++	}
 +
 +	esrt = lib_test_get_esrt();
-+	if (!esrt)
++	if (!esrt) {
++		efi_st_error("ESRT table not present\n");
 +		return EFI_ST_FAILURE;
++	}
++	base_entry_count = esrt->fw_resource_count;
 +
-+	if (esrt->fw_resource_count != TEST_ESRT_NUM_ENTRIES)
-+		return EFI_ST_FAILURE;
++	ret = bt->install_multiple_protocol_interfaces(&fmp_handle,
++						       &efi_fmp_guid,
++						       &efi_test_fmp,
++						       NULL);
 +
-+	/* Update the ESRT. */
-+	ret = efi_esrt_populate();
-+	if (ret != EFI_SUCCESS)
++	if (ret != EFI_SUCCESS) {
++		efi_st_error("Failed to install FMP\n");
 +		return EFI_ST_FAILURE;
++	}
 +
 +	esrt = lib_test_get_esrt();
-+	if (!esrt)
++	if (!esrt) {
++		efi_st_error("ESRT table not present\n");
 +		return EFI_ST_FAILURE;
++	}
 +
-+	/* Verify that the number of images remains the same. */
-+	if (esrt->fw_resource_count != TEST_ESRT_NUM_ENTRIES)
++	entry_delta = esrt->fw_resource_count - base_entry_count;
++	if (entry_delta != TEST_ESRT_NUM_ENTRIES) {
++		efi_st_error("ESRT mismatch in new entry count (%d), expected (%d).\n",
++			     entry_delta, TEST_ESRT_NUM_ENTRIES);
 +		return EFI_ST_FAILURE;
++	}
 +
 +	for (u32 idx = 0; idx < TEST_ESRT_NUM_ENTRIES; idx++)
-+		if (!lib_test_check_uuid_entry(esrt, &static_img_info[idx]))
++		if (!lib_test_check_uuid_entry(esrt, &static_img_info[idx])) {
++			efi_st_error("ESRT entry mismatch\n");
 +			return EFI_ST_FAILURE;
++		}
 +
 +	return EFI_ST_SUCCESS;
 +}
@@ -301,21 +344,6 @@ index 0000000000..b053b2e6c6
 +	.execute = execute,
 +	.teardown = teardown,
 +};
-diff --git a/test/py/tests/test_efi_capsule/test_capsule_firmware.py b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-index f006fa95d6..3a7c2e1ac8 100644
---- a/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-+++ b/test/py/tests/test_efi_capsule/test_capsule_firmware.py
-@@ -229,6 +229,10 @@ class TestEfiCapsuleFirmwareFit(object):
-                 output = u_boot_console.run_command(
-                     'env print -e -all Capsule0000')
- 
-+            output = u_boot_console.run_command_list(['efidebug capsule esrt'])
-+            assert 'AE13FF2D-9AD4-4E25-9AC8-6D80B3B22147' in ''.join(output)
-+            assert 'E2BB9C06-70E9-4B14-97A3-5A7913176E3F' in ''.join(output)
-+
-             output = u_boot_console.run_command_list([
-                 'host bind 0 %s' % disk_img,
-                 'fatls host 0:1 %s' % CAPSULE_INSTALL_DIR])
 -- 
 2.30.1
 

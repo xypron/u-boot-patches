@@ -1,6 +1,6 @@
-From df8902ede6a7a233fce9692c46053dbf48672a56 Mon Sep 17 00:00:00 2001
+From 335cd61a00b8af8b43a819a04da728bc7490b3a5 Mon Sep 17 00:00:00 2001
 From: Jose Marinho <jose.marinho@arm.com>
-Date: Tue, 2 Mar 2021 12:13:53 +0000
+Date: Thu, 11 Mar 2021 13:18:51 +0000
 Subject: [PATCH 1/1] cmd: efi: ESRT table debug print
 
 This commit enables the ESRT printing from the u-boot shell by invoking:
@@ -13,22 +13,41 @@ CC: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 CC: Andre Przywara <andre.przywara@arm.com>
 CC: Alexander Graf <agraf@csgraf.de>
 CC: nd@arm.com
-Signed-off-by: Jose Marinho <jose.marinho@arm.com>
 
-Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Jose Marinho <jose.marinho@arm.com>
+Reviwed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/efidebug.c | 64 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ cmd/efidebug.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 84 insertions(+)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index b3d7bd8897..4bbc8f54c1 100644
+index b3d7bd8897..fffb347550 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
-@@ -129,6 +129,61 @@ static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
+@@ -129,6 +129,82 @@ static int do_efi_capsule_show(struct cmd_tbl *cmdtp, int flag,
  	return CMD_RET_SUCCESS;
  }
  
 +#ifdef CONFIG_EFI_ESRT
++
++#define EFI_ESRT_FW_TYPE_NUM 4
++char *efi_fw_type_str[EFI_ESRT_FW_TYPE_NUM] = {"unknown", "system FW", "device FW",
++	 "UEFI driver"};
++
++#define EFI_ESRT_UPDATE_STATUS_NUM 9
++char *efi_update_status_str[EFI_ESRT_UPDATE_STATUS_NUM] = {"success", "unsuccessful",
++	"insufficient resources", "incorrect version", "invalid format",
++	"auth error", "power event (AC)", "power event (batt)",
++	"unsatisfied dependencies"};
++
++#define EFI_FW_TYPE_STR_GET(idx) (\
++EFI_ESRT_FW_TYPE_NUM > (idx) ? efi_fw_type_str[(idx)] : "error"\
++)
++
++#define EFI_FW_STATUS_STR_GET(idx) (\
++EFI_ESRT_UPDATE_STATUS_NUM  > (idx) ? efi_update_status_str[(idx)] : "error"\
++)
++
 +/**
 + * do_efi_capsule_esrt() - manage UEFI capsules
 + *
@@ -56,8 +75,10 @@ index b3d7bd8897..4bbc8f54c1 100644
 +		if (!guidcmp(&efi_esrt_guid, &systab.tables[idx].guid))
 +			esrt = (struct efi_system_resource_table *)systab.tables[idx].table;
 +
-+	if (!esrt)
-+		return CMD_RET_FAILURE;
++	if (!esrt) {
++		log_info("ESRT: table not present\n");
++		return CMD_RET_SUCCESS;
++	}
 +
 +	printf("========================================\n");
 +	printf("ESRT: fw_resource_count=%d\n", esrt->fw_resource_count);
@@ -67,7 +88,7 @@ index b3d7bd8897..4bbc8f54c1 100644
 +	for (int idx = 0; idx < esrt->fw_resource_count; idx++) {
 +		printf("[entry %d]==============================\n", idx);
 +		printf("ESRT: fw_class=%pUL\n", &esrt->entries[idx].fw_class);
-+		printf("ESRT: fw_type=%d\n", esrt->entries[idx].fw_type);
++		printf("ESRT: fw_type=%s\n", EFI_FW_TYPE_STR_GET(esrt->entries[idx].fw_type));
 +		printf("ESRT: fw_version=%d\n", esrt->entries[idx].fw_version);
 +		printf("ESRT: lowest_supported_fw_version=%d\n",
 +		       esrt->entries[idx].lowest_supported_fw_version);
@@ -75,8 +96,8 @@ index b3d7bd8897..4bbc8f54c1 100644
 +		       esrt->entries[idx].capsule_flags);
 +		printf("ESRT: last_attempt_version=%d\n",
 +		       esrt->entries[idx].last_attempt_version);
-+		printf("ESRT: last_attempt_status=%d\n",
-+		       esrt->entries[idx].last_attempt_status);
++		printf("ESRT: last_attempt_status=%s\n",
++		       EFI_FW_STATUS_STR_GET(esrt->entries[idx].last_attempt_status));
 +	}
 +	printf("========================================\n");
 +
@@ -86,7 +107,7 @@ index b3d7bd8897..4bbc8f54c1 100644
  /**
   * do_efi_capsule_res() - show a capsule update result
   *
-@@ -221,6 +276,10 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
+@@ -221,6 +297,10 @@ static struct cmd_tbl cmd_efidebug_capsule_sub[] = {
  			 "", ""),
  	U_BOOT_CMD_MKENT(show, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_show,
  			 "", ""),
@@ -97,15 +118,7 @@ index b3d7bd8897..4bbc8f54c1 100644
  	U_BOOT_CMD_MKENT(disk-update, 0, 0, do_efi_capsule_on_disk_update,
  			 "", ""),
  	U_BOOT_CMD_MKENT(result, CONFIG_SYS_MAXARGS, 1, do_efi_capsule_res,
-@@ -256,6 +315,7 @@ static int do_efi_capsule(struct cmd_tbl *cmdtp, int flag,
- 
- 	return cp->cmd(cmdtp, flag, argc, argv);
- }
-+
- #endif /* CONFIG_EFI_HAVE_CAPSULE_SUPPORT */
- 
- /**
-@@ -1584,6 +1644,10 @@ static char efidebug_help_text[] =
+@@ -1584,6 +1664,10 @@ static char efidebug_help_text[] =
  	"  - show capsule information\n"
  	"efidebug capsule result [<capsule result var>]\n"
  	"  - show a capsule update result\n"
