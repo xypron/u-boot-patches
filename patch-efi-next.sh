@@ -100,6 +100,16 @@ git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
 git am ../patch/0001-efi-ESRT-creation-tests.patch
 
 exit
+
+# initrd
+git am ../patch/0001-efi_selftest-Remove-loadfile2-for-initrd-selftests.patch
+git am ../patch/0001-efi_loader-Add-device-path-related-functions-for-ini.patch
+git am ../patch/0001-efi_loader-Introduce-helper-functions-for-EFI.patch
+git am ../patch/0001-efi_loader-Replace-config-option-for-initrd-loading.patch
+git am ../patch/0001-efidebug-add-multiple-device-path-instances-on-Boot.patch
+git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
+
+exit
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 git am ../patch/0001-efi_loader-require-CONFIG_BLK.patch
 git am ../patch/0001-efi_loader-efi_device_path.c-assume-CONFIG_BLK-y.patch

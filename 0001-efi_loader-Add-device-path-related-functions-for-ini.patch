@@ -1,0 +1,126 @@
+From f1de9bbdf60ca1c9224886cd1d6b39db116794b3 Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Sat, 6 Mar 2021 00:22:58 +0200
+Subject: [PATCH] efi_loader: Add device path related functions for initrd via
+ Boot####
+
+On the following patches we allow for an initrd path to be stored in
+Boot#### variables.  Specifically we encode in the FIlePathList[] of
+the EFI_LOAD_OPTIONS for each Boot#### variable.
+
+The FilePathList[] array looks like this:
+kernel - 0xff - VenMedia(initrd GUID) - 0x01 - initrd1 - 0x01 initrd2 -0xff
+So let's add the relevant functions to concatenate and retrieve a device
+path based on a Vendor GUID.
+
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ include/efi_loader.h             |  4 ++
+ lib/efi_loader/efi_device_path.c | 72 ++++++++++++++++++++++++++++++++
+ 2 files changed, 76 insertions(+)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 719aa90490..ea4b91ab2f 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -750,6 +750,10 @@ struct efi_load_option {
+ 	const u8 *optional_data;
+ };
+ 
++struct efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
++				       efi_uintn_t *size, efi_guid_t guid);
++struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
++				      const struct efi_device_path *dp2);
+ efi_status_t efi_deserialize_load_option(struct efi_load_option *lo, u8 *data,
+ 					 efi_uintn_t *size);
+ unsigned long efi_serialize_load_option(struct efi_load_option *lo, u8 **data);
+diff --git a/lib/efi_loader/efi_device_path.c b/lib/efi_loader/efi_device_path.c
+index c9315dd458..cf1321828e 100644
+--- a/lib/efi_loader/efi_device_path.c
++++ b/lib/efi_loader/efi_device_path.c
+@@ -310,6 +310,41 @@ struct efi_device_path *efi_dp_append(const struct efi_device_path *dp1,
+ 	return ret;
+ }
+ 
++/** efi_dp_concat() - Concatenate 2 device paths. The final device path will contain
++ *                    two device paths separated by and end node (0xff).
++ *
++ * @dp1:	First device path
++ * @size:	Second device path
++ *
++ * Return:	concatenated device path or NULL. Caller must free the returned value
++ */
++struct efi_device_path *efi_dp_concat(const struct efi_device_path *dp1,
++				      const struct efi_device_path *dp2)
++{
++	struct efi_device_path *ret;
++	efi_uintn_t sz1, sz2;
++	void *p;
++
++	if (!dp1 || !dp2)
++		return NULL;
++	sz1 = efi_dp_size(dp1);
++	sz2 = efi_dp_size(dp2);
++	p = dp_alloc(sz1 + sz2 + (2 * sizeof(END)));
++	/* both dp1 and dp2 are non-null */
++	if (!p)
++		return NULL;
++	ret = p;
++	memcpy(p, dp1, sz1);
++	p += sz1;
++	memcpy(p, &END, sizeof(END));
++	p += sizeof(END);
++	memcpy(p, dp2, sz2);
++	p += sz2;
++	memcpy(p, &END, sizeof(END));
++
++	return ret;
++}
++
+ struct efi_device_path *efi_dp_append_node(const struct efi_device_path *dp,
+ 					   const struct efi_device_path *node)
+ {
+@@ -1160,3 +1195,40 @@ ssize_t efi_dp_check_length(const struct efi_device_path *dp,
+ 		dp = (const struct efi_device_path *)((const u8 *)dp + len);
+ 	}
+ }
++
++/**
++ * efi_dp_from_lo() - Get the instance of a Vendor Device Path
++ *		      in a multi-instance device path that matches
++ *		      a specific GUID
++ *
++ * @load_option: device paths to search
++ * @size:	 size of the discovered device path
++ * @guid:	 guid to search for
++ *
++ * Return:	device path or NULL. Caller must free the returned value
++ */
++struct
++efi_device_path *efi_dp_from_lo(struct efi_load_option *lo,
++				efi_uintn_t *size, efi_guid_t guid)
++{
++	struct efi_device_path *fp = lo->file_path;
++	struct efi_device_path_vendor *vendor;
++	int lo_len = lo->file_path_length;
++
++	while (lo_len) {
++		if (fp->type != DEVICE_PATH_TYPE_MEDIA_DEVICE ||
++		    fp->sub_type != DEVICE_PATH_SUB_TYPE_VENDOR_PATH) {
++			lo_len -= fp->length;
++			fp = (void *)fp + fp->length;
++			continue;
++		}
++
++		vendor = (struct efi_device_path_vendor *)fp;
++		if (!guidcmp(&vendor->guid, &guid))
++			return efi_dp_dup(fp);
++		lo_len -= fp->length;
++		fp = (void *)fp + fp->length;
++	}
++
++	return NULL;
++}
+-- 
+2.30.1
+

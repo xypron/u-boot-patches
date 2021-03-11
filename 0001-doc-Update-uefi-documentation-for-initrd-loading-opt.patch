@@ -1,0 +1,32 @@
+From f6fcf16174dc7bcf3fd7377a60cabea67fe502fe Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Sat, 6 Mar 2021 00:23:02 +0200
+Subject: [PATCH] doc: Update uefi documentation for initrd loading options
+
+Document the command line options for efidebug and initrd loading
+
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ doc/uefi/uefi.rst | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/doc/uefi/uefi.rst b/doc/uefi/uefi.rst
+index b3494c22e0..b3330f8d72 100644
+--- a/doc/uefi/uefi.rst
++++ b/doc/uefi/uefi.rst
+@@ -180,6 +180,12 @@ Set up boot parameters on your board::
+ 
+     efidebug boot add -b 1 HELLO mmc 0:1 /helloworld.efi.signed ""
+ 
++Since kernel 5.7 there's an alternative way of loading an initrd using
++LoadFile2 protocol if CONFIG_EFI_LOAD_FILE2_INITRD is enabled.
++The initrd path can be specified with::
++
++    efidebug boot add -b ABE0 'kernel' mmc 0:1 Image -i mmc 0:1 initrd
++
+ Now your board can run the signed image via the boot manager (see below).
+ You can also try this sequence by running Pytest, test_efi_secboot,
+ on the sandbox
+-- 
+2.30.1
+
