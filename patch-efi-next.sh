@@ -95,6 +95,7 @@ git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
 
 exit
 
+git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 git am ../patch/0001-efi-Add-ESRT-to-the-EFI-system-table.patch
 git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
 git am ../patch/0001-efi-ESRT-creation-tests.patch
