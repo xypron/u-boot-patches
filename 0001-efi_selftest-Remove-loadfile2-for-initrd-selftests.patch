@@ -1,13 +1,15 @@
-From 3363da46cef096e1aa7cb4bd3d20c3ca955ee3bc Mon Sep 17 00:00:00 2001
+From 9a1fdcfad13372901fc5cdb34e9e1c446d35736b Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sat, 6 Mar 2021 00:22:57 +0200
-Subject: [PATCH] efi_selftest: Remove loadfile2 for initrd selftests
+Date: Sat, 13 Mar 2021 23:47:32 +0200
+Subject: [PATCH 1/1] efi_selftest: Remove loadfile2 for initrd selftests
 
 We are redefining how u-boot locates the initrd to load via the kernel
 LoadFile2 protocol.  This selftest is not relevant any more, so remove
 it. A new one will be added later
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile                   |   1 -
  lib/efi_selftest/efi_selftest_load_initrd.c | 221 --------------------
@@ -15,7 +17,7 @@ Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
  delete mode 100644 lib/efi_selftest/efi_selftest_load_initrd.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
-index 58b27d6da3..aa71d0995c 100644
+index b02fd56e0a..50de581b77 100644
 --- a/lib/efi_selftest/Makefile
 +++ b/lib/efi_selftest/Makefile
 @@ -61,7 +61,6 @@ obj-$(CONFIG_CPU_V7) += efi_selftest_unaligned.o

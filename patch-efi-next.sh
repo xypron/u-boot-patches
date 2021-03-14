@@ -91,8 +91,11 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
+
 git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
 
+git am ../patch/0001-efi_selftest-illegal-cast-to-pointer-in-initrddump.patch
+git am ../patch/0001-efi_selftest-Remove-loadfile2-for-initrd-selftests.patch
 exit
 
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
@@ -104,7 +107,6 @@ git am ../patch/0001-test-test-the-ESRT-creation.patch
 exit
 
 # initrd
-git am ../patch/0001-efi_selftest-Remove-loadfile2-for-initrd-selftests.patch
 git am ../patch/0001-efi_loader-Add-device-path-related-functions-for-ini.patch
 git am ../patch/0001-efi_loader-Introduce-helper-functions-for-EFI.patch
 git am ../patch/0001-efi_loader-Replace-config-option-for-initrd-loading.patch
