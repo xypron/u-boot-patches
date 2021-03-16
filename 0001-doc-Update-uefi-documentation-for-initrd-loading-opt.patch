@@ -1,17 +1,17 @@
-From f6fcf16174dc7bcf3fd7377a60cabea67fe502fe Mon Sep 17 00:00:00 2001
+From 38bab72cd8fe7674bdf93f8a0194383544bd2d34 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sat, 6 Mar 2021 00:23:02 +0200
-Subject: [PATCH] doc: Update uefi documentation for initrd loading options
+Date: Sun, 14 Mar 2021 21:05:38 +0200
+Subject: [PATCH 1/1] doc: Update uefi documentation for initrd loading options
 
 Document the command line options for efidebug and initrd loading
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
- doc/uefi/uefi.rst | 6 ++++++
- 1 file changed, 6 insertions(+)
+ doc/uefi/uefi.rst | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
 diff --git a/doc/uefi/uefi.rst b/doc/uefi/uefi.rst
-index b3494c22e0..b3330f8d72 100644
+index b3494c22e0..d92a32016e 100644
 --- a/doc/uefi/uefi.rst
 +++ b/doc/uefi/uefi.rst
 @@ -180,6 +180,12 @@ Set up boot parameters on your board::
@@ -27,6 +27,29 @@ index b3494c22e0..b3330f8d72 100644
  Now your board can run the signed image via the boot manager (see below).
  You can also try this sequence by running Pytest, test_efi_secboot,
  on the sandbox
+@@ -484,7 +490,21 @@ The load file 2 protocol can be used by the Linux kernel to load the initial
+ RAM disk. U-Boot can be configured to provide an implementation with::
+ 
+     EFI_LOAD_FILE2_INITRD=y
+-    EFI_INITRD_FILESPEC=interface dev:part path_to_initrd
++
++When the option is enabled the user can add the initrd path with the efidebug
++command.
++
++Load options Boot#### have a FilePathList[] member.  The first element of
++the array (FilePathList[0]) is the EFI binary to execute.  When an initrd
++is specified the Device Path for the initrd is denoted by a VenMedia node
++with the EFI_INITRD_MEDIA_GUID. Each entry of the array is terminated by the
++'end of entire device path' subtype (0xff). If a user wants to define multiple
++initrds, those must by separated by the 'end of this instance' identifier of
++the end node (0x01).
++
++So our final format of the FilePathList[] is::
++
++    Loaded image - end node (0xff) - VenMedia - initrd_1 - [end node (0x01) - initrd_n ...] - end node (0xff)
+ 
+ Links
+ -----
 -- 
-2.30.1
+2.30.2
 

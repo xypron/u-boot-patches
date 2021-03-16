@@ -22,6 +22,7 @@ git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 git am ../patch/0001-mtd-spi_flash_free.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
+git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -105,7 +106,7 @@ exit
 
 # initrd
 git am ../patch/0001-efi_loader-Add-device-path-related-functions-for-ini.patch
-git am ../patch/0001-efi_loader-Introduce-helper-functions-for-EFI.patch
+git am ../patch/0001-efi_loader-Add-helper-functions-for-EFI.patch
 git am ../patch/0001-efi_loader-Replace-config-option-for-initrd-loading.patch
 git am ../patch/0001-efidebug-add-multiple-device-path-instances-on-Boot.patch
 git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch

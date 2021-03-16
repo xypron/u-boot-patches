@@ -1,7 +1,7 @@
-From 8d7cc8a3c1b9a02a4f6b0e120302e3c10ae9c34a Mon Sep 17 00:00:00 2001
+From f6c41a08fcf64e6f129af1c2502285e9fd33cf38 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sat, 6 Mar 2021 00:23:00 +0200
-Subject: [PATCH] efi_loader: Replace config option for initrd loading
+Date: Sun, 14 Mar 2021 21:05:36 +0200
+Subject: [PATCH 1/1] efi_loader: Replace config option for initrd loading
 
 Up to now we install EFI_LOAD_FILE2_PROTOCOL to load an initrd
 unconditionally. Although we correctly return various EFI exit codes
@@ -33,13 +33,14 @@ A user will be able to control the kernel/initrd pairs without explicit
 cmdline args or GRUB.
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  cmd/bootefi.c                    |   3 +
  include/efi_loader.h             |   1 +
- lib/efi_loader/Kconfig           |  15 +--
- lib/efi_loader/efi_bootmgr.c     |   3 +
- lib/efi_loader/efi_load_initrd.c | 209 +++++++++++++++++++++----------
- 5 files changed, 152 insertions(+), 79 deletions(-)
+ lib/efi_loader/Kconfig           |  17 +--
+ lib/efi_loader/efi_bootmgr.c     |  19 ++-
+ lib/efi_loader/efi_load_initrd.c | 202 ++++++++++++++++++-------------
+ 5 files changed, 144 insertions(+), 98 deletions(-)
 
 diff --git a/cmd/bootefi.c b/cmd/bootefi.c
 index 271b385ede..cba81ffe75 100644
@@ -56,10 +57,10 @@ index 271b385ede..cba81ffe75 100644
  }
  
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index ea4b91ab2f..33812c1cfd 100644
+index 9c227005d1..903bf60bc0 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -439,6 +439,7 @@ efi_status_t efi_net_register(void);
+@@ -437,6 +437,7 @@ efi_status_t efi_net_register(void);
  /* Called by bootefi to make the watchdog available */
  efi_status_t efi_watchdog_register(void);
  efi_status_t efi_initrd_register(void);
@@ -68,13 +69,15 @@ index ea4b91ab2f..33812c1cfd 100644
  /**
   * efi_acpi_register() - write out ACPI tables
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index a96014ce18..f8716193a3 100644
+index 634d3b1ff4..0a412441a7 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -317,16 +317,11 @@ config EFI_LOAD_FILE2_INITRD
+@@ -315,18 +315,13 @@ config EFI_TCG2_PROTOCOL_EVENTLOG_SIZE
+ 
+ config EFI_LOAD_FILE2_INITRD
  	bool "EFI_FILE_LOAD2_PROTOCOL for Linux initial ramdisk"
- 	default n
- 	help
+-	default n
+-	help
 -	  Expose a EFI_FILE_LOAD2_PROTOCOL that the Linux UEFI stub can
 -	  use to load the initial ramdisk. Once this is enabled using
 -	  initrd=<ramdisk> will stop working.
@@ -83,45 +86,90 @@ index a96014ce18..f8716193a3 100644
 -	string "initramfs path"
 -	default "host 0:1 initrd"
 -	depends on EFI_LOAD_FILE2_INITRD
--	help
++	default y
+ 	help
 -	  Full path of the initramfs file, e.g. mmc 0:2 initramfs.cpio.gz.
-+		Linux v5.7 and later can make use of this option. If the boot option
-+		selected by the UEFI boot manager specifies an existing file to be used
-+		as initial RAM disk, a Linux specific Load File2 protocol will be
-+		installed and Linux 5.7+ will ignore any initrd=<ramdisk> command line
-+		argument.
++	  Linux v5.7 and later can make use of this option. If the boot option
++	  selected by the UEFI boot manager specifies an existing file to be used
++	  as initial RAM disk, a Linux specific Load File2 protocol will be
++	  installed and Linux 5.7+ will ignore any initrd=<ramdisk> command line
++	  argument.
  
  config EFI_SECURE_BOOT
  	bool "Enable EFI secure boot support"
 diff --git a/lib/efi_loader/efi_bootmgr.c b/lib/efi_loader/efi_bootmgr.c
-index 25f5cebfdb..d1baa8c71a 100644
+index 25f5cebfdb..46c8011344 100644
 --- a/lib/efi_loader/efi_bootmgr.c
 +++ b/lib/efi_loader/efi_bootmgr.c
-@@ -118,6 +118,9 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
+@@ -118,11 +118,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
  		ret = efi_set_variable_int(L"BootCurrent",
  					   &efi_global_variable_guid,
  					   attributes, sizeof(n), &n, false);
+-		if (ret != EFI_SUCCESS) {
+-			if (EFI_CALL(efi_unload_image(*handle))
+-			    != EFI_SUCCESS)
+-				log_err("Unloading image failed\n");
+-			goto error;
++		if (ret != EFI_SUCCESS)
++			goto unload;
 +		/* try to register load file2 for initrd's */
-+		if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD))
-+			ret |= efi_initrd_register();
- 		if (ret != EFI_SUCCESS) {
- 			if (EFI_CALL(efi_unload_image(*handle))
- 			    != EFI_SUCCESS)
++		if (IS_ENABLED(CONFIG_EFI_LOAD_FILE2_INITRD)) {
++			ret = efi_initrd_register();
++			if (ret != EFI_SUCCESS)
++				goto unload;
+ 		}
+ 
+ 		log_info("Booting: %ls\n", lo.label);
+@@ -146,6 +148,13 @@ static efi_status_t try_load_entry(u16 n, efi_handle_t *handle,
+ error:
+ 	free(load_option);
+ 
++	return ret;
++
++unload:
++	if (EFI_CALL(efi_unload_image(*handle)) != EFI_SUCCESS)
++		log_err("Unloading image failed\n");
++	free(load_option);
++
+ 	return ret;
+ }
+ 
 diff --git a/lib/efi_loader/efi_load_initrd.c b/lib/efi_loader/efi_load_initrd.c
-index b9ee883905..b11c5ee293 100644
+index b9ee883905..e2a8063023 100644
 --- a/lib/efi_loader/efi_load_initrd.c
 +++ b/lib/efi_loader/efi_load_initrd.c
-@@ -5,7 +5,9 @@
+@@ -3,9 +3,11 @@
+  * Copyright (c) 2020, Linaro Limited
+  */
  
++#define LOG_CATEGORY LOGC_EFI
  #include <common.h>
  #include <efi_loader.h>
-+#include <efi_helper.h>
  #include <efi_load_initrd.h>
 +#include <efi_variable.h>
  #include <fs.h>
  #include <malloc.h>
  #include <mapmem.h>
-@@ -39,41 +41,71 @@ static const struct efi_initrd_dp dp = {
+@@ -23,57 +25,56 @@ static const struct efi_load_file_protocol efi_lf2_protocol = {
+  * Device path defined by Linux to identify the handle providing the
+  * EFI_LOAD_FILE2_PROTOCOL used for loading the initial ramdisk.
+  */
+-static const struct efi_initrd_dp dp = {
++static const struct efi_initrd_dp dp_lf2_handle = {
+ 	.vendor = {
+ 		{
+ 		   DEVICE_PATH_TYPE_MEDIA_DEVICE,
+ 		   DEVICE_PATH_SUB_TYPE_VENDOR_PATH,
+-		   sizeof(dp.vendor),
++		   sizeof(dp_lf2_handle.vendor),
+ 		},
+ 		EFI_INITRD_MEDIA_GUID,
+ 	},
+ 	.end = {
+ 		DEVICE_PATH_TYPE_END,
+ 		DEVICE_PATH_SUB_TYPE_END,
+-		sizeof(dp.end),
++		sizeof(dp_lf2_handle.end),
  	}
  };
  
@@ -135,10 +183,10 @@ index b9ee883905..b11c5ee293 100644
 - * @part:			device partition, e.g. "0:1"
 - * @file:			name of file
 - * @status:			EFI exit code in case of failure
-+ * @initrd_fp:			the final initrd filepath
++ * @initrd_fp:	the final initrd filepath
   *
 - * Return:			size of file
-+ * Return:			status code
++ * Return:	status code. Caller must free initrd_fp
   */
 -static loff_t get_file_size(const char *dev, const char *part, const char *file,
 -			    efi_status_t *status)
@@ -146,16 +194,21 @@ index b9ee883905..b11c5ee293 100644
  {
 -	loff_t sz = 0;
 -	int ret;
-+	const efi_guid_t lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
-+	struct efi_device_path *cur = NULL;
-+	struct efi_device_path *dp = NULL;
-+	struct efi_device_path *tmp_dp;
-+	efi_uintn_t ret;
-+	efi_uintn_t size;
- 
+-
 -	ret = fs_set_blk_dev(dev, part, FS_TYPE_ANY);
 -	if (ret) {
 -		*status = EFI_NO_MEDIA;
+-		goto out;
+-	}
++	const efi_guid_t lf2_initrd_guid = EFI_INITRD_MEDIA_GUID;
++	struct efi_device_path *dp = NULL;
+ 
+-	ret = fs_size(file, &sz);
+-	if (ret) {
+-		sz = 0;
+-		*status = EFI_NOT_FOUND;
+-		goto out;
+-	}
 +	/*
 +	 * if bootmgr is setup with and initrd, the device path will be
 +	 * in the FilePathList[] of our load options in Boot####.
@@ -167,43 +220,13 @@ index b9ee883905..b11c5ee293 100644
 +	 * protocol, while allowing the boot to continue
 +	 */
 +	dp = efi_get_dp_from_boot(lf2_initrd_guid);
-+	if (!dp) {
-+		ret = EFI_INVALID_PARAMETER;
- 		goto out;
- 	}
++	if (!dp)
++		return EFI_INVALID_PARAMETER;
  
--	ret = fs_size(file, &sz);
--	if (ret) {
--		sz = 0;
--		*status = EFI_NOT_FOUND;
-+	tmp_dp = dp;
-+	cur = efi_dp_get_next_instance(&tmp_dp, &size);
-+	if (!cur) {
-+		ret = EFI_OUT_OF_RESOURCES;
- 		goto out;
- 	}
- 
-+	/*
-+	 * We don't care if the file path is eventually NULL here. The
-+	 * callers will try to load a file from it and eventually fail
-+	 * but let's be explicit with our return values
-+	 */
-+	if (!tmp_dp) {
-+		*initrd_fp = NULL;
-+		ret = EFI_NOT_FOUND;
-+	} else {
-+		*initrd_fp = efi_dp_dup(tmp_dp);
-+		if (*initrd_fp)
-+			ret = EFI_SUCCESS;
-+		else
-+			ret = EFI_OUT_OF_RESOURCES;
-+	}
-+
- out:
+-out:
 -	return sz;
-+	efi_free_pool(cur);
-+	efi_free_pool(dp);
-+	return ret;
++	*initrd_fp = dp;
++	return EFI_SUCCESS;
  }
  
  /**
@@ -212,7 +235,7 @@ index b9ee883905..b11c5ee293 100644
   *
   * This function implements the LoadFile service of the EFI_LOAD_FILE2_PROTOCOL
   * in order to load an initial RAM disk requested by the Linux kernel stub.
-@@ -93,98 +125,131 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
+@@ -93,102 +94,125 @@ efi_load_file2_initrd(struct efi_load_file_protocol *this,
  		      struct efi_device_path *file_path, bool boot_policy,
  		      efi_uintn_t *buffer_size, void *buffer)
  {
@@ -223,9 +246,8 @@ index b9ee883905..b11c5ee293 100644
 -	char *pos;
 -	int ret;
 +	struct efi_device_path *initrd_fp = NULL;
-+	struct efi_file_info *info = NULL;
 +	efi_status_t ret = EFI_NOT_FOUND;
-+	struct efi_file_handle *f;
++	struct efi_file_handle *f = NULL;
 +	efi_uintn_t bs;
  
  	EFI_ENTRY("%p, %p, %d, %p, %p", this, file_path, boot_policy,
@@ -243,9 +265,11 @@ index b9ee883905..b11c5ee293 100644
  		goto out;
  	}
  
- 	if (file_path->type != dp.end.type ||
- 	    file_path->sub_type != dp.end.sub_type) {
+-	if (file_path->type != dp.end.type ||
+-	    file_path->sub_type != dp.end.sub_type) {
 -		status = EFI_INVALID_PARAMETER;
++	if (file_path->type != dp_lf2_handle.end.type ||
++	    file_path->sub_type != dp_lf2_handle.end.sub_type) {
 +		ret = EFI_INVALID_PARAMETER;
  		goto out;
  	}
@@ -270,37 +294,28 @@ index b9ee883905..b11c5ee293 100644
  		goto out;
 -	part = strsep(&pos, " ");
 -	if (!part)
+-		goto out;
+-	file = strsep(&pos, " ");
+-	if (!file)
 +
 +	/* Open file */
 +	f = efi_file_from_path(initrd_fp);
 +	if (!f) {
++		log_err("Can't find initrd specified in Boot####\n");
 +		ret = EFI_NOT_FOUND;
- 		goto out;
--	file = strsep(&pos, " ");
--	if (!file)
-+	}
-+
-+	/* Get file size */
-+	bs = 0;
-+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid,
-+				  &bs, info));
-+	if (ret != EFI_BUFFER_TOO_SMALL) {
-+		ret = EFI_DEVICE_ERROR;
  		goto out;
 +	}
  
 -	file_sz = get_file_size(dev, part, file, &status);
 -	if (!file_sz)
-+	info = malloc(bs);
-+	EFI_CALL(ret = f->getinfo(f, (efi_guid_t *)&efi_file_info_guid, &bs,
-+				  info));
++	/* Get file size */
++	ret = efi_file_size(f, &bs);
 +	if (ret != EFI_SUCCESS)
  		goto out;
  
 -	if (!buffer || *buffer_size < file_sz) {
 -		status = EFI_BUFFER_TOO_SMALL;
 -		*buffer_size = file_sz;
-+	bs = info->file_size;
 +	if (!buffer || *buffer_size < bs) {
 +		ret = EFI_BUFFER_TOO_SMALL;
 +		*buffer_size = bs;
@@ -318,16 +333,14 @@ index b9ee883905..b11c5ee293 100644
 -		*buffer_size = read_sz;
 -
 -		status = EFI_SUCCESS;
-+		EFI_CALL(ret = f->read(f, &bs, (void *)(uintptr_t)buffer));
++		ret = EFI_CALL(f->read(f, &bs, (void *)(uintptr_t)buffer));
 +		*buffer_size = bs;
- 	}
- 
- out:
--	free(filespec);
--	return EFI_EXIT(status);
-+	free(info);
++	}
++
++out:
 +	efi_free_pool(initrd_fp);
-+	EFI_CALL(f->close(f));
++	if (f)
++		EFI_CALL(f->close(f));
 +	return EFI_EXIT(ret);
 +}
 +
@@ -353,13 +366,16 @@ index b9ee883905..b11c5ee293 100644
 +	 */
 +	f = efi_file_from_path(initrd_fp);
 +	if (!f) {
++		log_err("Can't find initrd specified in Boot####\n");
 +		ret = EFI_NOT_FOUND;
 +		goto out;
-+	}
-+
+ 	}
+ 
 +	EFI_CALL(f->close(f));
 +
-+out:
+ out:
+-	free(filespec);
+-	return EFI_EXIT(status);
 +	efi_free_pool(initrd_fp);
 +	return ret;
  }
@@ -394,16 +410,29 @@ index b9ee883905..b11c5ee293 100644
  	ret = EFI_CALL(efi_install_multiple_protocol_interfaces
  		       (&efi_initrd_handle,
  			/* initramfs */
-@@ -196,3 +261,9 @@ efi_status_t efi_initrd_register(void)
+-			&efi_guid_device_path, &dp,
++			&efi_guid_device_path, &dp_lf2_handle,
+ 			/* LOAD_FILE2 */
+ 			&efi_guid_load_file2_protocol,
+ 			(void *)&efi_lf2_protocol,
+@@ -196,3 +220,17 @@ efi_status_t efi_initrd_register(void)
  
  	return ret;
  }
 +
++/**
++ * efi_initrd_deregister() - delete the handle for loading initial RAM disk
++ *
++ * This will delete the handle containing the Linux specific vendor device
++ * path and EFI_LOAD_FILE2_PROTOCOL for loading an initrd
++ *
++ * Return:	status code
++ */
 +void efi_initrd_deregister(void)
 +{
 +	efi_delete_handle(efi_initrd_handle);
 +	efi_initrd_handle = NULL;
 +}
 -- 
-2.30.1
+2.30.2
 

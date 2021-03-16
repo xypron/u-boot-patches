@@ -1,9 +1,9 @@
-From 0f5c2734efa2e99b12d42286071a1ce972ffd13b Mon Sep 17 00:00:00 2001
+From 099bb116578a29fb58daf0c3781840d5c75f24c8 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sat, 6 Mar 2021 00:23:01 +0200
-Subject: [PATCH] efidebug: add multiple device path instances on Boot####
+Date: Sun, 14 Mar 2021 21:05:37 +0200
+Subject: [PATCH 1/1] efidebug: add multiple device path instances on Boot####
 
-The UEFI spec allow a packed array of UEFI device paths in the
+The UEFI spec allows a packed array of UEFI device paths in the
 FilePathList[] of an EFI_LOAD_OPTION. The first file path must
 describe the loaded image but the rest are OS specific.
 
@@ -21,22 +21,21 @@ Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
  test/py/tests/test_efi_secboot/test_signed.py |  16 +-
  .../test_efi_secboot/test_signed_intca.py     |   8 +-
  .../tests/test_efi_secboot/test_unsigned.py   |   8 +-
- 7 files changed, 179 insertions(+), 58 deletions(-)
+ 7 files changed, 178 insertions(+), 59 deletions(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 4bbc8f54c1..f50bfa3295 100644
+index 55c7abe3d0..456747777c 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
-@@ -9,6 +9,8 @@
+@@ -9,6 +9,7 @@
  #include <common.h>
  #include <command.h>
  #include <efi_dt_fixup.h>
-+#include <efi_helper.h>
 +#include <efi_load_initrd.h>
  #include <efi_loader.h>
  #include <efi_rng.h>
  #include <exports.h>
-@@ -19,6 +21,7 @@
+@@ -19,6 +20,7 @@
  #include <part.h>
  #include <search.h>
  #include <linux/ctype.h>
@@ -44,7 +43,7 @@ index 4bbc8f54c1..f50bfa3295 100644
  
  #define BS systab.boottime
  #define RT systab.runtime
-@@ -862,6 +865,65 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
+@@ -798,6 +800,64 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
  	return CMD_RET_SUCCESS;
  }
  
@@ -52,9 +51,11 @@ index 4bbc8f54c1..f50bfa3295 100644
 + * add_initrd_instance() - Append a device path to load_options pointing to an
 + *			   inirtd
 + *
-+ * @argc:	Number of arguments
-+ * @argv:	Argument array
-+ * @file_path	Existing device path, the new instance will be appended
++ * @dev:	Device
++ * @part:	Partition of thge disk
++ * @file:	Filename
++ * @fp:		Device Path containing the existing load_options
++ * @fp_size:	New size of the device path after the addition
 + * Return:	Pointer to the device path or ERR_PTR
 + *
 + */
@@ -89,13 +90,10 @@ index 4bbc8f54c1..f50bfa3295 100644
 +		goto out;
 +	}
 +
-+	initrd_dp =
-+		efi_dp_append_instance((const struct efi_device_path *)&id_dp,
-+				       tmp_fp);
-+	if (!initrd_dp) {
-+		printf("Cannot append media vendor device path path\n");
++	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
++				  tmp_fp);
++	if (!initrd_dp)
 +		goto out;
-+	}
 +	final_fp = efi_dp_concat(fp, initrd_dp);
 +	*fp_size = efi_dp_size(fp) + efi_dp_size(initrd_dp) +
 +		(2 * sizeof(struct efi_device_path));
@@ -104,13 +102,13 @@ index 4bbc8f54c1..f50bfa3295 100644
 +	efi_free_pool(initrd_dp);
 +	efi_free_pool(tmp_dp);
 +	efi_free_pool(tmp_fp);
-+	return final_fp ? final_fp : ERR_PTR(-EINVAL);
++	return final_fp;
 +}
 +
  /**
   * do_efi_boot_add() - set UEFI load option
   *
-@@ -874,7 +936,9 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
+@@ -810,7 +870,9 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
   *
   * Implement efidebug "boot add" sub-command. Create or change UEFI load option.
   *
@@ -121,7 +119,7 @@ index 4bbc8f54c1..f50bfa3295 100644
   */
  static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
  			   int argc, char *const argv[])
-@@ -887,55 +951,98 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
+@@ -823,55 +885,98 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
  	size_t label_len, label_len16;
  	u16 *label;
  	struct efi_device_path *device_path = NULL, *file_path = NULL;
@@ -193,7 +191,6 @@ index 4bbc8f54c1..f50bfa3295 100644
 +				       argv[3], argv[4]);
 +				r = CMD_RET_FAILURE;
 +				goto out;
-+			break;
 +			}
 +			fp_size = efi_dp_size(file_path) +
 +				sizeof(struct efi_device_path);
@@ -206,9 +203,10 @@ index 4bbc8f54c1..f50bfa3295 100644
 -	if (ret != EFI_SUCCESS) {
 -		printf("Cannot create device path for \"%s %s\"\n",
 -		       argv[3], argv[4]);
+-		r = CMD_RET_FAILURE;
 +	if (!file_path) {
-+		printf("You need to specify an image before an initrd.\n");
- 		r = CMD_RET_FAILURE;
++		printf("Missing binary\n");
++		r = CMD_RET_USAGE;
  		goto out;
  	}
 -	lo.file_path = file_path;
@@ -231,7 +229,8 @@ index 4bbc8f54c1..f50bfa3295 100644
 +			final_fp = add_initrd_instance(argv[i + 1], argv[i + 2],
 +						       argv[i + 3], file_path,
 +						       &fp_size);
-+			if (IS_ERR(final_fp)) {
++			if (!final_fp) {
++				printf("Cannot add an initrd\n");
 +				r = CMD_RET_FAILURE;
 +				goto out;
 +			}
@@ -253,7 +252,7 @@ index 4bbc8f54c1..f50bfa3295 100644
  
  	size = efi_serialize_load_option(&lo, (u8 **)&data);
  	if (!size) {
-@@ -1019,11 +1126,14 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
+@@ -955,11 +1060,14 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
   */
  static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
  {
@@ -268,7 +267,7 @@ index 4bbc8f54c1..f50bfa3295 100644
  
  	ret = efi_deserialize_load_option(&lo, data, size);
  	if (ret != EFI_SUCCESS) {
-@@ -1054,6 +1164,14 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
+@@ -990,6 +1098,14 @@ static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
  	printf("  file_path: %ls\n", dp_str);
  	efi_free_pool(dp_str);
  
@@ -283,7 +282,7 @@ index 4bbc8f54c1..f50bfa3295 100644
  	printf("  data:\n");
  	print_hex_dump("    ", DUMP_PREFIX_OFFSET, 16, 1,
  		       lo.optional_data, *size, true);
-@@ -1623,7 +1741,10 @@ static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
+@@ -1559,7 +1675,10 @@ static int do_efidebug(struct cmd_tbl *cmdtp, int flag,
  static char efidebug_help_text[] =
  	"  - UEFI Shell-like interface to configure UEFI environment\n"
  	"\n"
@@ -295,7 +294,7 @@ index 4bbc8f54c1..f50bfa3295 100644
  	"  - set UEFI BootXXXX variable\n"
  	"    <load options> will be passed to UEFI application\n"
  	"efidebug boot rm <bootid#1> [<bootid#2> [<bootid#3> [...]]]\n"
-@@ -1671,7 +1792,7 @@ static char efidebug_help_text[] =
+@@ -1603,7 +1722,7 @@ static char efidebug_help_text[] =
  #endif
  
  U_BOOT_CMD(
@@ -525,5 +524,5 @@ index 56f56e19eb..8e026f7566 100644
                  'bootefi bootmgr'])
              assert '\'HELLO\' failed' in ''.join(output)
 -- 
-2.30.1
+2.30.2
 
