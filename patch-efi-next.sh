@@ -91,16 +91,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
 # efi-2021-04-rc5
-git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
-git am ../patch/0001-efi_loader-fix-memory-type-for-memory-reservation-bl.patch
-git am ../patch/0001-efi_selftest-illegal-cast-to-pointer-in-initrddump.patch
-git am ../patch/0001-mkeficapsule-Correct-printf-strings.patch
-git am ../patch/0001-efi_selftest-Remove-loadfile2-for-initrd-selftests.patch
-
 git am ../patch/0001-efi_loader-NULL-dereference-in-EFI-console.patch
-
-git am ../patch/0001-efi-Fix-compiler-warnings.patch
-git am ../patch/0001-doc-move-README.dfu-to-HTML-documentation.patch
 
 exit
 
