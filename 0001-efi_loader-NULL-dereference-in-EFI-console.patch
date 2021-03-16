@@ -1,21 +1,21 @@
-From a73d419c115763c7e88556d1464d63ade38d110a Mon Sep 17 00:00:00 2001
+From e17463dea54048f0fe1e0609b50e9565e0774061 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 16 Mar 2021 12:56:57 +0100
-Subject: [PATCH 1/1] efi_loader: NULL dereference in EFI console
+Subject: [PATCH] efi_loader: NULL dereference in EFI console
 
-Even if CONFIG_DM_VIDEO=y and stdout="vidconsole" a video device may not be
-available. Check the return values of the relevant functions.
+Even if CONFIG_DM_VIDEO=y and stdout="vidconsole", a video device may not
+be available. Check the return values of the relevant functions.
 
 If no video output device is available, assume that the serial console is
 in use.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/efi_console.c | 50 ++++++++++++++++++++++++++----------
- 1 file changed, 37 insertions(+), 13 deletions(-)
+ lib/efi_loader/efi_console.c | 51 +++++++++++++++++++++++++++---------
+ 1 file changed, 38 insertions(+), 13 deletions(-)
 
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index c4003554c2..79b5c103fc 100644
+index c4003554c2..6040f3a99a 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -254,7 +254,7 @@ static bool cout_mode_matches(struct cout_mode *mode, int rows, int cols)
@@ -27,7 +27,7 @@ index c4003554c2..79b5c103fc 100644
   *
   * When using a serial console or the net console we can only devise the
   * terminal size by querying the terminal using ECMA-48 control sequences.
-@@ -299,6 +299,36 @@ out:
+@@ -299,6 +299,37 @@ out:
  	return ret;
  }
  
@@ -39,7 +39,8 @@ index c4003554c2..79b5c103fc 100644
 + * @cols:	pointer to return number of columns
 + * Returns:	0 on success
 + */
-+static int __maybe_unused query_vidconsole(int *rows, int *cols) {
++static int __maybe_unused query_vidconsole(int *rows, int *cols)
++{
 +	const char *stdout_name = env_get("stdout");
 +	struct stdio_dev *stdout_dev;
 +	struct udevice *dev;
@@ -64,7 +65,7 @@ index c4003554c2..79b5c103fc 100644
  /**
   * query_console_size() - update the mode table.
   *
-@@ -308,21 +338,15 @@ out:
+@@ -308,21 +339,15 @@ out:
   */
  static void query_console_size(void)
  {
@@ -93,5 +94,5 @@ index c4003554c2..79b5c103fc 100644
  	/* Test if we can have Mode 1 */
  	if (cols >= 80 && rows >= 50) {
 -- 
-2.30.1
+2.30.2
 
