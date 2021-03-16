@@ -19,7 +19,6 @@ git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
 git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
-git am ../patch/0001-doc-move-README.dfu-to-HTML-documentation.patch
 git am ../patch/0001-mtd-spi_flash_free.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
@@ -87,16 +86,22 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-# efi-2021-04-rc2
 
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
+# efi-2021-04-rc5
 git am ../patch/0001-efi_loader-disable-GRUB_ARM32_WORKAROUND-on-ARCH_SUN.patch
 git am ../patch/0001-efi_loader-fix-memory-type-for-memory-reservation-bl.patch
-
 git am ../patch/0001-efi_selftest-illegal-cast-to-pointer-in-initrddump.patch
+git am ../patch/0001-mkeficapsule-Correct-printf-strings.patch
 git am ../patch/0001-efi_selftest-Remove-loadfile2-for-initrd-selftests.patch
+
+git am ../patch/0001-efi_loader-NULL-dereference-in-EFI-console.patch
+
+git am ../patch/0001-efi-Fix-compiler-warnings.patch
+git am ../patch/0001-doc-move-README.dfu-to-HTML-documentation.patch
+
 exit
 
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
