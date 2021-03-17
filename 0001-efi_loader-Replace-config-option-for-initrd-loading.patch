@@ -1,7 +1,7 @@
-From f6c41a08fcf64e6f129af1c2502285e9fd33cf38 Mon Sep 17 00:00:00 2001
+From 1f1473a5563af751238f491b2a66db2ba5eaf4f1 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sun, 14 Mar 2021 21:05:36 +0200
-Subject: [PATCH 1/1] efi_loader: Replace config option for initrd loading
+Date: Wed, 17 Mar 2021 21:55:00 +0200
+Subject: [PATCH] efi_loader: Replace config option for initrd loading
 
 Up to now we install EFI_LOAD_FILE2_PROTOCOL to load an initrd
 unconditionally. Although we correctly return various EFI exit codes

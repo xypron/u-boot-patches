@@ -1,7 +1,7 @@
-From 38bab72cd8fe7674bdf93f8a0194383544bd2d34 Mon Sep 17 00:00:00 2001
+From 0a9f165233f23488e953aa67654913e6e9288bf1 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sun, 14 Mar 2021 21:05:38 +0200
-Subject: [PATCH 1/1] doc: Update uefi documentation for initrd loading options
+Date: Wed, 17 Mar 2021 21:55:02 +0200
+Subject: [PATCH] doc: Update uefi documentation for initrd loading options
 
 Document the command line options for efidebug and initrd loading
 

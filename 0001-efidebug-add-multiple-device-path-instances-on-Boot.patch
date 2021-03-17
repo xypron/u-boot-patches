@@ -1,7 +1,7 @@
-From 099bb116578a29fb58daf0c3781840d5c75f24c8 Mon Sep 17 00:00:00 2001
+From 1c66f37116d92f988e4e0b474d22d53807a0b5e1 Mon Sep 17 00:00:00 2001
 From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Date: Sun, 14 Mar 2021 21:05:37 +0200
-Subject: [PATCH 1/1] efidebug: add multiple device path instances on Boot####
+Date: Wed, 17 Mar 2021 21:55:01 +0200
+Subject: [PATCH] efidebug: add multiple device path instances on Boot####
 
 The UEFI spec allows a packed array of UEFI device paths in the
 FilePathList[] of an EFI_LOAD_OPTION. The first file path must
@@ -14,17 +14,17 @@ initrd device path.
 
 Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
- cmd/efidebug.c                                | 193 ++++++++++++++----
+ cmd/efidebug.c                                | 191 ++++++++++++++----
  doc/board/emulation/qemu_capsule_update.rst   |   4 +-
  doc/uefi/uefi.rst                             |   2 +-
  .../test_efi_capsule/test_capsule_firmware.py |   6 +-
  test/py/tests/test_efi_secboot/test_signed.py |  16 +-
  .../test_efi_secboot/test_signed_intca.py     |   8 +-
  .../tests/test_efi_secboot/test_unsigned.py   |   8 +-
- 7 files changed, 178 insertions(+), 59 deletions(-)
+ 7 files changed, 177 insertions(+), 58 deletions(-)
 
 diff --git a/cmd/efidebug.c b/cmd/efidebug.c
-index 55c7abe3d0..456747777c 100644
+index 55c7abe3d0..80ddd598e0 100644
 --- a/cmd/efidebug.c
 +++ b/cmd/efidebug.c
 @@ -9,6 +9,7 @@
@@ -43,30 +43,26 @@ index 55c7abe3d0..456747777c 100644
  
  #define BS systab.boottime
  #define RT systab.runtime
-@@ -798,6 +800,64 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
+@@ -798,6 +800,54 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
  	return CMD_RET_SUCCESS;
  }
  
 +/**
-+ * add_initrd_instance() - Append a device path to load_options pointing to an
-+ *			   inirtd
++ * create_initrd_dp() - Create a special device for our Boot### option
 + *
 + * @dev:	Device
-+ * @part:	Partition of thge disk
++ * @part:	Disk partition
 + * @file:	Filename
-+ * @fp:		Device Path containing the existing load_options
-+ * @fp_size:	New size of the device path after the addition
 + * Return:	Pointer to the device path or ERR_PTR
 + *
 + */
 +static
-+struct efi_device_path *add_initrd_instance(const char *dev, const char *part,
-+					    const char *file,
-+					    const struct efi_device_path *fp,
-+					    efi_uintn_t *fp_size)
++struct efi_device_path *create_initrd_dp(const char *dev, const char *part,
++					 const char *file)
++
 +{
 +	struct efi_device_path *tmp_dp = NULL, *tmp_fp = NULL;
-+	struct efi_device_path *final_fp = NULL, *initrd_dp = NULL;
++	struct efi_device_path *initrd_dp = NULL;
 +	efi_status_t ret;
 +	const struct efi_initrd_dp id_dp = {
 +		.vendor = {
@@ -92,23 +88,17 @@ index 55c7abe3d0..456747777c 100644
 +
 +	initrd_dp = efi_dp_append((const struct efi_device_path *)&id_dp,
 +				  tmp_fp);
-+	if (!initrd_dp)
-+		goto out;
-+	final_fp = efi_dp_concat(fp, initrd_dp);
-+	*fp_size = efi_dp_size(fp) + efi_dp_size(initrd_dp) +
-+		(2 * sizeof(struct efi_device_path));
 +
 +out:
-+	efi_free_pool(initrd_dp);
 +	efi_free_pool(tmp_dp);
 +	efi_free_pool(tmp_fp);
-+	return final_fp;
++	return initrd_dp;
 +}
 +
  /**
   * do_efi_boot_add() - set UEFI load option
   *
-@@ -810,7 +870,9 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
+@@ -810,7 +860,9 @@ static int do_efi_show_tables(struct cmd_tbl *cmdtp, int flag,
   *
   * Implement efidebug "boot add" sub-command. Create or change UEFI load option.
   *
@@ -119,18 +109,19 @@ index 55c7abe3d0..456747777c 100644
   */
  static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
  			   int argc, char *const argv[])
-@@ -823,55 +885,98 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
+@@ -823,55 +875,105 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
  	size_t label_len, label_len16;
  	u16 *label;
  	struct efi_device_path *device_path = NULL, *file_path = NULL;
 +	struct efi_device_path *final_fp = NULL;
++	struct efi_device_path *initrd_dp = NULL;
  	struct efi_load_option lo;
  	void *data = NULL;
  	efi_uintn_t size;
-+	efi_uintn_t fp_size;
++	efi_uintn_t fp_size = 0;
  	efi_status_t ret;
  	int r = CMD_RET_SUCCESS;
--
+ 
 -	if (argc < 6 || argc > 7)
 -		return CMD_RET_USAGE;
 -
@@ -141,8 +132,7 @@ index 55c7abe3d0..456747777c 100644
 -	sprintf(var_name, "Boot%04X", id);
 -	p = var_name16;
 -	utf8_utf16_strncpy(&p, var_name, 9);
-+	int i;
- 
+-
  	guid = efi_global_variable_guid;
  
  	/* attributes */
@@ -158,14 +148,15 @@ index 55c7abe3d0..456747777c 100644
 -		return CMD_RET_FAILURE;
 -	lo.label = label; /* label will be changed below */
 -	utf8_utf16_strncpy(&label, argv[2], label_len);
-+	/* search for -b first since the rest of the arguments depends on that */
-+	for (i = 0; i < argc; i++) {
-+		if (!strcmp(argv[i], "-b")) {
-+			if (argc < i + 5 || lo.label) {
++	argc--;
++	argv++; /* 'add' */
++	for (; argc > 0; argc--, argv++) {
++		if (!strcmp(argv[0], "-b")) {
++			if (argc <  5 || lo.label) {
 +				r = CMD_RET_USAGE;
 +				goto out;
 +			}
-+			id = (int)simple_strtoul(argv[i + 1], &endp, 16);
++			id = (int)simple_strtoul(argv[1], &endp, 16);
 +			if (*endp != '\0' || id > 0xffff)
 +				return CMD_RET_USAGE;
 +
@@ -174,28 +165,32 @@ index 55c7abe3d0..456747777c 100644
 +			utf8_utf16_strncpy(&p, var_name, 9);
 +
 +			/* label */
-+			label_len = strlen(argv[i + 2]);
-+			label_len16 = utf8_utf16_strnlen(argv[i + 2], label_len);
++			label_len = strlen(argv[2]);
++			label_len16 = utf8_utf16_strnlen(argv[2], label_len);
 +			label = malloc((label_len16 + 1) * sizeof(u16));
 +			if (!label)
 +				return CMD_RET_FAILURE;
 +			lo.label = label; /* label will be changed below */
-+			utf8_utf16_strncpy(&label, argv[i + 2], label_len);
++			utf8_utf16_strncpy(&label, argv[2], label_len);
 +
 +			/* file path */
-+			ret = efi_dp_from_name(argv[i + 3], argv[i + 4],
-+					       argv[i + 5], &device_path,
-+					       &file_path);
++			ret = efi_dp_from_name(argv[3], argv[4], argv[5],
++					       &device_path, &file_path);
 +			if (ret != EFI_SUCCESS) {
 +				printf("Cannot create device path for \"%s %s\"\n",
 +				       argv[3], argv[4]);
 +				r = CMD_RET_FAILURE;
 +				goto out;
 +			}
-+			fp_size = efi_dp_size(file_path) +
++			fp_size += efi_dp_size(file_path) +
 +				sizeof(struct efi_device_path);
-+		}
-+	}
++			argc -= 5;
++			argv += 5;
++		} else if (!strcmp(argv[0], "-i")) {
++			if (argc < 3 || initrd_dp) {
++				r = CMD_RET_USAGE;
++				goto out;
++			}
  
 -	/* file path */
 -	ret = efi_dp_from_name(argv[3], argv[4], argv[5], &device_path,
@@ -203,10 +198,40 @@ index 55c7abe3d0..456747777c 100644
 -	if (ret != EFI_SUCCESS) {
 -		printf("Cannot create device path for \"%s %s\"\n",
 -		       argv[3], argv[4]);
--		r = CMD_RET_FAILURE;
++			initrd_dp = create_initrd_dp(argv[1], argv[2], argv[3]);
++			if (!initrd_dp) {
++				printf("Cannot add an initrd\n");
++				r = CMD_RET_FAILURE;
++				goto out;
++			}
++			argc -= 3;
++			argv += 3;
++			fp_size += efi_dp_size(initrd_dp) +
++				sizeof(struct efi_device_path);
++		} else if (!strcmp(argv[0], "-s")) {
++			if (argc < 1 || lo.optional_data) {
++				r = CMD_RET_USAGE;
++				goto out;
++			}
++			lo.optional_data = (const u8 *)argv[1];
++			argc -= 1;
++			argv += 1;
++		} else {
++			r = CMD_RET_USAGE;
++			goto out;
++		}
++	}
++
 +	if (!file_path) {
 +		printf("Missing binary\n");
 +		r = CMD_RET_USAGE;
++		goto out;
++	}
++
++	final_fp = efi_dp_concat(file_path, initrd_dp);
++	if (!final_fp) {
++		printf("Cannot create final device path\n");
+ 		r = CMD_RET_FAILURE;
  		goto out;
  	}
 -	lo.file_path = file_path;
@@ -218,40 +243,23 @@ index 55c7abe3d0..456747777c 100644
 -		lo.optional_data = NULL;
 -	else
 -		lo.optional_data = (const u8 *)argv[6];
-+	/* add now add initrd and extra data */
-+	for (i = 0; i < argc; i++) {
-+		if (!strcmp(argv[i], "-i")) {
-+			if (argc < i + 3 || final_fp) {
-+				r = CMD_RET_USAGE;
-+				goto out;
-+			}
-+
-+			final_fp = add_initrd_instance(argv[i + 1], argv[i + 2],
-+						       argv[i + 3], file_path,
-+						       &fp_size);
-+			if (!final_fp) {
-+				printf("Cannot add an initrd\n");
-+				r = CMD_RET_FAILURE;
-+				goto out;
-+			}
-+
-+			/* add_initrd_instance allocates a new device path */
-+			efi_free_pool(file_path);
-+			file_path = final_fp;
-+		} else if (!strcmp(argv[i], "-s")) {
-+			if (argc < i + 1 || lo.optional_data) {
-+				r = CMD_RET_USAGE;
-+				goto out;
-+			}
-+			lo.optional_data = (const u8 *)argv[i + 1];
-+		}
-+	}
-+
-+	lo.file_path = file_path;
++	lo.file_path = final_fp;
 +	lo.file_path_length = fp_size;
  
  	size = efi_serialize_load_option(&lo, (u8 **)&data);
  	if (!size) {
+@@ -888,8 +990,11 @@ static int do_efi_boot_add(struct cmd_tbl *cmdtp, int flag,
+ 		printf("Cannot set %ls\n", var_name16);
+ 		r = CMD_RET_FAILURE;
+ 	}
++
+ out:
+ 	free(data);
++	efi_free_pool(final_fp);
++	efi_free_pool(initrd_dp);
+ 	efi_free_pool(device_path);
+ 	efi_free_pool(file_path);
+ 	free(lo.label);
 @@ -955,11 +1060,14 @@ static int do_efi_boot_rm(struct cmd_tbl *cmdtp, int flag,
   */
  static void show_efi_boot_opt_data(u16 *varname16, void *data, size_t *size)
