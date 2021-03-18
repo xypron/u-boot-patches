@@ -97,7 +97,6 @@ git am ../patch/0001-efi_loader-NULL-dereference-in-EFI-console.patch
 exit
 
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
-git am ../patch/0001-dfu-memory-leak-in-dfu_free_entities.patch
 git am ../patch/0001-dfu-dfu_sf-avoid-double-free-of-SPI-device.patch
 git am ../patch/0001-efi-Add-ESRT-to-the-EFI-system-table.patch
 git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
