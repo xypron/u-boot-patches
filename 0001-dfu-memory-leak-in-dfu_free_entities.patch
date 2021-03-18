@@ -1,0 +1,35 @@
+From 11b85ef516c604408b5fbfef479a83734a247776 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 18 Mar 2021 07:56:18 +0100
+Subject: [PATCH 1/1] dfu: memory leak in dfu_free_entities()
+
+We must free all entries that we remove from the list not just one to avoid
+a memory leak.
+
+With list_for_each_entry_safe_reverse() it is safe to delete the current
+entry as it provides a second pointer for the next entry.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/dfu/dfu.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/dfu/dfu.c b/drivers/dfu/dfu.c
+index 213a20e7bc..f307c9015f 100644
+--- a/drivers/dfu/dfu.c
++++ b/drivers/dfu/dfu.c
+@@ -535,10 +535,8 @@ void dfu_free_entities(void)
+ 		list_del(&dfu->list);
+ 		if (dfu->free_entity)
+ 			dfu->free_entity(dfu);
+-		t = dfu;
++		free(dfu);
+ 	}
+-	if (t)
+-		free(t);
+ 	INIT_LIST_HEAD(&dfu_list);
+ 
+ 	alt_num_cnt = 0;
+-- 
+2.30.2
+
