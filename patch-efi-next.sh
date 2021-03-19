@@ -93,7 +93,9 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-04-rc5
 git am ../patch/0001-efi_loader-NULL-dereference-in-EFI-console.patch
+
 git am ../patch/0001-efi_loader-Uart-device-path.patch
+git am ../patch/0001-cmd-load-support-uploading-EFI-binary-via-UART.patch
 
 exit
 

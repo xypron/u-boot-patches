@@ -1,0 +1,51 @@
+From 5239e0a5afc8f9df1bb9d79497222053523a5b49 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 19 Mar 2021 02:50:57 +0000
+Subject: [PATCH 1/1] cmd/load: support uploading EFI binary via UART
+
+When uploading an EFI binary via the UART we have to call
+efi_set_bootdev() or we won't be able to execute it.
+
+Put the includes into alphabetic order.
+
+Fixes: 5f59518a7b1a ("efi_loader: setting boot device")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/load.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/cmd/load.c b/cmd/load.c
+index 5bbc39baea..b7894d7db0 100644
+--- a/cmd/load.c
++++ b/cmd/load.c
+@@ -11,12 +11,14 @@
+ #include <command.h>
+ #include <console.h>
+ #include <cpu_func.h>
++#include <efi_loader.h>
+ #include <env.h>
++#include <exports.h>
+ #include <flash.h>
+ #include <image.h>
+-#include <s_record.h>
++#include <mapmem.h>
+ #include <net.h>
+-#include <exports.h>
++#include <s_record.h>
+ #include <serial.h>
+ #include <xyzModem.h>
+ #include <asm/cache.h>
+@@ -996,6 +998,10 @@ static ulong load_serial_ymodem(ulong offset, int mode)
+ 			}
+ 
+ 		}
++		if (IS_ENABLED(CONFIG_CMD_BOOTEFI))
++			efi_set_bootdev("Uart", "", "",
++					map_sysmem(offset, 0), size);
++
+ 	} else {
+ 		printf("%s\n", xyzModem_error(err));
+ 	}
+-- 
+2.30.2
+
