@@ -23,6 +23,7 @@ git am ../patch/0001-mtd-spi_flash_free.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
+git am ../patch/0001-riscv-assembler-versions-of-memcpy-memmove-memset.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
