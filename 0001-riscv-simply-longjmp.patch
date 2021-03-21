@@ -1,0 +1,37 @@
+From e00bb50949d8080ec28f7e1ea573ed0426bf058a Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 21 Mar 2021 10:37:59 +0100
+Subject: [PATCH 1/1] riscv: simply longjmp
+
+The value returned by setjmp must be nonzero. If zero is passed as
+parameter it must be replaced by 1.
+
+This patch reduces the code size a bit.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/riscv/lib/setjmp.S | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/lib/setjmp.S b/arch/riscv/lib/setjmp.S
+index 72bc9241f6..99d6195827 100644
+--- a/arch/riscv/lib/setjmp.S
++++ b/arch/riscv/lib/setjmp.S
+@@ -54,12 +54,8 @@ ENTRY(longjmp)
+ 	LOAD_IDX(sp, 13)
+ 
+ 	/* Move the return value in place, but return 1 if passed 0. */
+-	beq a1, zero, longjmp_1
+-	mv a0, a1
+-	ret
+-
+-	longjmp_1:
+-	li a0, 1
++	seqz a0, a1
++	add a0, a0, a1
+ 	ret
+ ENDPROC(longjmp)
+ .popsection
+-- 
+2.30.2
+
