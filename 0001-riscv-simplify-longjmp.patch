@@ -1,7 +1,7 @@
-From 3bd2e7acce4db38f88ac47069dca28e43867ba63 Mon Sep 17 00:00:00 2001
+From c1f3b117396ab1e384963f658b0831f98c2b33c9 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 21 Mar 2021 10:37:59 +0100
-Subject: [PATCH 1/1] riscv: simply longjmp
+Subject: [PATCH] riscv: simplify longjmp
 
 The value returned by setjmp must be nonzero. If zero is passed as
 parameter it must be replaced by 1.
@@ -10,6 +10,7 @@ This patch reduces the code size a bit.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Sean Anderson <seanga2@gmail.com>
+Reviewed-by: Leo Yu-Chi Liang <ycliang@andestech.com>
 ---
  arch/riscv/lib/setjmp.S | 8 ++------
  1 file changed, 2 insertions(+), 6 deletions(-)

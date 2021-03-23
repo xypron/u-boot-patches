@@ -24,7 +24,7 @@ git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
 git am ../patch/0001-riscv-assembler-versions-of-memcpy-memmove-memset.patch
-git am ../patch/0001-riscv-simply-longjmp.patch
+git am ../patch/0001-riscv-simplify-longjmp.patch
 git am ../patch/0001-test-unit-test-for-longjmp.patch
 
 # Odroid HC4

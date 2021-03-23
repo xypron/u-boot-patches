@@ -6,6 +6,7 @@ Subject: [PATCH] test: unit test for longjmp
 Provide a unit test for the longjmp() library function
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Sean Anderson <seanga2@gmail.com>
 ---
  test/lib/Makefile  |  1 +
  test/lib/longjmp.c | 73 ++++++++++++++++++++++++++++++++++++++++++++++
