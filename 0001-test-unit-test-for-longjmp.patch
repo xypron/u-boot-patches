@@ -1,7 +1,7 @@
-From 2c290208a63bced6507eba2ff3b46d9aed06523f Mon Sep 17 00:00:00 2001
+From e6a17d4f0b79ec016a916ed40f283ba9c2c9727d Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 21 Mar 2021 11:05:05 +0100
-Subject: [PATCH] test: unit test for longjmp
+Subject: [PATCH 1/1] test: unit test for longjmp
 
 Provide a unit test for the longjmp() library function
 
@@ -27,7 +27,7 @@ index 97c11e35a8..a30f615aa9 100644
  obj-y += string.o
 diff --git a/test/lib/longjmp.c b/test/lib/longjmp.c
 new file mode 100644
-index 0000000000..302621e201
+index 0000000000..3b0f941573
 --- /dev/null
 +++ b/test/lib/longjmp.c
 @@ -0,0 +1,73 @@
@@ -76,7 +76,7 @@ index 0000000000..302621e201
 + * We return the XORed values to allow simply check both at once.
 + *
 + * @i:		value passed to longjmp()
-+ * Return:	values return byby longjmp()
++ * Return:	values return by longjmp()
 + */
 +static int test_setjmp(int i)
 +{
