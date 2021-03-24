@@ -1,4 +1,4 @@
-From e6a17d4f0b79ec016a916ed40f283ba9c2c9727d Mon Sep 17 00:00:00 2001
+From 81c7dd446b6f33b5a9899294834cf89aa69612e2 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 21 Mar 2021 11:05:05 +0100
 Subject: [PATCH 1/1] test: unit test for longjmp
@@ -7,10 +7,11 @@ Provide a unit test for the longjmp() library function
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Acked-by: Sean Anderson <seanga2@gmail.com>
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/lib/Makefile  |  1 +
- test/lib/longjmp.c | 73 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 74 insertions(+)
+ test/lib/longjmp.c | 77 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+)
  create mode 100644 test/lib/longjmp.c
 
 diff --git a/test/lib/Makefile b/test/lib/Makefile
@@ -27,10 +28,10 @@ index 97c11e35a8..a30f615aa9 100644
  obj-y += string.o
 diff --git a/test/lib/longjmp.c b/test/lib/longjmp.c
 new file mode 100644
-index 0000000000..3b0f941573
+index 0000000000..d95e06307c
 --- /dev/null
 +++ b/test/lib/longjmp.c
-@@ -0,0 +1,73 @@
+@@ -0,0 +1,77 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Test setjmp(), longjmp()
@@ -46,7 +47,7 @@ index 0000000000..3b0f941573
 +
 +struct test_jmp_buf {
 +	jmp_buf env;
-+	int val;
++	volatile int val;
 +};
 +
 +/**
@@ -80,6 +81,10 @@ index 0000000000..3b0f941573
 + */
 +static int test_setjmp(int i)
 +{
++	/*
++	 * Auto-variables changed between setjmp() and longjmp() must be
++	 * static or volatile. Otherwise the result is undefined.
++	 */
 +	struct test_jmp_buf env;
 +	int ret;
 +
