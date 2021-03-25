@@ -96,6 +96,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # efi-2021-04-rc5
 git am ../patch/0001-efi_selfest-redefine-enum-efi_test_phase.patch
+git am ../patch/0001-efi_loader-update-system-table-in-SetVirtualAddressM.patch
 exit
 
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
