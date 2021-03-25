@@ -1,12 +1,10 @@
-From 81c7dd446b6f33b5a9899294834cf89aa69612e2 Mon Sep 17 00:00:00 2001
+From 498c86ddde7311fe813dd8d4fea81066b214c79c Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 21 Mar 2021 11:05:05 +0100
 Subject: [PATCH 1/1] test: unit test for longjmp
 
 Provide a unit test for the longjmp() library function
 
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Acked-by: Sean Anderson <seanga2@gmail.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  test/lib/Makefile  |  1 +
@@ -28,7 +26,7 @@ index 97c11e35a8..a30f615aa9 100644
  obj-y += string.o
 diff --git a/test/lib/longjmp.c b/test/lib/longjmp.c
 new file mode 100644
-index 0000000000..d95e06307c
+index 0000000000..bd1fe1aff6
 --- /dev/null
 +++ b/test/lib/longjmp.c
 @@ -0,0 +1,77 @@
@@ -47,6 +45,10 @@ index 0000000000..d95e06307c
 +
 +struct test_jmp_buf {
 +	jmp_buf env;
++	/*
++	 * Auto-variables changed between setjmp() and longjmp() must be
++	 * static or volatile. Otherwise the result is undefined.
++	 */
 +	volatile int val;
 +};
 +
@@ -81,10 +83,6 @@ index 0000000000..d95e06307c
 + */
 +static int test_setjmp(int i)
 +{
-+	/*
-+	 * Auto-variables changed between setjmp() and longjmp() must be
-+	 * static or volatile. Otherwise the result is undefined.
-+	 */
 +	struct test_jmp_buf env;
 +	int ret;
 +
