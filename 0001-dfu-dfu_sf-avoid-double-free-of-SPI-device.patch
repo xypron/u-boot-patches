@@ -9,6 +9,7 @@ the SPI device is only freed once.
 When using the driver model it is not necessary to free the SPI device.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Lukasz Majewski <lukma@denx.de>
 ---
  drivers/dfu/dfu_sf.c | 18 +++++++++++++++++-
  1 file changed, 17 insertions(+), 1 deletion(-)

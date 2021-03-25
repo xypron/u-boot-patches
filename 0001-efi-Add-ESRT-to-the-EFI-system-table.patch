@@ -119,9 +119,9 @@ index 68daa1a4a9..719aa90490 100644
 +efi_status_t EFIAPI efi_register_protocol_notify(const efi_guid_t *protocol,
 +						 struct efi_event *event,
 +						 void **registration);
- /**
-  * efi_size_in_pages() - convert size in bytes to size in pages
-  *
+ efi_status_t efi_file_size(struct efi_file_handle *fh, efi_uintn_t *size);
+ 
+ /* get a device path from a Boot#### option */
 @@ -890,4 +896,22 @@ static inline efi_status_t efi_launch_capsules(void)
  
  #endif /* CONFIG_IS_ENABLED(EFI_LOADER) */
