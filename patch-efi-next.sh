@@ -17,8 +17,6 @@ git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
-git am ../patch/0001-dm-error-handling-dev_get_dma_range.patch
-git am ../patch/0001-disk-part-partitions-are-not-legacy.patch
 git am ../patch/0001-mtd-spi_flash_free.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
@@ -76,11 +74,7 @@ git am ../patch/0001-video-support-colors-in-truetype-console.patch
 git am ../patch/0001-video-fix-positioning-in-TrueType-console.patch
 git am ../patch/0001-video-buffer-overrun-in-TrueType-console.patch
 
-git am ../patch/0001-sandbox-allow-cross-compiling-sandbox.patch
-git am ../patch/0001-sandbox-enable-cros-ec-keyb-in-test.dtb.patch
-
 # git am ../patch/0001-env-fix-env-select.patch
-git am ../patch/0001-sandbox-add-FAT-to-the-list-of-usable-env-drivers.patch
 
 # FTRACE: is the patch needed?
 git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
@@ -90,30 +84,13 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
 
-
 # git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
 # efi-2021-04-rc5
-git am ../patch/0001-efi_selfest-redefine-enum-efi_test_phase.patch
-git am ../patch/0001-efi_loader-update-system-table-in-SetVirtualAddressM.patch
-exit
+#git am ../patch/0001-efi_loader-update-system-table-in-SetVirtualAddressM.patch
 
-git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
-git am ../patch/0001-dfu-dfu_sf-avoid-double-free-of-SPI-device.patch
-git am ../patch/0001-efi-Add-ESRT-to-the-EFI-system-table.patch
-git am ../patch/0001-cmd-efi-ESRT-table-debug-print.patch
-git am ../patch/0001-efi-ESRT-creation-tests.patch
-git am ../patch/0001-test-test-the-ESRT-creation.patch
-
-exit
-
-# initrd
-git am ../patch/0001-efi_loader-Add-device-path-related-functions-for-ini.patch
-git am ../patch/0001-efi_loader-Add-helper-functions-for-EFI.patch
-git am ../patch/0001-efi_loader-Replace-config-option-for-initrd-loading.patch
-git am ../patch/0001-efidebug-add-multiple-device-path-instances-on-Boot.patch
-git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
+#git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
 
 exit
 git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch

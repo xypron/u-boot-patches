@@ -152,12 +152,12 @@ diff --git a/common/Makefile b/common/Makefile
 index daeea67cf2..27ea952085 100644
 --- a/common/Makefile
 +++ b/common/Makefile
-@@ -137,3 +137,5 @@ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
+@@ -137,4 +137,5 @@ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
  obj-$(CONFIG_$(SPL_TPL_)YMODEM_SUPPORT) += xyzModem.o
  
  obj-$(CONFIG_AVB_VERIFY) += avb_verify.o
 +obj-$(CONFIG_$(SPL_TPL_)STACKPROTECTOR) += stackprot.o
-+
+ obj-$(CONFIG_SCP03) += scp03.o
 diff --git a/common/stackprot.c b/common/stackprot.c
 new file mode 100644
 index 0000000000..d5b7061665
@@ -226,7 +226,7 @@ new file mode 100644
 index 0000000000..7aeec5e919
 --- /dev/null
 +++ b/test/py/tests/test_stackprotector.py
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,14 @@
 +# SPDX-License-Identifier: GPL-2.0
 +# Copyright (c) 2021 Broadcom
 +
@@ -241,7 +241,6 @@ index 0000000000..7aeec5e919
 +    expected_response = 'Stack smashing detected'
 +    u_boot_console.wait_for(expected_response)
 +    u_boot_console.restart_uboot()
-+
 -- 
 2.30.2
 
