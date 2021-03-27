@@ -6,14 +6,9 @@ set -e
 # Various fixes
 # git am ../patch/0001-cmd-add-el-command.patch
 git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
-git am ../patch/0001-usb-avoid-Werror-address-of-packed-member.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-net-designware-speed-should-be-in-a-debug-message.patch
-git am ../patch/0001-sunxi-Pine64-LTS-SMBIOS-properties.patch
-git am ../patch/0001-configs-meson-enlarge-SYS_MALLOC_F_LEN.patch
-git am ../patch/0001-Makefile-consistent-include-path-for-out-of-tree-bui.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch

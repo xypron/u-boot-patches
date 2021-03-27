@@ -1,12 +1,13 @@
 From f8c1d835a9816f4925c65e127401de9de0313011 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 20 Mar 2021 09:25:03 +0100
-Subject: [PATCH 1/1] riscv: assembler versions of memcpy, memmove, memset
+Subject: [PATCH v2 1/1] riscv: assembler versions of memcpy, memmove, memset
 
 Provide optimized versions of memcpy(), memmove(), memset() copied from
 the Linux kernel.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Leo Yu-Chi Liang <ycliang@andestech.com>
 ---
  arch/riscv/Kconfig              |  78 ++++++++++++++++++++++
  arch/riscv/include/asm/string.h |  36 +++++-----
@@ -161,14 +162,13 @@ diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
 index 12c14f2019..1c1500f5b3 100644
 --- a/arch/riscv/lib/Makefile
 +++ b/arch/riscv/lib/Makefile
-@@ -36,3 +36,8 @@ CFLAGS_REMOVE_$(EFI_RELOC) := $(CFLAGS_NON_EFI)
+@@ -36,3 +36,7 @@ CFLAGS_REMOVE_$(EFI_RELOC) := $(CFLAGS_NON_EFI)
  extra-$(CONFIG_CMD_BOOTEFI_HELLO_COMPILE) += $(EFI_CRT0) $(EFI_RELOC)
  extra-$(CONFIG_CMD_BOOTEFI_SELFTEST) += $(EFI_CRT0) $(EFI_RELOC)
  extra-$(CONFIG_EFI) += $(EFI_CRT0) $(EFI_RELOC)
 +
 +obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMSET) += memset.o
 +obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMMOVE) += memmove.o
-+obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
 +obj-$(CONFIG_$(SPL_TPL_)USE_ARCH_MEMCPY) += memcpy.o
 diff --git a/arch/riscv/lib/memcpy.S b/arch/riscv/lib/memcpy.S
 new file mode 100644

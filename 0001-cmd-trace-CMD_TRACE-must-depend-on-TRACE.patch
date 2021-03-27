@@ -7,7 +7,6 @@ Compiling cmd/trace.c fails if lib/trace.c is not compiled. So CMD_TRACE
 must depend on TRACE.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  cmd/Kconfig | 2 ++
  lib/Kconfig | 1 -
