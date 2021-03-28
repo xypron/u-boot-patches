@@ -8,7 +8,11 @@ EFI, HOST, VIRTIO.
 
 Avoid duplicate code by calling blk_get_if_type_name().
 
+The interface type now will be shown in lower case to match all other use
+cases.
+
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  fs/fat/fat.c | 36 ++----------------------------------
  1 file changed, 2 insertions(+), 34 deletions(-)
