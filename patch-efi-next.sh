@@ -20,6 +20,7 @@ git am ../patch/0001-riscv-assembler-versions-of-memcpy-memmove-memset.patch
 git am ../patch/0001-riscv-simplify-longjmp.patch
 git am ../patch/0001-test-unit-test-for-longjmp.patch
 git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
+git am ../patch/0001-sandbox-document-parameters-of-os_realloc.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
