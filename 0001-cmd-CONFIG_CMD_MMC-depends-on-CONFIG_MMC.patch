@@ -13,6 +13,7 @@ cmd/mmc.c:873: undefined reference to `find_mmc_device'
 Add missing dependency.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  cmd/Kconfig | 1 +
  1 file changed, 1 insertion(+)
