@@ -1,0 +1,33 @@
+From 348f9317e8167672d4de7dcfb84bd7d4b2432219 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 28 Mar 2021 11:57:31 +0200
+Subject: [PATCH 1/1] efi_loader: documentation codepage_437[]
+
+Variables cannot be documented via kernel-doc. Avoid 'make htmldocs' build
+warning
+
+    ./include/charset.h:19: warning:
+    cannot understand function prototype: 'const u16 codepage_437[128]; '
+
+Fixes: 70616a1ed8c7 ("efi_loader: move codepage 437 table")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/charset.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/charset.h b/include/charset.h
+index a911160f19..b93d023092 100644
+--- a/include/charset.h
++++ b/include/charset.h
+@@ -13,7 +13,7 @@
+ 
+ #define MAX_UTF8_PER_UTF16 3
+ 
+-/**
++/*
+  * codepage_437 - Unicode to codepage 437 translation table
+  */
+ extern const u16 codepage_437[128];
+-- 
+2.30.2
+
