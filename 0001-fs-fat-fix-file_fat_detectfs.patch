@@ -1,4 +1,4 @@
-From cc6dcd0378764a0dc8e3817667d40ee1833b1cff Mon Sep 17 00:00:00 2001
+From 0a58bb02e341fd7027ccb3313dbdd22f351ea940 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 25 Jan 2021 12:53:14 +0100
 Subject: [PATCH 1/1] fs: fat: fix file_fat_detectfs()
@@ -14,14 +14,14 @@ cases.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
- fs/fat/fat.c | 36 +++---------------------------------
- 1 file changed, 3 insertions(+), 33 deletions(-)
+ fs/fat/fat.c | 38 ++++----------------------------------
+ 1 file changed, 4 insertions(+), 34 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index ccba268f61..b2a168ee06 100644
+index ccba268f61..c561d82b35 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1147,39 +1147,9 @@ int file_fat_detectfs(void)
+@@ -1147,42 +1147,12 @@ int file_fat_detectfs(void)
  		return 1;
  	}
  
@@ -55,15 +55,19 @@ index ccba268f61..b2a168ee06 100644
 -		break;
 -	default:
 -		printf("Unknown");
--	}
--
--	printf("\n  Device %d: ", cur_dev->devnum);
-+#ifdef CONFIG_HAVE_BLOCK_DEVICE
-+	printf("Interface:  %s\n", blk_get_if_type_name(cur_dev->if_type));
-+	printf("  Device %d: ", cur_dev->devnum);
- 	dev_print(cur_dev);
- #endif
++	if (IS_ENABLED(CONFIG_HAVE_BLOCK_DEVICE)) {
++		printf("Interface:  %s\n", blk_get_if_type_name(cur_dev->if_type));
++		printf("  Device %d: ", cur_dev->devnum);
++		dev_print(cur_dev);
+ 	}
  
+-	printf("\n  Device %d: ", cur_dev->devnum);
+-	dev_print(cur_dev);
+-#endif
+-
+ 	if (read_bootsectandvi(&bs, &volinfo, &fatsize)) {
+ 		printf("\nNo valid FAT fs found\n");
+ 		return 1;
 -- 
 2.30.2
 
