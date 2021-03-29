@@ -14,6 +14,7 @@ Add missing dependency.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
 ---
  cmd/Kconfig | 1 +
  1 file changed, 1 insertion(+)

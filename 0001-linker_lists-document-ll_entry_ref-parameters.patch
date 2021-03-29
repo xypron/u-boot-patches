@@ -14,6 +14,7 @@ Avoid 'make htmldocs' build warnings:
 
 Fixes: 851144350b6f ("linker_lists: Allow use in data structures")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  include/linker_lists.h | 4 ++++
  1 file changed, 4 insertions(+)

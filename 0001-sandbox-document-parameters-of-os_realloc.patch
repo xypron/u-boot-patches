@@ -12,6 +12,7 @@ Avoid 'make htmldocs' build warnings:
 
 Fixes: 14e46dfb176b ("sandbox: Add os_realloc()")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  include/os.h | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
