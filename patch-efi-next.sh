@@ -83,6 +83,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 git am ../patch/0001-efi_loader-typo-devide-path.patch
 git am ../patch/0001-efi_loader-Uart-device-path-missing-break.patch
 
+git am ../patch/0001-efi_loader-rework-efi_console_register.patch
 git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch

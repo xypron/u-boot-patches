@@ -1,0 +1,135 @@
+From c3b5bff5631e29e7fc627a2489ddfa8f21449e58 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 31 Mar 2021 12:58:43 +0200
+Subject: [PATCH] efi_loader: rework efi_console_register()
+
+* Use InstallMultipleProtocolInterfaces() to simplify the code.
+* Use console handle for the Uart device path.
+* Use logging for errors.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/efi_loader.h         |  1 +
+ lib/efi_loader/efi_console.c | 59 +++++++++++++++++-------------------
+ 2 files changed, 28 insertions(+), 32 deletions(-)
+
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 68daa1a4a9..d764fc91ca 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -641,6 +641,7 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
+ bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
+ 
+ struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
++struct efi_device_path *efi_dp_from_uart(void);
+ /* Create a device node for a block device partition. */
+ struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
+ struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
+diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
+index 6040f3a99a..28cf66b778 100644
+--- a/lib/efi_loader/efi_console.c
++++ b/lib/efi_loader/efi_console.c
+@@ -5,6 +5,8 @@
+  *  Copyright (c) 2016 Alexander Graf
+  */
+ 
++#define LOG_CATEGORY LOGC_EFI
++
+ #include <common.h>
+ #include <charset.h>
+ #include <malloc.h>
+@@ -12,6 +14,7 @@
+ #include <dm/device.h>
+ #include <efi_loader.h>
+ #include <env.h>
++#include <log.h>
+ #include <stdio_dev.h>
+ #include <video_console.h>
+ #include <linux/delay.h>
+@@ -1258,43 +1261,38 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+ efi_status_t efi_console_register(void)
+ {
+ 	efi_status_t r;
+-	efi_handle_t console_output_handle;
+-	efi_handle_t console_input_handle;
++	efi_handle_t console_handle = NULL;
++	struct efi_device_path __maybe_unused *dp_uart;
+ 
+ 	/* Set up mode information */
+ 	query_console_size();
+ 
+-	/* Create handles */
+-	r = efi_create_handle(&console_output_handle);
+-	if (r != EFI_SUCCESS)
+-		goto out_of_memory;
+-
+-	r = efi_add_protocol(console_output_handle,
+-			     &efi_guid_text_output_protocol, &efi_con_out);
+-	if (r != EFI_SUCCESS)
+-		goto out_of_memory;
+-	systab.con_out_handle = console_output_handle;
+-	systab.stderr_handle = console_output_handle;
+-
+-	r = efi_create_handle(&console_input_handle);
+-	if (r != EFI_SUCCESS)
+-		goto out_of_memory;
++	/* Create handle */
++	if (IS_ENABLED(CONFIG_DM_SERIAL))
++		dp_uart = efi_dp_from_uart();
++	r = EFI_CALL(efi_install_multiple_protocol_interfaces(
++			&console_handle,
++			&efi_guid_text_output_protocol, &efi_con_out,
++			&efi_guid_text_input_protocol, &efi_con_in,
++			&efi_guid_text_input_ex_protocol, &efi_con_in_ex,
++#ifdef CONFIG_DM_SERIAL
++			&efi_guid_device_path, (void *)dp_uart,
++#endif
++			NULL));
++	if (r != EFI_SUCCESS) {
++		log_err("Failed to create console handle\n");
++		return r;
++	}
+ 
+-	r = efi_add_protocol(console_input_handle,
+-			     &efi_guid_text_input_protocol, &efi_con_in);
+-	if (r != EFI_SUCCESS)
+-		goto out_of_memory;
+-	systab.con_in_handle = console_input_handle;
+-	r = efi_add_protocol(console_input_handle,
+-			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
+-	if (r != EFI_SUCCESS)
+-		goto out_of_memory;
++	systab.con_out_handle = console_handle;
++	systab.stderr_handle = console_handle;
++	systab.con_in_handle = console_handle;
+ 
+ 	/* Create console events */
+ 	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
+ 			     NULL, NULL, &efi_con_in.wait_for_key);
+ 	if (r != EFI_SUCCESS) {
+-		printf("ERROR: Failed to register WaitForKey event\n");
++		log_err("Failed to register WaitForKey event\n");
+ 		return r;
+ 	}
+ 	efi_con_in_ex.wait_for_key_ex = efi_con_in.wait_for_key;
+@@ -1302,15 +1300,12 @@ efi_status_t efi_console_register(void)
+ 			     efi_console_timer_notify, NULL, NULL,
+ 			     &console_timer_event);
+ 	if (r != EFI_SUCCESS) {
+-		printf("ERROR: Failed to register console event\n");
++		log_err("Failed to register console event\n");
+ 		return r;
+ 	}
+ 	/* 5000 ns cycle is sufficient for 2 MBaud */
+ 	r = efi_set_timer(console_timer_event, EFI_TIMER_PERIODIC, 50);
+ 	if (r != EFI_SUCCESS)
+-		printf("ERROR: Failed to set console timer\n");
+-	return r;
+-out_of_memory:
+-	printf("ERROR: Out of memory\n");
++		log_err("Failed to set console timer\n");
+ 	return r;
+ }
+-- 
+2.31.0
+
