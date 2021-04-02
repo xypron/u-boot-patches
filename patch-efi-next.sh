@@ -80,9 +80,6 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-git am ../patch/0001-efi_loader-typo-devide-path.patch
-git am ../patch/0001-efi_loader-Uart-device-path-missing-break.patch
-
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
 git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
