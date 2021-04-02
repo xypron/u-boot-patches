@@ -1,7 +1,7 @@
-From c3b5bff5631e29e7fc627a2489ddfa8f21449e58 Mon Sep 17 00:00:00 2001
+From da39dac898473f96d389e07a423c3ed2bbe5faf3 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 31 Mar 2021 12:58:43 +0200
-Subject: [PATCH] efi_loader: rework efi_console_register()
+Subject: [PATCH 1/1] efi_loader: rework efi_console_register()
 
 * Use InstallMultipleProtocolInterfaces() to simplify the code.
 * Use console handle for the Uart device path.
@@ -9,15 +9,24 @@ Subject: [PATCH] efi_loader: rework efi_console_register()
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- include/efi_loader.h         |  1 +
+ include/efi_loader.h         |  3 ++
  lib/efi_loader/efi_console.c | 59 +++++++++++++++++-------------------
- 2 files changed, 28 insertions(+), 32 deletions(-)
+ 2 files changed, 30 insertions(+), 32 deletions(-)
 
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 68daa1a4a9..d764fc91ca 100644
+index 6edb2ee9af..02f02e97c4 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
-@@ -641,6 +641,7 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
+@@ -55,6 +55,8 @@ static inline void *guidcpy(void *dst, const void *src)
+ 
+ /* Root node */
+ extern efi_handle_t efi_root;
++/* UART handle */
++extern efi_handle_t efi_uart;
+ 
+ /* Set to EFI_SUCCESS when initialized */
+ extern efi_status_t efi_obj_list_initialized;
+@@ -653,6 +655,7 @@ struct efi_device_path *efi_dp_get_next_instance(struct efi_device_path **dp,
  bool efi_dp_is_multi_instance(const struct efi_device_path *dp);
  
  struct efi_device_path *efi_dp_from_part(struct blk_desc *desc, int part);
@@ -26,7 +35,7 @@ index 68daa1a4a9..d764fc91ca 100644
  struct efi_device_path *efi_dp_part_node(struct blk_desc *desc, int part);
  struct efi_device_path *efi_dp_from_file(struct blk_desc *desc, int part,
 diff --git a/lib/efi_loader/efi_console.c b/lib/efi_loader/efi_console.c
-index 6040f3a99a..28cf66b778 100644
+index 6040f3a99a..2446a0134a 100644
 --- a/lib/efi_loader/efi_console.c
 +++ b/lib/efi_loader/efi_console.c
 @@ -5,6 +5,8 @@
@@ -46,13 +55,20 @@ index 6040f3a99a..28cf66b778 100644
  #include <stdio_dev.h>
  #include <video_console.h>
  #include <linux/delay.h>
-@@ -1258,43 +1261,38 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
+@@ -52,6 +55,7 @@ const efi_guid_t efi_guid_text_input_protocol =
+ 			EFI_SIMPLE_TEXT_INPUT_PROTOCOL_GUID;
+ const efi_guid_t efi_guid_text_output_protocol =
+ 			EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL_GUID;
++efi_handle_t efi_uart;
+ 
+ #define cESC '\x1b'
+ #define ESC "\x1b"
+@@ -1258,43 +1262,37 @@ static void EFIAPI efi_key_notify(struct efi_event *event, void *context)
  efi_status_t efi_console_register(void)
  {
  	efi_status_t r;
 -	efi_handle_t console_output_handle;
 -	efi_handle_t console_input_handle;
-+	efi_handle_t console_handle = NULL;
 +	struct efi_device_path __maybe_unused *dp_uart;
  
  	/* Set up mode information */
@@ -74,10 +90,10 @@ index 6040f3a99a..28cf66b778 100644
 -	if (r != EFI_SUCCESS)
 -		goto out_of_memory;
 +	/* Create handle */
-+	if (IS_ENABLED(CONFIG_DM_SERIAL))
++	if (IS_ENABLED(CONFIG_SERIAL_PRESENT))
 +		dp_uart = efi_dp_from_uart();
 +	r = EFI_CALL(efi_install_multiple_protocol_interfaces(
-+			&console_handle,
++			&efi_uart,
 +			&efi_guid_text_output_protocol, &efi_con_out,
 +			&efi_guid_text_input_protocol, &efi_con_in,
 +			&efi_guid_text_input_ex_protocol, &efi_con_in_ex,
@@ -99,9 +115,9 @@ index 6040f3a99a..28cf66b778 100644
 -			     &efi_guid_text_input_ex_protocol, &efi_con_in_ex);
 -	if (r != EFI_SUCCESS)
 -		goto out_of_memory;
-+	systab.con_out_handle = console_handle;
-+	systab.stderr_handle = console_handle;
-+	systab.con_in_handle = console_handle;
++	systab.con_out_handle = efi_uart;
++	systab.stderr_handle = efi_uart;
++	systab.con_in_handle = efi_uart;
  
  	/* Create console events */
  	r = efi_create_event(EVT_NOTIFY_WAIT, TPL_CALLBACK, efi_key_notify,
@@ -131,5 +147,5 @@ index 6040f3a99a..28cf66b778 100644
  	return r;
  }
 -- 
-2.31.0
+2.30.2
 
