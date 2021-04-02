@@ -7,6 +7,7 @@ Version 0.9 of OpenSBI provides the system reset extension which allows us
 to reset and power off boards without board specific code.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
 ---
  .azure-pipelines.yml | 8 ++++----
  .gitlab-ci.yml       | 8 ++++----
