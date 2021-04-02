@@ -89,6 +89,7 @@ git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
 git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
 git am ../patch/0001-efi_loader-improve-documentation-of-enum-efi_test_ph.patch
 git am ../patch/0001-efi_loader-documentation-codepage_437.patch
+git am ../patch/0001-efi_loader-EFI_UNACCEPTED_MEMORY_TYPE.patch
 
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
