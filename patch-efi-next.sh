@@ -24,6 +24,7 @@ git am ../patch/0001-sandbox-document-parameters-of-os_realloc.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-Azure-GitLab-bump-OpenSBI-version-to-0.9.patch
 git am ../patch/0001-cmd-CMD_USB-depends-on-USB.patch
+git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch

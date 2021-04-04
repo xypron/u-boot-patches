@@ -1,0 +1,39 @@
+From 59bbb34ec0c5244f93eae8e7cd3803281671aa73 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 5 Apr 2021 01:39:50 +0200
+Subject: [RFC 1/1] tegra: video: fix tegra_dc_sor_config_panel()
+
+Bitwise OR has a higher operator precedence than the ternary conditional.
+Add the missing parentheses.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+I don't have a Tegra system. But the current U-Boot code seems to be
+incorrect. 2 << CSTM_ROTCLK_SHIFT | is_lvds is always true with and
+without the shift.
+
+Best regards
+
+Heinrich
+---
+ drivers/video/tegra124/sor.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/video/tegra124/sor.c b/drivers/video/tegra124/sor.c
+index 95976ee573..ef1a2e6dc0 100644
+--- a/drivers/video/tegra124/sor.c
++++ b/drivers/video/tegra124/sor.c
+@@ -671,8 +671,8 @@ static void tegra_dc_sor_config_panel(struct tegra_dc_sor_data *sor,
+ 			      CSTM_ROTCLK_DEFAULT_MASK |
+ 			      CSTM_LVDS_EN_ENABLE,
+ 			      2 << CSTM_ROTCLK_SHIFT |
+-			      is_lvds ? CSTM_LVDS_EN_ENABLE :
+-			      CSTM_LVDS_EN_DISABLE);
++			      (is_lvds ? CSTM_LVDS_EN_ENABLE :
++			      CSTM_LVDS_EN_DISABLE));
+ 
+ 	 tegra_dc_sor_config_pwm(sor, 1024, 1024);
+ }
+-- 
+2.30.2
+
