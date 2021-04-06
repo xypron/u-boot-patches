@@ -12,7 +12,6 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
-git am ../patch/0001-mtd-spi_flash_free.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
@@ -23,7 +22,6 @@ git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
 git am ../patch/0001-sandbox-document-parameters-of-os_realloc.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-Azure-GitLab-bump-OpenSBI-version-to-0.9.patch
-git am ../patch/0001-cmd-CMD_USB-depends-on-USB.patch
 git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 
 # Odroid HC4
