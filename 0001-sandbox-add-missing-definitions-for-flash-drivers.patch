@@ -43,14 +43,12 @@ diff --git a/include/configs/sandbox.h b/include/configs/sandbox.h
 index 0353a19c97..de27d47d1e 100644
 --- a/include/configs/sandbox.h
 +++ b/include/configs/sandbox.h
-@@ -133,6 +133,8 @@
+@@ -133,4 +133,6 @@
  
  #define CONFIG_SYS_SATA_MAX_DEVICE	2
  
 +#define CONFIG_SYS_MAX_FLASH_BANKS	2
 +
- #define CONFIG_MISC_INIT_F
- 
  #endif
 -- 
 2.27.0
