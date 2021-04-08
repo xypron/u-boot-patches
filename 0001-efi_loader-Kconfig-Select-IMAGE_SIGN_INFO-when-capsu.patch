@@ -8,6 +8,7 @@ Enable building of the crypto helper functions used during capsule
 authentication by selecting IMAGE_SIGN_INFO.
 
 Signed-off-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Reviewed-by: Simon Glass <sjg@chromium.org>
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/Kconfig | 1 +
