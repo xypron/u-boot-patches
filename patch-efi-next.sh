@@ -81,6 +81,11 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
+git am ../patch/0001-efi_loader-efi_esrt-Fix-the-build-warning-for-32-bit.patch
+git am ../patch/0001-efi_loader-use-correct-printf-codes.patch
+git am ../patch/0001-efi_loader-esrt-wrong-type-for-LocateHandleBuffer.patch
+git am ../patch/0001-efi_loader-Kconfig-Select-IMAGE_SIGN_INFO-when-capsu.patch
+
 git am ../patch/0001-efi_loader-simplify-efi_get_device_path_text.patch
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
 git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch

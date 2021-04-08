@@ -1,0 +1,28 @@
+From 858ec16533858c6112b6dfde638ed1f98bb05653 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 8 Apr 2021 09:15:52 +0200
+Subject: [PATCH 1/1] efi_loader: esrt: wrong type for LocateHandleBuffer()
+
+efi_locate_handle_buffer() expects no_handles to be of type efi_uintn_t *.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_esrt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_esrt.c b/lib/efi_loader/efi_esrt.c
+index a750164bc4..40f53260e4 100644
+--- a/lib/efi_loader/efi_esrt.c
++++ b/lib/efi_loader/efi_esrt.c
+@@ -316,7 +316,7 @@ efi_status_t efi_esrt_populate(void)
+ {
+ 	efi_handle_t *base_handle = NULL;
+ 	efi_handle_t *it_handle;
+-	size_t no_handles = 0;
++	efi_uintn_t no_handles = 0;
+ 	struct efi_firmware_management_protocol *fmp;
+ 	efi_status_t ret;
+ 	u32 num_entries = 0;
+-- 
+2.30.2
+
