@@ -1,0 +1,28 @@
+From f55a6f211c381f23242526be9b005e68be0f83c2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 10 Apr 2021 20:07:54 +0200
+Subject: [PATCH 1/1] board: toradex: apalis-imx8x: fix build warning
+
+The length of an underline must match the length of the header.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/board/toradex/apalix-imx8x.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/board/toradex/apalix-imx8x.rst b/doc/board/toradex/apalix-imx8x.rst
+index efa7e0c72e..e62578b152 100644
+--- a/doc/board/toradex/apalix-imx8x.rst
++++ b/doc/board/toradex/apalix-imx8x.rst
+@@ -1,7 +1,7 @@
+ .. SPDX-License-Identifier: GPL-2.0+
+ 
+ Apalis iMX8X V1.1A Module (SoC NXP i.MX8QXP RevB)
+-==========================
++=================================================
+ 
+ Quick Start
+ -----------
+-- 
+2.30.2
+
