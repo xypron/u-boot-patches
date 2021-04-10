@@ -14,12 +14,7 @@ git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
-git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
-git am ../patch/0001-riscv-assembler-versions-of-memcpy-memmove-memset.patch
-git am ../patch/0001-riscv-simplify-longjmp.patch
-git am ../patch/0001-test-unit-test-for-longjmp.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
-git am ../patch/0001-Azure-GitLab-bump-OpenSBI-version-to-0.9.patch
 git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
 
@@ -43,7 +38,6 @@ git am ../patch/0001-fs-fat-carve-out-fat_create_dir_entry.patch
 
 # Kendryte
 git am ../patch/0001-timer-dw-apb-fix-compiler-warnings.patch
-git am ../patch/0001-configs-EXT4-FAT-hush-shell-env-on-S-mode-MAIX.patch
 
 git am ../patch/0001-risv-add-missing-SBI-extension-definitions.patch
 git am ../patch/0001-cmd-sbi-use-constants-instead-of-numerical-values.patch
@@ -98,7 +92,6 @@ git am ../patch/0001-efi_loader-use-correct-printf-codes.patch
 git am ../patch/0001-efi_loader-esrt-wrong-type-for-LocateHandleBuffer.patch
 git am ../patch/0001-tools-mkeficapsule-improve-online-help.patch
 git am ../patch/0001-efi_loader-Change-ptr-arithmetics-tcg-eventlog-buffe.patch
-git am ../patch/0001-Add-support-for-stack-protector.patch
 
 git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
 exit
