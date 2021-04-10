@@ -97,8 +97,10 @@ git am ../patch/0001-efi_loader-efi_esrt-Fix-the-build-warning-for-32-bit.patch
 git am ../patch/0001-efi_loader-use-correct-printf-codes.patch
 git am ../patch/0001-efi_loader-esrt-wrong-type-for-LocateHandleBuffer.patch
 git am ../patch/0001-tools-mkeficapsule-improve-online-help.patch
+git am ../patch/0001-efi_loader-Change-ptr-arithmetics-tcg-eventlog-buffe.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 
+git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
