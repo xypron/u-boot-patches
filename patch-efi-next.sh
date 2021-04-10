@@ -19,6 +19,7 @@ git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
 git am ../patch/0001-board-toradex-apalis-imx8x-fix-build-warning.patch
 git am ../patch/0001-doc-imx-psb-Footnote-not-referenced.patch
+git am ../patch/0001-doc-duplicate-target-youtube.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
