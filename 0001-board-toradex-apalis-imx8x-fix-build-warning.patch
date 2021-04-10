@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] board: toradex: apalis-imx8x: fix build warning
 The length of an underline must match the length of the header.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 ---
  doc/board/toradex/apalix-imx8x.rst | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
