@@ -1,4 +1,4 @@
-From 2ec53c2a3ef4cea9219121300db81d35be4ad0c8 Mon Sep 17 00:00:00 2001
+From 23906851e2d71b0f690d4c9544fdbca88acc0eb4 Mon Sep 17 00:00:00 2001
 From: Joel Peshkin <joel.peshkin@broadcom.com>
 Date: Mon, 8 Feb 2021 19:36:07 -0800
 Subject: [PATCH 1/1] Add support for stack-protector
@@ -7,12 +7,16 @@ Add support for stack protector for UBOOT, SPL, and TPL
 as well as new pytest for stackprotector
 
 Signed-off-by: Joel Peshkin <joel.peshkin@broadcom.com>
-Remove DECLARE_GLOBAL_DATA_PTR in cmd/stackprot_test.c.
+
+Fix build errors.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS                          |  7 +++++++
  Makefile                             |  5 +++++
- cmd/Kconfig                          | 10 ++++++++++
+ arch/arm/config.mk                   |  3 ++-
+ arch/riscv/lib/Makefile              |  1 +
+ arch/x86/config.mk                   |  1 +
+ cmd/Kconfig                          |  9 +++++++++
  cmd/Makefile                         |  1 +
  cmd/stackprot_test.c                 | 19 +++++++++++++++++++
  common/Kconfig                       | 17 +++++++++++++++++
@@ -21,7 +25,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  configs/sandbox_defconfig            |  2 ++
  scripts/Makefile.spl                 |  6 ++++++
  test/py/tests/test_stackprotector.py | 14 ++++++++++++++
- 11 files changed, 102 insertions(+)
+ 14 files changed, 105 insertions(+), 1 deletion(-)
  create mode 100644 cmd/stackprot_test.c
  create mode 100644 common/stackprot.c
  create mode 100644 test/py/tests/test_stackprotector.py
@@ -61,11 +65,49 @@ index 193aa4d1c9..30565255b5 100644
  KBUILD_CFLAGS += $(call cc-option,-fno-delete-null-pointer-checks)
  
  # disable stringop warnings in gcc 8+
+diff --git a/arch/arm/config.mk b/arch/arm/config.mk
+index 4153f7e371..e79f0104b9 100644
+--- a/arch/arm/config.mk
++++ b/arch/arm/config.mk
+@@ -11,7 +11,8 @@ CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
+ endif
+ endif
+ 
+-CFLAGS_NON_EFI := -fno-pic -ffixed-r9 -ffunction-sections -fdata-sections
++CFLAGS_NON_EFI := -fno-pic -ffixed-r9 -ffunction-sections -fdata-sections \
++		  -fstack-protector-strong
+ CFLAGS_EFI := -fpic -fshort-wchar
+ 
+ LDFLAGS_FINAL += --gc-sections
+diff --git a/arch/riscv/lib/Makefile b/arch/riscv/lib/Makefile
+index ff0677aa96..d08cbe9b79 100644
+--- a/arch/riscv/lib/Makefile
++++ b/arch/riscv/lib/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_SPL_BUILD)	+= spl.o
+ obj-y   += fdt_fixup.o
+ 
+ # For building EFI apps
++CFLAGS_NON_EFI := -fstack-protector-strong
+ CFLAGS_$(EFI_CRT0) := $(CFLAGS_EFI)
+ CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
+ 
+diff --git a/arch/x86/config.mk b/arch/x86/config.mk
+index 27d8412661..a3c5797f10 100644
+--- a/arch/x86/config.mk
++++ b/arch/x86/config.mk
+@@ -43,6 +43,7 @@ ifeq ($(IS_32BIT),y)
+ CFLAGS_NON_EFI := -mregparm=3
+ endif
+ CFLAGS_EFI := -fpic -fshort-wchar
++CFLAGS_NON_EFI += -mregparm=3 -fstack-protector-strong
+ 
+ ifeq ($(CONFIG_EFI_STUB_64BIT),)
+ CFLAGS_EFI += $(call cc-option, -mno-red-zone)
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index c735e81b37..97d2d4aa99 100644
+index c735e81b37..420c1f0f94 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -2324,6 +2324,16 @@ config CMD_AVB
+@@ -2324,6 +2324,15 @@ config CMD_AVB
  	    avb read_part_hex - read data from partition and output to stdout
  	    avb write_part - write data to partition
  	    avb verify - run full verification chain
@@ -73,7 +115,6 @@ index c735e81b37..97d2d4aa99 100644
 +config CMD_STACKPROTECTOR_TEST
 +	bool "Test command for stack protector"
 +	depends on STACKPROTECTOR
-+	default n
 +	help
 +	  Enable stackprot_test command
 +	  The stackprot_test command will force a stack overrun to test
