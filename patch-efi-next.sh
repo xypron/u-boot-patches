@@ -18,7 +18,6 @@ git am ../patch/0001-imx6-icorem6-chmod-644-enigcam.bmp.patch
 git am ../patch/0001-riscv-assembler-versions-of-memcpy-memmove-memset.patch
 git am ../patch/0001-riscv-simplify-longjmp.patch
 git am ../patch/0001-test-unit-test-for-longjmp.patch
-git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-Azure-GitLab-bump-OpenSBI-version-to-0.9.patch
 git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
@@ -82,6 +81,16 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
+git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
+git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch
+git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
+git am ../patch/0001-efi_loader-improve-documentation-of-enum-efi_test_ph.patch
+git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
+git am ../patch/0001-efi_loader-documentation-codepage_437.patch
+git am ../patch/0001-doc-Add-build-instructions-for-OP-TEE-backed-EFI-var.patch
+
+
+
 git am ../patch/0001-efi_loader-efi_esrt-Fix-the-build-warning-for-32-bit.patch
 git am ../patch/0001-efi_loader-use-correct-printf-codes.patch
 git am ../patch/0001-efi_loader-esrt-wrong-type-for-LocateHandleBuffer.patch
@@ -90,11 +99,6 @@ git am ../patch/0001-tools-mkeficapsule-improve-online-help.patch
 
 git am ../patch/0001-efi_loader-simplify-efi_get_device_path_text.patch
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
-git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch
-git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
-git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
-git am ../patch/0001-efi_loader-improve-documentation-of-enum-efi_test_ph.patch
-git am ../patch/0001-efi_loader-documentation-codepage_437.patch
 git am ../patch/0001-efi_loader-EFI_UNACCEPTED_MEMORY_TYPE.patch
 
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
