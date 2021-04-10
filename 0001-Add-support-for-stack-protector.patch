@@ -1,4 +1,4 @@
-From e8daa080dbfc8d24acfe4142e1147450e2d0dfef Mon Sep 17 00:00:00 2001
+From 2ec53c2a3ef4cea9219121300db81d35be4ad0c8 Mon Sep 17 00:00:00 2001
 From: Joel Peshkin <joel.peshkin@broadcom.com>
 Date: Mon, 8 Feb 2021 19:36:07 -0800
 Subject: [PATCH 1/1] Add support for stack-protector
@@ -7,20 +7,21 @@ Add support for stack protector for UBOOT, SPL, and TPL
 as well as new pytest for stackprotector
 
 Signed-off-by: Joel Peshkin <joel.peshkin@broadcom.com>
+Remove DECLARE_GLOBAL_DATA_PTR in cmd/stackprot_test.c.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  MAINTAINERS                          |  7 +++++++
  Makefile                             |  5 +++++
  cmd/Kconfig                          | 10 ++++++++++
  cmd/Makefile                         |  1 +
- cmd/stackprot_test.c                 | 21 +++++++++++++++++++++
+ cmd/stackprot_test.c                 | 19 +++++++++++++++++++
  common/Kconfig                       | 17 +++++++++++++++++
- common/Makefile                      |  2 ++
+ common/Makefile                      |  1 +
  common/stackprot.c                   | 20 ++++++++++++++++++++
  configs/sandbox_defconfig            |  2 ++
  scripts/Makefile.spl                 |  6 ++++++
- test/py/tests/test_stackprotector.py | 15 +++++++++++++++
- 11 files changed, 106 insertions(+)
+ test/py/tests/test_stackprotector.py | 14 ++++++++++++++
+ 11 files changed, 102 insertions(+)
  create mode 100644 cmd/stackprot_test.c
  create mode 100644 common/stackprot.c
  create mode 100644 test/py/tests/test_stackprotector.py
@@ -44,10 +45,10 @@ index c6dd9bf838..2d267aeff2 100644
  M:	Bharat Gooty <bharat.gooty@broadcom.com>
  M:	Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 diff --git a/Makefile b/Makefile
-index 3ebb38b113..a831c386fb 100644
+index 193aa4d1c9..30565255b5 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -677,7 +677,12 @@ else
+@@ -676,7 +676,12 @@ else
  KBUILD_CFLAGS	+= -O2
  endif
  
@@ -61,10 +62,10 @@ index 3ebb38b113..a831c386fb 100644
  
  # disable stringop warnings in gcc 8+
 diff --git a/cmd/Kconfig b/cmd/Kconfig
-index eff238cb38..7599febb71 100644
+index c735e81b37..97d2d4aa99 100644
 --- a/cmd/Kconfig
 +++ b/cmd/Kconfig
-@@ -2305,6 +2305,16 @@ config CMD_AVB
+@@ -2324,6 +2324,16 @@ config CMD_AVB
  	    avb read_part_hex - read data from partition and output to stdout
  	    avb write_part - write data to partition
  	    avb verify - run full verification chain
@@ -82,7 +83,7 @@ index eff238cb38..7599febb71 100644
  
  config CMD_UBI
 diff --git a/cmd/Makefile b/cmd/Makefile
-index 567e2b79d2..8bce4f4346 100644
+index e606ac4e8c..4977fa15f4 100644
 --- a/cmd/Makefile
 +++ b/cmd/Makefile
 @@ -144,6 +144,7 @@ obj-$(CONFIG_CMD_SPI) += spi.o
@@ -95,10 +96,10 @@ index 567e2b79d2..8bce4f4346 100644
  obj-$(CONFIG_CMD_TIMER) += timer.o
 diff --git a/cmd/stackprot_test.c b/cmd/stackprot_test.c
 new file mode 100644
-index 0000000000..6ad287e55f
+index 0000000000..36f5bac8d2
 --- /dev/null
 +++ b/cmd/stackprot_test.c
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,19 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + *  Copyright 2021 Broadcom
@@ -106,8 +107,6 @@ index 0000000000..6ad287e55f
 +
 +#include <common.h>
 +#include <command.h>
-+
-+DECLARE_GLOBAL_DATA_PTR;
 +
 +static int do_test_stackprot_fail(struct cmd_tbl *cmdtp, int flag, int argc,
 +				  char *const argv[])
@@ -121,10 +120,10 @@ index 0000000000..6ad287e55f
 +U_BOOT_CMD(stackprot_test, 1, 1, do_test_stackprot_fail,
 +	   "test stack protector fail", "");
 diff --git a/common/Kconfig b/common/Kconfig
-index 2bb3798f80..2563a60c6f 100644
+index 0e36dfd236..26496f9a2e 100644
 --- a/common/Kconfig
 +++ b/common/Kconfig
-@@ -604,6 +604,23 @@ config TPL_HASH
+@@ -618,6 +618,23 @@ config TPL_HASH
  	  and the algorithms it supports are defined in common/hash.c. See
  	  also CMD_HASH for command-line access.
  
@@ -149,7 +148,7 @@ index 2bb3798f80..2563a60c6f 100644
  
  menu "Update support"
 diff --git a/common/Makefile b/common/Makefile
-index daeea67cf2..27ea952085 100644
+index 215b8b26fd..bdad9655a9 100644
 --- a/common/Makefile
 +++ b/common/Makefile
 @@ -137,4 +137,5 @@ obj-$(CONFIG_CMD_LOADB) += xyzModem.o
@@ -185,10 +184,10 @@ index 0000000000..d5b7061665
 +	      ra, ra - gd->reloc_off);
 +}
 diff --git a/configs/sandbox_defconfig b/configs/sandbox_defconfig
-index 5bc90d09a8..a93f351b2f 100644
+index 5da8d1679e..bc14da668d 100644
 --- a/configs/sandbox_defconfig
 +++ b/configs/sandbox_defconfig
-@@ -24,6 +24,7 @@ CONFIG_PRE_CONSOLE_BUFFER=y
+@@ -25,6 +25,7 @@ CONFIG_LOG_SYSLOG=y
  CONFIG_LOG_ERROR_RETURN=y
  CONFIG_DISPLAY_BOARDINFO_LATE=y
  CONFIG_MISC_INIT_F=y
@@ -196,7 +195,7 @@ index 5bc90d09a8..a93f351b2f 100644
  CONFIG_ANDROID_AB=y
  CONFIG_CMD_CPU=y
  CONFIG_CMD_LICENSE=y
-@@ -96,6 +97,7 @@ CONFIG_CMD_CRAMFS=y
+@@ -97,6 +98,7 @@ CONFIG_CMD_CRAMFS=y
  CONFIG_CMD_EXT4_WRITE=y
  CONFIG_CMD_SQUASHFS=y
  CONFIG_CMD_MTDPARTS=y
@@ -205,7 +204,7 @@ index 5bc90d09a8..a93f351b2f 100644
  CONFIG_AMIGA_PARTITION=y
  CONFIG_OF_CONTROL=y
 diff --git a/scripts/Makefile.spl b/scripts/Makefile.spl
-index 1fd63efdfd..72e8619972 100644
+index ca988224da..c69525fa74 100644
 --- a/scripts/Makefile.spl
 +++ b/scripts/Makefile.spl
 @@ -67,6 +67,12 @@ include $(srctree)/scripts/Makefile.lib
@@ -223,7 +222,7 @@ index 1fd63efdfd..72e8619972 100644
  							$(NOSTDINC_FLAGS)
 diff --git a/test/py/tests/test_stackprotector.py b/test/py/tests/test_stackprotector.py
 new file mode 100644
-index 0000000000..7aeec5e919
+index 0000000000..b009437e5e
 --- /dev/null
 +++ b/test/py/tests/test_stackprotector.py
 @@ -0,0 +1,14 @@
