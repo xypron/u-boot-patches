@@ -88,7 +88,7 @@ git am ../patch/0001-efi_loader-improve-documentation-of-enum-efi_test_ph.patch
 git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
 git am ../patch/0001-efi_loader-documentation-codepage_437.patch
 git am ../patch/0001-doc-Add-build-instructions-for-OP-TEE-backed-EFI-var.patch
-
+git am ../patch/0001-doc-mmc-man-page.patch
 
 
 git am ../patch/0001-efi_loader-efi_esrt-Fix-the-build-warning-for-32-bit.patch
