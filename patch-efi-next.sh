@@ -81,6 +81,7 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
+# efi-2021-07-rc1
 git am ../patch/0001-doc-Update-uefi-documentation-for-initrd-loading-opt.patch
 git am ../patch/0001-efi_loader-Cleanup-get_var-duplication.patch
 git am ../patch/0001-fs-fat-fix-file_fat_detectfs.patch
@@ -89,17 +90,17 @@ git am ../patch/0001-linker_lists-document-ll_entry_ref-parameters.patch
 git am ../patch/0001-efi_loader-documentation-codepage_437.patch
 git am ../patch/0001-doc-Add-build-instructions-for-OP-TEE-backed-EFI-var.patch
 git am ../patch/0001-doc-mmc-man-page.patch
-
-
+git am ../patch/0001-efi_loader-simplify-efi_get_device_path_text.patch
+git am ../patch/0001-efi_loader-EFI_UNACCEPTED_MEMORY_TYPE.patch
+git am ../patch/0001-efi_loader-Kconfig-Select-IMAGE_SIGN_INFO-when-capsu.patch
 git am ../patch/0001-efi_loader-efi_esrt-Fix-the-build-warning-for-32-bit.patch
 git am ../patch/0001-efi_loader-use-correct-printf-codes.patch
 git am ../patch/0001-efi_loader-esrt-wrong-type-for-LocateHandleBuffer.patch
-git am ../patch/0001-efi_loader-Kconfig-Select-IMAGE_SIGN_INFO-when-capsu.patch
 git am ../patch/0001-tools-mkeficapsule-improve-online-help.patch
 
-git am ../patch/0001-efi_loader-simplify-efi_get_device_path_text.patch
+exit
+
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
-git am ../patch/0001-efi_loader-EFI_UNACCEPTED_MEMORY_TYPE.patch
 
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
