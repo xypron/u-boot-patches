@@ -8,6 +8,7 @@ In reStructured text footnotes are referenced like [1]_.
 Add missing underscores.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Marek Vasut <marex@denx.de>
 ---
  doc/imx/misc/psb.rst | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
