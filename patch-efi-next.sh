@@ -16,7 +16,6 @@ git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
-git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
 
 # Odroid HC4
