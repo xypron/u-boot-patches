@@ -18,7 +18,6 @@ git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
-git am ../patch/0001-board-toradex-apalis-imx8x-fix-build-warning.patch
 git am ../patch/0001-doc-imx-psb-Footnote-not-referenced.patch
 git am ../patch/0001-doc-duplicate-target-youtube.patch
 
@@ -79,7 +78,10 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc1
+# efi-2021-07-rc1-2
+# doc:
+git am ../patch/0001-board-toradex-apalis-imx8x-fix-build-warning.patch
+# EFI:
 git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
 exit
