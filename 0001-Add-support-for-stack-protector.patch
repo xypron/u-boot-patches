@@ -1,4 +1,4 @@
-From 23906851e2d71b0f690d4c9544fdbca88acc0eb4 Mon Sep 17 00:00:00 2001
+From 742cebd4001d26be32c154e056753027c55769e0 Mon Sep 17 00:00:00 2001
 From: Joel Peshkin <joel.peshkin@broadcom.com>
 Date: Mon, 8 Feb 2021 19:36:07 -0800
 Subject: [PATCH 1/1] Add support for stack-protector
@@ -15,7 +15,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  Makefile                             |  5 +++++
  arch/arm/config.mk                   |  3 ++-
  arch/riscv/lib/Makefile              |  1 +
- arch/x86/config.mk                   |  1 +
+ arch/x86/config.mk                   | 10 ++++++----
  cmd/Kconfig                          |  9 +++++++++
  cmd/Makefile                         |  1 +
  cmd/stackprot_test.c                 | 19 +++++++++++++++++++
@@ -25,7 +25,7 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  configs/sandbox_defconfig            |  2 ++
  scripts/Makefile.spl                 |  6 ++++++
  test/py/tests/test_stackprotector.py | 14 ++++++++++++++
- 14 files changed, 105 insertions(+), 1 deletion(-)
+ 14 files changed, 110 insertions(+), 5 deletions(-)
  create mode 100644 cmd/stackprot_test.c
  create mode 100644 common/stackprot.c
  create mode 100644 test/py/tests/test_stackprotector.py
@@ -92,17 +92,34 @@ index ff0677aa96..d08cbe9b79 100644
  CFLAGS_REMOVE_$(EFI_CRT0) := $(CFLAGS_NON_EFI)
  
 diff --git a/arch/x86/config.mk b/arch/x86/config.mk
-index 27d8412661..a3c5797f10 100644
+index 27d8412661..1a2366d723 100644
 --- a/arch/x86/config.mk
 +++ b/arch/x86/config.mk
-@@ -43,6 +43,7 @@ ifeq ($(IS_32BIT),y)
- CFLAGS_NON_EFI := -mregparm=3
- endif
+@@ -39,10 +39,10 @@ LDFLAGS_EFI_PAYLOAD := -Bsymbolic -Bsymbolic-functions -shared --no-undefined -s
+ OBJCOPYFLAGS_EFI := -j .text -j .sdata -j .data -j .dynamic -j .dynsym \
+ 	-j .rel -j .rela -j .reloc
+ 
+-ifeq ($(IS_32BIT),y)
+-CFLAGS_NON_EFI := -mregparm=3
+-endif
++# Parameters to be added when building EFI applications
  CFLAGS_EFI := -fpic -fshort-wchar
-+CFLAGS_NON_EFI += -mregparm=3 -fstack-protector-strong
++# Parameters to be removed when building EFI applications
++CFLAGS_NON_EFI := -mregparm=3 -fstack-protector-strong
  
  ifeq ($(CONFIG_EFI_STUB_64BIT),)
  CFLAGS_EFI += $(call cc-option, -mno-red-zone)
+@@ -70,7 +70,9 @@ LDSCRIPT := $(LDSCRIPT_EFI)
+ 
+ else
+ 
+-PLATFORM_CPPFLAGS += $(CFLAGS_NON_EFI)
++ifeq ($(IS_32BIT),y)
++PLATFORM_CPPFLAGS += -mregparm=3
++endif
+ KBUILD_LDFLAGS += --emit-relocs
+ LDFLAGS_FINAL += --gc-sections $(if $(CONFIG_SPL_BUILD),,-pie)
+ 
 diff --git a/cmd/Kconfig b/cmd/Kconfig
 index c735e81b37..420c1f0f94 100644
 --- a/cmd/Kconfig
