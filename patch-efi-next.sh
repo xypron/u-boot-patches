@@ -81,6 +81,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 git am ../patch/0001-board-toradex-apalis-imx8x-fix-build-warning.patch
 git am ../patch/0001-doc-imx-psb-fix-footnotes.patch
+git am ../patch/0001-doc-fatinfo-man-page.patch
 # EFI:
 git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
