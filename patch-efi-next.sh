@@ -18,7 +18,7 @@ git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-tegra-video-fix-tegra_dc_sor_config_panel.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
-git am ../patch/0001-doc-imx-psb-Footnote-not-referenced.patch
+git am ../patch/0001-doc-imx-psb-fix-footnotes.patch
 git am ../patch/0001-doc-duplicate-target-youtube.patch
 
 # Odroid HC4

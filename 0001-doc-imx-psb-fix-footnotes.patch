@@ -1,0 +1,30 @@
+From b2ca9319c05d56cf692969d31a83c721cb5712d0 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 11 Apr 2021 17:03:53 +0200
+Subject: [PATCH 1/1] doc: imx: psb: fix footnotes
+
+In reStructured text footnotes are referenced like [1]_.
+
+Add missing underscores.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/imx/misc/psb.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/doc/imx/misc/psb.rst b/doc/imx/misc/psb.rst
+index 4d6f001b74..9bb84b4024 100644
+--- a/doc/imx/misc/psb.rst
++++ b/doc/imx/misc/psb.rst
+@@ -88,7 +88,7 @@ SIT format
+ SIT is a 20 byte long structure containing of 5 32-bit words. Those encode
+ bootloader B-copy area offset (called "firstSectorNumber"), magic value
+ (called "tag") that is always 0x00112233, and three unused words set to 0.
+-SIT is documented in [1] and [2]. Example SIT are below::
++SIT is documented in [1]_ and [2]_. Example SIT are below::
+ 
+   $ hexdump -vC sit-mx7d.bin
+     00000000  00 00 00 00
+-- 
+2.30.2
+
