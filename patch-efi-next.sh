@@ -10,6 +10,7 @@ git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
+git am ../patch/0001-x86-correct-usage-of-CFLAGS_NON_EFI.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
@@ -97,6 +98,7 @@ git am ../patch/0001-tools-mkeficapsule-improve-online-help.patch
 git am ../patch/0001-efi_loader-Change-ptr-arithmetics-tcg-eventlog-buffe.patch
 
 git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
+git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
