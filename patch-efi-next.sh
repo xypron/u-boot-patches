@@ -82,7 +82,7 @@ git am ../patch/0001-doc-imx-psb-fix-footnotes.patch
 git am ../patch/0001-doc-fatinfo-man-page.patch
 git am ../patch/0001-doc-duplicate-target-youtube.patch
 # EFI:
-git am ../patch/0001-efi_loader-esrt-Remove-EFI_CALL-invocation-for-efi_c.patch
+git am ../patch/0001-efi_loader-esrt-Remove-incorrect-invocations-of-EFI_.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
 exit
 
