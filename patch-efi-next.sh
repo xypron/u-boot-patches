@@ -84,6 +84,7 @@ git am ../patch/0001-doc-duplicate-target-youtube.patch
 # EFI:
 git am ../patch/0001-efi_loader-esrt-Remove-incorrect-invocations-of-EFI_.patch
 git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
+git am ../patch/0001-efi_loader-fix-possible-buffer-overflow.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch

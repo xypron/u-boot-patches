@@ -1,0 +1,31 @@
+From 5b39648d1c80a121a04b30851870d07345fb0022 Mon Sep 17 00:00:00 2001
+From: Masahisa Kojima <masahisa.kojima@linaro.org>
+Date: Wed, 14 Apr 2021 11:55:49 +0900
+Subject: [PATCH] efi_loader: fix possible buffer overflow
+
+Variable "final" will have SHA512 digest, but currently
+the array size is not sufficient. Let's fix it.
+
+Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_tcg2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_tcg2.c b/lib/efi_loader/efi_tcg2.c
+index ed86a220fb..d5eca68769 100644
+--- a/lib/efi_loader/efi_tcg2.c
++++ b/lib/efi_loader/efi_tcg2.c
+@@ -515,7 +515,7 @@ static efi_status_t tcg2_create_digest(const u8 *input, u32 length,
+ 	sha1_context ctx;
+ 	sha256_context ctx_256;
+ 	sha512_context ctx_512;
+-	u8 final[TPM2_ALG_SHA512];
++	u8 final[TPM2_SHA512_DIGEST_SIZE];
+ 	efi_status_t ret;
+ 	u32 active;
+ 	int i;
+-- 
+2.30.2
+
