@@ -12,7 +12,6 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
 git am ../patch/0001-x86-correct-usage-of-CFLAGS_NON_EFI.patch
 git am ../patch/0001-Add-support-for-stack-protector.patch
-git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
