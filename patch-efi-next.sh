@@ -76,14 +76,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
-git am ../patch/0001-board-toradex-apalis-imx8x-fix-build-warning.patch
-git am ../patch/0001-doc-imx-psb-fix-footnotes.patch
-git am ../patch/0001-doc-fatinfo-man-page.patch
-git am ../patch/0001-doc-duplicate-target-youtube.patch
 # EFI:
-git am ../patch/0001-efi_loader-esrt-Remove-incorrect-invocations-of-EFI_.patch
-git am ../patch/0001-efi_loader-memory-leak-in-efi_capsule_scan_dir.patch
-git am ../patch/0001-efi_loader-fix-possible-buffer-overflow.patch
+git am ../patch/0001-bootm-do-not-hang-on-failure.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
