@@ -23,7 +23,7 @@ CC: Andre Przywara <andre.przywara@arm.com>
 CC: nd@arm.com
 
 Signed-off-by: Jose Marinho <jose.marinho@arm.com>
-Reviwed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_capsule.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
