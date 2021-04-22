@@ -79,6 +79,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 git am ../patch/0001-doc-fatinfo-man-page.patch
 # EFI:
 git am ../patch/0001-efi_loader-missing-include-in-efi_string.c.patch
+git am ../patch/0001-efi_loader-simplify-tcg2_create_digest.patch
 git am ../patch/0001-efi-Fix-ESRT-refresh-after-Capsule-update.patch
 git am ../patch/0001-efi_loader-capsule-return-a-correct-error-code-at-fi.patch
 exit
