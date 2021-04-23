@@ -77,6 +77,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-07-rc1-2
 # doc:
 git am ../patch/0001-doc-fatinfo-man-page.patch
+git am ../patch/0001-doc-imx-psb-Fix-missing-setexpr-arguments.patch
 # EFI:
 git am ../patch/0001-efi_loader-missing-include-in-efi_string.c.patch
 git am ../patch/0001-efi_loader-simplify-tcg2_create_digest.patch
