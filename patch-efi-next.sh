@@ -9,9 +9,6 @@ git am ../patch/0001-arm64-mvebu-armada-8k-support-booting-from-NVME.patch
 git am ../patch/0001-cmd-trace-CMD_TRACE-must-depend-on-TRACE.patch
 git am ../patch/0001-cli-allow-verbatim-character-entry-with-CTRL-v.patch
 git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
-git am ../patch/0001-cmd-CONFIG_CMD_MMC-depends-on-CONFIG_MMC.patch
-git am ../patch/0001-x86-correct-usage-of-CFLAGS_NON_EFI.patch
-git am ../patch/0001-Add-support-for-stack-protector.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
@@ -76,14 +73,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
-git am ../patch/0001-doc-fatinfo-man-page.patch
-git am ../patch/0001-doc-imx-psb-Fix-missing-setexpr-arguments.patch
-# EFI:
-git am ../patch/0001-efi_loader-missing-include-in-efi_string.c.patch
-git am ../patch/0001-efi_loader-simplify-tcg2_create_digest.patch
-git am ../patch/0001-efi-Fix-ESRT-refresh-after-Capsule-update.patch
-git am ../patch/0001-efi_loader-capsule-return-a-correct-error-code-at-fi.patch
-git am ../patch/0001-test-py-Fix-efidebug-related-tests.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch

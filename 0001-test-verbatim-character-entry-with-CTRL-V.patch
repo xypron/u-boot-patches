@@ -18,14 +18,14 @@ index e2b0798388..2c65566a4d 100644
 --- a/test/dm/Makefile
 +++ b/test/dm/Makefile
 @@ -57,7 +57,7 @@ obj-$(CONFIG_DM_SPI_FLASH) += sf.o
- obj-y += syscon.o
- obj-$(CONFIG_MUX_MMIO) += mux-mmio.o
- obj-$(CONFIG_MULTIPLEXER) += mux-emul.o
+ obj-$(CONFIG_SYSINFO) += sysinfo.o
+ obj-$(CONFIG_TEE) += tee.o
+ obj-$(CONFIG_TIMER) += timer.o
 -obj-$(CONFIG_DM_USB) += usb.o
 +obj-$(CONFIG_DM_USB) += usb.o usb_console.o
- obj-$(CONFIG_DM_PMIC) += pmic.o
- obj-$(CONFIG_DM_REGULATOR) += regulator.o
- obj-$(CONFIG_TIMER) += timer.o
+ obj-$(CONFIG_DM_VIDEO) += video.o
+ obj-$(CONFIG_VIRTIO_SANDBOX) += virtio.o
+ obj-$(CONFIG_WDT) += wdt.o
 diff --git a/test/dm/usb_console.c b/test/dm/usb_console.c
 new file mode 100644
 index 0000000000..fd60f69be3
