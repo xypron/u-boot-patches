@@ -1,0 +1,45 @@
+From 3db9a18cc31a2d19a3fd72ab2313681e5da596f6 Mon Sep 17 00:00:00 2001
+From: Peng Fan <peng.fan@nxp.com>
+Date: Wed, 28 Apr 2021 21:54:01 +0800
+Subject: [PATCH 1/1] efi_loader: loosen buffer parameter check in
+ efi_file_read_int
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This is same issue as https://bugzilla.redhat.com/show_bug.cgi?id=1733817,
+but that fix was wrongly partial reverted.
+
+When reading a directory, EFI_BUFFER_TOO_SMALL should be returned when
+the supplied buffer is too small, so a use-case is to call
+EFI_FILE_PROTOCOL.Read() with *buffer_size=0 and buffer=NULL to
+obtain the needed size before doing the actual read.
+
+So remove the check only for directory reading, file reading already
+do the check by itself.
+
+Fixes: db12f518edb0("efi_loader: implement non-blocking file services")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Cc: Stefan Sørensen <stefan.sorensen@spectralink.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/efi_loader/efi_file.c b/lib/efi_loader/efi_file.c
+index 204105e25a..6b3f5962be 100644
+--- a/lib/efi_loader/efi_file.c
++++ b/lib/efi_loader/efi_file.c
+@@ -554,7 +554,7 @@ static efi_status_t efi_file_read_int(struct efi_file_handle *this,
+ 	efi_status_t ret = EFI_SUCCESS;
+ 	u64 bs;
+ 
+-	if (!this || !buffer_size || !buffer)
++	if (!this || !buffer_size)
+ 		return EFI_INVALID_PARAMETER;
+ 
+ 	bs = *buffer_size;
+-- 
+2.30.2
+

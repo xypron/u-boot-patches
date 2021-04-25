@@ -75,6 +75,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 # EFI:
 git am ../patch/0001-efi_loader-capsule-Remove-the-check-for-capsule_auth.patch
+git am ../patch/0001-efi_loader-loosen-buffer-parameter-check-in-efi_file.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
