@@ -73,6 +73,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
+# EFI:
+git am ../patch/0001-efi_loader-capsule-Remove-the-check-for-capsule_auth.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
