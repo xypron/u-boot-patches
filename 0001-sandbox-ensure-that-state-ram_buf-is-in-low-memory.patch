@@ -1,0 +1,52 @@
+From 28dc0e3a27a78f7612e6983f944f2a5f12ea8c9f Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 11 May 2021 20:57:33 +0200
+Subject: [PATCH 1/1] sandbox: ensure that state->ram_buf is in low memory
+
+Addresses in state->ram_buf must be in the low 4 GiB of the address space.
+Otherwise we cannot correctly fill SMBIOS tables. This shows up in warnings
+like:
+
+    WARNING: SMBIOS table_address overflow 7f752735e020
+
+Ensure that state->ram_buf is initialized by the first invocation of
+os_malloc().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/sandbox/cpu/start.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
+index e87365e800..1388dba895 100644
+--- a/arch/sandbox/cpu/start.c
++++ b/arch/sandbox/cpu/start.c
+@@ -439,6 +439,14 @@ int main(int argc, char *argv[])
+ 	int size;
+ 	int ret;
+ 
++	/*
++	 * This must be the first invocation of os_malloc() to have
++	 * state->ram_buf in the low 4 GiB.
++	 */
++	ret = state_init();
++	if (ret)
++		goto err;
++
+ 	/*
+ 	 * Copy argv[] so that we can pass the arguments in the original
+ 	 * sequence when resetting the sandbox.
+@@ -453,10 +461,6 @@ int main(int argc, char *argv[])
+ 	gd = &data;
+ 	gd->arch.text_base = os_find_text_base();
+ 
+-	ret = state_init();
+-	if (ret)
+-		goto err;
+-
+ 	state = state_get_current();
+ 	if (os_parse_args(state, argc, argv))
+ 		return 1;
+-- 
+2.30.2
+
