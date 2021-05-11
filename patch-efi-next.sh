@@ -77,6 +77,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 git am ../patch/0001-efi_loader-capsule-Remove-the-check-for-capsule_auth.patch
 git am ../patch/0001-efi_loader-loosen-buffer-parameter-check-in-efi_file.patch
 git am ../patch/0001-efi_loader-Clean-up-tcg2-once-in-case-of-failure.patch
+git am ../patch/0001-efi_loader-Uninstall-the-TCG2-protocol-if-logging-s-.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
