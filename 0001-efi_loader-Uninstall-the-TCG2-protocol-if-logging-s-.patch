@@ -12,8 +12,6 @@ Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 
 Eliminate label 'out:' by using return.
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_loader/efi_tcg2.c | 8 +++-----
  1 file changed, 3 insertions(+), 5 deletions(-)
