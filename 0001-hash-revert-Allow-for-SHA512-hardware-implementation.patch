@@ -1,0 +1,158 @@
+From 64685a64a00f77ee9fbc1737f9fa94510dafb912 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Wed, 12 May 2021 17:34:37 +0200
+Subject: [PATCH 1/1] hash: revert Allow for SHA512 hardware implementations
+
+We don't have a hardware implementation of SHA384 and SHA512 for any board.
+
+We don't expect to ever have a hardware implementation for ALL boards that
+have a hardware implementation for SHA1 and SHA512. So we cannot use
+CONFIG_SHA_HW_ACCEL to switch SHA384 and SHA512 to the hardware functions.
+
+As the commit a479f103dc1c ("hash: Allow for SHA512 hardware
+implementations") leads to failure to compile peach-pi_defconfig board with
+the EFI TCG2 protocol revert the patch.
+
+Fixes: a479f103dc1c ("hash: Allow for SHA512 hardware implementations")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/hash.c    | 24 ++----------------------
+ include/hw_sha.h | 26 --------------------------
+ lib/Kconfig      | 15 ++++++++-------
+ 3 files changed, 10 insertions(+), 55 deletions(-)
+
+diff --git a/common/hash.c b/common/hash.c
+index 10dff7ddb0..fc64002f73 100644
+--- a/common/hash.c
++++ b/common/hash.c
+@@ -97,7 +97,7 @@ static int hash_finish_sha256(struct hash_algo *algo, void *ctx, void
+ }
+ #endif
+ 
+-#if defined(CONFIG_SHA384) && !defined(CONFIG_SHA_PROG_HW_ACCEL)
++#if defined(CONFIG_SHA384)
+ static int hash_init_sha384(struct hash_algo *algo, void **ctxp)
+ {
+ 	sha512_context *ctx = malloc(sizeof(sha512_context));
+@@ -125,7 +125,7 @@ static int hash_finish_sha384(struct hash_algo *algo, void *ctx, void
+ }
+ #endif
+ 
+-#if defined(CONFIG_SHA512) && !defined(CONFIG_SHA_PROG_HW_ACCEL)
++#if defined(CONFIG_SHA512)
+ static int hash_init_sha512(struct hash_algo *algo, void **ctxp)
+ {
+ 	sha512_context *ctx = malloc(sizeof(sha512_context));
+@@ -260,20 +260,10 @@ static struct hash_algo hash_algo[] = {
+ 		.name		= "sha384",
+ 		.digest_size	= SHA384_SUM_LEN,
+ 		.chunk_size	= CHUNKSZ_SHA384,
+-#ifdef CONFIG_SHA_HW_ACCEL
+-		.hash_func_ws	= hw_sha384,
+-#else
+ 		.hash_func_ws	= sha384_csum_wd,
+-#endif
+-#ifdef CONFIG_SHA_PROG_HW_ACCEL
+-		.hash_init	= hw_sha_init,
+-		.hash_update	= hw_sha_update,
+-		.hash_finish	= hw_sha_finish,
+-#else
+ 		.hash_init	= hash_init_sha384,
+ 		.hash_update	= hash_update_sha384,
+ 		.hash_finish	= hash_finish_sha384,
+-#endif
+ 	},
+ #endif
+ #ifdef CONFIG_SHA512
+@@ -281,20 +271,10 @@ static struct hash_algo hash_algo[] = {
+ 		.name		= "sha512",
+ 		.digest_size	= SHA512_SUM_LEN,
+ 		.chunk_size	= CHUNKSZ_SHA512,
+-#ifdef CONFIG_SHA_HW_ACCEL
+-		.hash_func_ws	= hw_sha512,
+-#else
+ 		.hash_func_ws	= sha512_csum_wd,
+-#endif
+-#ifdef CONFIG_SHA_PROG_HW_ACCEL
+-		.hash_init	= hw_sha_init,
+-		.hash_update	= hw_sha_update,
+-		.hash_finish	= hw_sha_finish,
+-#else
+ 		.hash_init	= hash_init_sha512,
+ 		.hash_update	= hash_update_sha512,
+ 		.hash_finish	= hash_finish_sha512,
+-#endif
+ 	},
+ #endif
+ 	{
+diff --git a/include/hw_sha.h b/include/hw_sha.h
+index d4f3471c43..15b1a1c798 100644
+--- a/include/hw_sha.h
++++ b/include/hw_sha.h
+@@ -8,32 +8,6 @@
+ #define __HW_SHA_H
+ #include <hash.h>
+ 
+-/**
+- * Computes hash value of input pbuf using h/w acceleration
+- *
+- * @param in_addr	A pointer to the input buffer
+- * @param bufleni	Byte length of input buffer
+- * @param out_addr	A pointer to the output buffer. When complete
+- *			64 bytes are copied to pout[0]...pout[63]. Thus, a user
+- *			should allocate at least 64 bytes at pOut in advance.
+- * @param chunk_size	chunk size for sha512
+- */
+-void hw_sha512(const uchar *in_addr, uint buflen, uchar *out_addr,
+-	       uint chunk_size);
+-
+-/**
+- * Computes hash value of input pbuf using h/w acceleration
+- *
+- * @param in_addr	A pointer to the input buffer
+- * @param bufleni	Byte length of input buffer
+- * @param out_addr	A pointer to the output buffer. When complete
+- *			48 bytes are copied to pout[0]...pout[47]. Thus, a user
+- *			should allocate at least 48 bytes at pOut in advance.
+- * @param chunk_size	chunk size for sha384
+- */
+-void hw_sha384(const uchar *in_addr, uint buflen, uchar *out_addr,
+-	       uint chunk_size);
+-
+ /**
+  * Computes hash value of input pbuf using h/w acceleration
+  *
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 6d2d41de30..9ef92a57d6 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -391,18 +391,19 @@ config SHA384
+ config SHA_HW_ACCEL
+ 	bool "Enable hashing using hardware"
+ 	help
+-	  This option enables hardware acceleration for SHA hashing.
+-	  This affects the 'hash' command and also the hash_lookup_algo()
+-	  function.
++	  This option enables hardware acceleration
++	  for SHA1/SHA256 hashing.
++	  This affects the 'hash' command and also the
++	  hash_lookup_algo() function.
+ 
+ config SHA_PROG_HW_ACCEL
+ 	bool "Enable Progressive hashing support using hardware"
+ 	depends on SHA_HW_ACCEL
+ 	help
+-	  This option enables hardware-acceleration for SHA progressive
+-	  hashing.
+-	  Data can be streamed in a block at a time and the hashing is
+-	  performed in hardware.
++	  This option enables hardware-acceleration for
++	  SHA1/SHA256 progressive hashing.
++	  Data can be streamed in a block at a time and the hashing
++	  is performed in hardware.
+ 
+ config MD5
+ 	bool "Support MD5 algorithm"
+-- 
+2.30.2
+
