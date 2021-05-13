@@ -1,0 +1,134 @@
+From 3e461f5a7676f245417316d5f3cc5bbe56845745 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 13 May 2021 15:20:15 +0200
+Subject: [PATCH 1/1] fs: fat: simplify write functions
+
+Use fat_open() to simplify file_fat_write_at(), fat_unlink(), fat_mkdir().
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c       |  3 +--
+ fs/fat/fat_write.c | 50 +++++++++-------------------------------------
+ include/fat.h      |  2 ++
+ 3 files changed, 12 insertions(+), 43 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index f2b93ecd1d..a39bd71b63 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1179,8 +1179,7 @@ int file_fat_detectfs(void)
+  * @type:	TYPE_ANY, TYPE_FILE, or TYPE_DIR
+  * Return:	0 on success or -errno
+  */
+-static int fat_open(const char *filename, unsigned type,
+-		    fat_itr** itr, fsdata *fsdata)
++int fat_open(const char *filename, unsigned type, fat_itr** itr, fsdata *fsdata)
+ {
+ 	int ret;
+ 
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 8ff2f6def0..89450b8593 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1333,24 +1333,14 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+ 		goto exit;
+ 	}
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr) {
+-		ret = -ENOMEM;
+-		goto exit;
+-	}
+-
+-	ret = fat_itr_root(itr, &datablock);
++	ret = fat_open(parent, TYPE_DIR, &itr, mydata);
++	if (ret == -ENOENT)
++		printf("%s: doesn't exist (%d)\n", parent, ret);
+ 	if (ret)
+ 		goto exit;
+ 
+ 	total_sector = datablock.total_sect;
+ 
+-	ret = fat_itr_resolve(itr, parent, TYPE_DIR);
+-	if (ret) {
+-		printf("%s: doesn't exist (%d)\n", parent, ret);
+-		goto exit;
+-	}
+-
+ 	retdent = find_directory_entry(itr, l_filename);
+ 
+ 	if (retdent) {
+@@ -1579,26 +1569,14 @@ int fat_unlink(const char *filename)
+ 		goto exit;
+ 	}
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr) {
+-		printf("Error: allocating memory\n");
+-		ret = -ENOMEM;
+-		goto exit;
+-	}
+-
+-	ret = fat_itr_root(itr, &fsdata);
++	ret = fat_open(dirname, TYPE_DIR, &itr, &fsdata);
++	if (ret == -ENOENT)
++		printf("%s: doesn't exist (%d)\n", dirname, ret);
+ 	if (ret)
+ 		goto exit;
+ 
+ 	total_sector = fsdata.total_sect;
+ 
+-	ret = fat_itr_resolve(itr, dirname, TYPE_DIR);
+-	if (ret) {
+-		printf("%s: doesn't exist (%d)\n", dirname, ret);
+-		ret = -ENOENT;
+-		goto exit;
+-	}
+-
+ 	if (!find_directory_entry(itr, basename)) {
+ 		printf("%s: doesn't exist\n", basename);
+ 		ret = -ENOENT;
+@@ -1658,24 +1636,14 @@ int fat_mkdir(const char *dirname)
+ 		goto exit;
+ 	}
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr) {
+-		ret = -ENOMEM;
+-		goto exit;
+-	}
+-
+-	ret = fat_itr_root(itr, &datablock);
++	ret = fat_open(parent, TYPE_DIR, &itr, mydata);
++	if (ret == -ENOENT)
++		printf("%s: doesn't exist (%d)\n", parent, ret);
+ 	if (ret)
+ 		goto exit;
+ 
+ 	total_sector = datablock.total_sect;
+ 
+-	ret = fat_itr_resolve(itr, parent, TYPE_DIR);
+-	if (ret) {
+-		printf("%s: doesn't exist (%d)\n", parent, ret);
+-		goto exit;
+-	}
+-
+ 	retdent = find_directory_entry(itr, l_dirname);
+ 
+ 	if (retdent) {
+diff --git a/include/fat.h b/include/fat.h
+index bd8e450b33..e208170215 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -210,6 +210,8 @@ int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,
+ 		   loff_t *actwrite);
+ int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
+ 		  loff_t *actread);
++int fat_open(const char *filename, unsigned type, fat_itr** itr,
++	     fsdata *fsdata);
+ int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
+ int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);
+ void fat_closedir(struct fs_dir_stream *dirs);
+-- 
+2.30.2
+

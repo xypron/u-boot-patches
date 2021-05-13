@@ -13,6 +13,7 @@ git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
+git am ../patch/0001-sandbox-add-symbol-_init-for-RISC-V-compilation.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -84,6 +85,9 @@ git am ../patch/0001-efi_loader-Uninstall-the-TCG2-protocol-if-logging-s-.patch
 git am ../patch/0001-efi_loader-Fix-Kconfig-for-EFI_TCG2-protocol.patch
 
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
+
+git am ../patch/0001-fs-fat-simplify-write-functions.patch
+git am ../patch/0001-fs-fat-carve-out-fat_open.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch

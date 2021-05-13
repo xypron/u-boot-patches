@@ -1,0 +1,171 @@
+From 253afb8d09d0693712e659d9c9714e44e59bc705 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 13 May 2021 11:38:31 +0200
+Subject: [PATCH 1/1] fs: fat: carve out fat_open()
+
+Carve out a common function fat_open() from fat_exist(), fat_size(),
+fat_read_at() to avoid duplicate coding.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c | 107 +++++++++++++++++++++++++++++----------------------
+ 1 file changed, 61 insertions(+), 46 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index c561d82b35..f2b93ecd1d 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1167,59 +1167,81 @@ int file_fat_detectfs(void)
+ 	return 0;
+ }
+ 
++/**
++ * fat_open() - open file on FAT file system
++ *
++ * It is the callers duty to free @itr and @fsdata->fatbuf if the return value
++ * indicates success.
++ *
++ * @filename:	file to open
++ * @itr:	buffer to receive pointer to allocated FAT file iterator
++ * @fsdata:	private filesystem parameters
++ * @type:	TYPE_ANY, TYPE_FILE, or TYPE_DIR
++ * Return:	0 on success or -errno
++ */
++static int fat_open(const char *filename, unsigned type,
++		    fat_itr** itr, fsdata *fsdata)
++{
++	int ret;
++
++	*itr = malloc_cache_aligned(sizeof(fat_itr));
++	if (!*itr)
++		return -ENOMEM;
++	ret = fat_itr_root(*itr, fsdata);
++	if (ret)
++		goto err;
++
++	ret = fat_itr_resolve(*itr, filename, type);
++	if (!ret)
++		return 0;
++
++	free(fsdata->fatbuf);
++err:
++	free(*itr);
++	*itr = NULL;
++	fsdata->fatbuf = NULL;
++	return ret;
++}
++
++/**
++ * fat_exists() - check if file exists
++ *
++ * @filename:	file path
++ * Return:	1 if file exists, 0 on error
++ */
+ int fat_exists(const char *filename)
+ {
+ 	fsdata fsdata;
+ 	fat_itr *itr;
+ 	int ret;
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr)
+-		return 0;
+-	ret = fat_itr_root(itr, &fsdata);
+-	if (ret)
+-		goto out;
+-
+-	ret = fat_itr_resolve(itr, filename, TYPE_ANY);
++	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
+ 	free(fsdata.fatbuf);
+-out:
+ 	free(itr);
+ 	return ret == 0;
+ }
+ 
++/**
++ * fat_size() - get file size
++ *
++ * @filename:	file path
++ * @size:	buffer to receive file size
++ * Return:	0 on success or -errno
++ */
+ int fat_size(const char *filename, loff_t *size)
+ {
+ 	fsdata fsdata;
+ 	fat_itr *itr;
+ 	int ret;
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr)
+-		return -ENOMEM;
+-	ret = fat_itr_root(itr, &fsdata);
++	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
+ 	if (ret)
+-		goto out_free_itr;
+-
+-	ret = fat_itr_resolve(itr, filename, TYPE_FILE);
+-	if (ret) {
+-		/*
+-		 * Directories don't have size, but fs_size() is not
+-		 * expected to fail if passed a directory path:
+-		 */
+-		free(fsdata.fatbuf);
+-		ret = fat_itr_root(itr, &fsdata);
+-		if (ret)
+-			goto out_free_itr;
+-		ret = fat_itr_resolve(itr, filename, TYPE_DIR);
+-		if (!ret)
+-			*size = 0;
+-		goto out_free_both;
+-	}
+-
+-	*size = FAT2CPU32(itr->dent->size);
+-out_free_both:
++		return ret;
++	if (itr->dent->attr & ATTR_DIR)
++		*size = 0;
++	else
++		*size = FAT2CPU32(itr->dent->size);
+ 	free(fsdata.fatbuf);
+-out_free_itr:
+ 	free(itr);
+ 	return ret;
+ }
+@@ -1229,29 +1251,22 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+ {
+ 	fsdata fsdata;
+ 	fat_itr *itr;
++	dir_entry *dentptr;
+ 	int ret;
+ 
+-	itr = malloc_cache_aligned(sizeof(fat_itr));
+-	if (!itr)
+-		return -ENOMEM;
+-	ret = fat_itr_root(itr, &fsdata);
+-	if (ret)
+-		goto out_free_itr;
+-
+-	ret = fat_itr_resolve(itr, filename, TYPE_FILE);
++	ret = fat_open(filename, TYPE_FILE, &itr, &fsdata);
+ 	if (ret)
+-		goto out_free_both;
++		goto err;
+ 
+ 	debug("reading %s at pos %llu\n", filename, pos);
+ 
+ 	/* For saving default max clustersize memory allocated to malloc pool */
+-	dir_entry *dentptr = itr->dent;
++	dentptr = itr->dent;
+ 
+ 	ret = get_contents(&fsdata, dentptr, pos, buffer, maxsize, actread);
+ 
+-out_free_both:
++err:
+ 	free(fsdata.fatbuf);
+-out_free_itr:
+ 	free(itr);
+ 	return ret;
+ }
+-- 
+2.30.2
+
