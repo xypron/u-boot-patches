@@ -1,0 +1,242 @@
+From 1f319c59ffbf70cf041c92fdfb87edb4c4281716 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 13 May 2021 13:37:03 +0200
+Subject: [PATCH 1/1] test: revert Don't unmount not (yet) mounted system
+
+Since commit 1ba21bb06b08 ("test: Don't unmount not (yet) mounted system")
+the following tests are skipped:
+
+test/py/tests/test_fs/test_basic.py
+test/py/tests/test_fs/test_ext.py
+
+SKIPPED [13] test/py/tests/test_fs/conftest.py:350: Setup failed for
+filesystem: ext4. Command 'guestmount -a
+build-sandbox/persistent-data/3GB.ext4.img -m /dev/sda
+build-sandbox/persistent-data/mnt' returned non-zero exit status 1.
+
+Let's revert the patch to get our tests back.
+
+Fixes: 1ba21bb06b08 ("test: Don't unmount not (yet) mounted system")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/py/tests/test_fs/conftest.py | 78 +++++++++----------------------
+ test/run                          |  8 ++--
+ 2 files changed, 26 insertions(+), 60 deletions(-)
+
+diff --git a/test/py/tests/test_fs/conftest.py b/test/py/tests/test_fs/conftest.py
+index 50af9efcf7..ec70e8c4ef 100644
+--- a/test/py/tests/test_fs/conftest.py
++++ b/test/py/tests/test_fs/conftest.py
+@@ -270,20 +270,9 @@ def fs_obj_basic(request, u_boot_config):
+ 
+         # 3GiB volume
+         fs_img = mk_fs(u_boot_config, fs_type, 0xc0000000, '3GB')
+-    except CalledProcessError as err:
+-        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-
+-    try:
+-        check_call('mkdir -p %s' % mount_dir, shell=True)
+-    except CalledProcessError as err:
+-        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-    finally:
+-        call('rm -f %s' % fs_img, shell=True)
+ 
+-    try:
+         # Mount the image so we can populate it.
++        check_call('mkdir -p %s' % mount_dir, shell=True)
+         mount_fs(fs_type, fs_img, mount_dir)
+ 
+         # Create a subdirectory.
+@@ -346,15 +335,18 @@ def fs_obj_basic(request, u_boot_config):
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
++        umount_fs(mount_dir)
+     except CalledProcessError as err:
+-        pytest.skip('Setup failed for filesystem: ' + fs_type + '. {}'.format(err))
++        pytest.skip('Setup failed for filesystem: ' + fs_type + \
++            '. {}'.format(err))
+         return
+     else:
+         yield [fs_ubtype, fs_img, md5val]
+     finally:
+         umount_fs(mount_dir)
+         call('rmdir %s' % mount_dir, shell=True)
+-        call('rm -f %s' % fs_img, shell=True)
++        if fs_img:
++            call('rm -f %s' % fs_img, shell=True)
+ 
+ #
+ # Fixture for extended fs test
+@@ -386,20 +378,9 @@ def fs_obj_ext(request, u_boot_config):
+ 
+         # 128MiB volume
+         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+-    except CalledProcessError as err:
+-        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-
+-    try:
+-        check_call('mkdir -p %s' % mount_dir, shell=True)
+-    except CalledProcessError as err:
+-        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-    finally:
+-        call('rm -f %s' % fs_img, shell=True)
+ 
+-    try:
+         # Mount the image so we can populate it.
++        check_call('mkdir -p %s' % mount_dir, shell=True)
+         mount_fs(fs_type, fs_img, mount_dir)
+ 
+         # Create a test directory
+@@ -441,6 +422,7 @@ def fs_obj_ext(request, u_boot_config):
+         md5val.append(out.split()[0])
+ 
+         check_call('rm %s' % tmp_file, shell=True)
++        umount_fs(mount_dir)
+     except CalledProcessError:
+         pytest.skip('Setup failed for filesystem: ' + fs_type)
+         return
+@@ -449,7 +431,8 @@ def fs_obj_ext(request, u_boot_config):
+     finally:
+         umount_fs(mount_dir)
+         call('rmdir %s' % mount_dir, shell=True)
+-        call('rm -f %s' % fs_img, shell=True)
++        if fs_img:
++            call('rm -f %s' % fs_img, shell=True)
+ 
+ #
+ # Fixture for mkdir test
+@@ -477,10 +460,11 @@ def fs_obj_mkdir(request, u_boot_config):
+         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+     except:
+         pytest.skip('Setup failed for filesystem: ' + fs_type)
+-        return
+     else:
+         yield [fs_ubtype, fs_img]
+-    call('rm -f %s' % fs_img, shell=True)
++    finally:
++        if fs_img:
++            call('rm -f %s' % fs_img, shell=True)
+ 
+ #
+ # Fixture for unlink test
+@@ -509,20 +493,9 @@ def fs_obj_unlink(request, u_boot_config):
+ 
+         # 128MiB volume
+         fs_img = mk_fs(u_boot_config, fs_type, 0x8000000, '128MB')
+-    except CalledProcessError as err:
+-        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-
+-    try:
+-        check_call('mkdir -p %s' % mount_dir, shell=True)
+-    except CalledProcessError as err:
+-        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-    finally:
+-        call('rm -f %s' % fs_img, shell=True)
+ 
+-    try:
+         # Mount the image so we can populate it.
++        check_call('mkdir -p %s' % mount_dir, shell=True)
+         mount_fs(fs_type, fs_img, mount_dir)
+ 
+         # Test Case 1 & 3
+@@ -546,6 +519,7 @@ def fs_obj_unlink(request, u_boot_config):
+         check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
+                                     % mount_dir, shell=True)
+ 
++        umount_fs(mount_dir)
+     except CalledProcessError:
+         pytest.skip('Setup failed for filesystem: ' + fs_type)
+         return
+@@ -554,7 +528,8 @@ def fs_obj_unlink(request, u_boot_config):
+     finally:
+         umount_fs(mount_dir)
+         call('rmdir %s' % mount_dir, shell=True)
+-        call('rm -f %s' % fs_img, shell=True)
++        if fs_img:
++            call('rm -f %s' % fs_img, shell=True)
+ 
+ #
+ # Fixture for symlink fs test
+@@ -584,22 +559,11 @@ def fs_obj_symlink(request, u_boot_config):
+ 
+     try:
+ 
+-        # 1GiB volume
++        # 3GiB volume
+         fs_img = mk_fs(u_boot_config, fs_type, 0x40000000, '1GB')
+-    except CalledProcessError as err:
+-        pytest.skip('Creating failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+ 
+-    try:
+-        check_call('mkdir -p %s' % mount_dir, shell=True)
+-    except CalledProcessError as err:
+-        pytest.skip('Preparing mount folder failed for filesystem: ' + fs_type + '. {}'.format(err))
+-        return
+-    finally:
+-        call('rm -f %s' % fs_img, shell=True)
+-
+-    try:
+         # Mount the image so we can populate it.
++        check_call('mkdir -p %s' % mount_dir, shell=True)
+         mount_fs(fs_type, fs_img, mount_dir)
+ 
+         # Create a subdirectory.
+@@ -623,6 +587,7 @@ def fs_obj_symlink(request, u_boot_config):
+             % medium_file, shell=True).decode()
+         md5val.extend([out.split()[0]])
+ 
++        umount_fs(mount_dir)
+     except CalledProcessError:
+         pytest.skip('Setup failed for filesystem: ' + fs_type)
+         return
+@@ -631,4 +596,5 @@ def fs_obj_symlink(request, u_boot_config):
+     finally:
+         umount_fs(mount_dir)
+         call('rmdir %s' % mount_dir, shell=True)
+-        call('rm -f %s' % fs_img, shell=True)
++        if fs_img:
++            call('rm -f %s' % fs_img, shell=True)
+diff --git a/test/run b/test/run
+index 869406cd8d..04ec1a05e0 100755
+--- a/test/run
++++ b/test/run
+@@ -22,16 +22,16 @@ failures=0
+ 
+ if [ -z "$tools_only" ]; then
+ 	# Run all tests that the standard sandbox build can support
+-	run_test "sandbox" ./test/py/test.py --bd sandbox --build \
++	run_test "sandbox" ./test/py/test.py -ra --bd sandbox --build \
+ 		-m "${mark_expr}"
+ fi
+ 
+ # Run tests which require sandbox_spl
+-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_spl --build \
++run_test "sandbox_spl" ./test/py/test.py -ra --bd sandbox_spl --build \
+ 		-k 'test_ofplatdata or test_handoff or test_spl'
+ 
+ # Run the sane tests with sandbox_noinst (i.e. without OF_PLATDATA_INST)
+-run_test "sandbox_spl" ./test/py/test.py --bd sandbox_noinst --build \
++run_test "sandbox_spl" ./test/py/test.py -ra --bd sandbox_noinst --build \
+ 		-k 'test_ofplatdata or test_handoff or test_spl'
+ 
+ if [ -z "$tools_only" ]; then
+@@ -39,7 +39,7 @@ if [ -z "$tools_only" ]; then
+ 	# build which does not enable CONFIG_OF_LIVE for the live device tree, so we can
+ 	# check that functionality is the same. The standard sandbox build (above) uses
+ 	# CONFIG_OF_LIVE.
+-	run_test "sandbox_flattree" ./test/py/test.py --bd sandbox_flattree \
++	run_test "sandbox_flattree" ./test/py/test.py -ra --bd sandbox_flattree \
+ 		--build -k test_ut
+ fi
+ 
+-- 
+2.30.2
+
