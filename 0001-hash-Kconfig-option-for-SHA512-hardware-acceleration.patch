@@ -1,0 +1,106 @@
+From cc6131b005d5d689915ed9b471b49f39497fd0f7 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 14 May 2021 07:08:27 +0200
+Subject: [PATCH 1/1] hash: Kconfig option for SHA512 hardware acceleration
+
+Commit a479f103dc1c ("hash: Allow for SHA512 hardware implementations")
+defined function definitions for hardware accelerated SHA384 and SHA512.
+If CONFIG_SHA_HW_ACCEL=y, these functions are used.
+
+We already have boards using CONFIG_SHA_HW_ACCEL=y but none implements the
+new functions hw_sha384() and hw_sha512().
+
+For implementing the EFI TCG2 protocol we need SHA384 and SHA512. The
+missing hardware acceleration functions lead to build errors on boards like
+peach-pi_defconfig.
+
+Introduce a new Kconfig symbol CONFIG_SHA512_HW_ACCEL to control if the
+functions hw_sha384() and hw_sha512() shall be used to implement the SHA384
+and SHA512 algorithms.
+
+Fixes: a479f103dc1c ("hash: Allow for SHA512 hardware implementations")
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ common/hash.c |  8 ++++----
+ lib/Kconfig   | 21 ++++++++++++++++-----
+ 2 files changed, 20 insertions(+), 9 deletions(-)
+
+diff --git a/common/hash.c b/common/hash.c
+index 10dff7ddb0..90cf46bcba 100644
+--- a/common/hash.c
++++ b/common/hash.c
+@@ -260,12 +260,12 @@ static struct hash_algo hash_algo[] = {
+ 		.name		= "sha384",
+ 		.digest_size	= SHA384_SUM_LEN,
+ 		.chunk_size	= CHUNKSZ_SHA384,
+-#ifdef CONFIG_SHA_HW_ACCEL
++#ifdef CONFIG_SHA512_HW_ACCEL
+ 		.hash_func_ws	= hw_sha384,
+ #else
+ 		.hash_func_ws	= sha384_csum_wd,
+ #endif
+-#ifdef CONFIG_SHA_PROG_HW_ACCEL
++#if defined(CONFIG_SHA512_HW_ACCEL) && defined(CONFIG_SHA_PROG_HW_ACCEL)
+ 		.hash_init	= hw_sha_init,
+ 		.hash_update	= hw_sha_update,
+ 		.hash_finish	= hw_sha_finish,
+@@ -281,12 +281,12 @@ static struct hash_algo hash_algo[] = {
+ 		.name		= "sha512",
+ 		.digest_size	= SHA512_SUM_LEN,
+ 		.chunk_size	= CHUNKSZ_SHA512,
+-#ifdef CONFIG_SHA_HW_ACCEL
++#ifdef CONFIG_SHA512_HW_ACCEL
+ 		.hash_func_ws	= hw_sha512,
+ #else
+ 		.hash_func_ws	= sha512_csum_wd,
+ #endif
+-#ifdef CONFIG_SHA_PROG_HW_ACCEL
++#if defined(CONFIG_SHA512_HW_ACCEL) && defined(CONFIG_SHA_PROG_HW_ACCEL)
+ 		.hash_init	= hw_sha_init,
+ 		.hash_update	= hw_sha_update,
+ 		.hash_finish	= hw_sha_finish,
+diff --git a/lib/Kconfig b/lib/Kconfig
+index 6d2d41de30..e9b7b5dc49 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -389,21 +389,32 @@ config SHA384
+ 	  (digest).
+ 
+ config SHA_HW_ACCEL
+-	bool "Enable hashing using hardware"
++	bool "Enable hardware acceleration for SHA hash functions"
+ 	help
+-	  This option enables hardware acceleration for SHA hashing.
+-	  This affects the 'hash' command and also the hash_lookup_algo()
+-	  function.
++	  This option enables hardware acceleration for the SHA1 and SHA256
++	  hashing algorithms. This affects the 'hash' command and also the
++	  hash_lookup_algo() function.
++
++if SHA_HW_ACCEL
++
++config SHA512_HW_ACCEL
++	bool "Enable hardware acceleration for SHA512"
++	depends on SHA512_ALGO
++	help
++	  This option enables hardware acceleration for the SHA384 andSHA512
++	  hashing algorithms. This affects the 'hash' command and also the
++	  hash_lookup_algo() function.
+ 
+ config SHA_PROG_HW_ACCEL
+ 	bool "Enable Progressive hashing support using hardware"
+-	depends on SHA_HW_ACCEL
+ 	help
+ 	  This option enables hardware-acceleration for SHA progressive
+ 	  hashing.
+ 	  Data can be streamed in a block at a time and the hashing is
+ 	  performed in hardware.
+ 
++endif
++
+ config MD5
+ 	bool "Support MD5 algorithm"
+ 	help
+-- 
+2.30.2
+
