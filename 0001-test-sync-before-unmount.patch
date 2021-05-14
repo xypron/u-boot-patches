@@ -1,0 +1,191 @@
+From c88eaf0cb62bba48f3ec6943d56be1da20c891e3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 13 May 2021 14:25:35 +0200
+Subject: [PATCH 1/1] test: sync before unmount
+
+When running 'make tests' locally often the 2.5 GB file size is reported as
+incorrect.
+
+Using 'dd conf=fsync' instead of 'dd' lets this problem disappear.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/py/tests/test_fs/conftest.py | 58 +++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/test/py/tests/test_fs/conftest.py b/test/py/tests/test_fs/conftest.py
+index ec70e8c4ef..f10374ee6e 100644
+--- a/test/py/tests/test_fs/conftest.py
++++ b/test/py/tests/test_fs/conftest.py
+@@ -161,7 +161,7 @@ def mk_fs(config, fs_type, size, id):
+ 
+     try:
+         check_call('rm -f %s' % fs_img, shell=True)
+-        check_call('dd if=/dev/zero of=%s bs=1M count=%d'
++        check_call('dd conv=fsync if=/dev/zero of=%s bs=1M count=%d'
+             % (fs_img, count), shell=True)
+         check_call('mkfs.%s %s %s'
+             % (fs_lnxtype, mkfs_opt, fs_img), shell=True)
+@@ -282,15 +282,15 @@ def fs_obj_basic(request, u_boot_config):
+         # Note that we work only on the start 1MB, couple MBs in the 2GB range
+         # and the last 1 MB of the huge 2.5GB file.
+         # So, just put random values only in those areas.
+-        check_call('dd if=/dev/urandom of=%s bs=1M count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1M count=1'
+ 	    % big_file, shell=True)
+-        check_call('dd if=/dev/urandom of=%s bs=1M count=2 seek=2047'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1M count=2 seek=2047'
+             % big_file, shell=True)
+-        check_call('dd if=/dev/urandom of=%s bs=1M count=1 seek=2499'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1M count=1 seek=2499'
+             % big_file, shell=True)
+ 
+         # Create a small file in this image.
+-        check_call('dd if=/dev/urandom of=%s bs=1M count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1M count=1'
+ 	    % small_file, shell=True)
+ 
+         # Delete the small file copies which possibly are written as part of a
+@@ -300,38 +300,38 @@ def fs_obj_basic(request, u_boot_config):
+ 
+         # Generate the md5sums of reads that we will test against small file
+         out = check_output(
+-            'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
+ 	    % small_file, shell=True).decode()
+         md5val = [ out.split()[0] ]
+ 
+         # Generate the md5sums of reads that we will test against big file
+         # One from beginning of file.
+         out = check_output(
+-            'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # One from end of file.
+         out = check_output(
+-            'dd if=%s bs=1M skip=2499 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=2499 count=1 2> /dev/null | md5sum'
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # One from the last 1MB chunk of 2GB
+         out = check_output(
+-            'dd if=%s bs=1M skip=2047 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=2047 count=1 2> /dev/null | md5sum'
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # One from the start 1MB chunk from 2GB
+         out = check_output(
+-            'dd if=%s bs=1M skip=2048 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=2048 count=1 2> /dev/null | md5sum'
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # One 1MB chunk crossing the 2GB boundary
+         out = check_output(
+-            'dd if=%s bs=512K skip=4095 count=2 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=512K skip=4095 count=2 2> /dev/null | md5sum'
+ 	    % big_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+@@ -387,37 +387,37 @@ def fs_obj_ext(request, u_boot_config):
+         check_call('mkdir %s/dir1' % mount_dir, shell=True)
+ 
+         # Create a small file and calculate md5
+-        check_call('dd if=/dev/urandom of=%s bs=1K count=20'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1K count=20'
+             % min_file, shell=True)
+         out = check_output(
+-            'dd if=%s bs=1K 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1K 2> /dev/null | md5sum'
+             % min_file, shell=True).decode()
+         md5val = [ out.split()[0] ]
+ 
+         # Calculate md5sum of Test Case 4
+-        check_call('dd if=%s of=%s bs=1K count=20'
++        check_call('dd conv=fsync if=%s of=%s bs=1K count=20'
+             % (min_file, tmp_file), shell=True)
+-        check_call('dd if=%s of=%s bs=1K seek=5 count=20'
++        check_call('dd conv=fsync if=%s of=%s bs=1K seek=5 count=20'
+             % (min_file, tmp_file), shell=True)
+-        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
++        out = check_output('dd conv=fsync if=%s bs=1K 2> /dev/null | md5sum'
+             % tmp_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # Calculate md5sum of Test Case 5
+-        check_call('dd if=%s of=%s bs=1K count=20'
++        check_call('dd conv=fsync if=%s of=%s bs=1K count=20'
+             % (min_file, tmp_file), shell=True)
+-        check_call('dd if=%s of=%s bs=1K seek=5 count=5'
++        check_call('dd conv=fsync if=%s of=%s bs=1K seek=5 count=5'
+             % (min_file, tmp_file), shell=True)
+-        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
++        out = check_output('dd conv=fsync if=%s bs=1K 2> /dev/null | md5sum'
+             % tmp_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+         # Calculate md5sum of Test Case 7
+-        check_call('dd if=%s of=%s bs=1K count=20'
++        check_call('dd conv=fsync if=%s of=%s bs=1K count=20'
+             % (min_file, tmp_file), shell=True)
+-        check_call('dd if=%s of=%s bs=1K seek=20 count=20'
++        check_call('dd conv=fsync if=%s of=%s bs=1K seek=20 count=20'
+             % (min_file, tmp_file), shell=True)
+-        out = check_output('dd if=%s bs=1K 2> /dev/null | md5sum'
++        out = check_output('dd conv=fsync if=%s bs=1K 2> /dev/null | md5sum'
+             % tmp_file, shell=True).decode()
+         md5val.append(out.split()[0])
+ 
+@@ -500,9 +500,9 @@ def fs_obj_unlink(request, u_boot_config):
+ 
+         # Test Case 1 & 3
+         check_call('mkdir %s/dir1' % mount_dir, shell=True)
+-        check_call('dd if=/dev/urandom of=%s/dir1/file1 bs=1K count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s/dir1/file1 bs=1K count=1'
+                                     % mount_dir, shell=True)
+-        check_call('dd if=/dev/urandom of=%s/dir1/file2 bs=1K count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s/dir1/file2 bs=1K count=1'
+                                     % mount_dir, shell=True)
+ 
+         # Test Case 2
+@@ -516,7 +516,7 @@ def fs_obj_unlink(request, u_boot_config):
+ 
+         # Test Case 5, 6 & 7
+         check_call('mkdir %s/dir5' % mount_dir, shell=True)
+-        check_call('dd if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s/dir5/file1 bs=1K count=1'
+                                     % mount_dir, shell=True)
+ 
+         umount_fs(mount_dir)
+@@ -570,20 +570,20 @@ def fs_obj_symlink(request, u_boot_config):
+         check_call('mkdir %s/SUBDIR' % mount_dir, shell=True)
+ 
+         # Create a small file in this image.
+-        check_call('dd if=/dev/urandom of=%s bs=1M count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=1M count=1'
+                    % small_file, shell=True)
+ 
+         # Create a medium file in this image.
+-        check_call('dd if=/dev/urandom of=%s bs=10M count=1'
++        check_call('dd conv=fsync if=/dev/urandom of=%s bs=10M count=1'
+                    % medium_file, shell=True)
+ 
+         # Generate the md5sums of reads that we will test against small file
+         out = check_output(
+-            'dd if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=1M skip=0 count=1 2> /dev/null | md5sum'
+             % small_file, shell=True).decode()
+         md5val = [out.split()[0]]
+         out = check_output(
+-            'dd if=%s bs=10M skip=0 count=1 2> /dev/null | md5sum'
++            'dd conv=fsync if=%s bs=10M skip=0 count=1 2> /dev/null | md5sum'
+             % medium_file, shell=True).decode()
+         md5val.extend([out.split()[0]])
+ 
+-- 
+2.30.2
+
