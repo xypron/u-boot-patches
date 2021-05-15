@@ -1,6 +1,6 @@
-From 39c021b6c2436cb2727bfcc087345ce1f0c7ad9a Mon Sep 17 00:00:00 2001
+From 1b75bd854e12f3babb10192bf03d5be50f9e5368 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Date: Thu, 13 May 2021 11:38:31 +0200
+Date: Sat, 15 May 2021 22:51:51 +0200
 Subject: [PATCH 1/1] fs: fat: carve out fat_open()
 
 Carve out a common function fat_open() from fat_exist(), fat_size(),
@@ -12,10 +12,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  1 file changed, 61 insertions(+), 46 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index 0b37d7d101..88ad7e392b 100644
+index 498c0df9be..03c04e126a 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1166,59 +1166,81 @@ int file_fat_detectfs(void)
+@@ -1167,22 +1167,56 @@ int file_fat_detectfs(void)
  	return 0;
  }
  
@@ -81,6 +81,9 @@ index 0b37d7d101..88ad7e392b 100644
  	free(itr);
  	return ret == 0;
  }
+@@ -1209,39 +1243,27 @@ static void fat2rtc(u16 date, u16 time, struct rtc_time *tm)
+ 	tm->tm_isdst = 0;
+ }
  
 +/**
 + * fat_size() - get file size
@@ -131,7 +134,7 @@ index 0b37d7d101..88ad7e392b 100644
  	free(itr);
  	return ret;
  }
-@@ -1228,29 +1250,22 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+@@ -1251,29 +1273,22 @@ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
  {
  	fsdata fsdata;
  	fat_itr *itr;

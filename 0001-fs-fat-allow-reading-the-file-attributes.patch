@@ -1,4 +1,4 @@
-From 396c37015b32c6e7a7e0cf6f6333a3d3796a5eef Mon Sep 17 00:00:00 2001
+From db8945ac92eed7d861f0b24989a0435bc6159b45 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 13:13:07 +0200
 Subject: [PATCH 1/1] fs: fat: allow reading the file attributes
@@ -7,42 +7,20 @@ Provide a function fs_attr() to read file attributes like read-only.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c  | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/fs.c       | 19 ++++++++++++++++-
+ fs/fat/fat.c  | 37 +++++++++++++++++++++++++++++++++++++
+ fs/fs.c       | 19 ++++++++++++++++++-
  include/fat.h |  1 +
- include/fs.h  | 17 +++++++++++++++
- 4 files changed, 95 insertions(+), 1 deletion(-)
+ include/fs.h  | 16 ++++++++++++++++
+ 4 files changed, 72 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index 50b6958716..9e7cb88a2d 100644
+index 7853a2f031..2c102b34cc 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1219,6 +1219,65 @@ int fat_exists(const char *filename)
- 	return ret == 0;
+@@ -1241,6 +1241,43 @@ static void fat2rtc(u16 date, u16 time, struct rtc_time *tm)
+ 	tm->tm_isdst = 0;
  }
  
-+/**
-+ * fat2rtc() - convert FAT time stamp to RTC file stamp
-+ *
-+ * @date:	FAT date
-+ * @time:	FAT time
-+ * @tm:		RTC time stamp
-+ */
-+static void fat2rtc(u16 date, u16 time, struct rtc_time *tm)
-+{
-+	tm->tm_mday = date & 0x1f;
-+	tm->tm_mon = (date & 0x1e0) >> 4;
-+	tm->tm_year = (date >> 9) + 1980;
-+
-+	tm->tm_sec = (time & 0x1f) << 1;
-+	tm->tm_min = (time & 0x7e0) >> 5;
-+	tm->tm_hour = time >> 11;
-+
-+	rtc_calc_weekday(tm);
-+	tm->tm_yday = 0;
-+	tm->tm_isdst = 0;
-+}
-+
 +/**
 + * fat_attr() - get file attributes
 + *
@@ -141,18 +119,10 @@ index e2135b94a4..9f160ec83c 100644
  int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
  		     loff_t maxsize, loff_t *actread);
 diff --git a/include/fs.h b/include/fs.h
-index 4fd38d4c35..79e646749b 100644
+index 07a0448c5a..c992edd06f 100644
 --- a/include/fs.h
 +++ b/include/fs.h
-@@ -6,6 +6,7 @@
- #define _FS_H
- 
- #include <common.h>
-+#include <rtc.h>
- 
- struct cmd_tbl;
- 
-@@ -39,6 +40,22 @@ enum fs_file_attrib {
+@@ -40,6 +40,22 @@ enum fs_file_attrib {
  	FS_ATTR_ARCH =		0x20,
  };
  
