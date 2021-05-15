@@ -46,11 +46,11 @@ index a39bd71b63..f52927fbb6 100644
  
  /*
 @@ -1236,7 +1236,7 @@ int fat_size(const char *filename, loff_t *size)
- 	ret = fat_open(filename, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
+ 	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
  	if (ret)
  		return ret;
--	if (itr->dent->attr & ATTR_DIR)
-+	if (itr->dent->attr & FS_ATTR_DIR)
+-	if (!itr->dent || itr->dent->attr & ATTR_DIR)
++	if (!itr->dent || itr->dent->attr & FS_ATTR_DIR)
  		*size = 0;
  	else
  		*size = FAT2CPU32(itr->dent->size);

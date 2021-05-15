@@ -1,4 +1,4 @@
-From c62d612e9e464ba019922b09824464789df61bae Mon Sep 17 00:00:00 2001
+From 396c37015b32c6e7a7e0cf6f6333a3d3796a5eef Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 13:13:07 +0200
 Subject: [PATCH 1/1] fs: fat: allow reading the file attributes
@@ -7,17 +7,17 @@ Provide a function fs_attr() to read file attributes like read-only.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c  | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/fs.c       | 19 +++++++++++++++++-
+ fs/fat/fat.c  | 59 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/fs.c       | 19 ++++++++++++++++-
  include/fat.h |  1 +
- include/fs.h  | 17 ++++++++++++++++
- 4 files changed, 90 insertions(+), 1 deletion(-)
+ include/fs.h  | 17 +++++++++++++++
+ 4 files changed, 95 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index cedef40ed9..b0009cea0f 100644
+index 50b6958716..9e7cb88a2d 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1221,6 +1221,60 @@ int fat_exists(const char *filename)
+@@ -1219,6 +1219,65 @@ int fat_exists(const char *filename)
  	return ret == 0;
  }
  
@@ -56,9 +56,14 @@ index cedef40ed9..b0009cea0f 100644
 +	fat_itr *itr;
 +	int ret;
 +
-+	ret = fat_open(filename, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
++	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
 +	if (ret)
 +		return ret;
++	if (!itr->dent) {
++		memset(attrib, 0, sizeof(struct fs_file_attributes));
++		attrib->flags = FS_ATTR_DIR;
++		return 0;
++	}
 +	attrib->flags = itr->dent->attr;
 +
 +	fat2rtc(le16_to_cpu(itr->dent->cdate), le16_to_cpu(itr->dent->ctime),
@@ -72,7 +77,7 @@ index cedef40ed9..b0009cea0f 100644
 +		attrib->size = FAT2CPU32(itr->dent->size);
 +	free(fsdata.fatbuf);
 +	free(itr);
-+	return ret;
++	return 0;
 +}
 +
  /**
