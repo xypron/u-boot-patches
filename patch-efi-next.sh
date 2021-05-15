@@ -97,6 +97,7 @@ git am ../patch/0001-fs-fat-simplify-write-functions.patch
 git am ../patch/0001-fs-fat-move-file-attributes-to-fs.h.patch
 git am ../patch/0001-lib-remove-superfluous-ifdefs-form-date.c.patch
 git am ../patch/0001-fs-fat-allow-reading-the-file-attributes.patch
+git am ../patch/0001-cmd-add-attrib-command.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
