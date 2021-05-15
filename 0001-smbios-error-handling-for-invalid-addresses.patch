@@ -1,0 +1,113 @@
+From 0756551ae6fc7632a8663f566196093b9533cf06 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 May 2021 18:00:01 +0200
+Subject: [PATCH 1/1] smbios: error handling for invalid addresses
+
+SMBIOS tables only support 32bit addresses. If we don't have memory here
+handle the error gracefully:
+
+* on x86_64 fail to start U-Boot
+* during UEFI booting ignore the missing table
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ arch/x86/lib/tables.c       | 13 +++++++++++--
+ lib/efi_loader/efi_smbios.c | 15 ++++++++-------
+ lib/smbios.c                |  4 +++-
+ 3 files changed, 22 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/lib/tables.c b/arch/x86/lib/tables.c
+index 1779bb3e11..ea834a5035 100644
+--- a/arch/x86/lib/tables.c
++++ b/arch/x86/lib/tables.c
+@@ -3,6 +3,8 @@
+  * Copyright (C) 2015, Bin Meng <bmeng.cn@gmail.com>
+  */
+ 
++#define LOG_CATEGORY LOGC_BOARD
++
+ #include <common.h>
+ #include <bloblist.h>
+ #include <log.h>
+@@ -96,13 +98,20 @@ int write_tables(void)
+ 				return log_msg_ret("bloblist", -ENOBUFS);
+ 		}
+ 		rom_table_end = table->write(rom_table_start);
+-		rom_table_end = ALIGN(rom_table_end, ROM_TABLE_ALIGN);
++		if (!rom_table_end) {
++			log_err("Can't create configuration table %d\n", i);
++			return -EINTR;
++		}
+ 
+ 		if (IS_ENABLED(CONFIG_SEABIOS)) {
+ 			table_size = rom_table_end - rom_table_start;
+ 			high_table = (u32)(ulong)high_table_malloc(table_size);
+ 			if (high_table) {
+-				table->write(high_table);
++				if (!table->write(high_table)) {
++					log_err("Can't create configuration table %d\n",
++						i);
++					return -EINTR;
++				}
+ 
+ 				cfg_tables[i].start = high_table;
+ 				cfg_tables[i].size = table_size;
+diff --git a/lib/efi_loader/efi_smbios.c b/lib/efi_loader/efi_smbios.c
+index 719d3e8880..2eb4cb1c1a 100644
+--- a/lib/efi_loader/efi_smbios.c
++++ b/lib/efi_loader/efi_smbios.c
+@@ -5,6 +5,8 @@
+  *  Copyright (c) 2016 Alexander Graf
+  */
+ 
++#define LOG_CATEGORY LOGC_EFI
++
+ #include <common.h>
+ #include <efi_loader.h>
+ #include <log.h>
+@@ -43,14 +45,13 @@ efi_status_t efi_smbios_register(void)
+ 	 * Generate SMBIOS tables - we know that efi_allocate_pages() returns
+ 	 * a 4k-aligned address, so it is safe to assume that
+ 	 * write_smbios_table() will write the table at that address.
+-	 *
+-	 * Note that on sandbox, efi_allocate_pages() unfortunately returns a
+-	 * pointer even though it uses a uint64_t type. Convert it.
+ 	 */
+ 	assert(!(dmi_addr & 0xf));
+ 	dmi = (void *)(uintptr_t)dmi_addr;
+-	write_smbios_table(map_to_sysmem(dmi));
+-
+-	/* And expose them to our EFI payload */
+-	return efi_install_configuration_table(&smbios_guid, dmi);
++	if (write_smbios_table(map_to_sysmem(dmi)))
++		/* Install SMBIOS information as configuration table */
++		return efi_install_configuration_table(&smbios_guid, dmi);
++	efi_free_pages(dmi_addr, 1);
++	log_err("Cannot create SMBIOS table\n");
++	return EFI_SUCCESS;
+ }
+diff --git a/lib/smbios.c b/lib/smbios.c
+index 9eb226ec9f..cb65304470 100644
+--- a/lib/smbios.c
++++ b/lib/smbios.c
+@@ -497,7 +497,8 @@ ulong write_smbios_table(ulong addr)
+ 		 */
+ 		printf("WARNING: SMBIOS table_address overflow %llx\n",
+ 		       (unsigned long long)table_addr);
+-		table_addr = 0;
++		addr = 0;
++		goto out;
+ 	}
+ 	se->struct_table_address = table_addr;
+ 
+@@ -508,6 +509,7 @@ ulong write_smbios_table(ulong addr)
+ 	isize = sizeof(struct smbios_entry) - SMBIOS_INTERMEDIATE_OFFSET;
+ 	se->intermediate_checksum = table_compute_checksum(istart, isize);
+ 	se->checksum = table_compute_checksum(se, sizeof(struct smbios_entry));
++out:
+ 	unmap_sysmem(se);
+ 
+ 	return addr;
+-- 
+2.30.2
+
