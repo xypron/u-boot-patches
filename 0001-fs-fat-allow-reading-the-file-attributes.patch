@@ -1,4 +1,4 @@
-From cd6e00765c295df76b2bb9021b4f0d5b0847c2a3 Mon Sep 17 00:00:00 2001
+From c62d612e9e464ba019922b09824464789df61bae Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 13:13:07 +0200
 Subject: [PATCH 1/1] fs: fat: allow reading the file attributes
@@ -14,10 +14,10 @@ Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
  4 files changed, 90 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index f52927fbb6..509a0472a1 100644
+index cedef40ed9..b0009cea0f 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1220,6 +1220,60 @@ int fat_exists(const char *filename)
+@@ -1221,6 +1221,60 @@ int fat_exists(const char *filename)
  	return ret == 0;
  }
  
@@ -56,7 +56,7 @@ index f52927fbb6..509a0472a1 100644
 +	fat_itr *itr;
 +	int ret;
 +
-+	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
++	ret = fat_open(filename, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
 +	if (ret)
 +		return ret;
 +	attrib->flags = itr->dent->attr;

@@ -1,4 +1,4 @@
-From f28f623bd1aba04e17bf595723f46e5dd3bb954e Mon Sep 17 00:00:00 2001
+From 3d767a0a3a03d04c44b539b8a035ce0ba4f63fc5 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 17:29:20 +0200
 Subject: [PATCH 1/1] cmd: add attrib command
@@ -8,20 +8,39 @@ is supported.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- cmd/fs.c     |  8 ++++++++
- fs/fat/fat.c |  2 +-
- fs/fs.c      | 28 ++++++++++++++++++++++++++++
+ cmd/Kconfig  |  7 +++++++
+ cmd/fs.c     | 10 ++++++++++
+ fs/fs.c      | 29 +++++++++++++++++++++++++++++
  include/fs.h |  1 +
- 4 files changed, 38 insertions(+), 1 deletion(-)
+ 4 files changed, 47 insertions(+)
 
+diff --git a/cmd/Kconfig b/cmd/Kconfig
+index f962bb7141..c55f5b379b 100644
+--- a/cmd/Kconfig
++++ b/cmd/Kconfig
+@@ -2101,6 +2101,13 @@ config CMD_CROS_EC
+ endmenu
+ 
+ menu "Filesystem commands"
++
++config CMD_ATTRIB
++	bool "Enable the 'attrib' command"
++	depends on CMD_FS_GENERIC
++	help
++	  This enables the 'attrib' command to display file attributes.
++
+ config CMD_BTRFS
+ 	bool "Enable the 'btrsubvol' command"
+ 	select FS_BTRFS
 diff --git a/cmd/fs.c b/cmd/fs.c
-index 5ad11647c2..db0e09e882 100644
+index 5ad11647c2..a412ae5c4e 100644
 --- a/cmd/fs.c
 +++ b/cmd/fs.c
-@@ -9,6 +9,14 @@
+@@ -9,6 +9,16 @@
  #include <command.h>
  #include <fs.h>
  
++#ifdef CONFIG_CMD_ATTRIB
 +U_BOOT_CMD(
 +	attrib,	4,	4,	do_attrib,
 +	"determine a file's attributes",
@@ -29,28 +48,16 @@ index 5ad11647c2..db0e09e882 100644
 +	"    - Find file 'filename' from 'dev' on 'interface'\n"
 +	"      and determine its attributes."
 +);
++#endif
 +
  static int do_size_wrapper(struct cmd_tbl *cmdtp, int flag, int argc,
  			   char *const argv[])
  {
-diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index c218dc9e38..b0009cea0f 100644
---- a/fs/fat/fat.c
-+++ b/fs/fat/fat.c
-@@ -1256,7 +1256,7 @@ int fat_attr(const char *filename, struct fs_file_attributes *attrib)
- 	fat_itr *itr;
- 	int ret;
- 
--	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
-+	ret = fat_open(filename, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
- 	if (ret)
- 		return ret;
- 	attrib->flags = itr->dent->attr;
 diff --git a/fs/fs.c b/fs/fs.c
-index 51a08d6770..293b76cc94 100644
+index 51a08d6770..868613bdf8 100644
 --- a/fs/fs.c
 +++ b/fs/fs.c
-@@ -691,6 +691,34 @@ int fs_ln(const char *fname, const char *target)
+@@ -691,6 +691,35 @@ int fs_ln(const char *fname, const char *target)
  	return ret;
  }
  
@@ -68,9 +75,10 @@ index 51a08d6770..293b76cc94 100644
 +	if (fs_attr(argv[3], &attr) < 0)
 +		return CMD_RET_FAILURE;
 +
-+	printf("%s %c%c%c%c ", argv[3],
++	printf("%s %c%c%c%c%c ", argv[3],
 +	       attr.flags & FS_ATTR_READ_ONLY ? 'R' : '.',
 +	       attr.flags & FS_ATTR_HIDDEN ?	'H' : '.',
++	       attr.flags & FS_ATTR_SYSTEM ?	'S' : '.',
 +	       attr.flags & FS_ATTR_DIR ?	'D' : '.',
 +	       attr.flags & FS_ATTR_ARCH ?	'A' : '.');
 +	tm = &attr.change_time;
