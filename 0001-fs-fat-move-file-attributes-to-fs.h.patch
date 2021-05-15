@@ -1,0 +1,149 @@
+From 42f3b3845e8093c84d35cf8d09c7193ca3e6a7b6 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 May 2021 11:03:04 +0200
+Subject: [PATCH 1/1] fs: fat: move file attributes to fs.h
+
+Move the definition of file attributes to fs.h. This is necessary to allow
+a common interface for accessing these attributes for all file systems.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c       |  8 ++++----
+ fs/fat/fat_write.c |  8 ++++----
+ include/fat.h      | 11 ++---------
+ include/fs.h       | 22 ++++++++++++++++++++++
+ 4 files changed, 32 insertions(+), 17 deletions(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index a39bd71b63..f52927fbb6 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -973,7 +973,7 @@ static int fat_itr_next(fat_itr *itr)
+ 	 *   ...
+ 	 *   dent[N - 2]: LFN[1]	2	ATTR_VFAT
+ 	 *   dent[N - 1]: LFN[0]	1	ATTR_VFAT
+-	 *   dent[N]:     SFN			ATTR_ARCH
++	 *   dent[N]:     SFN			FS_ATTR_ARCH
+ 	 */
+ 
+ 	while (1) {
+@@ -988,7 +988,7 @@ static int fat_itr_next(fat_itr *itr)
+ 		if (dent->nameext.name[0] == DELETED_FLAG)
+ 			continue;
+ 
+-		if (dent->attr & ATTR_VOLUME) {
++		if (dent->attr & FS_ATTR_VOLUME) {
+ 			if ((dent->attr & ATTR_VFAT) == ATTR_VFAT &&
+ 			    (dent->nameext.name[0] & LAST_LONG_ENTRY_MASK)) {
+ 				/* long file name */
+@@ -1031,7 +1031,7 @@ static int fat_itr_next(fat_itr *itr)
+  */
+ static int fat_itr_isdir(fat_itr *itr)
+ {
+-	return !!(itr->dent->attr & ATTR_DIR);
++	return !!(itr->dent->attr & FS_ATTR_DIR);
+ }
+ 
+ /*
+@@ -1236,7 +1236,7 @@ int fat_size(const char *filename, loff_t *size)
+ 	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
+ 	if (ret)
+ 		return ret;
+-	if (itr->dent->attr & ATTR_DIR)
++	if (itr->dent->attr & FS_ATTR_DIR)
+ 		*size = 0;
+ 	else
+ 		*size = FAT2CPU32(itr->dent->size);
+diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
+index 89450b8593..4fe79e4d3a 100644
+--- a/fs/fat/fat_write.c
++++ b/fs/fat/fat_write.c
+@@ -1390,7 +1390,7 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
+ 
+ 		/* Set short name entry */
+ 		fill_dentry(itr->fsdata, itr->dent, shortname, 0, size,
+-			    ATTR_ARCH);
++			    FS_ATTR_ARCH);
+ 
+ 		retdent = itr->dent;
+ 	}
+@@ -1681,7 +1681,7 @@ int fat_mkdir(const char *dirname)
+ 
+ 		/* Set attribute as archive for regular file */
+ 		fill_dentry(itr->fsdata, itr->dent, shortname, 0, 0,
+-			    ATTR_DIR | ATTR_ARCH);
++			    FS_ATTR_DIR | FS_ATTR_ARCH);
+ 
+ 		retdent = itr->dent;
+ 	}
+@@ -1696,10 +1696,10 @@ int fat_mkdir(const char *dirname)
+ 	memset(dotdent, 0, bytesperclust);
+ 
+ 	memcpy(&dotdent[0].nameext, ".          ", 11);
+-	dotdent[0].attr = ATTR_DIR | ATTR_ARCH;
++	dotdent[0].attr = FS_ATTR_DIR | FS_ATTR_ARCH;
+ 
+ 	memcpy(&dotdent[1].nameext, "..         ", 11);
+-	dotdent[1].attr = ATTR_DIR | ATTR_ARCH;
++	dotdent[1].attr = FS_ATTR_DIR | FS_ATTR_ARCH;
+ 
+ 	if (itr->is_root)
+ 		set_start_cluster(mydata, &dotdent[1], 0);
+diff --git a/include/fat.h b/include/fat.h
+index e208170215..e2135b94a4 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -40,15 +40,8 @@ struct disk_partition;
+ #define FAT32_SIGN	"FAT32   "
+ #define SIGNLEN		8
+ 
+-/* File attributes */
+-#define ATTR_RO	1
+-#define ATTR_HIDDEN	2
+-#define ATTR_SYS	4
+-#define ATTR_VOLUME	8
+-#define ATTR_DIR	16
+-#define ATTR_ARCH	32
+-
+-#define ATTR_VFAT	(ATTR_RO | ATTR_HIDDEN | ATTR_SYS | ATTR_VOLUME)
++#define ATTR_VFAT	(FS_ATTR_READ_ONLY | FS_ATTR_HIDDEN | FS_ATTR_SYSTEM | \
++			 FS_ATTR_VOLUME)
+ 
+ #define DELETED_FLAG	((char)0xe5) /* Marks deleted files when in name[0] */
+ #define aRING		0x05	     /* Used as special character in name[0] */
+diff --git a/include/fs.h b/include/fs.h
+index 0794b50d10..4fd38d4c35 100644
+--- a/include/fs.h
++++ b/include/fs.h
+@@ -17,6 +17,28 @@ struct cmd_tbl;
+ #define FS_TYPE_BTRFS	5
+ #define FS_TYPE_SQUASHFS 6
+ 
++/**
++ * enum fs_file_attrib - file attributes
++ *
++ * This enumeration defines bits of a bitmask with properties of a directory
++ * entry. They take the same value as in the UEFI specification and in the FAT
++ * file system to avoid unnecessary mapping.
++ */
++enum fs_file_attrib {
++	/** @FS_ATTR_READ_ONLY:	The file cannot be modified. */
++	FS_ATTR_READ_ONLY =	0x01,
++	/** @FS_ATTR_HIDDEN:	The entry is hidden. */
++	FS_ATTR_HIDDEN =	0x02,
++	/** @FS_ATTR_SYSTEM:	The entry is for a system file. */
++	FS_ATTR_SYSTEM =	0x04,
++	/** @FS_ATTR_VOLUME:	The entry contains the volume label */
++	FS_ATTR_VOLUME =	0x08,
++	/** FS_ATTR_DIR:	The entry represents a directory */
++	FS_ATTR_DIR =		0x10,
++	/** @FS_ATTR_ARCH:	The file was modified */
++	FS_ATTR_ARCH =		0x20,
++};
++
+ struct blk_desc;
+ 
+ /**
+-- 
+2.30.2
+

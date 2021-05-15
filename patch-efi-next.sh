@@ -76,6 +76,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
+git am ../patch/0001-doc-man-page-for-size-command.patch
+
 # EFI:
 git am ../patch/0001-efi_loader-build-warning-in-efi_tcg2_hash_log_extend.patch
 git am ../patch/0001-hash-Kconfig-option-for-SHA512-hardware-acceleration.patch
@@ -89,8 +91,9 @@ git am ../patch/0001-lib-introduce-HASH_CALCULATE-option.patch
 
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 
-git am ../patch/0001-fs-fat-simplify-write-functions.patch
 git am ../patch/0001-fs-fat-carve-out-fat_open.patch
+git am ../patch/0001-fs-fat-simplify-write-functions.patch
+git am ../patch/0001-fs-fat-move-file-attributes-to-fs.h.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch
