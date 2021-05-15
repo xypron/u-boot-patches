@@ -1,4 +1,4 @@
-From 3e461f5a7676f245417316d5f3cc5bbe56845745 Mon Sep 17 00:00:00 2001
+From cc88b6a8103de22f8a126bda62355ff41be73136 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 13 May 2021 15:20:15 +0200
 Subject: [PATCH 1/1] fs: fat: simplify write functions
@@ -7,16 +7,16 @@ Use fat_open() to simplify file_fat_write_at(), fat_unlink(), fat_mkdir().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c       |  3 +--
- fs/fat/fat_write.c | 50 +++++++++-------------------------------------
+ fs/fat/fat.c       |  3 +-
+ fs/fat/fat_write.c | 87 ++++++++--------------------------------------
  include/fat.h      |  2 ++
- 3 files changed, 12 insertions(+), 43 deletions(-)
+ 3 files changed, 18 insertions(+), 74 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index f2b93ecd1d..a39bd71b63 100644
+index f7a2062104..ad0dc98e8f 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1179,8 +1179,7 @@ int file_fat_detectfs(void)
+@@ -1180,8 +1180,7 @@ int file_fat_detectfs(void)
   * @type:	TYPE_ANY, TYPE_FILE, or TYPE_DIR
   * Return:	0 on success or -errno
   */
@@ -27,7 +27,7 @@ index f2b93ecd1d..a39bd71b63 100644
  	int ret;
  
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 8ff2f6def0..89450b8593 100644
+index 8ff2f6def0..3794bd9801 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -1333,24 +1333,14 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
@@ -58,10 +58,30 @@ index 8ff2f6def0..89450b8593 100644
  	retdent = find_directory_entry(itr, l_filename);
  
  	if (retdent) {
-@@ -1579,26 +1569,14 @@ int fat_unlink(const char *filename)
- 		goto exit;
- 	}
+@@ -1560,60 +1550,23 @@ static int delete_dentry_long(fat_itr *itr)
  
+ int fat_unlink(const char *filename)
+ {
+-	fsdata fsdata = { .fatbuf = NULL, };
++	fsdata fsdata;
+ 	fat_itr *itr = NULL;
+-	int n_entries, ret;
+-	char *filename_copy, *dirname, *basename;
+-
+-	filename_copy = strdup(filename);
+-	if (!filename_copy) {
+-		printf("Error: allocating memory\n");
+-		ret = -ENOMEM;
+-		goto exit;
+-	}
+-	split_filename(filename_copy, &dirname, &basename);
+-
+-	if (!strcmp(dirname, "/") && !strcmp(basename, "")) {
+-		printf("Error: cannot remove root\n");
+-		ret = -EINVAL;
+-		goto exit;
+-	}
+-
 -	itr = malloc_cache_aligned(sizeof(fat_itr));
 -	if (!itr) {
 -		printf("Error: allocating memory\n");
@@ -70,25 +90,45 @@ index 8ff2f6def0..89450b8593 100644
 -	}
 -
 -	ret = fat_itr_root(itr, &fsdata);
-+	ret = fat_open(dirname, TYPE_DIR, &itr, &fsdata);
-+	if (ret == -ENOENT)
-+		printf("%s: doesn't exist (%d)\n", dirname, ret);
- 	if (ret)
- 		goto exit;
- 
- 	total_sector = fsdata.total_sect;
+-	if (ret)
+-		goto exit;
+-
+-	total_sector = fsdata.total_sect;
++	int ret;
  
 -	ret = fat_itr_resolve(itr, dirname, TYPE_DIR);
 -	if (ret) {
--		printf("%s: doesn't exist (%d)\n", dirname, ret);
++	ret = fat_open(dirname, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
++	if (ret == -ENOENT)
+ 		printf("%s: doesn't exist (%d)\n", dirname, ret);
 -		ret = -ENOENT;
 -		goto exit;
 -	}
 -
- 	if (!find_directory_entry(itr, basename)) {
- 		printf("%s: doesn't exist\n", basename);
- 		ret = -ENOENT;
-@@ -1658,24 +1636,14 @@ int fat_mkdir(const char *dirname)
+-	if (!find_directory_entry(itr, basename)) {
+-		printf("%s: doesn't exist\n", basename);
+-		ret = -ENOENT;
++	if (ret)
+ 		goto exit;
+-	}
+ 
+ 	if (fat_itr_isdir(itr)) {
+-		n_entries = fat_dir_entries(itr);
+-		if (n_entries < 0) {
+-			ret = n_entries;
++		ret = fat_dir_entries(itr);
++		if (ret < 0) {
+ 			goto exit;
+ 		}
+-		if (n_entries > 2) {
+-			printf("Error: directory is not empty: %d\n",
+-			       n_entries);
++		if (ret > 2) {
++			printf("Error: directory is not empty: %d\n", ret);
+ 			ret = -EINVAL;
+ 			goto exit;
+ 		}
+@@ -1658,24 +1611,14 @@ int fat_mkdir(const char *dirname)
  		goto exit;
  	}
  
