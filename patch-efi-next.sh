@@ -79,6 +79,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-2021-07-rc1-2
 # doc:
 git am ../patch/0001-doc-man-page-for-size-command.patch
+git am ../patch/0001-doc-extension.rst-missing-in-doc-usage-index.rst.patch
 
 # EFI:
 git am ../patch/0001-efi_loader-build-warning-in-efi_tcg2_hash_log_extend.patch

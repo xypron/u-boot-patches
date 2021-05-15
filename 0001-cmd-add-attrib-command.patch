@@ -1,4 +1,4 @@
-From d4ec7fc2f391959115254947a2c1dffb60521ae0 Mon Sep 17 00:00:00 2001
+From b0c4f23558aaa61e49fcd88f87dec5e6dbb56f98 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 17:29:20 +0200
 Subject: [PATCH 1/1] cmd: add attrib command
@@ -54,13 +54,14 @@ index 5ad11647c2..a412ae5c4e 100644
  			   char *const argv[])
  {
 diff --git a/fs/fs.c b/fs/fs.c
-index 51a08d6770..c829992bca 100644
+index b274e1cc3e..b2b124935e 100644
 --- a/fs/fs.c
 +++ b/fs/fs.c
-@@ -691,6 +691,35 @@ int fs_ln(const char *fname, const char *target)
+@@ -496,6 +496,35 @@ int fs_attr(const char *filename, struct fs_file_attributes *attrib)
+ 
  	return ret;
  }
- 
++
 +int do_attrib(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[])
 +{
 +	struct fs_file_attributes attr;
@@ -89,10 +90,9 @@ index 51a08d6770..c829992bca 100644
 +
 +	return 0;
 +}
-+
- int do_size(struct cmd_tbl *cmdtp, int flag, int argc, char *const argv[],
- 	    int fstype)
- {
+ #endif
+ 
+ int fs_size(const char *filename, loff_t *size)
 diff --git a/include/fs.h b/include/fs.h
 index 6396a19eb5..d50869e50e 100644
 --- a/include/fs.h
