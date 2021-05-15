@@ -1,4 +1,4 @@
-From cc88b6a8103de22f8a126bda62355ff41be73136 Mon Sep 17 00:00:00 2001
+From d8e1057f79d478206ade611ec2c9955c023c8741 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 13 May 2021 15:20:15 +0200
 Subject: [PATCH 1/1] fs: fat: simplify write functions
@@ -8,9 +8,9 @@ Use fat_open() to simplify file_fat_write_at(), fat_unlink(), fat_mkdir().
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  fs/fat/fat.c       |  3 +-
- fs/fat/fat_write.c | 87 ++++++++--------------------------------------
+ fs/fat/fat_write.c | 89 ++++++++--------------------------------------
  include/fat.h      |  2 ++
- 3 files changed, 18 insertions(+), 74 deletions(-)
+ 3 files changed, 18 insertions(+), 76 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
 index f7a2062104..ad0dc98e8f 100644
@@ -27,7 +27,7 @@ index f7a2062104..ad0dc98e8f 100644
  	int ret;
  
 diff --git a/fs/fat/fat_write.c b/fs/fat/fat_write.c
-index 8ff2f6def0..3794bd9801 100644
+index 8ff2f6def0..d5185a465f 100644
 --- a/fs/fat/fat_write.c
 +++ b/fs/fat/fat_write.c
 @@ -1333,24 +1333,14 @@ int file_fat_write_at(const char *filename, loff_t pos, void *buffer,
@@ -88,19 +88,20 @@ index 8ff2f6def0..3794bd9801 100644
 -		ret = -ENOMEM;
 -		goto exit;
 -	}
--
--	ret = fat_itr_root(itr, &fsdata);
--	if (ret)
--		goto exit;
--
--	total_sector = fsdata.total_sect;
 +	int ret;
  
+-	ret = fat_itr_root(itr, &fsdata);
++	ret = fat_open(filename, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
++	if (ret == -ENOENT)
++		printf("%s: doesn't exist (%d)\n", filename, ret);
+ 	if (ret)
+ 		goto exit;
+ 
+-	total_sector = fsdata.total_sect;
+-
 -	ret = fat_itr_resolve(itr, dirname, TYPE_DIR);
 -	if (ret) {
-+	ret = fat_open(dirname, TYPE_ANY | DONT_DESCEND, &itr, &fsdata);
-+	if (ret == -ENOENT)
- 		printf("%s: doesn't exist (%d)\n", dirname, ret);
+-		printf("%s: doesn't exist (%d)\n", dirname, ret);
 -		ret = -ENOENT;
 -		goto exit;
 -	}
@@ -108,10 +109,9 @@ index 8ff2f6def0..3794bd9801 100644
 -	if (!find_directory_entry(itr, basename)) {
 -		printf("%s: doesn't exist\n", basename);
 -		ret = -ENOENT;
-+	if (ret)
- 		goto exit;
+-		goto exit;
 -	}
- 
+-
  	if (fat_itr_isdir(itr)) {
 -		n_entries = fat_dir_entries(itr);
 -		if (n_entries < 0) {
@@ -128,7 +128,16 @@ index 8ff2f6def0..3794bd9801 100644
  			ret = -EINVAL;
  			goto exit;
  		}
-@@ -1658,24 +1611,14 @@ int fat_mkdir(const char *dirname)
+@@ -1624,8 +1577,6 @@ int fat_unlink(const char *filename)
+ exit:
+ 	free(fsdata.fatbuf);
+ 	free(itr);
+-	free(filename_copy);
+-
+ 	return ret;
+ }
+ 
+@@ -1658,24 +1609,14 @@ int fat_mkdir(const char *dirname)
  		goto exit;
  	}
  
