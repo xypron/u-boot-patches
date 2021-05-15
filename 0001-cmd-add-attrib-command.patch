@@ -1,9 +1,9 @@
-From 3d767a0a3a03d04c44b539b8a035ce0ba4f63fc5 Mon Sep 17 00:00:00 2001
+From d4ec7fc2f391959115254947a2c1dffb60521ae0 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sat, 15 May 2021 17:29:20 +0200
 Subject: [PATCH 1/1] cmd: add attrib command
 
-The attrib command can display the attributes of a file. Currently on FAT
+The attrib command can display the attributes of a file. Currently only FAT
 is supported.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -54,7 +54,7 @@ index 5ad11647c2..a412ae5c4e 100644
  			   char *const argv[])
  {
 diff --git a/fs/fs.c b/fs/fs.c
-index 51a08d6770..868613bdf8 100644
+index 51a08d6770..c829992bca 100644
 --- a/fs/fs.c
 +++ b/fs/fs.c
 @@ -691,6 +691,35 @@ int fs_ln(const char *fname, const char *target)
@@ -94,10 +94,10 @@ index 51a08d6770..868613bdf8 100644
  	    int fstype)
  {
 diff --git a/include/fs.h b/include/fs.h
-index 79e646749b..c24a5c3b8d 100644
+index 6396a19eb5..d50869e50e 100644
 --- a/include/fs.h
 +++ b/include/fs.h
-@@ -269,6 +269,7 @@ int fs_mkdir(const char *filename);
+@@ -282,6 +282,7 @@ int fs_mkdir(const char *filename);
   * Common implementation for various filesystem commands, optionally limited
   * to a specific filesystem type via the fstype parameter.
   */
