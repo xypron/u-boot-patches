@@ -94,6 +94,7 @@ git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-fs-fat-carve-out-fat_open.patch
 git am ../patch/0001-fs-fat-simplify-write-functions.patch
 git am ../patch/0001-fs-fat-move-file-attributes-to-fs.h.patch
+git am ../patch/0001-fs-fat-allow-reading-the-file-attributes.patch
 exit
 
 git am ../patch/0001-efi_loader-rework-efi_console_register.patch

@@ -1,0 +1,175 @@
+From cd6e00765c295df76b2bb9021b4f0d5b0847c2a3 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sat, 15 May 2021 13:13:07 +0200
+Subject: [PATCH 1/1] fs: fat: allow reading the file attributes
+
+Provide a function fs_attr() to read file attributes like read-only.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ fs/fat/fat.c  | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/fs.c       | 19 +++++++++++++++++-
+ include/fat.h |  1 +
+ include/fs.h  | 17 ++++++++++++++++
+ 4 files changed, 90 insertions(+), 1 deletion(-)
+
+diff --git a/fs/fat/fat.c b/fs/fat/fat.c
+index f52927fbb6..509a0472a1 100644
+--- a/fs/fat/fat.c
++++ b/fs/fat/fat.c
+@@ -1220,6 +1220,60 @@ int fat_exists(const char *filename)
+ 	return ret == 0;
+ }
+ 
++/**
++ * fat2rtc() - convert FAT time stamp to RTC file stamp
++ *
++ * @date:	FAT date
++ * @time:	FAT time
++ * @tm:		RTC time stamp
++ */
++static void fat2rtc(u16 date, u16 time, struct rtc_time *tm)
++{
++	tm->tm_mday = date & 0x1f;
++	tm->tm_mon = (date & 0x1e0) >> 4;
++	tm->tm_year = (date >> 9) + 1980;
++
++	tm->tm_sec = (time & 0x1f) << 1;
++	tm->tm_min = (time & 0x7e0) >> 5;
++	tm->tm_hour = time >> 11;
++
++	rtc_calc_weekday(tm);
++	tm->tm_yday = 0;
++	tm->tm_isdst = 0;
++}
++
++/**
++ * fat_attr() - get file attributes
++ *
++ * @filename:	path to file or directory
++ * @attrib:	buffer to receive file attributes
++ * Return:	0 on success, -errno otherwise
++ */
++int fat_attr(const char *filename, struct fs_file_attributes *attrib)
++{
++	fsdata fsdata;
++	fat_itr *itr;
++	int ret;
++
++	ret = fat_open(filename, TYPE_ANY, &itr, &fsdata);
++	if (ret)
++		return ret;
++	attrib->flags = itr->dent->attr;
++
++	fat2rtc(le16_to_cpu(itr->dent->cdate), le16_to_cpu(itr->dent->ctime),
++		&attrib->create_time);
++	fat2rtc(le16_to_cpu(itr->dent->date), le16_to_cpu(itr->dent->time),
++		&attrib->change_time);
++	fat2rtc(le16_to_cpu(itr->dent->adate), 0, &attrib->access_time);
++	if (itr->dent->attr & FS_ATTR_DIR)
++		attrib->size = 0;
++	else
++		attrib->size = FAT2CPU32(itr->dent->size);
++	free(fsdata.fatbuf);
++	free(itr);
++	return ret;
++}
++
+ /**
+  * fat_size() - get file size
+  *
+diff --git a/fs/fs.c b/fs/fs.c
+index b7936fd4cf..51a08d6770 100644
+--- a/fs/fs.c
++++ b/fs/fs.c
+@@ -149,6 +149,7 @@ struct fstype_info {
+ 	int (*ls)(const char *dirname);
+ 	int (*exists)(const char *filename);
+ 	int (*size)(const char *filename, loff_t *size);
++	int (*attr)(const char *filename, struct fs_file_attributes *attrib);
+ 	int (*read)(const char *filename, void *buf, loff_t offset,
+ 		    loff_t len, loff_t *actread);
+ 	int (*write)(const char *filename, void *buf, loff_t offset,
+@@ -184,8 +185,9 @@ static struct fstype_info fstypes[] = {
+ 		.close = fat_close,
+ 		.ls = fs_ls_generic,
+ 		.exists = fat_exists,
+-		.size = fat_size,
+ 		.read = fat_read_file,
++		.attr = fat_attr,
++		.size = fat_size,
+ #if CONFIG_IS_ENABLED(FAT_WRITE)
+ 		.write = file_fat_write,
+ 		.unlink = fat_unlink,
+@@ -475,6 +477,21 @@ int fs_exists(const char *filename)
+ 	return ret;
+ }
+ 
++int fs_attr(const char *filename, struct fs_file_attributes *attrib)
++{
++	struct fstype_info *info = fs_get_info(fs_type);
++	int ret;
++
++	if (!info->attr)
++		return -ENOSYS;
++
++	ret = info->attr(filename, attrib);
++
++	fs_close();
++
++	return ret;
++}
++
+ int fs_size(const char *filename, loff_t *size)
+ {
+ 	int ret;
+diff --git a/include/fat.h b/include/fat.h
+index e2135b94a4..9f160ec83c 100644
+--- a/include/fat.h
++++ b/include/fat.h
+@@ -192,6 +192,7 @@ static inline u32 sect_to_clust(fsdata *fsdata, int sect)
+ 
+ int file_fat_detectfs(void);
+ int fat_exists(const char *filename);
++int fat_attr(const char *filename, struct fs_file_attributes *attrib);
+ int fat_size(const char *filename, loff_t *size);
+ int file_fat_read_at(const char *filename, loff_t pos, void *buffer,
+ 		     loff_t maxsize, loff_t *actread);
+diff --git a/include/fs.h b/include/fs.h
+index 4fd38d4c35..79e646749b 100644
+--- a/include/fs.h
++++ b/include/fs.h
+@@ -6,6 +6,7 @@
+ #define _FS_H
+ 
+ #include <common.h>
++#include <rtc.h>
+ 
+ struct cmd_tbl;
+ 
+@@ -39,6 +40,22 @@ enum fs_file_attrib {
+ 	FS_ATTR_ARCH =		0x20,
+ };
+ 
++/**
++ * struct fs_file_attributes - file attributes
++ */
++struct fs_file_attributes {
++	/** @size:		file size */
++	loff_t size;
++	/** @flags:		attribute flags (FS_ATTR_*) */
++	u32 flags;
++	/** create_time:	time of creation */
++	struct rtc_time create_time;
++	/** access_time:	time of last access */
++	struct rtc_time access_time;
++	/** change_time:	time of last modification */
++	struct rtc_time change_time;
++};
++
+ struct blk_desc;
+ 
+ /**
+-- 
+2.30.2
+
