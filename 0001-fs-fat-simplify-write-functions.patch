@@ -1,4 +1,4 @@
-From a04515136cc3e1e05c0a458b4900df09f1808737 Mon Sep 17 00:00:00 2001
+From c3dab125d16764d5bb142d3011169598c58e7197 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 13 May 2021 15:20:15 +0200
 Subject: [PATCH 1/1] fs: fat: simplify write functions
@@ -7,22 +7,23 @@ Use fat_open() to simplify file_fat_write_at(), fat_unlink(), fat_mkdir().
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- fs/fat/fat.c       |  3 +-
+ fs/fat/fat.c       |  4 +--
  fs/fat/fat_write.c | 87 ++++++++--------------------------------------
  include/fat.h      |  2 ++
- 3 files changed, 18 insertions(+), 74 deletions(-)
+ 3 files changed, 19 insertions(+), 74 deletions(-)
 
 diff --git a/fs/fat/fat.c b/fs/fat/fat.c
-index 88ad7e392b..635a106421 100644
+index bb18d58944..4a0ae36722 100644
 --- a/fs/fat/fat.c
 +++ b/fs/fat/fat.c
-@@ -1178,8 +1178,7 @@ int file_fat_detectfs(void)
+@@ -1178,8 +1178,8 @@ int file_fat_detectfs(void)
   * @type:	TYPE_ANY, TYPE_FILE, or TYPE_DIR
   * Return:	0 on success or -errno
   */
--static int fat_open(const char *filename, unsigned type,
--		    fat_itr** itr, fsdata *fsdata)
-+int fat_open(const char *filename, unsigned type, fat_itr** itr, fsdata *fsdata)
+-static int fat_open(const char *filename, unsigned int type,
+-		    fat_itr **itr, fsdata *fsdata)
++int fat_open(const char *filename, unsigned int type, fat_itr **itr,
++	     fsdata *fsdata)
  {
  	int ret;
  
@@ -166,14 +167,14 @@ index 8ff2f6def0..53373195f3 100644
  
  	if (retdent) {
 diff --git a/include/fat.h b/include/fat.h
-index bd8e450b33..e208170215 100644
+index bd8e450b33..c3df0271b0 100644
 --- a/include/fat.h
 +++ b/include/fat.h
 @@ -210,6 +210,8 @@ int file_fat_write(const char *filename, void *buf, loff_t offset, loff_t len,
  		   loff_t *actwrite);
  int fat_read_file(const char *filename, void *buf, loff_t offset, loff_t len,
  		  loff_t *actread);
-+int fat_open(const char *filename, unsigned type, fat_itr** itr,
++int fat_open(const char *filename, unsigned type, fat_itr **itr,
 +	     fsdata *fsdata);
  int fat_opendir(const char *filename, struct fs_dir_stream **dirsp);
  int fat_readdir(struct fs_dir_stream *dirs, struct fs_dirent **dentp);

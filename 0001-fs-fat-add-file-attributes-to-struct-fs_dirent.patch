@@ -90,7 +90,7 @@ index 0794b50d10..ccea329bf7 100644
 -	unsigned type;       /* one of FS_DT_x (not a mask) */
 -	loff_t size;         /* size in bytes */
 +	/** @type:		one of FS_DT_x (not a mask) */
-+	unsigned type;
++	unsigned int type;
 +	/** @size:		file size */
 +	loff_t size;
 +	/** @flags:		attribute flags (FS_ATTR_*) */

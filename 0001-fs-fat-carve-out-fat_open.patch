@@ -31,8 +31,8 @@ index 498c0df9be..03c04e126a 100644
 + * @type:	TYPE_ANY, TYPE_FILE, or TYPE_DIR
 + * Return:	0 on success or -errno
 + */
-+static int fat_open(const char *filename, unsigned type,
-+		    fat_itr** itr, fsdata *fsdata)
++static int fat_open(const char *filename, unsigned int type,
++		    fat_itr **itr, fsdata *fsdata)
 +{
 +	int ret;
 +
