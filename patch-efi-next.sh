@@ -95,6 +95,7 @@ git am ../patch/0001-lib-introduce-HASH_CALCULATE-option.patch
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
 git am ../patch/0001-lib-move-rtc-lib.c-to-lib.patch
+git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
 git am ../patch/0001-fs-squashfs-zero-out-unused-fields-in-fs_dirent.patch
 git am ../patch/0001-fs-fat-add-file-attributes-to-struct-fs_dirent.patch
 git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
@@ -102,7 +103,6 @@ git am ../patch/0001-fs-fat-allow-retrieving-a-dent-for-a-directory.patch
 git am ../patch/0001-fs-fat-carve-out-fat_open.patch
 git am ../patch/0001-fs-fat-simplify-write-functions.patch
 git am ../patch/0001-fs-fat-move-file-attributes-to-fs.h.patch
-git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
 git am ../patch/0001-fs-fat-allow-reading-the-file-attributes.patch
 git am ../patch/0001-cmd-add-attrib-command.patch
 exit
