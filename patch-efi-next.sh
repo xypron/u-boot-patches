@@ -94,6 +94,7 @@ git am ../patch/0001-lib-introduce-HASH_CALCULATE-option.patch
 
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
+git am ../patch/0001-xilinx-disable-Unicode-capitalization.patch
 git am ../patch/0001-lib-move-rtc-lib.c-to-lib.patch
 git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
 git am ../patch/0001-fs-squashfs-zero-out-unused-fields-in-fs_dirent.patch
