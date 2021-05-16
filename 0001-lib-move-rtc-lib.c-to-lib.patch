@@ -1,0 +1,211 @@
+From cbabcd80383af54dac9e947fcc0d9cfee98fed42 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Sun, 16 May 2021 10:14:38 +0200
+Subject: [PATCH 1/1] lib: move rtc-lib.c to lib
+
+Function rtc_to_tm() is needed for file system support even if we don't
+have a real time clock. So move it from drivers/ to lib/.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/rtc/Makefile  |  1 -
+ drivers/rtc/rtc-lib.c | 77 -------------------------------------------
+ lib/Makefile          |  1 +
+ lib/rtc-lib.c         | 77 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 78 insertions(+), 78 deletions(-)
+ delete mode 100644 drivers/rtc/rtc-lib.c
+ create mode 100644 lib/rtc-lib.c
+
+diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
+index f668cf9050..331a49ab59 100644
+--- a/drivers/rtc/Makefile
++++ b/drivers/rtc/Makefile
+@@ -7,7 +7,6 @@
+ obj-$(CONFIG_$(SPL_TPL_)DM_RTC) += rtc-uclass.o
+ 
+ obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
+-obj-y += rtc-lib.o
+ obj-$(CONFIG_RTC_ARMADA38X) += armada38x.o
+ obj-$(CONFIG_RTC_DAVINCI) += davinci.o
+ obj-$(CONFIG_RTC_DS1302) += ds1302.o
+diff --git a/drivers/rtc/rtc-lib.c b/drivers/rtc/rtc-lib.c
+deleted file mode 100644
+index 1f7bdade29..0000000000
+--- a/drivers/rtc/rtc-lib.c
++++ /dev/null
+@@ -1,77 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- * rtc and date/time utility functions
+- *
+- * Copyright (C) 2005-06 Tower Technologies
+- * Author: Alessandro Zummo <a.zummo@towertech.it>
+- *
+- * U-Boot rtc_time differs from Linux rtc_time:
+- * - The year field takes the actual value, not year - 1900.
+- * - January is month 1.
+- */
+-
+-#include <common.h>
+-#include <rtc.h>
+-#include <linux/math64.h>
+-
+-static const unsigned char rtc_days_in_month[] = {
+-	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+-};
+-
+-#define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
+-
+-/*
+- * The number of days in the month.
+- */
+-int rtc_month_days(unsigned int month, unsigned int year)
+-{
+-	return rtc_days_in_month[month] + (is_leap_year(year) && month == 1);
+-}
+-
+-/*
+- * rtc_to_tm - Converts u64 to rtc_time.
+- * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
+- *
+- * This function is copied from rtc_time64_to_tm() in the Linux kernel.
+- * But in U-Boot January is month 1 and we do not subtract 1900 from the year.
+- */
+-void rtc_to_tm(u64 time, struct rtc_time *tm)
+-{
+-	unsigned int month, year, secs;
+-	int days;
+-
+-	days = div_u64_rem(time, 86400, &secs);
+-
+-	/* day of the week, 1970-01-01 was a Thursday */
+-	tm->tm_wday = (days + 4) % 7;
+-
+-	year = 1970 + days / 365;
+-	days -= (year - 1970) * 365
+-		+ LEAPS_THRU_END_OF(year - 1)
+-		- LEAPS_THRU_END_OF(1970 - 1);
+-	while (days < 0) {
+-		year -= 1;
+-		days += 365 + is_leap_year(year);
+-	}
+-	tm->tm_year = year; /* Not year - 1900 */
+-	tm->tm_yday = days + 1;
+-
+-	for (month = 0; month < 11; month++) {
+-		int newdays;
+-
+-		newdays = days - rtc_month_days(month, year);
+-		if (newdays < 0)
+-			break;
+-		days = newdays;
+-	}
+-	tm->tm_mon = month + 1; /* January = 1 */
+-	tm->tm_mday = days + 1;
+-
+-	tm->tm_hour = secs / 3600;
+-	secs -= tm->tm_hour * 3600;
+-	tm->tm_min = secs / 60;
+-	tm->tm_sec = secs - tm->tm_min * 60;
+-
+-	/* Zero unused fields */
+-	tm->tm_isdst = 0;
+-}
+diff --git a/lib/Makefile b/lib/Makefile
+index 6825671955..be45d4ab06 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -133,6 +133,7 @@ obj-$(CONFIG_SSCANF) += sscanf.o
+ endif
+ 
+ obj-y += date.o
++obj-y += rtc-lib.o
+ obj-$(CONFIG_LIB_ELF) += elf.o
+ 
+ #
+diff --git a/lib/rtc-lib.c b/lib/rtc-lib.c
+new file mode 100644
+index 0000000000..1f7bdade29
+--- /dev/null
++++ b/lib/rtc-lib.c
+@@ -0,0 +1,77 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * rtc and date/time utility functions
++ *
++ * Copyright (C) 2005-06 Tower Technologies
++ * Author: Alessandro Zummo <a.zummo@towertech.it>
++ *
++ * U-Boot rtc_time differs from Linux rtc_time:
++ * - The year field takes the actual value, not year - 1900.
++ * - January is month 1.
++ */
++
++#include <common.h>
++#include <rtc.h>
++#include <linux/math64.h>
++
++static const unsigned char rtc_days_in_month[] = {
++	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
++};
++
++#define LEAPS_THRU_END_OF(y) ((y) / 4 - (y) / 100 + (y) / 400)
++
++/*
++ * The number of days in the month.
++ */
++int rtc_month_days(unsigned int month, unsigned int year)
++{
++	return rtc_days_in_month[month] + (is_leap_year(year) && month == 1);
++}
++
++/*
++ * rtc_to_tm - Converts u64 to rtc_time.
++ * Convert seconds since 01-01-1970 00:00:00 to Gregorian date.
++ *
++ * This function is copied from rtc_time64_to_tm() in the Linux kernel.
++ * But in U-Boot January is month 1 and we do not subtract 1900 from the year.
++ */
++void rtc_to_tm(u64 time, struct rtc_time *tm)
++{
++	unsigned int month, year, secs;
++	int days;
++
++	days = div_u64_rem(time, 86400, &secs);
++
++	/* day of the week, 1970-01-01 was a Thursday */
++	tm->tm_wday = (days + 4) % 7;
++
++	year = 1970 + days / 365;
++	days -= (year - 1970) * 365
++		+ LEAPS_THRU_END_OF(year - 1)
++		- LEAPS_THRU_END_OF(1970 - 1);
++	while (days < 0) {
++		year -= 1;
++		days += 365 + is_leap_year(year);
++	}
++	tm->tm_year = year; /* Not year - 1900 */
++	tm->tm_yday = days + 1;
++
++	for (month = 0; month < 11; month++) {
++		int newdays;
++
++		newdays = days - rtc_month_days(month, year);
++		if (newdays < 0)
++			break;
++		days = newdays;
++	}
++	tm->tm_mon = month + 1; /* January = 1 */
++	tm->tm_mday = days + 1;
++
++	tm->tm_hour = secs / 3600;
++	secs -= tm->tm_hour * 3600;
++	tm->tm_min = secs / 60;
++	tm->tm_sec = secs - tm->tm_min * 60;
++
++	/* Zero unused fields */
++	tm->tm_isdst = 0;
++}
+-- 
+2.30.2
+
