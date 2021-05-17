@@ -1,4 +1,4 @@
-From f0f39104d2f8f9b3ab506e4b5d046aa57eb0d62a Mon Sep 17 00:00:00 2001
+From 1fda783f92d71af25941a445083d029c027db967 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Wed, 12 May 2021 18:38:51 +0200
 Subject: [PATCH 1/1] sandbox: fix sandbox_reset()
@@ -26,7 +26,7 @@ Reviewed-by: Simon Glass <sjg@chromium.org>
  1 file changed, 3 deletions(-)
 
 diff --git a/arch/sandbox/cpu/start.c b/arch/sandbox/cpu/start.c
-index 4000bcc4f1..75baa5cfa3 100644
+index e87365e800..4ffd97ccbc 100644
 --- a/arch/sandbox/cpu/start.c
 +++ b/arch/sandbox/cpu/start.c
 @@ -425,9 +425,6 @@ void sandbox_reset(void)
