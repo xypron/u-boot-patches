@@ -3,9 +3,10 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 May 2021 09:51:32 +0200
 Subject: [PATCH 1/1] fs/squashfs: zero out unused fields in fs_dirent
 
-When reading directories UEFI sub-system file attributes and timestamps are
-required. Not all of these will be supplied by the squashfs. Zero out those
-fields.
+When reading directories the UEFI sub-system must supply file attributes
+and timestamps. These fields will have to be added to struct fs_dirent.
+SquashFS should not fill these fields with random data. Ensure that they
+are zeroed out.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
