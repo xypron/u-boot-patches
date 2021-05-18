@@ -20,6 +20,8 @@ and SHA512 algorithms.
 
 Fixes: a479f103dc1c ("hash: Allow for SHA512 hardware implementations")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+
+Reviewed-by: Simon Glass <sjg@chromium.org>
 ---
  common/hash.c |  8 ++++----
  lib/Kconfig   | 21 ++++++++++++++++-----
@@ -83,7 +85,7 @@ index 6d2d41de30..e9b7b5dc49 100644
 +	bool "Enable hardware acceleration for SHA512"
 +	depends on SHA512_ALGO
 +	help
-+	  This option enables hardware acceleration for the SHA384 andSHA512
++	  This option enables hardware acceleration for the SHA384 and SHA512
 +	  hashing algorithms. This affects the 'hash' command and also the
 +	  hash_lookup_algo() function.
  
