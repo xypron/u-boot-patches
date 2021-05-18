@@ -12,7 +12,6 @@ git am ../patch/0001-test-verbatim-character-entry-with-CTRL-V.patch
 git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
-git am ../patch/0001-cmd-exception-support-ebreak-exception-on-RISC-V.patch
 git am ../patch/0001-sandbox-add-symbol-_init-for-RISC-V-compilation.patch
 git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
 
@@ -78,20 +77,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
-git am ../patch/0001-doc-man-page-for-size-command.patch
-git am ../patch/0001-doc-extension.rst-missing-in-doc-usage-index.rst.patch
 
 # EFI:
-git am ../patch/0001-efi_loader-build-warning-in-efi_tcg2_hash_log_extend.patch
-git am ../patch/0001-hash-Kconfig-option-for-SHA512-hardware-acceleration.patch
-git am ../patch/0001-efi_loader-capsule-Remove-the-check-for-capsule_auth.patch
-git am ../patch/0001-efi_loader-loosen-buffer-parameter-check-in-efi_file.patch
-git am ../patch/0001-efi_loader-Clean-up-tcg2-once-in-case-of-failure.patch
-git am ../patch/0001-efi_loader-Uninstall-the-TCG2-protocol-if-logging-s-.patch
-git am ../patch/0001-efi_loader-Don-t-stop-EFI-subsystem-init-if-installi.patch
-git am ../patch/0001-efi_loader-Fix-Kconfig-for-EFI_TCG2-protocol.patch
-git am ../patch/0001-lib-introduce-HASH_CALCULATE-option.patch
-
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
 git am ../patch/0001-xilinx-versal-Enable-CONFIG_POSITION_INDEPENDENT.patch

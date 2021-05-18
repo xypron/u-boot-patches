@@ -18,7 +18,7 @@ index e2b0798388..2c65566a4d 100644
 --- a/test/dm/Makefile
 +++ b/test/dm/Makefile
 @@ -57,7 +57,7 @@ obj-$(CONFIG_DM_SPI_FLASH) += sf.o
- obj-$(CONFIG_SYSINFO) += sysinfo.o
+ obj-$(CONFIG_SYSINFO_GPIO) += sysinfo-gpio.o
  obj-$(CONFIG_TEE) += tee.o
  obj-$(CONFIG_TIMER) += timer.o
 -obj-$(CONFIG_DM_USB) += usb.o
