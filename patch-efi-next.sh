@@ -77,6 +77,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc1-2
 # doc:
+git am ../patch/0001-doc-usage-modify-mmc-man-page.patch
 
 # EFI:
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
