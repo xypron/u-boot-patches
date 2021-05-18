@@ -1,0 +1,33 @@
+From 90b4c1db7f2a916ba22d16c2abe733384d341aa2 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 17 May 2021 12:41:53 +0200
+Subject: [PATCH 1/1] doc: U-Boot build dependencies
+
+Add some more Debian packages that are needed for building U-Boot targets.
+
+* python3-pygit2 is used by patman
+* srecord is used in arch/arm/mach-rmobile/Makefile
+* swig is referred to in scripts/dtc/pylibfdt/setup.py
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ doc/build/gcc.rst | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/doc/build/gcc.rst b/doc/build/gcc.rst
+index c51b3e73b8..1aff51587c 100644
+--- a/doc/build/gcc.rst
++++ b/doc/build/gcc.rst
+@@ -27,7 +27,8 @@ Depending on the build targets further packages maybe needed
+       device-tree-compiler dfu-util efitools flex gdisk liblz4-tool \
+       libguestfs-tools libncurses-dev libpython3-dev libsdl2-dev libssl-dev \
+       lzma-alone openssl python3 python3-coverage python3-pyelftools \
+-      python3-pytest python3-sphinxcontrib.apidoc python3-sphinx-rtd-theme swig
++      python3-pygit2 python3-pytest python3-sphinxcontrib.apidoc \
++      python3-sphinx-rtd-theme srecord swig
+ 
+ SUSE based
+ ~~~~~~~~~~
+-- 
+2.31.1
+
