@@ -60,7 +60,9 @@ git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-sandbox-ensure-that-state-ram_buf-is-in-low-memory.patch
 git am ../patch/0001-sandbox-correct-determination-of-the-text-base.patch
 git am ../patch/0001-sandbox-fix-sandbox_reset.patch
+git am ../patch/0001-sandbox-don-t-refer-to-symbol-_init.patch
 
+# Video
 git am ../patch/0001-video-add-DejaVu-Mono-font.patch
 git am ../patch/0001-video-support-colors-in-truetype-console.patch
 git am ../patch/0001-video-fix-positioning-in-TrueType-console.patch
