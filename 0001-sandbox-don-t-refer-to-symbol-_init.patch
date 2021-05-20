@@ -16,6 +16,7 @@ Hence we can safely use gd->mon_len = 0 to avoid the reference to _init.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Reviewed-by: Bin Meng <bmeng.cn@gmail.com>
+Reviewed-by: Rick Chen <rick@andestech.com>
 ---
 v2:
 	fix typo in commit message
