@@ -76,11 +76,14 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc1-2
+# efi-2021-07-rc3-2
 # doc:
 git am ../patch/0001-doc-usage-modify-mmc-man-page.patch
 
 # EFI:
+git am ../patch/0001-efi_loader-remove-weak-efi_get_public_key_data.patch
+
+# Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
 git am ../patch/0001-xilinx-versal-Enable-CONFIG_POSITION_INDEPENDENT.patch
