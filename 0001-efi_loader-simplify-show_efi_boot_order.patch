@@ -1,0 +1,48 @@
+From 987ca253602fb4755b7e51fa608a0cb22a55f243 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 24 May 2021 10:48:45 +0200
+Subject: [PATCH 1/1] efi_loader: simplify show_efi_boot_order()
+
+To print a UTF-16 string use %ls instead of converting string to UTF-8.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ cmd/efidebug.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
+
+diff --git a/cmd/efidebug.c b/cmd/efidebug.c
+index 9444eca49c..4c0facd26c 100644
+--- a/cmd/efidebug.c
++++ b/cmd/efidebug.c
+@@ -1317,8 +1317,6 @@ static int show_efi_boot_order(void)
+ 	u16 var_name16[9], *p16;
+ 	void *data;
+ 	struct efi_load_option lo;
+-	char *label, *p;
+-	size_t label_len16, label_len;
+ 	efi_status_t ret;
+ 
+ 	size = 0;
+@@ -1380,18 +1378,7 @@ static int show_efi_boot_order(void)
+ 			goto out;
+ 		}
+ 
+-		label_len16 = u16_strlen(lo.label);
+-		label_len = utf16_utf8_strnlen(lo.label, label_len16);
+-		label = malloc(label_len + 1);
+-		if (!label) {
+-			free(data);
+-			ret = CMD_RET_FAILURE;
+-			goto out;
+-		}
+-		p = label;
+-		utf16_utf8_strncpy(&p, lo.label, label_len16);
+-		printf("%2d: %s: %s\n", i + 1, var_name, label);
+-		free(label);
++		printf("%2d: %s: %ls\n", i + 1, var_name, lo.label);
+ 
+ 		free(data);
+ 	}
+-- 
+2.30.2
+
