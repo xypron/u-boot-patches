@@ -6,6 +6,7 @@ Subject: [PATCH 1/1] efi_loader: simplify show_efi_boot_opt_data()
 To print a UTF-16 string use %ls instead of converting string to UTF-8.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
  cmd/efidebug.c | 13 +------------
  1 file changed, 1 insertion(+), 12 deletions(-)

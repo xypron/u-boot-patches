@@ -7,6 +7,8 @@ Use efi_get_variable_int() instead of EFI_CALL(RT->get_variable()).
 Use efi_set_variable_int() instead of EFI_CALL(efi_set_variable()).
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Tested-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
 ---
  cmd/efidebug.c | 33 ++++++++++++++++++---------------
  1 file changed, 18 insertions(+), 15 deletions(-)
