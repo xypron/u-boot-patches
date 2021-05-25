@@ -89,6 +89,7 @@ git am ../patch/0001-efi_loader-simplify-show_efi_boot_opt_data.patch
 git am ../patch/0001-efi_loader-simplify-show_efi_boot_order.patch
 git am ../patch/0001-efi_loader-use-efi_create_indexed_name.patch
 git am ../patch/0001-efi_loader-simplify-accessing-variables.patch
+git am ../patch/0001-efi_loader-Fix-Wextra-warning-for-EFI-TCG2.patch
 
 # Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
