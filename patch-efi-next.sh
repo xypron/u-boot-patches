@@ -78,18 +78,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc3-2
 # doc:
-git am ../patch/0001-doc-usage-modify-mmc-man-page.patch
 
 # EFI:
-git am ../patch/0001-efi_loader-remove-weak-efi_get_public_key_data.patch
-git am ../patch/0001-efi_loader-expose-efi_image_parse-even-if-UEFI-Secur.patch
-
-git am ../patch/0001-efi_loader-path-length-in-efi_dp_from_name.patch
-git am ../patch/0001-efi_loader-simplify-show_efi_boot_opt_data.patch
-git am ../patch/0001-efi_loader-simplify-show_efi_boot_order.patch
-git am ../patch/0001-efi_loader-use-efi_create_indexed_name.patch
-git am ../patch/0001-efi_loader-simplify-accessing-variables.patch
-git am ../patch/0001-efi_loader-Fix-Wextra-warning-for-EFI-TCG2.patch
 
 # Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
