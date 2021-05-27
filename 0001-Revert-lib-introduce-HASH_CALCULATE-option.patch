@@ -1,0 +1,99 @@
+From 92663dacb9576a7ff73d5ff8f3daef31a3a8e2ed Mon Sep 17 00:00:00 2001
+From: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Date: Mon, 24 May 2021 14:28:56 -0500
+Subject: [PATCH 1/1] Revert "lib: introduce HASH_CALCULATE option"
+
+When we think of Kconfig, we usually think of features that we like
+to enable or not. Ideally, we wouldn't use Kconfig to fix a build
+issue, although sometimes it might make sense. With Kconfig it's hard
+to guarantee that the fix is universal. We can only say that it works
+for the set of tested configurations. In the majority of cases, it's
+preferable to let the linker figure things out for us.
+
+The reverted commit attempted to fix a build issue by adding an
+invisible Kconfig option. This is wrong in several ways:
+
+It invents a new Kconfig variable when CONFIG_HASH already
+exists for the same purpose.
+Second, hash-checksum.c makes use of the hash_progressive_lookup_algo()
+symbol, which is only provided with CONFIG_HASH, but this dependency
+was not expressed in the reverted patch.
+
+It feels like Kconfig is turning into a listing of all available
+source files, and a buffet to 'select' which ones to compile. The
+purpose of this revert is to enable the next change to make use of
+CONFIG_HASH instead of adding to Kconfig.
+
+This reverts commit 87316da05f2fd49d3709275e64ef0c5980366ade.
+
+Signed-off-by: Alexandru Gagniuc <mr.nuke.me@gmail.com>
+Acked-by: Masahisa Kojima <masahisa.kojima@linaro.org>
+---
+ common/Kconfig.boot    | 1 -
+ lib/Kconfig            | 3 ---
+ lib/Makefile           | 2 +-
+ lib/efi_loader/Kconfig | 2 --
+ 4 files changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/common/Kconfig.boot b/common/Kconfig.boot
+index 3c6e77d099..89a3161f1f 100644
+--- a/common/Kconfig.boot
++++ b/common/Kconfig.boot
+@@ -80,7 +80,6 @@ config FIT_SIGNATURE
+ 	select RSA_VERIFY
+ 	select IMAGE_SIGN_INFO
+ 	select FIT_FULL_CHECK
+-	select HASH_CALCULATE
+ 	help
+ 	  This option enables signature verification of FIT uImages,
+ 	  using a hash signed and verified using RSA. If
+diff --git a/lib/Kconfig b/lib/Kconfig
+index d675ab1d82..15019d2c65 100644
+--- a/lib/Kconfig
++++ b/lib/Kconfig
+@@ -439,9 +439,6 @@ config CRC32C
+ config XXHASH
+ 	bool
+ 
+-config HASH_CALCULATE
+-	bool
+-
+ endmenu
+ 
+ menu "Compression Support"
+diff --git a/lib/Makefile b/lib/Makefile
+index 0835ea292c..6825671955 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -61,7 +61,7 @@ endif
+ obj-$(CONFIG_$(SPL_)ACPIGEN) += acpi/
+ obj-$(CONFIG_$(SPL_)MD5) += md5.o
+ obj-$(CONFIG_$(SPL_)RSA) += rsa/
+-obj-$(CONFIG_HASH_CALCULATE) += hash-checksum.o
++obj-$(CONFIG_FIT_SIGNATURE) += hash-checksum.o
+ obj-$(CONFIG_SHA1) += sha1.o
+ obj-$(CONFIG_SHA256) += sha256.o
+ obj-$(CONFIG_SHA512_ALGO) += sha512.o
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 98845b8ba3..ecbc0c9410 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -174,7 +174,6 @@ config EFI_CAPSULE_AUTHENTICATE
+ 	select PKCS7_MESSAGE_PARSER
+ 	select PKCS7_VERIFY
+ 	select IMAGE_SIGN_INFO
+-	select HASH_CALCULATE
+ 	select EFI_SIGNATURE_SUPPORT
+ 	default n
+ 	help
+@@ -344,7 +343,6 @@ config EFI_SECURE_BOOT
+ 	select X509_CERTIFICATE_PARSER
+ 	select PKCS7_MESSAGE_PARSER
+ 	select PKCS7_VERIFY
+-	select HASH_CALCULATE
+ 	select EFI_SIGNATURE_SUPPORT
+ 	default n
+ 	help
+-- 
+2.32.0.rc0
+

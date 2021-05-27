@@ -80,6 +80,9 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 
 # EFI:
+git am ../patch/0001-Revert-lib-introduce-HASH_CALCULATE-option.patch
+git am ../patch/0001-efi_loader-Work-around-build-issue-due-to-missing-ha.patch
+git am ../patch/0001-efi_loader-add-PE-COFF-image-measurement.patch
 
 # Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
