@@ -84,6 +84,9 @@ git am ../patch/0001-Revert-lib-introduce-HASH_CALCULATE-option.patch
 git am ../patch/0001-efi_loader-Work-around-build-issue-due-to-missing-ha.patch
 git am ../patch/0001-efi_loader-add-PE-COFF-image-measurement.patch
 
+# GRUB
+git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
+
 # Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
