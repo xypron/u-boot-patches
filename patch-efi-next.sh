@@ -76,10 +76,12 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc3-2
+# efi-2021-07-rc4-3
 # doc:
 
 # EFI:
+git am ../patch/0001-efi_loader-partition-numbers-are-hexadecimal.patch
+git am ../patch/0001-efi_loader-efi_capsule_delete_file-NULL-dereference.patch
 
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
