@@ -78,6 +78,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc4-3
 # doc:
+git am ../patch/0001-doc-usage-reorder-commands-in-index.rst.patch
+git am ../patch/0001-doc-usage-man-page-for-pinmux-command.patch
 
 # EFI:
 git am ../patch/0001-efi_loader-partition-numbers-are-hexadecimal.patch
