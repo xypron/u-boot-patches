@@ -13,6 +13,7 @@ git am ../patch/0001-video-use-int-for-character-in-putc_xy.patch
 git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
+git am ../patch/0001-net-sun8i-emac-fix-MDIO-frequency.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
