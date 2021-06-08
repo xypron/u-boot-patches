@@ -88,6 +88,7 @@ git am ../patch/0001-doc-usage-man-page-for-ums-command.patch
 # EFI:
 git am ../patch/0001-efi_loader-partition-numbers-are-hexadecimal.patch
 git am ../patch/0001-efi_loader-efi_capsule_delete_file-NULL-dereference.patch
+git am ../patch/0001-efi_loader-fix-Sphinx-warning.patch
 
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
