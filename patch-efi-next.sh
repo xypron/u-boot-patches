@@ -78,10 +78,12 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc4-3
+# efi-2021-07-rc5
 # doc:
 git am ../patch/0001-doc-usage-reorder-commands-in-index.rst.patch
 git am ../patch/0001-doc-usage-man-page-for-pinmux-command.patch
+git am ../patch/0001-cmd-Add-dependency-for-ums-command.patch
+git am ../patch/0001-doc-usage-man-page-for-ums-command.patch
 
 # EFI:
 git am ../patch/0001-efi_loader-partition-numbers-are-hexadecimal.patch
