@@ -1,0 +1,60 @@
+From cb37d3540af4234de0bacb93efd3466e9f671687 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Thu, 3 Jun 2021 22:03:23 +0200
+Subject: [PATCH 1/1] test: NULL dereference in test-uclass
+
+If test-uclass is probed outside a test, uts is not defined.
+Avoid a NULL dereference in this case.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ test/dm/test-uclass.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/test/dm/test-uclass.c b/test/dm/test-uclass.c
+index 067701734a..d2d1e0f190 100644
+--- a/test/dm/test-uclass.c
++++ b/test/dm/test-uclass.c
+@@ -32,6 +32,9 @@ static int test_post_bind(struct udevice *dev)
+ 	struct unit_test_state *uts = test_get_state();
+ 	struct dm_test_perdev_uc_pdata *uc_pdata;
+ 
++	if (!uts)
++		return 0;
++
+ 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
+ 	ut_assert(!device_active(dev));
+ 
+@@ -57,6 +60,9 @@ static int test_pre_probe(struct udevice *dev)
+ 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
+ 	struct unit_test_state *uts = test_get_state();
+ 
++	if (!uts)
++		return 0;
++
+ 	dm_testdrv_op_count[DM_TEST_OP_PRE_PROBE]++;
+ 	ut_assert(priv);
+ 	ut_assert(device_active(dev));
+@@ -70,6 +76,9 @@ static int test_post_probe(struct udevice *dev)
+ 	struct udevice *prev = list_entry(dev->uclass_node.prev,
+ 					    struct udevice, uclass_node);
+ 
++	if (!uts)
++		return 0;
++
+ 	struct dm_test_uclass_perdev_priv *priv = dev_get_uclass_priv(dev);
+ 	struct uclass *uc = dev->uclass;
+ 
+@@ -103,6 +112,9 @@ static int test_init(struct uclass *uc)
+ {
+ 	struct unit_test_state *uts = test_get_state();
+ 
++	if (!uts)
++		return 0;
++
+ 	dm_testdrv_op_count[DM_TEST_OP_INIT]++;
+ 	ut_assert(uclass_get_priv(uc));
+ 
+-- 
+2.30.2
+
