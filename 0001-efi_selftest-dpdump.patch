@@ -1,0 +1,188 @@
+From bf5c1e809a7d587b367555aa65e42cc5ca1656b9 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 8 Jun 2021 07:28:15 +0200
+Subject: [PATCH 1/1] efi_selftest: dpdump
+
+Provide a test program to print out all device paths.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_selftest/Makefile |   4 ++
+ lib/efi_selftest/dpdump.c | 143 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 147 insertions(+)
+ create mode 100644 lib/efi_selftest/dpdump.c
+
+diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
+index 9ff6e1760c..f79ccf5191 100644
+--- a/lib/efi_selftest/Makefile
++++ b/lib/efi_selftest/Makefile
+@@ -8,6 +8,8 @@
+ asflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ ccflags-y += -DHOST_ARCH="$(HOST_ARCH)"
+ 
++CFLAGS_dpdump.o := $(CFLAGS_EFI) -Os -ffreestanding
++CFLAGS_REMOVE_dpdump.o := $(CFLAGS_NON_EFI)
+ CFLAGS_dtbdump.o := $(CFLAGS_EFI) -Os -ffreestanding
+ CFLAGS_REMOVE_dtbdump.o := $(CFLAGS_NON_EFI)
+ CFLAGS_efi_selftest_miniapp_exception.o := $(CFLAGS_EFI) -Os -ffreestanding
+@@ -83,6 +85,8 @@ efi_selftest_miniapp_exception.efi \
+ efi_selftest_miniapp_exit.efi \
+ efi_selftest_miniapp_return.efi
+ 
++always += dpdump.efi
++
+ ifeq ($(CONFIG_GENERATE_ACPI_TABLE),)
+ always += dtbdump.efi
+ endif
+diff --git a/lib/efi_selftest/dpdump.c b/lib/efi_selftest/dpdump.c
+new file mode 100644
+index 0000000000..4039ebd632
+--- /dev/null
++++ b/lib/efi_selftest/dpdump.c
+@@ -0,0 +1,143 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Hello world EFI application
++ *
++ * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
++ *
++ * This test program is used to test the invocation of an EFI application.
++ * It writes
++ *
++ * * a greeting
++ * * the firmware's UEFI version
++ * * the installed configuration tables
++ * * the boot device's device path and the file path
++ *
++ * to the console.
++ */
++
++#include <efi_api.h>
++
++static const efi_guid_t device_path_to_text_protocol_guid =
++	EFI_DEVICE_PATH_TO_TEXT_PROTOCOL_GUID;
++static const efi_guid_t device_path_guid = EFI_DEVICE_PATH_PROTOCOL_GUID;
++
++static struct efi_system_table *systable;
++static struct efi_boot_services *boottime;
++static struct efi_simple_text_output_protocol *cout;
++
++/**
++ * print_device_path() - print device path
++ *
++ * @device_path:	device path to print
++ * @dp2txt:		device path to text protocol
++ */
++efi_status_t print_device_path(struct efi_device_path *device_path,
++			       struct efi_device_path_to_text_protocol *dp2txt)
++{
++	u16 *string;
++	efi_status_t ret;
++
++	if (!device_path) {
++		cout->output_string(cout, L"<none>\r\n");
++		return EFI_SUCCESS;
++	}
++
++	string = dp2txt->convert_device_path_to_text(device_path, true, false);
++	if (!string) {
++		cout->output_string
++			(cout, L"Cannot convert device path to text\r\n");
++		return EFI_OUT_OF_RESOURCES;
++	}
++	cout->output_string(cout, string);
++	cout->output_string(cout, L"\r\n");
++	ret = boottime->free_pool(string);
++	if (ret != EFI_SUCCESS) {
++		cout->output_string(cout, L"Cannot free pool memory\r\n");
++		return ret;
++	}
++	return EFI_SUCCESS;
++}
++
++/**
++ * print() - print string
++ *
++ * @string:	text
++ */
++static void print(u16 *string)
++{
++	cout->output_string(cout, string);
++}
++
++/**
++ * error() - print error string
++ *
++ * @string:	error text
++ */
++static void error(u16 *string)
++{
++	cout->set_attribute(cout, EFI_LIGHTRED | EFI_BACKGROUND_BLACK);
++	print(string);
++	cout->set_attribute(cout, EFI_LIGHTBLUE | EFI_BACKGROUND_BLACK);
++}
++
++/**
++ * efi_main() - entry point of the EFI application.
++ *
++ * @handle:	handle of the loaded image
++ * @systab:	system table
++ * @return:	status code
++ */
++efi_status_t EFIAPI efi_main(efi_handle_t handle,
++			     struct efi_system_table *systab)
++{
++	efi_status_t ret;
++	efi_uintn_t i, no_handles;
++	efi_handle_t *handles;
++	struct efi_device_path *dp;
++	struct efi_device_path_to_text_protocol *device_path_to_text;
++
++	systable = systab;
++	boottime = systable->boottime;
++	cout = systable->con_out;
++
++	cout->output_string(cout, L"dpdump\r\n");
++
++	/* Get the device path to text protocol */
++	ret = boottime->locate_protocol(&device_path_to_text_protocol_guid,
++					NULL, (void **)&device_path_to_text);
++	if (ret != EFI_SUCCESS) {
++		error(L"Cannot open device path to text protocol\r\n");
++		goto out;
++	}
++
++	/* Display all available device paths */
++	ret = boottime->locate_handle_buffer(BY_PROTOCOL,
++					     &device_path_guid,
++					     NULL, &no_handles, &handles);
++	if (ret != EFI_SUCCESS) {
++		error(L"Cannot retrieve device path protocols.\r\n");
++		goto out;
++	}
++
++	for (i = 0; i < no_handles; ++i) {
++		ret = boottime->open_protocol(handles[i], &device_path_guid,
++					      (void **)&dp, NULL, NULL,
++					      EFI_OPEN_PROTOCOL_GET_PROTOCOL);
++		if (ret != EFI_SUCCESS) {
++			error(L"Cannot open device path protocol.\r\n");
++			goto out;
++		}
++		ret = print_device_path(dp, device_path_to_text);
++		if (ret != EFI_SUCCESS)
++			goto out;
++	}
++	ret = boottime->free_pool(handles);
++	if (ret != EFI_SUCCESS)
++		error(L"FreePool failed\r\n");
++
++out:
++	boottime->exit(handle, ret, 0, NULL);
++
++	/* We should never arrive here */
++	return ret;
++}
+-- 
+2.30.2
+

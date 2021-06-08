@@ -90,6 +90,9 @@ git am ../patch/0001-efi_loader-efi_capsule_delete_file-NULL-dereference.patch
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
 
+# Test
+git am ../patch/0001-efi_selftest-dpdump.patch
+
 # Attrib
 git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
