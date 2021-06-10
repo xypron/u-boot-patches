@@ -59,7 +59,6 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
 git am ../patch/0001-sandbox-ensure-that-state-ram_buf-is-in-low-memory.patch
-git am ../patch/0001-sandbox-correct-determination-of-the-text-base.patch
 git am ../patch/0001-sandbox-fix-sandbox_reset.patch
 git am ../patch/0001-sandbox-don-t-refer-to-symbol-_init.patch
 
@@ -78,17 +77,10 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc5
+# efi-2021-07-rc5-2
 # doc:
-git am ../patch/0001-doc-usage-reorder-commands-in-index.rst.patch
-git am ../patch/0001-doc-usage-man-page-for-pinmux-command.patch
-git am ../patch/0001-cmd-Add-dependency-for-ums-command.patch
-git am ../patch/0001-doc-usage-man-page-for-ums-command.patch
 
 # EFI:
-git am ../patch/0001-efi_loader-partition-numbers-are-hexadecimal.patch
-git am ../patch/0001-efi_loader-efi_capsule_delete_file-NULL-dereference.patch
-git am ../patch/0001-efi_loader-fix-Sphinx-warning.patch
 
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
