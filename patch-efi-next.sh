@@ -82,6 +82,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 
 # EFI:
+git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
 
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
