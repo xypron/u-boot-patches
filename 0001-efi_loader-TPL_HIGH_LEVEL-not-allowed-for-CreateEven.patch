@@ -11,6 +11,7 @@ CreateEvent() shall not allow to create events with TPL_HIGH_LEVEL.
 
 Cc: Samer El-Haj-Mahmoud <Samer.El-Haj-Mahmoud@arm.com>
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Acked-by: Samer El-Haj-Mahmoud <Samer.El-Haj-Mahmoud@arm.com>
 ---
  lib/efi_loader/efi_boottime.c       | 1 -
  lib/efi_selftest/efi_selftest_tpl.c | 2 +-
