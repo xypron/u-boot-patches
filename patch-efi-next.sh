@@ -16,6 +16,8 @@ git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
 git am ../patch/0001-net-sun8i-emac-fix-MDIO-frequency.patch
 git am ../patch/0001-test-NULL-dereference-in-test-uclass.patch
 git am ../patch/0001-smbios-convert-function-descriptions-to-Sphinx-style.patch
+git am ../patch/0001-arm64-mvebu-correct-Armada-8K-addresses.patch
+git am ../patch/0001-efidebug-correct-display-of-BootOrder.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch

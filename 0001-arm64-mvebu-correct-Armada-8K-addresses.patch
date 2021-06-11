@@ -1,0 +1,36 @@
+From 2665833871b56c3d4f6bb6d0d070e415e193470b Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 8 Jun 2021 12:05:22 +0200
+Subject: [PATCH 1/1] arm64: mvebu: correct Armada 8K addresses
+
+0x04000000- 0x06000000 is reserved memory. We cannot load to anything here.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ include/configs/mvebu_armada-8k.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/include/configs/mvebu_armada-8k.h b/include/configs/mvebu_armada-8k.h
+index 38f50468c5..493e3de9b9 100644
+--- a/include/configs/mvebu_armada-8k.h
++++ b/include/configs/mvebu_armada-8k.h
+@@ -91,11 +91,11 @@
+ #include <config_distro_bootcmd.h>
+ 
+ #define CONFIG_EXTRA_ENV_SETTINGS	\
+-	"scriptaddr=0x4d00000\0"	\
+-	"pxefile_addr_r=0x4e00000\0"	\
+-	"fdt_addr_r=0x4f00000\0"	\
+-	"kernel_addr_r=0x5000000\0"	\
+-	"ramdisk_addr_r=0x8000000\0"	\
++	"scriptaddr=0x6d00000\0"	\
++	"pxefile_addr_r=0x6e00000\0"	\
++	"fdt_addr_r=0x6f00000\0"	\
++	"kernel_addr_r=0x7000000\0"	\
++	"ramdisk_addr_r=0xa000000\0"	\
+ 	"fdtfile=marvell/" CONFIG_DEFAULT_DEVICE_TREE ".dtb\0" \
+ 	BOOTENV
+ 
+-- 
+2.32.0
+
