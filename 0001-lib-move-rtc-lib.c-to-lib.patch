@@ -3,7 +3,7 @@ From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 16 May 2021 10:14:38 +0200
 Subject: [PATCH 1/1] lib: move rtc-lib.c to lib
 
-Function rtc_to_tm() is needed for file system support even if we don't
+Function rtc_to_tm() is needed for FAT file system support even if we don't
 have a real time clock. So move it from drivers/ to lib/.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>

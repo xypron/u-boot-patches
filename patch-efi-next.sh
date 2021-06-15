@@ -86,6 +86,9 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
 git am ../patch/0001-efidebug-correct-display-of-BootOrder.patch
 
+# efi-next
+git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
+
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
 

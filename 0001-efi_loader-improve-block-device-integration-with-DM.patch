@@ -1,0 +1,214 @@
+From 0bef62f8b6ed95135728e14feaf1def1c91dcd14 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 15 Jun 2021 05:44:11 +0200
+Subject: [PATCH 1/1] efi_loader: improve block device integration with DM
+
+Create disks and partitions in the UEFI sub-system when they are created in
+the driver model.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ drivers/block/blk-uclass.c |   6 ++
+ include/efi_loader.h       |   4 +-
+ lib/efi_loader/efi_disk.c  | 113 ++++++++-----------------------------
+ lib/efi_loader/efi_setup.c |   5 --
+ 4 files changed, 32 insertions(+), 96 deletions(-)
+
+diff --git a/drivers/block/blk-uclass.c b/drivers/block/blk-uclass.c
+index ef21819f20..e35514975e 100644
+--- a/drivers/block/blk-uclass.c
++++ b/drivers/block/blk-uclass.c
+@@ -7,6 +7,7 @@
+ #include <common.h>
+ #include <blk.h>
+ #include <dm.h>
++#include <efi_loader.h>
+ #include <log.h>
+ #include <malloc.h>
+ #include <part.h>
+@@ -593,6 +594,11 @@ int blk_create_device(struct udevice *parent, const char *drv_name,
+ 	desc->devnum = devnum;
+ 	*devp = dev;
+ 
++	if (CONFIG_IS_ENABLED(EFI_LOADER)) {
++		if (if_type != IF_TYPE_EFI)
++			efi_disk_register(dev);
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/include/efi_loader.h b/include/efi_loader.h
+index 0a9c82a257..cd8af8ee35 100644
+--- a/include/efi_loader.h
++++ b/include/efi_loader.h
+@@ -420,8 +420,8 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
+ void efi_carve_out_dt_rsv(void *fdt);
+ /* Called by bootefi to make console interface available */
+ efi_status_t efi_console_register(void);
+-/* Called by bootefi to make all disk storage accessible as EFI objects */
+-efi_status_t efi_disk_register(void);
++/* Called by blk_create_device to make device accessible as EFI object */
++efi_status_t efi_disk_register(struct udevice *dev);
+ /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
+ efi_status_t efi_rng_register(void);
+ /* Called by efi_init_obj_list() to install EFI_TCG2_PROTOCOL */
+diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
+index 988907ecb9..810c03a685 100644
+--- a/lib/efi_loader/efi_disk.c
++++ b/lib/efi_loader/efi_disk.c
+@@ -10,6 +10,7 @@
+ #include <common.h>
+ #include <blk.h>
+ #include <dm.h>
++#include <dm/device-internal.h>
+ #include <efi_loader.h>
+ #include <fs.h>
+ #include <log.h>
+@@ -536,104 +537,38 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+ }
+ 
+ /**
+- * efi_disk_register() - register block devices
+- *
+- * U-Boot doesn't have a list of all online disk devices. So when running our
+- * EFI payload, we scan through all of the potentially available ones and
+- * store them in our object pool.
+- *
+- * This function is called in efi_init_obj_list().
+- *
+- * TODO(sjg@chromium.org): Actually with CONFIG_BLK, U-Boot does have this.
+- * Consider converting the code to look up devices as needed. The EFI device
+- * could be a child of the UCLASS_BLK block device, perhaps.
++ * efi_disk_register() - register a block device in the UEFI sub-system
+  *
++ * @dev:	block device
+  * Return:	status code
+  */
+-efi_status_t efi_disk_register(void)
++efi_status_t efi_disk_register(struct udevice *dev)
+ {
++	struct blk_desc *desc = dev_get_uclass_plat(dev);
++	const char *if_typename = blk_get_if_type_name(desc->if_type);
+ 	struct efi_disk_obj *disk;
+-	int disks = 0;
+ 	efi_status_t ret;
+-#ifdef CONFIG_BLK
+-	struct udevice *dev;
+-
+-	for (uclass_first_device_check(UCLASS_BLK, &dev); dev;
+-	     uclass_next_device_check(&dev)) {
+-		struct blk_desc *desc = dev_get_uclass_plat(dev);
+-		const char *if_typename = blk_get_if_type_name(desc->if_type);
+-
+-		/* Add block device for the full device */
+-		log_info("Scanning disk %s...\n", dev->name);
+-		ret = efi_disk_add_dev(NULL, NULL, if_typename,
+-					desc, desc->devnum, NULL, 0, &disk);
+-		if (ret == EFI_NOT_READY) {
+-			log_notice("Disk %s not ready\n", dev->name);
+-			continue;
+-		}
+-		if (ret) {
+-			log_err("ERROR: failure to add disk device %s, r = %lu\n",
+-				dev->name, ret & ~EFI_ERROR_MASK);
+-			return ret;
+-		}
+-		disks++;
+-
+-		/* Partitions show up as block devices in EFI */
+-		disks += efi_disk_create_partitions(
+-					&disk->header, desc, if_typename,
+-					desc->devnum, dev->name);
+-	}
+-#else
+-	int i, if_type;
+-
+-	/* Search for all available disk devices */
+-	for (if_type = 0; if_type < IF_TYPE_COUNT; if_type++) {
+-		const struct blk_driver *cur_drvr;
+-		const char *if_typename;
+ 
+-		cur_drvr = blk_driver_lookup_type(if_type);
+-		if (!cur_drvr)
+-			continue;
+-
+-		if_typename = cur_drvr->if_typename;
+-		log_info("Scanning disks on %s...\n", if_typename);
+-		for (i = 0; i < 4; i++) {
+-			struct blk_desc *desc;
+-			char devname[32] = { 0 }; /* dp->str is u16[32] long */
+-
+-			desc = blk_get_devnum_by_type(if_type, i);
+-			if (!desc)
+-				continue;
+-			if (desc->type == DEV_TYPE_UNKNOWN)
+-				continue;
+-
+-			snprintf(devname, sizeof(devname), "%s%d",
+-				 if_typename, i);
+-
+-			/* Add block device for the full device */
+-			ret = efi_disk_add_dev(NULL, NULL, if_typename, desc,
+-					       i, NULL, 0, &disk);
+-			if (ret == EFI_NOT_READY) {
+-				log_notice("Disk %s not ready\n", devname);
+-				continue;
+-			}
+-			if (ret) {
+-				log_err("ERROR: failure to add disk device %s, r = %lu\n",
+-					devname, ret & ~EFI_ERROR_MASK);
+-				return ret;
+-			}
+-			disks++;
+-
+-			/* Partitions show up as block devices in EFI */
+-			disks += efi_disk_create_partitions
+-						(&disk->header, desc,
+-						 if_typename, i, devname);
+-		}
++	/* Add block device for the full device */
++	ret = device_probe(dev);
++	if (ret)
++		return EFI_NOT_FOUND;
++	log_info("Scanning disk %s...\n", dev->name);
++	ret = efi_disk_add_dev(NULL, NULL, if_typename,
++				desc, desc->devnum, NULL, 0, &disk);
++	if (ret == EFI_NOT_READY) {
++		log_notice("Disk %s not ready\n", dev->name);
++		return ret;
++	} else if (ret != EFI_SUCCESS) {
++		log_err("ERROR: failure to add disk device %s, r = %lu\n",
++			dev->name, ret & ~EFI_ERROR_MASK);
++		return ret;
+ 	}
+-#endif
+-	log_info("Found %d disks\n", disks);
+ 
+-	return EFI_SUCCESS;
++	/* Partitions show up as block devices in EFI */
++	efi_disk_create_partitions(&disk->header, desc, if_typename,
++				   desc->devnum, dev->name);
++	return ret;
+ }
+ 
+ /**
+diff --git a/lib/efi_loader/efi_setup.c b/lib/efi_loader/efi_setup.c
+index 3c5cf9a435..74c3696111 100644
+--- a/lib/efi_loader/efi_setup.c
++++ b/lib/efi_loader/efi_setup.c
+@@ -196,11 +196,6 @@ efi_status_t efi_init_obj_list(void)
+ 	if (ret != EFI_SUCCESS)
+ 		goto out;
+ 
+-#ifdef CONFIG_PARTITIONS
+-	ret = efi_disk_register();
+-	if (ret != EFI_SUCCESS)
+-		goto out;
+-#endif
+ 	if (IS_ENABLED(CONFIG_EFI_RNG_PROTOCOL)) {
+ 		ret = efi_rng_register();
+ 		if (ret != EFI_SUCCESS)
+-- 
+2.30.2
+
