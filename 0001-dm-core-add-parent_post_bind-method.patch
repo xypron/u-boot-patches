@@ -1,7 +1,7 @@
 From 11e91291b191519b753186caf0cf00b39b875b22 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 15 Jun 2021 08:45:26 +0200
-Subject: [PATCH 1/1] dm: core: add parent_post_bind() method
+Subject: [PATCH] dm: core: add parent_post_bind() method
 
 Some drivers set up the private or platform data only after children have
 been completed. The child devices may need access to this data to complete
