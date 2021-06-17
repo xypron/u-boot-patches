@@ -88,7 +88,6 @@ git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
 git am ../patch/0001-efidebug-correct-display-of-BootOrder.patch
 
 # efi-next
-git am ../patch/0001-dm-core-add-parent_post_bind-method.patch
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
 
 # GRUB
