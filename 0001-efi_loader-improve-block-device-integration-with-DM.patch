@@ -1,4 +1,4 @@
-From c12eb9cc2d879e0df67a954fcac31ba7eb96c0b1 Mon Sep 17 00:00:00 2001
+From 977a003d198473e59d64c80f6b3244fa46d8a56f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 17 Jun 2021 11:57:32 +0200
 Subject: [PATCH 1/1] efi_loader: improve block device integration with DM
@@ -9,7 +9,9 @@ sub-system initialization where not available for EFI applications.
 With the patch block devices are added to the UEFI object list whenever
 they are probed.
 
+Fixes: f3866909e350 ("distro_bootcmd: call EFI bootmgr even without having /EFI/boot")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Tested-by: Matwey V. Kornilov <matwey.kornilov@gmail.com>
 ---
  drivers/core/device.c               |  7 +++
  include/efi_loader.h                |  6 +++

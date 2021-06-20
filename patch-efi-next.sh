@@ -82,6 +82,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc5-2
 # doc:
+git am ../patch/0001-doc-usage-cmd-usage-help-file-for-askenv.patch
 
 # EFI:
 git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
