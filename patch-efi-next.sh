@@ -87,6 +87,7 @@ git am ../patch/0001-doc-usage-cmd-usage-help-file-for-askenv.patch
 # EFI:
 git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
 git am ../patch/0001-efidebug-correct-display-of-BootOrder.patch
+git am ../patch/0001-smbios-Fix-BIOS-Characteristics-Extension-Byte-2.patch
 
 # efi-next
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
