@@ -1,4 +1,4 @@
-From 977a003d198473e59d64c80f6b3244fa46d8a56f Mon Sep 17 00:00:00 2001
+From 82d7ef01271f4f2738bd09cfbf63f316b5c46c8e Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Thu, 17 Jun 2021 11:57:32 +0200
 Subject: [PATCH 1/1] efi_loader: improve block device integration with DM
@@ -11,16 +11,38 @@ they are probed.
 
 Fixes: f3866909e350 ("distro_bootcmd: call EFI bootmgr even without having /EFI/boot")
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Tested-by: Matwey V. Kornilov <matwey.kornilov@gmail.com>
 ---
+ drivers/core/device-remove.c        |  4 ++
  drivers/core/device.c               |  7 +++
- include/efi_loader.h                |  6 +++
+ include/efi_loader.h                | 11 ++++
  lib/efi_driver/Makefile             |  1 +
- lib/efi_driver/efi_dm_integration.c | 36 +++++++++++++++
- lib/efi_loader/efi_disk.c           | 72 +++++++++++++++++------------
- 5 files changed, 93 insertions(+), 29 deletions(-)
+ lib/efi_driver/efi_dm_integration.c | 58 ++++++++++++++++++++
+ lib/efi_loader/efi_disk.c           | 83 +++++++++++++++++++----------
+ 6 files changed, 135 insertions(+), 29 deletions(-)
  create mode 100644 lib/efi_driver/efi_dm_integration.c
 
+diff --git a/drivers/core/device-remove.c b/drivers/core/device-remove.c
+index 11d3959d20..3ba7ca1b11 100644
+--- a/drivers/core/device-remove.c
++++ b/drivers/core/device-remove.c
+@@ -19,6 +19,7 @@
+ #include <dm/uclass.h>
+ #include <dm/uclass-internal.h>
+ #include <dm/util.h>
++#include <efi_loader.h>
+ #include <power-domain.h>
+ #include <asm/global_data.h>
+ 
+@@ -205,6 +206,9 @@ int device_remove(struct udevice *dev, uint flags)
+ 
+ 	if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
+ 		return 0;
++	
++	if (efi_pre_remove_device(dev))
++		return ret;
+ 
+ 	/*
+ 	 * If the child returns EKEYREJECTED, continue. It just means that it
 diff --git a/drivers/core/device.c b/drivers/core/device.c
 index cb960f8ec4..7355a5c2a9 100644
 --- a/drivers/core/device.c
@@ -47,7 +69,7 @@ index cb960f8ec4..7355a5c2a9 100644
  fail_uclass:
  	if (device_remove(dev, DM_REMOVE_NORMAL)) {
 diff --git a/include/efi_loader.h b/include/efi_loader.h
-index 0a9c82a257..78dd687913 100644
+index 0a9c82a257..9ff3b8ea63 100644
 --- a/include/efi_loader.h
 +++ b/include/efi_loader.h
 @@ -17,6 +17,7 @@
@@ -58,22 +80,27 @@ index 0a9c82a257..78dd687913 100644
  
  static inline int guidcmp(const void *g1, const void *g2)
  {
-@@ -28,6 +29,9 @@ static inline void *guidcpy(void *dst, const void *src)
+@@ -28,6 +29,12 @@ static inline void *guidcpy(void *dst, const void *src)
  	return memcpy(dst, src, sizeof(efi_guid_t));
  }
  
 +/* Called by device_probe() */
 +int efi_post_probe_device(struct udevice *dev);
 +
++/* Called by device_remove() */
++int efi_pre_remove_device(struct udevice *dev);
++
  /* No need for efi loader support in SPL */
  #if CONFIG_IS_ENABLED(EFI_LOADER)
  
-@@ -420,6 +424,8 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
+@@ -420,6 +427,10 @@ efi_status_t EFIAPI efi_convert_pointer(efi_uintn_t debug_disposition,
  void efi_carve_out_dt_rsv(void *fdt);
  /* Called by bootefi to make console interface available */
  efi_status_t efi_console_register(void);
 +/* Called when a block devices has been probed */
 +efi_status_t efi_block_device_register(struct udevice *dev);
++/* Called before a block devices is removed */
++efi_status_t efi_block_device_remove(struct udevice *dev);
  /* Called by bootefi to make all disk storage accessible as EFI objects */
  efi_status_t efi_disk_register(void);
  /* Called by efi_init_obj_list() to install EFI_RNG_PROTOCOL */
@@ -91,10 +118,10 @@ index 83baa1c9a4..f0d5fa5074 100644
  obj-y += efi_block_device.o
 diff --git a/lib/efi_driver/efi_dm_integration.c b/lib/efi_driver/efi_dm_integration.c
 new file mode 100644
-index 0000000000..9c6c339473
+index 0000000000..e91bde07a5
 --- /dev/null
 +++ b/lib/efi_driver/efi_dm_integration.c
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,58 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * Copyright 2021, Heinrich Schuchardt <xypron.glpk@gmx.de>
@@ -131,8 +158,30 @@ index 0000000000..9c6c339473
 +
 +	return 0;
 +}
++
++/**
++ * efi_pre_remove_device() - remove handle of device
++ *
++ * @dev:	device to remove
++ * Return:	0 on success
++ */
++int efi_pre_remove_device(struct udevice *dev)
++{
++	if (!dev || !dev->uclass)
++		return -EINVAL;
++
++	switch (dev->uclass->uc_drv->id) {
++	case UCLASS_BLK:
++		if (efi_block_device_remove(dev) != EFI_SUCCESS)
++			log_err("Failed to remove %s\n", dev->name);
++	default:
++		break;
++	}
++
++	return 0;
++}
 diff --git a/lib/efi_loader/efi_disk.c b/lib/efi_loader/efi_disk.c
-index 988907ecb9..b798cab345 100644
+index 988907ecb9..81a331adb1 100644
 --- a/lib/efi_loader/efi_disk.c
 +++ b/lib/efi_loader/efi_disk.c
 @@ -10,6 +10,7 @@
@@ -143,10 +192,21 @@ index 988907ecb9..b798cab345 100644
  #include <efi_loader.h>
  #include <fs.h>
  #include <log.h>
-@@ -535,6 +536,41 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+@@ -535,6 +536,52 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
  	return disks;
  }
  
++/**
++ * efi_block_device_remove() - remove a block device from the UEFI sub-system
++ *
++ * @dev:	block device
++ * Return:	status code
++ */
++efi_status_t efi_block_device_remove(struct udevice *dev)
++{
++	return EFI_SUCCESS;
++}
++
 +/**
 + * efi_block_device_register() - register a block device in the UEFI sub-system
 + *
@@ -185,7 +245,7 @@ index 988907ecb9..b798cab345 100644
  /**
   * efi_disk_register() - register block devices
   *
-@@ -552,38 +588,16 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
+@@ -552,38 +599,16 @@ int efi_disk_create_partitions(efi_handle_t parent, struct blk_desc *desc,
   */
  efi_status_t efi_disk_register(void)
  {
@@ -230,7 +290,7 @@ index 988907ecb9..b798cab345 100644
  	int i, if_type;
  
  	/* Search for all available disk devices */
-@@ -630,8 +644,8 @@ efi_status_t efi_disk_register(void)
+@@ -630,8 +655,8 @@ efi_status_t efi_disk_register(void)
  						 if_typename, i, devname);
  		}
  	}
