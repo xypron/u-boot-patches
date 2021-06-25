@@ -37,7 +37,7 @@ index 11d3959d20..3ba7ca1b11 100644
  
  	if (!(dev_get_flags(dev) & DM_FLAG_ACTIVATED))
  		return 0;
-+	
++
 +	if (efi_pre_remove_device(dev))
 +		return ret;
  
