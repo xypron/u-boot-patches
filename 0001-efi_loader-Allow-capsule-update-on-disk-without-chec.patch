@@ -1,4 +1,4 @@
-From ce69c8ca210f5bd5ef0ef432578cc3f5eb62deb6 Mon Sep 17 00:00:00 2001
+From b7cf009419da827627bfa68f7718481b9db75813 Mon Sep 17 00:00:00 2001
 From: apalos <ilias.apalodimas@linaro.org>
 Date: Tue, 29 Jun 2021 07:55:51 +0300
 Subject: [PATCH 1/1] efi_loader: Allow capsule update on-disk without checking
@@ -11,29 +11,31 @@ In order to perform the capsule update on-disk the spec says that the OS
 must copy the capsule to the \EFI\UpdateCapsule directory and set a bit in
 the OsIndications variable.  The firmware then checks for the
 EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED bit in OsIndications
-variable, which is set by submitter to trigger processing of the capsule
-on next reboot.
+variable, which is set by the submitter to trigger processing of the
+capsule on the next reboot.
 
-Let's add a config option which ignores the bit checking in OsIndications
-and just rely on the capsule being present.  Since U-Boot deletes the
-capsule while processing it, we won't end up running it multiple times.
+Let's add a config option which ignores the bit and just relies on the
+capsule being present. Since U-Boot deletes the capsule while processing
+it, we won't end up applying it multiple times.
 
-Note that this is allowed for all capsules.  In the future once,
-authenticated capsules is fully supported, we can limit the functionality
+Note that this is allowed for all capsules. In the future, once
+authenticated capsules are fully supported, we can limit the functionality
 to those only.
 
 Signed-off-by: apalos <ilias.apalodimas@linaro.org>
+
+Reword Kconfig description.
 Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/Kconfig       |  9 +++++++++
+ lib/efi_loader/Kconfig       | 10 ++++++++++
  lib/efi_loader/efi_capsule.c | 36 ++++++++++++++++++++++++++++--------
- 2 files changed, 37 insertions(+), 8 deletions(-)
+ 2 files changed, 38 insertions(+), 8 deletions(-)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 6242caceb7..6f5a408f8d 100644
+index 6242caceb7..b2ab48a048 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -137,6 +137,15 @@ config EFI_CAPSULE_ON_DISK
+@@ -137,6 +137,16 @@ config EFI_CAPSULE_ON_DISK
  	  under a specific directory on UEFI system partition instead of
  	  via UpdateCapsule API.
  
@@ -42,18 +44,19 @@ index 6242caceb7..6f5a408f8d 100644
 +	depends on EFI_CAPSULE_ON_DISK
 +	default n
 +	help
-+	  There are boards were we can't support SetVariable at runtime.
-+	  Select this option if you want to use capsule-on-disk feature,
-+	  without setting the OsIndications bit.
++	  There are boards where U-Boot does not support SetVariable at runtime.
++	  Select this option if you want to use the capsule-on-disk feature
++	  without setting the EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED
++	  flag in variable OsIndications.
 +
  config EFI_CAPSULE_ON_DISK_EARLY
  	bool "Initiate capsule-on-disk at U-Boot boottime"
  	depends on EFI_CAPSULE_ON_DISK
 diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
-index f7c0c5725f..c4b9ff48bd 100644
+index 60309d4a07..2c37a0d97b 100644
 --- a/lib/efi_loader/efi_capsule.c
 +++ b/lib/efi_loader/efi_capsule.c
-@@ -972,6 +972,33 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
+@@ -948,6 +948,33 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
  	return ret;
  }
  
@@ -87,7 +90,7 @@ index f7c0c5725f..c4b9ff48bd 100644
  /**
   * efi_launch_capsule - launch capsules
   *
-@@ -982,20 +1009,13 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
+@@ -958,20 +985,13 @@ efi_status_t __weak arch_efi_load_capsule_drivers(void)
   */
  efi_status_t efi_launch_capsules(void)
  {
