@@ -1,0 +1,87 @@
+From 5818eba0bcddcbae4528fb06b00c5afcc84f46c5 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Tue, 29 Jun 2021 09:07:10 +0200
+Subject: [PATCH 1/1] efi_loader: fix set_capsule_result()
+
+The log category must be LOG_CATEGORY LOGC_EFI.
+
+efi_set_variable() should be called with EFI_CALL(). Use
+efi_set_variable_int() instead.
+
+A log text "Updating ..." if SetVariable() fails does not make sense for a
+variable that is not required to be preexisting.
+
+Flag EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED must be reset in
+variable OsIndications.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_capsule.c | 38 +++++++++++++++++++++++++++++-------
+ 1 file changed, 31 insertions(+), 7 deletions(-)
+
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index 60309d4a07..f7c0c5725f 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -6,6 +6,8 @@
+  *			Author: AKASHI Takahiro
+  */
+ 
++#define LOG_CATEGORY LOGC_EFI
++
+ #include <common.h>
+ #include <efi_loader.h>
+ #include <efi_variable.h>
+@@ -84,6 +86,8 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
+ 	struct efi_capsule_result_variable_header result;
+ 	struct efi_time time;
+ 	efi_status_t ret;
++	efi_uintn_t size;
++	u64 os_indications;
+ 
+ 	efi_create_indexed_name(variable_name16, sizeof(variable_name16),
+ 				"Capsule", index);
+@@ -95,13 +99,33 @@ void set_capsule_result(int index, struct efi_capsule_header *capsule,
+ 	else
+ 		memset(&result.capsule_processed, 0, sizeof(time));
+ 	result.capsule_status = return_status;
+-	ret = efi_set_variable(variable_name16, &efi_guid_capsule_report,
+-			       EFI_VARIABLE_NON_VOLATILE |
+-			       EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-			       EFI_VARIABLE_RUNTIME_ACCESS,
+-			       sizeof(result), &result);
+-	if (ret)
+-		log_err("EFI: creating %ls failed\n", variable_name16);
++	ret = efi_set_variable_int(variable_name16, &efi_guid_capsule_report,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   sizeof(result), &result, false);
++	if (ret != EFI_SUCCESS)
++		log_err("Setting %ls failed\n", variable_name16);
++
++	if (return_status != EFI_SUCCESS)
++		return;
++
++	size = sizeof(os_indications);
++	ret = efi_get_variable_int(L"OsIndications", &efi_global_variable_guid,
++				   NULL, &size, &os_indications, NULL);
++	if (ret != EFI_SUCCESS)
++		os_indications = 0;
++	else
++		os_indications &=
++			~EFI_OS_INDICATIONS_FILE_CAPSULE_DELIVERY_SUPPORTED;
++	ret = efi_set_variable_int(L"OsIndications", &efi_global_variable_guid,
++				   EFI_VARIABLE_NON_VOLATILE |
++				   EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				   EFI_VARIABLE_RUNTIME_ACCESS,
++				   sizeof(os_indications), &os_indications,
++				   false);
++	if (ret != EFI_SUCCESS)
++		log_err("Setting %ls failed\n", L"OsIndications");
+ }
+ 
+ #ifdef CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT
+-- 
+2.30.2
+

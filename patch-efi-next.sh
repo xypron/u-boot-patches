@@ -89,6 +89,7 @@ git am ../patch/0001-smbios-Fix-SMBIOS-tables.patch
 
 # efi-next
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
+git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
 
 # GRUB
 git am ../patch/0001-efi_loader-add-Linux-magic-to-RISC-V-crt0.patch
