@@ -88,6 +88,7 @@ git am ../patch/0001-smbios-Fix-BIOS-Characteristics-Extension-Byte-2.patch
 git am ../patch/0001-smbios-Fix-SMBIOS-tables.patch
 
 # efi-next
+git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
 git am ../patch/0001-efi_loader-missing-parentheses-in-query_console_size.patch
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
