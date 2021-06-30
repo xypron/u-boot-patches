@@ -1,0 +1,45 @@
+From 2236424a0cc1a959b9a165ccf9253cc716c42fb2 Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Date: Thu, 1 Jul 2021 00:49:48 +0900
+Subject: [PATCH 1/1] efi_loader: Improve the parameter check for
+ QueryVariableInfo()
+
+Improve efi_query_variable_info() to check the parameter settings and
+return correct error code according to the UEFI Specification 2.9,
+and the Self Certification Test (SCT) II Case Specification, June
+2017, chapter 4.1.4 QueryVariableInfo().
+
+Reported-by: Kazuhiko Sakamoto <sakamoto.kazuhiko@socionext.com>
+Signed-off-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ lib/efi_loader/efi_var_common.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/lib/efi_loader/efi_var_common.c b/lib/efi_loader/efi_var_common.c
+index 83479dd142..3d92afe2eb 100644
+--- a/lib/efi_loader/efi_var_common.c
++++ b/lib/efi_loader/efi_var_common.c
+@@ -163,6 +163,19 @@ efi_status_t EFIAPI efi_query_variable_info(
+ 	EFI_ENTRY("%x %p %p %p", attributes, maximum_variable_storage_size,
+ 		  remaining_variable_storage_size, maximum_variable_size);
+ 
++	if (!maximum_variable_storage_size ||
++	    !remaining_variable_storage_size ||
++	    !maximum_variable_size ||
++	    !(attributes & EFI_VARIABLE_BOOTSERVICE_ACCESS))
++		return EFI_EXIT(EFI_INVALID_PARAMETER);
++
++	if ((attributes & ~(u32)EFI_VARIABLE_MASK) ||
++	    (attributes & EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS) ||
++	    (attributes & EFI_VARIABLE_HARDWARE_ERROR_RECORD) ||
++	    (!IS_ENABLED(CONFIG_EFI_SECURE_BOOT) &&
++	     (attributes & EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS)))
++		return EFI_EXIT(EFI_UNSUPPORTED);
++
+ 	ret = efi_query_variable_info_int(attributes,
+ 					  maximum_variable_storage_size,
+ 					  remaining_variable_storage_size,
+-- 
+2.30.2
+

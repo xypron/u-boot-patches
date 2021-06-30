@@ -82,6 +82,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # EFI:
 
 # efi-next
+git am ../patch/0001-efi_loader-Improve-the-parameter-check-for-QueryVari.patch
 git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
 git am ../patch/0001-efi_loader-clear-OsIndications.patch
