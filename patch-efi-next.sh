@@ -84,6 +84,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # efi-next
 git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
+git am ../patch/0001-efi_loader-clear-OsIndications.patch
 git am ../patch/0001-efi_loader-missing-parentheses-in-query_console_size.patch
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
 
