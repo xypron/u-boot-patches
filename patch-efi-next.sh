@@ -14,7 +14,6 @@ git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
 git am ../patch/0001-test-NULL-dereference-in-test-uclass.patch
-git am ../patch/0001-smbios-convert-function-descriptions-to-Sphinx-style.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -79,13 +78,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-07-rc5-2
 # doc:
-git am ../patch/0001-doc-usage-cmd-usage-help-file-for-askenv.patch
 
 # EFI:
-git am ../patch/0001-efi_loader-TPL_HIGH_LEVEL-not-allowed-for-CreateEven.patch
-git am ../patch/0001-efidebug-correct-display-of-BootOrder.patch
-git am ../patch/0001-smbios-Fix-BIOS-Characteristics-Extension-Byte-2.patch
-git am ../patch/0001-smbios-Fix-SMBIOS-tables.patch
 
 # efi-next
 git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
