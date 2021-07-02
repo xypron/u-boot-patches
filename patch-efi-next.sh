@@ -76,17 +76,20 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc5-2
+# efi-2021-07-rc6
 # doc:
 
 # EFI:
+git am ../patch/0001-efi-Fix-to-use-null-handle-to-create-new-handle-for-.patch
+git am ../patch/0001-efi_loader-Force-a-single-FMP-instance-per-hardware-.patch
+git am ../patch/0001-efi_loader-Always-install-FMPs.patch
+git am ../patch/0001-efi_loader-missing-parentheses-in-query_console_size.patch
+git am ../patch/0001-efi_loader-Improve-the-parameter-check-for-QueryVari.patch
+git am ../patch/0001-efi_loader-clear-OsIndications.patch
+git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
 
 # efi-next
-git am ../patch/0001-efi_loader-Improve-the-parameter-check-for-QueryVari.patch
-git am ../patch/0001-efi_loader-Allow-capsule-update-on-disk-without-chec.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
-git am ../patch/0001-efi_loader-clear-OsIndications.patch
-git am ../patch/0001-efi_loader-missing-parentheses-in-query_console_size.patch
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
 
 # GRUB
