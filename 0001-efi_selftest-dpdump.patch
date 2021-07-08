@@ -1,4 +1,4 @@
-From bf5c1e809a7d587b367555aa65e42cc5ca1656b9 Mon Sep 17 00:00:00 2001
+From d7f794552f8a37ad1ebc1f545978830eaafa7b7f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Tue, 8 Jun 2021 07:28:15 +0200
 Subject: [PATCH 1/1] efi_selftest: dpdump
@@ -8,8 +8,8 @@ Provide a test program to print out all device paths.
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
  lib/efi_selftest/Makefile |   4 ++
- lib/efi_selftest/dpdump.c | 143 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 147 insertions(+)
+ lib/efi_selftest/dpdump.c | 133 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 137 insertions(+)
  create mode 100644 lib/efi_selftest/dpdump.c
 
 diff --git a/lib/efi_selftest/Makefile b/lib/efi_selftest/Makefile
@@ -36,25 +36,15 @@ index 9ff6e1760c..f79ccf5191 100644
  endif
 diff --git a/lib/efi_selftest/dpdump.c b/lib/efi_selftest/dpdump.c
 new file mode 100644
-index 0000000000..4039ebd632
+index 0000000000..138c83118a
 --- /dev/null
 +++ b/lib/efi_selftest/dpdump.c
-@@ -0,0 +1,143 @@
+@@ -0,0 +1,133 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
-+ * Hello world EFI application
++ * Copyright 2021, Heinrich Schuchardt <xypron.glpk@gmx.de>
 + *
-+ * Copyright 2020, Heinrich Schuchardt <xypron.glpk@gmx.de>
-+ *
-+ * This test program is used to test the invocation of an EFI application.
-+ * It writes
-+ *
-+ * * a greeting
-+ * * the firmware's UEFI version
-+ * * the installed configuration tables
-+ * * the boot device's device path and the file path
-+ *
-+ * to the console.
++ * dpdump.efi writes all UEFI device paths to the console.
 + */
 +
 +#include <efi_api.h>

@@ -76,12 +76,13 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # UEFI
-# efi-2021-07-rc6
+# efi-2021-10-rc1
 # doc:
+git am ../patch/0001-doc-fix-typo-in-signature.txt.patch
 
 # EFI:
-
-# efi-next
+git am ../patch/0001-fs-fat-add-file-attributes-to-struct-fs_dirent.patch
+git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
 
@@ -96,9 +97,6 @@ git am ../patch/0001-test-revert-Don-t-unmount-not-yet-mounted-system.patch
 git am ../patch/0001-test-sync-before-unmount.patch
 git am ../patch/0001-lib-move-rtc-lib.c-to-lib.patch
 git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
-git am ../patch/0001-fs-squashfs-zero-out-unused-fields-in-fs_dirent.patch
-git am ../patch/0001-fs-fat-add-file-attributes-to-struct-fs_dirent.patch
-git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
 git am ../patch/0001-fs-fat-allow-retrieving-a-dent-for-a-directory.patch 
 git am ../patch/0001-fs-fat-carve-out-fat_open.patch
 git am ../patch/0001-fs-fat-simplify-write-functions.patch
@@ -111,7 +109,7 @@ git am ../patch/0001-efi_loader-rework-efi_console_register.patch
 
 # git am ../patch/0001-efi_loader-size-check-if-EFI_DT_INSTALL_TABLE.patch
 
-# efi-2021-04-rc5
+# efi-2021-10-rc1
 #git am ../patch/0001-efi_loader-update-system-table-in-SetVirtualAddressM.patch
 
 #git am ../patch/0001-efi_loader-always-install-firmware-management-protoc.patch
