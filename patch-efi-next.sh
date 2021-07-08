@@ -82,6 +82,7 @@ git am ../patch/0001-doc-fix-typo-in-signature.txt.patch
 
 # EFI:
 git am ../patch/0001-fs-fat-add-file-attributes-to-struct-fs_dirent.patch
+git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
 git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
 git am ../patch/0001-efi_loader-fix-set_capsule_result.patch
 
