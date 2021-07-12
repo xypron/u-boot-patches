@@ -87,6 +87,7 @@ git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
 git am ../patch/0001-efi_loader-rework-messages-for-capsule-updates.patch
 git am ../patch/0001-efi_loader-missing-EFI_CALL-in-set_capsule_result.patch
 git am ../patch/0001-efi_loader-set-CapsuleLast-after-each-capsule.patch
+git am ../patch/0001-efi_loader-Fix-to-set-bootdev_root-correctly-if-boot.patch
 
 # DM integration
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
