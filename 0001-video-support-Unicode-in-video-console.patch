@@ -19,7 +19,7 @@ index 64bdc98eb6..d5095f69e0 100644
 --- a/drivers/video/vidconsole-uclass.c
 +++ b/drivers/video/vidconsole-uclass.c
 @@ -8,6 +8,7 @@
-  */
+ #define LOG_CATEGORY UCLASS_VIDEO_CONSOLE
  
  #include <common.h>
 +#include <charset.h>

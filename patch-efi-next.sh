@@ -57,9 +57,6 @@ git am ../patch/0001-mtd-cfi_flash-read-device-tree-correctly.patch
 # Sandbox
 # git am ../patch/0001-configs-sandbox-enable-CONFIG_CMD_BOOTEFI_SELFTEST.patch
 git am ../patch/0001-sandbox-add-missing-definitions-for-flash-drivers.patch
-git am ../patch/0001-sandbox-ensure-that-state-ram_buf-is-in-low-memory.patch
-git am ../patch/0001-sandbox-fix-sandbox_reset.patch
-git am ../patch/0001-sandbox-don-t-refer-to-symbol-_init.patch
 
 # Video
 git am ../patch/0001-video-add-DejaVu-Mono-font.patch
