@@ -75,16 +75,8 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # UEFI
 # efi-2021-10-rc1
 # doc:
-git am ../patch/0001-doc-fix-typo-in-signature.txt.patch
 
 # EFI:
-git am ../patch/0001-fs-fat-add-file-attributes-to-struct-fs_dirent.patch
-git am ../patch/0001-lib-remove-superfluous-ifdefs-from-date.c.patch
-git am ../patch/0001-efi_loader-provide-file-attributes-in-EFI_FILE_PROTO.patch
-git am ../patch/0001-efi_loader-rework-messages-for-capsule-updates.patch
-git am ../patch/0001-efi_loader-missing-EFI_CALL-in-set_capsule_result.patch
-git am ../patch/0001-efi_loader-set-CapsuleLast-after-each-capsule.patch
-git am ../patch/0001-efi_loader-Fix-to-set-bootdev_root-correctly-if-boot.patch
 
 # DM integration
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
