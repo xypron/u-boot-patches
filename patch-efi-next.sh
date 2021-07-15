@@ -78,6 +78,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
 # EFI:
 
+exit
 # DM integration
 git am ../patch/0001-efi_loader-improve-block-device-integration-with-DM.patch
 
