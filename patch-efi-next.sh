@@ -77,6 +77,7 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 
 # EFI:
+git am ../patch/0001-efi_loader-set-partition-GUID-in-device-path-for-SIG.patch
 
 exit
 # DM integration
