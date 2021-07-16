@@ -1,0 +1,48 @@
+From e30c781c81737d1b4faa2ab0ac468f718533536e Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Fri, 16 Jul 2021 23:14:44 +0200
+Subject: [PATCH 1/1] configs: raise MAIX SYS_TEXT_BASE
+
+Builds of current OpenSBI for the Kendryte K210 use the region
+0x80015000 - 8003539f. Building with FW_PAYLOAD_OFFSET=0x20000
+fails with
+
+/usr/riscv64-linux-gnu/bin/ld.bfd: section .payload VMA
+[0000000080020000,0000000080085d07] overlaps section
+.bss VMA [0000000080015000,000000008003539f]
+
+Move U-Boot to 80040000.
+
+Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+---
+ configs/sipeed_maix_smode_defconfig | 2 +-
+ doc/board/sipeed/maix.rst           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configs/sipeed_maix_smode_defconfig b/configs/sipeed_maix_smode_defconfig
+index c20c389cac..19461a7751 100644
+--- a/configs/sipeed_maix_smode_defconfig
++++ b/configs/sipeed_maix_smode_defconfig
+@@ -1,5 +1,5 @@
+ CONFIG_RISCV=y
+-CONFIG_SYS_TEXT_BASE=0x80020000
++CONFIG_SYS_TEXT_BASE=0x80040000
+ CONFIG_ENV_SIZE=0x1000
+ CONFIG_ENV_OFFSET=0xfff000
+ CONFIG_ENV_SECT_SIZE=0x1000
+diff --git a/doc/board/sipeed/maix.rst b/doc/board/sipeed/maix.rst
+index ef79297ef0..c89c57c5dd 100644
+--- a/doc/board/sipeed/maix.rst
++++ b/doc/board/sipeed/maix.rst
+@@ -93,7 +93,7 @@ The OpenSBI source can be downloaded via:
+ As OpenSBI will be loaded at 0x80000000 we have to adjust the U-Boot text base.
+ Furthermore we have to enable building U-Boot for S-mode::
+ 
+-    CONFIG_SYS_TEXT_BASE=0x80020000
++    CONFIG_SYS_TEXT_BASE=0x80040000
+     CONFIG_RISCV_SMODE=y
+ 
+ Both settings are contained in sipeed_maix_smode_defconfig so we can build
+-- 
+2.30.2
+
