@@ -1,7 +1,7 @@
-From aea5ebc96b1c349e67cdcaca352066daef4bda91 Mon Sep 17 00:00:00 2001
+From 7b3a24e6dd66138f1d570a8e799ad1ad4e029889 Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Sun, 18 Jul 2021 11:13:02 +0200
-Subject: [PATCH 1/1] efi_loader: select GPT partition support
+Subject: [PATCH] efi_loader: select GPT partition support
 
 The UEFI specification requires support for GPT partition tables.
 The device path node of GPT partition uses the partition UUID.
@@ -11,23 +11,28 @@ settings.
 
 Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
 ---
- lib/efi_loader/Kconfig | 3 +++
- 1 file changed, 3 insertions(+)
+ lib/efi_loader/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
-index 156b391521..c4741ffec1 100644
+index 156b391521..5e543fc959 100644
 --- a/lib/efi_loader/Kconfig
 +++ b/lib/efi_loader/Kconfig
-@@ -12,6 +12,9 @@ config EFI_LOADER
+@@ -6,12 +6,14 @@ config EFI_LOADER
+ 			SYS_CPU = armv7   || \
+ 			SYS_CPU = armv8)  || \
+ 		X86 || RISCV || SANDBOX)
++	depends on EFI_PARTITION
+ 	# We need EFI_STUB_64BIT to be set on x86_64 with EFI_STUB
+ 	depends on !EFI_STUB || !X86_64 || EFI_STUB_64BIT
+ 	# We need EFI_STUB_32BIT to be set on x86_32 with EFI_STUB
  	depends on !EFI_STUB || !X86 || X86_64 || EFI_STUB_32BIT
  	default y if !ARM || SYS_CPU = armv7 || SYS_CPU = armv8
  	select LIB_UUID
-+	select PARTITIONS
-+	select EFI_PARTITION
 +	select PARTITION_UUIDS
  	select HAVE_BLOCK_DEVICE
  	select REGEX
  	imply CFB_CONSOLE_ANSI
 -- 
-2.32.0
+2.30.2
 
