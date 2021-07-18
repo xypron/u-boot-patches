@@ -1,18 +1,18 @@
-From a7f2a31d4f1c84befd5eb5d4575781c32bb9b3c7 Mon Sep 17 00:00:00 2001
+From c1f9294e8ded604a7c21b34af972548daa200b27 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Alfonso=20S=C3=A1nchez-Beato?=
  <alfonso.sanchez-beato@canonical.com>
-Date: Thu, 15 Jul 2021 11:19:59 +0200
-Subject: [PATCH] efi_loader: set partition GUID in device path for
+Date: Thu, 15 Jul 2021 15:31:42 +0200
+Subject: [PATCH 1/1] efi_loader: set partition GUID in device path for
  SIG_TYPE_GUID
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Previously, the GPT device GUID was being used instead of the paritition,
+Previously, the GPT device GUID was being used instead of the partition,
 which was incorrect.
 
-Signed-off-by: Alfonso Sanchez-Beato <alfonso.sanchez-beato@canonical.com>
-Reviewed-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Alfonso Sánchez-Beato <alfonso.sanchez-beato@canonical.com>
+Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 ---
  lib/efi_loader/efi_device_path.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)
