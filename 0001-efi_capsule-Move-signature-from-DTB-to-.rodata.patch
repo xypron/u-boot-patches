@@ -1,0 +1,222 @@
+From f66f911f591d5e7d5627ffb96dbecf317c2ebca1 Mon Sep 17 00:00:00 2001
+From: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Date: Sat, 17 Jul 2021 17:26:44 +0300
+Subject: [PATCH 1/1] efi_capsule: Move signature from DTB to .rodata
+
+The capsule signature is now part of our DTB.  This is problematic when a
+user is allowed to change/fixup that DTB from U-Boots command line since he
+can overwrite the signature as well.
+So Instead of adding the key on the DTB, embed it in the u-boot binary it
+self as part of it's .rodata.  This assumes that the U-Boot binary we load
+is authenticated by a previous boot stage loader.
+
+Reviewed-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Tested-by: Masami Hiramatsu <masami.hiramatsu@linaro.org>
+Tested-by: Sughosh Ganu <sughosh.ganu@linaro.org>
+Signed-off-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+---
+ board/emulation/common/Makefile       |  1 -
+ board/emulation/common/qemu_capsule.c | 43 ---------------------------
+ include/asm-generic/sections.h        |  2 ++
+ lib/efi_loader/Kconfig                |  7 +++++
+ lib/efi_loader/Makefile               |  8 +++++
+ lib/efi_loader/efi_capsule.c          | 18 +++++++++--
+ lib/efi_loader/efi_capsule_key.S      | 17 +++++++++++
+ 7 files changed, 49 insertions(+), 47 deletions(-)
+ delete mode 100644 board/emulation/common/qemu_capsule.c
+ create mode 100644 lib/efi_loader/efi_capsule_key.S
+
+diff --git a/board/emulation/common/Makefile b/board/emulation/common/Makefile
+index 7ed447a69d..c5b452e7e3 100644
+--- a/board/emulation/common/Makefile
++++ b/board/emulation/common/Makefile
+@@ -2,4 +2,3 @@
+ 
+ obj-$(CONFIG_SYS_MTDPARTS_RUNTIME) += qemu_mtdparts.o
+ obj-$(CONFIG_SET_DFU_ALT_INFO) += qemu_dfu.o
+-obj-$(CONFIG_EFI_CAPSULE_FIRMWARE_MANAGEMENT) += qemu_capsule.o
+diff --git a/board/emulation/common/qemu_capsule.c b/board/emulation/common/qemu_capsule.c
+deleted file mode 100644
+index 6b8a87022a..0000000000
+--- a/board/emulation/common/qemu_capsule.c
++++ /dev/null
+@@ -1,43 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- * Copyright (c) 2020 Linaro Limited
+- */
+-
+-#include <common.h>
+-#include <efi_api.h>
+-#include <efi_loader.h>
+-#include <env.h>
+-#include <fdtdec.h>
+-#include <asm/global_data.h>
+-
+-DECLARE_GLOBAL_DATA_PTR;
+-
+-int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
+-{
+-	const void *fdt_blob = gd->fdt_blob;
+-	const void *blob;
+-	const char *cnode_name = "capsule-key";
+-	const char *snode_name = "signature";
+-	int sig_node;
+-	int len;
+-
+-	sig_node = fdt_subnode_offset(fdt_blob, 0, snode_name);
+-	if (sig_node < 0) {
+-		EFI_PRINT("Unable to get signature node offset\n");
+-		return -FDT_ERR_NOTFOUND;
+-	}
+-
+-	blob = fdt_getprop(fdt_blob, sig_node, cnode_name, &len);
+-
+-	if (!blob || len < 0) {
+-		EFI_PRINT("Unable to get capsule-key value\n");
+-		*pkey = NULL;
+-		*pkey_len = 0;
+-		return -FDT_ERR_NOTFOUND;
+-	}
+-
+-	*pkey = (void *)blob;
+-	*pkey_len = len;
+-
+-	return 0;
+-}
+diff --git a/include/asm-generic/sections.h b/include/asm-generic/sections.h
+index 267f1db73f..ec992b0c2e 100644
+--- a/include/asm-generic/sections.h
++++ b/include/asm-generic/sections.h
+@@ -27,6 +27,8 @@ extern char __efi_helloworld_begin[];
+ extern char __efi_helloworld_end[];
+ extern char __efi_var_file_begin[];
+ extern char __efi_var_file_end[];
++extern char __efi_capsule_sig_begin[];
++extern char __efi_capsule_sig_end[];
+ 
+ /* Private data used by of-platdata devices/uclasses */
+ extern char __priv_data_start[], __priv_data_end[];
+diff --git a/lib/efi_loader/Kconfig b/lib/efi_loader/Kconfig
+index 20edac6932..1ce2d8cd42 100644
+--- a/lib/efi_loader/Kconfig
++++ b/lib/efi_loader/Kconfig
+@@ -213,6 +213,13 @@ config EFI_CAPSULE_AUTHENTICATE
+ 	  Select this option if you want to enable capsule
+ 	  authentication
+ 
++config EFI_CAPSULE_KEY_PATH
++	string "Path to .esl cert for capsule authentication"
++	depends on EFI_CAPSULE_AUTHENTICATE
++	help
++	  Provide the EFI signature list (esl) certificate used for capsule
++	  authentication
++
+ config EFI_DEVICE_PATH_TO_TEXT
+ 	bool "Device path to text protocol"
+ 	default y
+diff --git a/lib/efi_loader/Makefile b/lib/efi_loader/Makefile
+index fd344cea29..9b369430e2 100644
+--- a/lib/efi_loader/Makefile
++++ b/lib/efi_loader/Makefile
+@@ -20,11 +20,19 @@ always += helloworld.efi
+ targets += helloworld.o
+ endif
+ 
++ifeq ($(CONFIG_EFI_CAPSULE_AUTHENTICATE),y)
++EFI_CAPSULE_KEY_PATH := $(subst $\",,$(CONFIG_EFI_CAPSULE_KEY_PATH))
++ifeq ("$(wildcard $(EFI_CAPSULE_KEY_PATH))","")
++$(error .esl cerificate not found. Configure your CONFIG_EFI_CAPSULE_KEY_PATH)
++endif
++endif
++
+ obj-$(CONFIG_CMD_BOOTEFI_HELLO) += helloworld_efi.o
+ obj-$(CONFIG_CMD_BOOTEFI_BOOTMGR) += efi_bootmgr.o
+ obj-y += efi_boottime.o
+ obj-y += efi_helper.o
+ obj-$(CONFIG_EFI_HAVE_CAPSULE_SUPPORT) += efi_capsule.o
++obj-$(CONFIG_EFI_CAPSULE_AUTHENTICATE) += efi_capsule_key.o
+ obj-$(CONFIG_EFI_CAPSULE_FIRMWARE) += efi_firmware.o
+ obj-y += efi_console.o
+ obj-y += efi_device_path.o
+diff --git a/lib/efi_loader/efi_capsule.c b/lib/efi_loader/efi_capsule.c
+index a09c5705f1..f9b0ef591c 100644
+--- a/lib/efi_loader/efi_capsule.c
++++ b/lib/efi_loader/efi_capsule.c
+@@ -16,6 +16,7 @@
+ #include <mapmem.h>
+ #include <sort.h>
+ 
++#include <asm/sections.h>
+ #include <crypto/pkcs7.h>
+ #include <crypto/pkcs7_parser.h>
+ #include <linux/err.h>
+@@ -222,12 +223,23 @@ skip:
+ const efi_guid_t efi_guid_capsule_root_cert_guid =
+ 	EFI_FIRMWARE_MANAGEMENT_CAPSULE_ID_GUID;
+ 
++static int efi_get_public_key_data(void **pkey, efi_uintn_t *pkey_len)
++{
++	const void *blob = __efi_capsule_sig_begin;
++	const int len = __efi_capsule_sig_end - __efi_capsule_sig_begin;
++
++	*pkey = (void *)blob;
++	*pkey_len = len;
++
++	return 0;
++}
++
+ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_size,
+ 				      void **image, efi_uintn_t *image_size)
+ {
+ 	u8 *buf;
+ 	int ret;
+-	void *fdt_pkey, *pkey;
++	void *stored_pkey, *pkey;
+ 	efi_uintn_t pkey_len;
+ 	uint64_t monotonic_count;
+ 	struct efi_signature_store *truststore;
+@@ -286,7 +298,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
+ 		goto out;
+ 	}
+ 
+-	ret = efi_get_public_key_data(&fdt_pkey, &pkey_len);
++	ret = efi_get_public_key_data(&stored_pkey, &pkey_len);
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -294,7 +306,7 @@ efi_status_t efi_capsule_authenticate(const void *capsule, efi_uintn_t capsule_s
+ 	if (!pkey)
+ 		goto out;
+ 
+-	memcpy(pkey, fdt_pkey, pkey_len);
++	memcpy(pkey, stored_pkey, pkey_len);
+ 	truststore = efi_build_signature_store(pkey, pkey_len);
+ 	if (!truststore)
+ 		goto out;
+diff --git a/lib/efi_loader/efi_capsule_key.S b/lib/efi_loader/efi_capsule_key.S
+new file mode 100644
+index 0000000000..58f00b8e4b
+--- /dev/null
++++ b/lib/efi_loader/efi_capsule_key.S
+@@ -0,0 +1,17 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * .esl cert for capsule authentication
++ *
++ * Copyright (c) 2021, Ilias Apalodimas <ilias.apalodimas@linaro.org>
++ */
++
++#include <config.h>
++
++.section .rodata.capsule_key.init,"a"
++.balign 16
++.global __efi_capsule_sig_begin
++__efi_capsule_sig_begin:
++.incbin CONFIG_EFI_CAPSULE_KEY_PATH
++__efi_capsule_sig_end:
++.global __efi_capsule_sig_end
++.balign 16
+-- 
+2.30.2
+
