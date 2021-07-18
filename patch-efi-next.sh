@@ -80,7 +80,6 @@ git am ../patch/0001-trace-avoid-infinite-recursion.patch
 # doc:
 
 # EFI:
-git am ../patch/0001-efi_loader-select-GPT-partition-support.patch
 git am ../patch/0001-efi_loader-set-partition-GUID-in-device-path-for-SIG.patch
 git am ../patch/0001-efi_loader-Use-pD-to-log-device-path-instead-of-loca.patch
 git am ../patch/0001-efi_loader-increase-eventlog-buffer-size.patch
