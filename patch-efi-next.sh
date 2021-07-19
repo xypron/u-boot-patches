@@ -16,7 +16,7 @@ git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
 git am ../patch/0001-test-NULL-dereference-in-test-uclass.patch
 
 # MAIX
-0001-configs-raise-MAIX-SYS_TEXT_BASE.patch
+git am ../patch/0001-configs-raise-MAIX-SYS_TEXT_BASE.patch
 
 # Odroid HC4
 git am ../patch/0001-ARM-dts-add-Odroid-HC4-device-tree.patch
@@ -75,17 +75,11 @@ git am ../patch/0001-examples-do-not-build-standalone-applications-with-F.patch
 # TRACE
 git am ../patch/0001-trace-avoid-infinite-recursion.patch
 
-# UEFI
-# efi-2021-10-rc1
+# UEFI efi-2021-10-rc2
+
 # doc:
 
 # EFI:
-git am ../patch/0001-efi_loader-set-partition-GUID-in-device-path-for-SIG.patch
-git am ../patch/0001-efi_loader-Use-pD-to-log-device-path-instead-of-loca.patch
-git am ../patch/0001-efi_loader-increase-eventlog-buffer-size.patch
-git am ../patch/0001-efi_capsule-Move-signature-from-DTB-to-.rodata.patch
-git am ../patch/0001-mkeficapsule-Remove-dtb-related-options.patch
-git am ../patch/0001-doc-Update-CapsuleUpdate-READMEs.patch
 
 exit
 # DM integration
