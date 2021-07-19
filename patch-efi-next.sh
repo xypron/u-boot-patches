@@ -45,6 +45,10 @@ git am ../patch/0001-sysreset-provide-SBI-based-sysreset-driver.patch
 git am ../patch/0001-pinctrl-K210_PINCTRL-depends-on-REGMAP-and-on-SYSCON.patch
 git am ../patch/0001-maix-enable-SBI-system-reset-for-MAIX.patch
 
+# SBI
+git am ../patch/0001-riscv-provide-missing-base-extension-functions.patch
+git am ../patch/0001-cmd-sbi-add-missing-SBI-information.patch
+
 # git am ../patch/0001-m68k-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-microblaze-define-__raw_writeq-__raw_readq.patch
 # git am ../patch/0001-nds32-define-__raw_writeq-__raw_readq.patch
