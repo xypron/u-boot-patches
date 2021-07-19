@@ -1,0 +1,41 @@
+From f2df45b45b24126de0f4010d69d36a098235b681 Mon Sep 17 00:00:00 2001
+From: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Date: Mon, 19 Jul 2021 23:14:43 +0200
+Subject: [RFC 1/1] board: sifive: unmatched: use zero copy for initrd
+
+Booting Ubuntu Impish showed the following output:
+
+    relocaddr   = 0x00000000fff60000
+
+    Loading Ramdisk to fa118000, end fffff19d ...
+
+The initrd is overwriting the U-Boot binary. Booting fails.
+
+There is no need to copy the initrd from $ramdisk_addr_r.
+Set init_high = ~0UL to use zero copy.
+
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+---
+Generally copying to another memory location than $ramdisk_addr_r provides
+no benefit whatsoever.
+
+But we still should find out why the initrd relocation fails so badly.
+---
+ include/configs/sifive-unmatched.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/sifive-unmatched.h b/include/configs/sifive-unmatched.h
+index d63a5f62fb..8dcfffedbe 100644
+--- a/include/configs/sifive-unmatched.h
++++ b/include/configs/sifive-unmatched.h
+@@ -67,6 +67,7 @@
+ 	"scriptaddr=0x88100000\0" \
+ 	"pxefile_addr_r=0x88200000\0" \
+ 	"ramdisk_addr_r=0x88300000\0" \
++	"initrd_high=0xffffffffffffffff\0" \
+ 	"kernel_comp_addr_r=0x90000000\0" \
+ 	"kernel_comp_size=0x4000000\0" \
+ 	"type_guid_gpt_loader1=" TYPE_GUID_LOADER1 "\0" \
+-- 
+2.30.2
+

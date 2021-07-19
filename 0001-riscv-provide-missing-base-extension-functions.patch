@@ -1,7 +1,7 @@
-From 1deb22cbb6df092601d77540699a629f3a674e71 Mon Sep 17 00:00:00 2001
+From 754d37b2a1faa02e563f8878cbb95587e3fb2d0f Mon Sep 17 00:00:00 2001
 From: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Date: Mon, 19 Jul 2021 19:58:59 +0200
-Subject: [PATCH 1/1] riscv: provide missing base extension functions
+Subject: [PATCH] riscv: provide missing base extension functions
 
 Provide library functions to read:
 
@@ -10,17 +10,17 @@ Provide library functions to read:
 * machine architecture ID
 * machine implementation ID
 
-Signed-off-by: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
 ---
  arch/riscv/include/asm/sbi.h |  4 ++
- arch/riscv/lib/sbi.c         | 71 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 75 insertions(+)
+ arch/riscv/lib/sbi.c         | 72 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 76 insertions(+)
 
 diff --git a/arch/riscv/include/asm/sbi.h b/arch/riscv/include/asm/sbi.h
-index b702fca176..71d919b14a 100644
+index 53ca316180..262cc9228c 100644
 --- a/arch/riscv/include/asm/sbi.h
 +++ b/arch/riscv/include/asm/sbi.h
-@@ -149,7 +149,11 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
+@@ -117,6 +117,10 @@ void sbi_remote_sfence_vma_asid(const unsigned long *hart_mask,
  void sbi_set_timer(uint64_t stime_value);
  long sbi_get_spec_version(void);
  int sbi_get_impl_id(void);
@@ -29,14 +29,13 @@ index b702fca176..71d919b14a 100644
 +long sbi_get_mvendorid(void);
 +long sbi_get_marchid(void);
 +long sbi_get_mimpid(void);
- void sbi_srst_reset(unsigned long type, unsigned long reason);
  
  #endif
 diff --git a/arch/riscv/lib/sbi.c b/arch/riscv/lib/sbi.c
-index 8508041f2a..b7d8c37574 100644
+index 77845a73ca..d34444b389 100644
 --- a/arch/riscv/lib/sbi.c
 +++ b/arch/riscv/lib/sbi.c
-@@ -90,6 +90,23 @@ int sbi_get_impl_id(void)
+@@ -89,6 +89,23 @@ int sbi_get_impl_id(void)
  	return -ENOTSUPP;
  }
  
@@ -60,7 +59,7 @@ index 8508041f2a..b7d8c37574 100644
  /**
   * sbi_probe_extension() - Check if an SBI extension ID is supported or not.
   * @extid: The extension ID to be probed.
-@@ -109,6 +126,60 @@ int sbi_probe_extension(int extid)
+@@ -108,6 +125,61 @@ int sbi_probe_extension(int extid)
  	return -ENOTSUPP;
  }
  
@@ -118,9 +117,10 @@ index 8508041f2a..b7d8c37574 100644
 +	return -ENOTSUPP;
 +}
 +
++
+ #ifdef CONFIG_SBI_V01
+ 
  /**
-  * sbi_srst_reset() - invoke system reset extension
-  *
 -- 
 2.30.2
 

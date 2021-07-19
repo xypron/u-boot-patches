@@ -14,6 +14,7 @@ git am ../patch/0001-video-support-Unicode-in-video-console.patch
 git am ../patch/0001-configs-qemu-riscv64_spl_defconfig-enable-CMD_SBI.patch
 git am ../patch/0001-smbios-error-handling-for-invalid-addresses.patch
 git am ../patch/0001-test-NULL-dereference-in-test-uclass.patch
+git am ../patch/0001-board-sifive-unmatched-use-zero-copy-for-initrd.patch
 
 # MAIX
 git am ../patch/0001-configs-raise-MAIX-SYS_TEXT_BASE.patch
